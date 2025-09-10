@@ -101,7 +101,8 @@ app.post('/api/auth/login', async (req, res) => {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                avatar: user.avatar
             }
         });
 
@@ -131,8 +132,28 @@ const authenticateToken = (req, res, next) => {
 };
 
 // Rota para verificar token
-app.get('/api/auth/verify', authenticateToken, (req, res) => {
-    res.json({ valid: true, user: req.user });
+app.get('/api/auth/verify', authenticateToken, async (req, res) => {
+    try {
+        // Buscar dados completos do usuário do banco
+        const user = await User.findById(req.user.userId, { password: 0 });
+        if (!user) {
+            return res.status(404).json({ message: 'Usuário não encontrado' });
+        }
+        
+        res.json({ 
+            valid: true, 
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                avatar: user.avatar
+            }
+        });
+    } catch (error) {
+        console.error('Erro ao verificar token:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
 });
 
 // Rotas protegidas
