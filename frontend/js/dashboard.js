@@ -565,6 +565,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const cepInput = document.getElementById('empresa-cep');
         const cepContainer = cepInput.closest('.form-group');
         
+        // Salvar o valor original do CEP
+        const originalCepValue = cepInput.value;
+        
         try {
             // Mostrar loading visual
             cepInput.disabled = true;
@@ -576,7 +579,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (data.erro) {
                 showNotification('CEP não encontrado. Verifique o número digitado.', 'error');
-                cepInput.value = '';
+                cepInput.value = originalCepValue; // Restaurar valor original
                 cepInput.focus();
                 return;
             }
@@ -587,6 +590,9 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('empresa-cidade').value = data.localidade || '';
             document.getElementById('empresa-estado').value = data.uf || '';
 
+            // Restaurar o valor original do CEP (formatado)
+            cepInput.value = originalCepValue;
+
             // Focar no campo número
             document.getElementById('empresa-numero').focus();
 
@@ -595,7 +601,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Erro ao buscar CEP:', error);
             showNotification('Erro ao buscar CEP. Verifique sua conexão e tente novamente.', 'error');
-            cepInput.value = '';
+            cepInput.value = originalCepValue; // Restaurar valor original
             cepInput.focus();
         } finally {
             // Restaurar campo CEP
