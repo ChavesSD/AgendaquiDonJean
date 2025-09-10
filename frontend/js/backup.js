@@ -38,28 +38,25 @@ class BackupManager {
         const endDateInput = document.getElementById('end-date');
         
         if (startDateInput) {
-            startDateInput.addEventListener('change', () => this.validateDates());
+            startDateInput.addEventListener('change', () => this.loadBackups());
         }
         if (endDateInput) {
-            endDateInput.addEventListener('change', () => this.validateDates());
+            endDateInput.addEventListener('change', () => this.loadBackups());
         }
     }
 
     // Criar backup
     async createBackup() {
         try {
-            const description = prompt('Digite uma descrição para o backup (opcional):') || '';
-            
             this.showNotification('Criando backup...', 'info');
             
             const token = localStorage.getItem('authToken');
             const response = await fetch('/api/backup/create', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ description })
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
             });
 
             const result = await response.json();
@@ -78,24 +75,66 @@ class BackupManager {
 
     // Mostrar modal de restauração
     showRestoreModal() {
-        const backupList = document.getElementById('backup-list');
-        if (!backupList || backupList.children.length === 0) {
+        const backups = this.getBackupsFromStorage();
+        if (backups.length === 0) {
             this.showNotification('Nenhum backup disponível para restauração', 'warning');
             return;
         }
 
-        const backupId = prompt('Digite o ID do backup que deseja restaurar:');
-        if (backupId) {
-            this.restoreBackup(backupId);
-        }
+        // Criar modal dinâmico
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Restaurar Backup</h3>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p>Selecione o backup que deseja restaurar:</p>
+                    <div class="backup-list">
+                        ${backups.map(backup => `
+                            <div class="backup-item" data-id="${backup.id}">
+                                <div class="backup-info">
+                                    <h4>${backup.name}</h4>
+                                    <p>${backup.description}</p>
+                                    <small>Criado em: ${new Date(backup.createdAt).toLocaleString('pt-BR')}</small>
+                                </div>
+                                <button class="btn btn-primary restore-btn" data-id="${backup.id}">
+                                    Restaurar
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // Event listeners do modal
+        const closeBtn = modal.querySelector('.close');
+        closeBtn.addEventListener('click', () => modal.remove());
+
+        const restoreBtns = modal.querySelectorAll('.restore-btn');
+        restoreBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const backupId = e.target.dataset.id;
+                this.restoreBackup(backupId);
+                modal.remove();
+            });
+        });
+
+        // Fechar ao clicar fora
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
     }
 
     // Restaurar backup
     async restoreBackup(backupId) {
-        if (!confirm('ATENÇÃO: Esta ação irá sobrescrever todos os dados atuais. Deseja continuar?')) {
-            return;
-        }
-
         try {
             this.showNotification('Restaurando backup...', 'info');
             
@@ -103,7 +142,8 @@ class BackupManager {
             const response = await fetch(`/api/backup/restore/${backupId}`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 }
             });
 
@@ -111,7 +151,6 @@ class BackupManager {
             
             if (result.success) {
                 this.showNotification('Backup restaurado com sucesso!', 'success');
-                this.loadBackups();
             } else {
                 this.showNotification(result.message, 'error');
             }
@@ -123,6 +162,10 @@ class BackupManager {
 
     // Executar manutenção
     async performMaintenance() {
+        if (!confirm('Tem certeza que deseja executar a manutenção do banco? Esta ação pode demorar alguns minutos.')) {
+            return;
+        }
+
         try {
             this.showNotification('Executando manutenção...', 'info');
             
@@ -130,15 +173,15 @@ class BackupManager {
             const response = await fetch('/api/backup/maintenance', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 }
             });
 
             const result = await response.json();
             
             if (result.success) {
-                this.showNotification('Manutenção concluída com sucesso!', 'success');
-                this.showMaintenanceResults(result.stats);
+                this.showNotification(result.message, 'success');
             } else {
                 this.showNotification(result.message, 'error');
             }
@@ -152,29 +195,14 @@ class BackupManager {
     async filterBackups() {
         const startDate = document.getElementById('start-date').value;
         const endDate = document.getElementById('end-date').value;
-
-        if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
-            this.showNotification('Data de início deve ser anterior à data de fim', 'error');
-            return;
-        }
-
-        await this.loadBackups(startDate, endDate);
-    }
-
-    // Carregar lista de backups
-    async loadBackups(startDate = '', endDate = '') {
+        
         try {
             const token = localStorage.getItem('authToken');
-            let url = '/api/backup/list';
-            
-            if (startDate || endDate) {
-                const params = new URLSearchParams();
-                if (startDate) params.append('startDate', startDate);
-                if (endDate) params.append('endDate', endDate);
-                url += '?' + params.toString();
-            }
+            const params = new URLSearchParams();
+            if (startDate) params.append('startDate', startDate);
+            if (endDate) params.append('endDate', endDate);
 
-            const response = await fetch(url, {
+            const response = await fetch(`/api/backup/list?${params}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -184,8 +212,33 @@ class BackupManager {
             
             if (result.success) {
                 this.renderBackups(result.backups);
+                this.showNotification(`${result.backups.length} backup(s) encontrado(s)`, 'info');
             } else {
-                this.showNotification(result.message, 'error');
+                this.showNotification('Erro ao filtrar backups', 'error');
+            }
+        } catch (error) {
+            console.error('Erro ao filtrar backups:', error);
+            this.showNotification('Erro ao filtrar backups', 'error');
+        }
+    }
+
+    // Carregar backups
+    async loadBackups() {
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/api/backup/list', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                this.renderBackups(result.backups);
+                this.saveBackupsToStorage(result.backups);
+            } else {
+                this.showNotification('Erro ao carregar backups', 'error');
             }
         } catch (error) {
             console.error('Erro ao carregar backups:', error);
@@ -199,7 +252,12 @@ class BackupManager {
         if (!backupList) return;
 
         if (backups.length === 0) {
-            backupList.innerHTML = '<p class="no-backups">Nenhum backup encontrado</p>';
+            backupList.innerHTML = `
+                <div class="no-backups">
+                    <i class="fas fa-database"></i>
+                    <p>Nenhum backup encontrado</p>
+                </div>
+            `;
             return;
         }
 
@@ -207,18 +265,18 @@ class BackupManager {
             <div class="backup-item">
                 <div class="backup-info">
                     <h4>${backup.name}</h4>
-                    <p class="backup-description">${backup.description || 'Sem descrição'}</p>
+                    <p>${backup.description}</p>
                     <div class="backup-meta">
-                        <span class="backup-size">${this.formatFileSize(backup.fileSize)}</span>
-                        <span class="backup-date">${this.formatDate(backup.createdAt)}</span>
-                        <span class="backup-user">Criado por: ${backup.createdBy}</span>
+                        <span><i class="fas fa-calendar"></i> ${new Date(backup.createdAt).toLocaleString('pt-BR')}</span>
+                        <span><i class="fas fa-database"></i> ${backup.collections} coleções</span>
+                        <span><i class="fas fa-file-archive"></i> ${this.formatFileSize(backup.size)}</span>
                     </div>
                 </div>
                 <div class="backup-actions">
-                    <button class="btn btn-sm btn-primary" onclick="backupManager.restoreBackup('${backup.id}')">
+                    <button class="btn btn-primary btn-sm" onclick="backupManager.restoreBackup('${backup.id}')">
                         <i class="fas fa-upload"></i> Restaurar
                     </button>
-                    <button class="btn btn-sm btn-danger" onclick="backupManager.deleteBackup('${backup.id}')">
+                    <button class="btn btn-danger btn-sm" onclick="backupManager.deleteBackup('${backup.id}')">
                         <i class="fas fa-trash"></i> Deletar
                     </button>
                 </div>
@@ -255,31 +313,6 @@ class BackupManager {
         }
     }
 
-    // Validar datas
-    validateDates() {
-        const startDate = document.getElementById('start-date').value;
-        const endDate = document.getElementById('end-date').value;
-
-        if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
-            this.showNotification('Data de início deve ser anterior à data de fim', 'error');
-        }
-    }
-
-    // Mostrar resultados da manutenção
-    showMaintenanceResults(stats) {
-        const message = `
-            Manutenção concluída!
-            
-            Estatísticas:
-            • Usuários: ${stats.users}
-            • Configurações: ${stats.companySettings}
-            • Mensagens WhatsApp: ${stats.whatsappMessages}
-            • Total de Backups: ${stats.totalBackups}
-        `;
-        
-        alert(message);
-    }
-
     // Formatar tamanho do arquivo
     formatFileSize(bytes) {
         if (bytes === 0) return '0 Bytes';
@@ -289,10 +322,15 @@ class BackupManager {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
-    // Formatar data
-    formatDate(dateString) {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR');
+    // Salvar backups no localStorage
+    saveBackupsToStorage(backups) {
+        localStorage.setItem('backups', JSON.stringify(backups));
+    }
+
+    // Obter backups do localStorage
+    getBackupsFromStorage() {
+        const backups = localStorage.getItem('backups');
+        return backups ? JSON.parse(backups) : [];
     }
 
     // Mostrar notificação

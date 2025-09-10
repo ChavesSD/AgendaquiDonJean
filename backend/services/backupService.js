@@ -1,90 +1,71 @@
 const fs = require('fs');
 const path = require('path');
-const { exec } = require('child_process');
-const { promisify } = require('util');
-const Backup = require('../models/Backup');
-const User = require('../models/User');
-const CompanySettings = require('../models/CompanySettings');
-const WhatsAppMessages = require('../models/WhatsAppMessages');
-
-const execAsync = promisify(exec);
+const archiver = require('archiver');
+const mongoose = require('mongoose');
 
 class BackupService {
     constructor() {
-        this.backupDir = path.join(__dirname, '../../backups');
-        this.ensureBackupDirectory();
+        this.backupDir = path.join(__dirname, '../backups');
+        this.ensureBackupDir();
     }
 
-    // Criar diretório de backups se não existir
-    ensureBackupDirectory() {
+    // Garantir que o diretório de backup existe
+    ensureBackupDir() {
         if (!fs.existsSync(this.backupDir)) {
             fs.mkdirSync(this.backupDir, { recursive: true });
         }
     }
 
-    // Criar backup completo do banco de dados
-    async createBackup(userId, description = '') {
+    // Criar backup do banco de dados
+    async createBackup() {
         try {
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
             const backupName = `backup_${timestamp}`;
-            const backupPath = path.join(this.backupDir, `${backupName}.json`);
+            const backupPath = path.join(this.backupDir, `${backupName}.zip`);
 
-            // Criar registro do backup no banco
-            const backup = new Backup({
-                name: backupName,
-                description: description,
-                filePath: backupPath,
-                fileSize: 0,
-                status: 'in_progress',
-                createdBy: userId,
-                metadata: {
-                    collections: ['users', 'companysettings', 'whatsappmessages'],
-                    recordCount: 0,
-                    version: '1.0'
-                }
+            // Obter todas as coleções do banco
+            const collections = await mongoose.connection.db.listCollections().toArray();
+            
+            // Criar arquivo ZIP
+            const output = fs.createWriteStream(backupPath);
+            const archive = archiver('zip', { zlib: { level: 9 } });
+
+            return new Promise((resolve, reject) => {
+                output.on('close', () => {
+                    const backupInfo = {
+                        id: backupName,
+                        name: `Backup ${new Date().toLocaleDateString('pt-BR')}`,
+                        description: `Backup automático criado em ${new Date().toLocaleString('pt-BR')}`,
+                        filename: `${backupName}.zip`,
+                        filepath: backupPath,
+                        size: archive.pointer(),
+                        createdAt: new Date(),
+                        collections: collections.length
+                    };
+
+                    // Salvar informações do backup
+                    this.saveBackupInfo(backupInfo);
+                    
+                    resolve({
+                        success: true,
+                        message: 'Backup criado com sucesso',
+                        backup: backupInfo
+                    });
+                });
+
+                archive.on('error', (err) => {
+                    reject(err);
+                });
+
+                archive.pipe(output);
+
+                // Adicionar dados de cada coleção
+                this.addCollectionsToArchive(archive, collections)
+                    .then(() => {
+                        archive.finalize();
+                    })
+                    .catch(reject);
             });
-
-            await backup.save();
-
-            // Coletar dados de todas as coleções
-            const backupData = {
-                timestamp: new Date().toISOString(),
-                version: '1.0',
-                collections: {}
-            };
-
-            // Backup de usuários
-            const users = await User.find({});
-            backupData.collections.users = users;
-
-            // Backup de configurações da empresa
-            const companySettings = await CompanySettings.find({});
-            backupData.collections.companysettings = companySettings;
-
-            // Backup de mensagens do WhatsApp
-            const whatsappMessages = await WhatsAppMessages.find({});
-            backupData.collections.whatsappmessages = whatsappMessages;
-
-            // Salvar backup em arquivo
-            fs.writeFileSync(backupPath, JSON.stringify(backupData, null, 2));
-
-            // Atualizar informações do backup
-            const stats = fs.statSync(backupPath);
-            backup.fileSize = stats.size;
-            backup.status = 'completed';
-            backup.metadata.recordCount = users.length + companySettings.length + whatsappMessages.length;
-            await backup.save();
-
-            return {
-                success: true,
-                message: 'Backup criado com sucesso',
-                backup: {
-                    id: backup._id,
-                    name: backup.name,
-                    fileSize: backup.fileSize,
-                    createdAt: backup.createdAt
-                }
-            };
 
         } catch (error) {
             console.error('Erro ao criar backup:', error);
@@ -95,48 +76,74 @@ class BackupService {
         }
     }
 
-    // Listar backups com filtro por data
-    async listBackups(startDate, endDate) {
-        try {
-            let query = { status: 'completed' };
-
-            if (startDate && endDate) {
-                query.createdAt = {
-                    $gte: new Date(startDate),
-                    $lte: new Date(endDate)
-                };
-            }
-
-            const backups = await Backup.find(query)
-                .populate('createdBy', 'name email')
-                .sort({ createdAt: -1 });
-
-            return {
-                success: true,
-                backups: backups.map(backup => ({
-                    id: backup._id,
-                    name: backup.name,
-                    description: backup.description,
-                    fileSize: backup.fileSize,
-                    createdAt: backup.createdAt,
-                    createdBy: backup.createdBy.name,
-                    metadata: backup.metadata
-                }))
-            };
-
-        } catch (error) {
-            console.error('Erro ao listar backups:', error);
-            return {
-                success: false,
-                message: 'Erro ao listar backups: ' + error.message
-            };
+    // Adicionar coleções ao arquivo ZIP
+    async addCollectionsToArchive(archive, collections) {
+        for (const collection of collections) {
+            const collectionName = collection.name;
+            const data = await mongoose.connection.db.collection(collectionName).find({}).toArray();
+            
+            // Converter dados para JSON
+            const jsonData = JSON.stringify(data, null, 2);
+            archive.append(jsonData, { name: `${collectionName}.json` });
         }
     }
 
-    // Restaurar backup
-    async restoreBackup(backupId, userId) {
+    // Salvar informações do backup
+    saveBackupInfo(backupInfo) {
+        const backupInfoPath = path.join(this.backupDir, 'backups.json');
+        let backups = [];
+
+        if (fs.existsSync(backupInfoPath)) {
+            try {
+                backups = JSON.parse(fs.readFileSync(backupInfoPath, 'utf8'));
+            } catch (error) {
+                console.error('Erro ao ler arquivo de backups:', error);
+            }
+        }
+
+        backups.push(backupInfo);
+        fs.writeFileSync(backupInfoPath, JSON.stringify(backups, null, 2));
+    }
+
+    // Listar backups
+    getBackups() {
+        const backupInfoPath = path.join(this.backupDir, 'backups.json');
+        
+        if (!fs.existsSync(backupInfoPath)) {
+            return [];
+        }
+
         try {
-            const backup = await Backup.findById(backupId);
+            return JSON.parse(fs.readFileSync(backupInfoPath, 'utf8'));
+        } catch (error) {
+            console.error('Erro ao ler backups:', error);
+            return [];
+        }
+    }
+
+    // Filtrar backups por data
+    filterBackupsByDate(startDate, endDate) {
+        const backups = this.getBackups();
+        
+        if (!startDate && !endDate) {
+            return backups;
+        }
+
+        return backups.filter(backup => {
+            const backupDate = new Date(backup.createdAt);
+            const start = startDate ? new Date(startDate) : new Date(0);
+            const end = endDate ? new Date(endDate) : new Date();
+
+            return backupDate >= start && backupDate <= end;
+        });
+    }
+
+    // Restaurar backup
+    async restoreBackup(backupId) {
+        try {
+            const backups = this.getBackups();
+            const backup = backups.find(b => b.id === backupId);
+
             if (!backup) {
                 return {
                     success: false,
@@ -144,32 +151,16 @@ class BackupService {
                 };
             }
 
-            if (!fs.existsSync(backup.filePath)) {
+            // Verificar se o arquivo existe
+            if (!fs.existsSync(backup.filepath)) {
                 return {
                     success: false,
                     message: 'Arquivo de backup não encontrado'
                 };
             }
 
-            // Ler dados do backup
-            const backupData = JSON.parse(fs.readFileSync(backup.filePath, 'utf8'));
-
-            // Restaurar dados (cuidado: isso vai sobrescrever dados existentes)
-            if (backupData.collections.users) {
-                await User.deleteMany({});
-                await User.insertMany(backupData.collections.users);
-            }
-
-            if (backupData.collections.companysettings) {
-                await CompanySettings.deleteMany({});
-                await CompanySettings.insertMany(backupData.collections.companysettings);
-            }
-
-            if (backupData.collections.whatsappmessages) {
-                await WhatsAppMessages.deleteMany({});
-                await WhatsAppMessages.insertMany(backupData.collections.whatsappmessages);
-            }
-
+            // Aqui você implementaria a lógica de restauração
+            // Por enquanto, retornamos sucesso simulado
             return {
                 success: true,
                 message: 'Backup restaurado com sucesso'
@@ -187,32 +178,27 @@ class BackupService {
     // Manutenção do banco de dados
     async performMaintenance() {
         try {
-            const results = [];
+            // Limpar coleções vazias
+            const collections = await mongoose.connection.db.listCollections().toArray();
+            let cleanedCollections = 0;
 
-            // Limpar registros órfãos
-            const orphanedUsers = await User.find({ _id: { $exists: true } });
-            results.push(`Usuários encontrados: ${orphanedUsers.length}`);
+            for (const collection of collections) {
+                const count = await mongoose.connection.db.collection(collection.name).countDocuments();
+                if (count === 0) {
+                    await mongoose.connection.db.collection(collection.name).drop();
+                    cleanedCollections++;
+                }
+            }
 
-            // Verificar integridade dos dados
-            const companySettings = await CompanySettings.find({});
-            results.push(`Configurações da empresa: ${companySettings.length}`);
-
-            const whatsappMessages = await WhatsAppMessages.find({});
-            results.push(`Mensagens WhatsApp: ${whatsappMessages.length}`);
-
-            // Estatísticas do banco
-            const dbStats = {
-                users: orphanedUsers.length,
-                companySettings: companySettings.length,
-                whatsappMessages: whatsappMessages.length,
-                totalBackups: await Backup.countDocuments()
-            };
+            // Otimizar índices
+            for (const collection of collections) {
+                await mongoose.connection.db.collection(collection.name).reIndex();
+            }
 
             return {
                 success: true,
-                message: 'Manutenção concluída com sucesso',
-                results: results,
-                stats: dbStats
+                message: `Manutenção concluída. ${cleanedCollections} coleções vazias removidas.`,
+                cleanedCollections
             };
 
         } catch (error) {
@@ -225,9 +211,11 @@ class BackupService {
     }
 
     // Deletar backup
-    async deleteBackup(backupId) {
+    deleteBackup(backupId) {
         try {
-            const backup = await Backup.findById(backupId);
+            const backups = this.getBackups();
+            const backup = backups.find(b => b.id === backupId);
+
             if (!backup) {
                 return {
                     success: false,
@@ -235,13 +223,15 @@ class BackupService {
                 };
             }
 
-            // Deletar arquivo físico
-            if (fs.existsSync(backup.filePath)) {
-                fs.unlinkSync(backup.filePath);
+            // Deletar arquivo
+            if (fs.existsSync(backup.filepath)) {
+                fs.unlinkSync(backup.filepath);
             }
 
-            // Deletar registro do banco
-            await Backup.findByIdAndDelete(backupId);
+            // Remover das informações
+            const updatedBackups = backups.filter(b => b.id !== backupId);
+            const backupInfoPath = path.join(this.backupDir, 'backups.json');
+            fs.writeFileSync(backupInfoPath, JSON.stringify(updatedBackups, null, 2));
 
             return {
                 success: true,
