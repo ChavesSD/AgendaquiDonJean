@@ -632,6 +632,12 @@ app.post('/api/whatsapp/send-automatic', authenticateToken, async (req, res) => 
             return res.status(400).json({ message: 'Número é obrigatório' });
         }
 
+        // Testar conexão primeiro
+        const connectionTest = await whatsappService.testConnection();
+        if (!connectionTest.success) {
+            return res.status(400).json({ message: connectionTest.message });
+        }
+
         // Buscar mensagens automáticas
         const messages = await WhatsAppMessages.findOne({ isActive: true });
         if (!messages) {
@@ -647,6 +653,17 @@ app.post('/api/whatsapp/send-automatic', authenticateToken, async (req, res) => 
         res.json(result);
     } catch (error) {
         console.error('Erro ao enviar mensagem automática:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Testar conexão do WhatsApp
+app.get('/api/whatsapp/test-connection', authenticateToken, async (req, res) => {
+    try {
+        const result = await whatsappService.testConnection();
+        res.json(result);
+    } catch (error) {
+        console.error('Erro ao testar conexão:', error);
         res.status(500).json({ message: 'Erro interno do servidor' });
     }
 });

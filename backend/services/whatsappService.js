@@ -163,14 +163,33 @@ class WhatsAppService {
     // Enviar mensagem
     async sendMessage(number, message) {
         try {
+            // Aguardar WhatsApp estar pronto
+            await this.waitForReady();
+
             if (!this.isConnected) {
                 return { success: false, message: 'WhatsApp não está conectado' };
             }
 
-            // Formatar número (adicionar @c.us se necessário)
-            const formattedNumber = number.includes('@') ? number : `${number}@c.us`;
+            // Formatar número corretamente
+            const formattedNumber = this.formatPhoneNumber(number);
+            const chatId = `${formattedNumber}@c.us`;
             
-            const result = await this.client.sendMessage(formattedNumber, message);
+            console.log(`Enviando mensagem para: ${chatId}`);
+            console.log(`Mensagem: ${message}`);
+            
+            // Aguardar um pouco para garantir que o WhatsApp está estável
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Verificar se o chat existe antes de enviar
+            const isRegistered = await this.client.isRegisteredUser(chatId);
+            if (!isRegistered) {
+                return { 
+                    success: false, 
+                    message: `Número ${formattedNumber} não está registrado no WhatsApp` 
+                };
+            }
+            
+            const result = await this.client.sendMessage(chatId, message);
             
             return { 
                 success: true, 
@@ -232,9 +251,88 @@ class WhatsAppService {
         return currentTime >= todayHours.start && currentTime <= todayHours.end;
     }
 
+    // Formatar número de telefone para WhatsApp
+    formatPhoneNumber(phoneNumber) {
+        // Remove todos os caracteres não numéricos
+        let cleaned = phoneNumber.replace(/\D/g, '');
+        
+        // Se começar com 55 (Brasil), mantém
+        if (cleaned.startsWith('55')) {
+            return cleaned;
+        }
+        
+        // Se começar com 0, remove o 0 e adiciona 55
+        if (cleaned.startsWith('0')) {
+            cleaned = cleaned.substring(1);
+        }
+        
+        // Se não começar com 55, adiciona
+        if (!cleaned.startsWith('55')) {
+            cleaned = '55' + cleaned;
+        }
+        
+        return cleaned;
+    }
+
+    // Aguardar WhatsApp estar pronto
+    async waitForReady() {
+        return new Promise((resolve, reject) => {
+            if (this.isConnected) {
+                resolve(true);
+                return;
+            }
+
+            const timeout = setTimeout(() => {
+                reject(new Error('Timeout: WhatsApp não ficou pronto a tempo'));
+            }, 30000); // 30 segundos
+
+            const checkReady = () => {
+                if (this.isConnected) {
+                    clearTimeout(timeout);
+                    resolve(true);
+                } else {
+                    setTimeout(checkReady, 1000);
+                }
+            };
+
+            checkReady();
+        });
+    }
+
+    // Testar conectividade do WhatsApp
+    async testConnection() {
+        try {
+            if (!this.client || !this.isConnected) {
+                return { success: false, message: 'WhatsApp não está conectado' };
+            }
+
+            // Tentar obter informações do cliente para testar a conexão
+            const info = await this.client.info;
+            if (info && info.wid) {
+                return { 
+                    success: true, 
+                    message: 'WhatsApp conectado e funcionando',
+                    clientInfo: {
+                        wid: info.wid._serialized,
+                        pushname: info.pushname,
+                        platform: info.platform
+                    }
+                };
+            } else {
+                return { success: false, message: 'WhatsApp conectado mas não está respondendo' };
+            }
+        } catch (error) {
+            console.error('Erro ao testar conexão:', error);
+            return { success: false, message: 'Erro ao testar conexão: ' + error.message };
+        }
+    }
+
     // Enviar mensagem automática baseada no horário
     async sendAutomaticMessage(contactNumber, welcomeMessage, outOfHoursMessage) {
         try {
+            // Aguardar WhatsApp estar pronto
+            await this.waitForReady();
+
             if (!this.client || !this.isConnected) {
                 throw new Error('WhatsApp não está conectado');
             }
@@ -244,13 +342,28 @@ class WhatsAppService {
 
             if (!message || message.trim() === '') {
                 console.log('Nenhuma mensagem automática configurada');
-                return;
+                return { success: false, message: 'Nenhuma mensagem automática configurada' };
             }
 
-            const chatId = contactNumber.includes('@c.us') ? contactNumber : `${contactNumber}@c.us`;
+            // Formatar número corretamente
+            const formattedNumber = this.formatPhoneNumber(contactNumber);
+            const chatId = `${formattedNumber}@c.us`;
+            
+            console.log(`Enviando mensagem para: ${chatId}`);
+            console.log(`Mensagem: ${message}`);
+            
+            // Aguardar um pouco para garantir que o WhatsApp está estável
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Verificar se o chat existe antes de enviar
+            const isRegistered = await this.client.isRegisteredUser(chatId);
+            if (!isRegistered) {
+                throw new Error(`Número ${formattedNumber} não está registrado no WhatsApp`);
+            }
+
             await this.client.sendMessage(chatId, message);
             
-            console.log(`Mensagem automática enviada para ${contactNumber}: ${isWithinHours ? 'boas-vindas' : 'fora do horário'}`);
+            console.log(`Mensagem automática enviada para ${formattedNumber}: ${isWithinHours ? 'boas-vindas' : 'fora do horário'}`);
             return { success: true, messageType: isWithinHours ? 'welcome' : 'outOfHours' };
         } catch (error) {
             console.error('Erro ao enviar mensagem automática:', error);

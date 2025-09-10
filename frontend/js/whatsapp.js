@@ -49,6 +49,12 @@ class WhatsAppManager {
         if (testAutomaticBtn) {
             testAutomaticBtn.addEventListener('click', () => this.testAutomaticMessage());
         }
+
+        // Botão testar conexão
+        const testConnectionBtn = document.getElementById('test-connection');
+        if (testConnectionBtn) {
+            testConnectionBtn.addEventListener('click', () => this.testConnection());
+        }
     }
 
     // Conectar WebSocket
@@ -222,6 +228,7 @@ class WhatsAppManager {
         // Atualizar botões
         const sendTestBtn = document.getElementById('send-test-message');
         const sendAutomaticBtn = document.getElementById('send-automatic-message');
+        const testConnectionBtn = document.getElementById('test-connection');
         
         if (connectBtn && disconnectBtn) {
             if (status === 'connected') {
@@ -229,11 +236,13 @@ class WhatsAppManager {
                 disconnectBtn.style.display = 'inline-block';
                 if (sendTestBtn) sendTestBtn.style.display = 'inline-block';
                 if (sendAutomaticBtn) sendAutomaticBtn.style.display = 'inline-block';
+                if (testConnectionBtn) testConnectionBtn.style.display = 'inline-block';
             } else {
                 connectBtn.style.display = 'inline-block';
                 disconnectBtn.style.display = 'none';
                 if (sendTestBtn) sendTestBtn.style.display = 'none';
                 if (sendAutomaticBtn) sendAutomaticBtn.style.display = 'none';
+                if (testConnectionBtn) testConnectionBtn.style.display = 'none';
             }
         }
     }
@@ -425,6 +434,32 @@ class WhatsAppManager {
         } catch (error) {
             console.error('Erro ao testar mensagem automática:', error);
             this.showNotification('Erro ao testar mensagem automática', 'error');
+        }
+    }
+
+    // Testar conexão do WhatsApp
+    async testConnection() {
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/api/whatsapp/test-connection', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success) {
+                    this.showNotification(`✅ ${result.message}`, 'success');
+                    console.log('Informações do cliente:', result.clientInfo);
+                } else {
+                    this.showNotification(`❌ ${result.message}`, 'error');
+                }
+            } else {
+                const error = await response.json();
+                this.showNotification(`❌ ${error.message}`, 'error');
+            }
+        } catch (error) {
+            console.error('Erro ao testar conexão:', error);
+            this.showNotification('❌ Erro ao testar conexão', 'error');
         }
     }
 
