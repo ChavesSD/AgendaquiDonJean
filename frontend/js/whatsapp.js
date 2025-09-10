@@ -319,24 +319,35 @@ class WhatsAppManager {
         }
     }
 
-    // Salvar mensagem de boas-vindas
+    // Salvar mensagens automáticas
     async saveWelcomeMessage() {
-        const messageInput = document.getElementById('welcome-message');
-        if (!messageInput) return;
+        const welcomeInput = document.getElementById('welcome-message');
+        const outOfHoursInput = document.getElementById('msg-fora-horario');
+        
+        if (!welcomeInput || !outOfHoursInput) return;
 
-        const message = messageInput.value.trim();
-        if (!message) {
-            this.showNotification('Digite uma mensagem de boas-vindas', 'error');
+        const welcomeMessage = welcomeInput.value.trim();
+        const outOfHoursMessage = outOfHoursInput.value.trim();
+
+        if (!welcomeMessage && !outOfHoursMessage) {
+            this.showNotification('Digite pelo menos uma mensagem', 'error');
             return;
         }
 
         try {
-            // Aqui você pode implementar a lógica para salvar a mensagem
+            const messages = {
+                welcome: welcomeMessage,
+                outOfHours: outOfHoursMessage
+            };
+
+            // Aqui você pode implementar a lógica para salvar as mensagens
             // Por enquanto, vamos apenas mostrar uma notificação
-            this.showNotification('Mensagem de boas-vindas salva!', 'success');
+            this.showNotification('Mensagens automáticas salvas!', 'success');
+            
+            console.log('Mensagens salvas:', messages);
         } catch (error) {
-            console.error('Erro ao salvar mensagem de boas-vindas:', error);
-            this.showNotification('Erro ao salvar mensagem', 'error');
+            console.error('Erro ao salvar mensagens:', error);
+            this.showNotification('Erro ao salvar mensagens', 'error');
         }
     }
 
