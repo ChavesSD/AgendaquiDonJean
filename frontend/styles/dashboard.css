@@ -1670,90 +1670,28 @@ body {
     color: #333;
 }
 
-/* Coming Soon / Em Implementação Styles */
-.coming-soon-container {
+/* Coming Soon / Em Breve - Estilo Simplificado */
+.coming-soon-simple {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 20px;
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 15px;
-    padding: 30px;
-    text-align: center;
-    border: 2px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    border: 1px dashed rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(10px);
-    margin: 20px 0;
+    margin: 15px 0;
 }
 
-.coming-soon-content {
-    max-width: 500px;
-    margin: 0 auto;
-}
-
-.coming-soon-icon {
-    font-size: 48px;
+.coming-soon-simple i {
+    font-size: 24px;
     color: #975756;
-    margin-bottom: 20px;
     opacity: 0.8;
 }
 
-.coming-soon-content h5 {
-    color: #fff;
-    font-size: 24px;
-    margin: 0 0 15px 0;
-    font-weight: 600;
-}
-
-.coming-soon-content p {
+.coming-soon-simple span {
     color: rgba(255, 255, 255, 0.7);
     font-size: 16px;
-    line-height: 1.6;
-    margin: 0 0 25px 0;
-}
-
-.coming-soon-features {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin-top: 25px;
-}
-
-.feature-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 15px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
-}
-
-.feature-item:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateY(-2px);
-}
-
-.feature-item i {
-    color: #975756;
-    font-size: 18px;
-    width: 20px;
-    text-align: center;
-}
-
-.feature-item span {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 14px;
     font-weight: 500;
-}
-
-/* Responsive para Coming Soon */
-@media (max-width: 768px) {
-    .coming-soon-features {
-        grid-template-columns: 1fr;
-    }
-    
-    .coming-soon-content h5 {
-        font-size: 20px;
-    }
-    
-    .coming-soon-content p {
-        font-size: 14px;
-    }
 }
