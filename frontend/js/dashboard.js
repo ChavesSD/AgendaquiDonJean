@@ -95,6 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (response.ok) {
                 const data = await response.json();
+                console.log('Dados do usuário carregados na autenticação:', data.user);
                 updateUserInfo(data.user);
             } else {
                 localStorage.removeItem('authToken');
@@ -121,6 +122,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Atualizar avatar do usuário
     function updateUserAvatar(avatarUrl, showNotification = false) {
+        console.log('updateUserAvatar chamada com:', avatarUrl ? 'URL presente' : 'URL vazia');
+        
         // Avatar da sidebar
         const userAvatarImg = document.getElementById('userAvatarImg');
         const userAvatarIcon = document.getElementById('userAvatarIcon');
@@ -128,6 +131,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Avatar do cabeçalho
         const userAvatarImgSmall = document.getElementById('userAvatarImgSmall');
         const userAvatarIconSmall = document.getElementById('userAvatarIconSmall');
+        
+        console.log('Elementos encontrados:', {
+            userAvatarImg: !!userAvatarImg,
+            userAvatarIcon: !!userAvatarIcon,
+            userAvatarImgSmall: !!userAvatarImgSmall,
+            userAvatarIconSmall: !!userAvatarIconSmall
+        });
         
         if (avatarUrl && avatarUrl !== '') {
             // Atualizar avatar da sidebar
@@ -861,9 +871,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const userCard = document.createElement('div');
             userCard.className = 'user-card';
-            const avatarHtml = user.avatar ? 
-                `<img src="${user.avatar}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="console.error('Erro ao carregar avatar:', this.src)">` : 
-                '<i class="fas fa-user"></i>';
+            let avatarHtml;
+            if (user.avatar && user.avatar.trim() !== '') {
+                avatarHtml = `<img src="${user.avatar}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="console.error('Erro ao carregar avatar:', this.src); this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <i class="fas fa-user" style="display: none;"></i>`;
+            } else {
+                avatarHtml = '<i class="fas fa-user"></i>';
+            }
             
             console.log('HTML do avatar:', avatarHtml);
             console.log('Avatar URL completa:', user.avatar);

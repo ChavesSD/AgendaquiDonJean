@@ -309,6 +309,7 @@ app.post('/api/auth/create-admin', async (req, res) => {
 app.get('/api/users', authenticateToken, async (req, res) => {
     try {
         const users = await User.find({}, { password: 0 }); // Excluir senha do retorno
+        console.log('Usuários encontrados:', users.map(u => ({ name: u.name, hasAvatar: !!u.avatar, avatarLength: u.avatar ? u.avatar.length : 0 })));
         res.json(users);
     } catch (error) {
         console.error('Erro ao buscar usuários:', error);
