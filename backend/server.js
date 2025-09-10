@@ -266,6 +266,125 @@ app.post('/api/auth/create-admin', async (req, res) => {
     }
 });
 
+// Rotas para gerenciamento de usuários
+app.get('/api/users', authenticateToken, async (req, res) => {
+    try {
+        const users = await User.find({}, { password: 0 }); // Excluir senha do retorno
+        res.json(users);
+    } catch (error) {
+        console.error('Erro ao buscar usuários:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+app.post('/api/users', authenticateToken, async (req, res) => {
+    try {
+        const { name, email, password, role, avatar } = req.body;
+
+        // Validar dados obrigatórios
+        if (!name || !email || !password) {
+            return res.status(400).json({ message: 'Nome, email e senha são obrigatórios' });
+        }
+
+        // Verificar se email já existe
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: 'Email já está em uso' });
+        }
+
+        // Criar usuário
+        const bcrypt = require('bcryptjs');
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const user = new User({
+            name,
+            email,
+            password: hashedPassword,
+            role: role || 'user',
+            avatar: avatar || ''
+        });
+
+        await user.save();
+
+        // Retornar usuário sem senha
+        const userResponse = user.toObject();
+        delete userResponse.password;
+
+        res.json({ 
+            message: 'Usuário criado com sucesso',
+            user: userResponse
+        });
+    } catch (error) {
+        console.error('Erro ao criar usuário:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+app.put('/api/users/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, email, role, avatar } = req.body;
+
+        // Verificar se usuário existe
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: 'Usuário não encontrado' });
+        }
+
+        // Verificar se email já está em uso por outro usuário
+        if (email && email !== user.email) {
+            const existingUser = await User.findOne({ email, _id: { $ne: id } });
+            if (existingUser) {
+                return res.status(400).json({ message: 'Email já está em uso' });
+            }
+        }
+
+        // Atualizar usuário
+        user.name = name || user.name;
+        user.email = email || user.email;
+        user.role = role || user.role;
+        user.avatar = avatar || user.avatar;
+
+        await user.save();
+
+        // Retornar usuário sem senha
+        const userResponse = user.toObject();
+        delete userResponse.password;
+
+        res.json({ 
+            message: 'Usuário atualizado com sucesso',
+            user: userResponse
+        });
+    } catch (error) {
+        console.error('Erro ao atualizar usuário:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+app.delete('/api/users/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Verificar se usuário existe
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: 'Usuário não encontrado' });
+        }
+
+        // Não permitir deletar o próprio usuário
+        if (user._id.toString() === req.user.userId) {
+            return res.status(400).json({ message: 'Não é possível deletar seu próprio usuário' });
+        }
+
+        await User.findByIdAndDelete(id);
+
+        res.json({ message: 'Usuário deletado com sucesso' });
+    } catch (error) {
+        console.error('Erro ao deletar usuário:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
 // Iniciar servidor
 app.listen(PORT, () => {
     console.log(`🚀 Servidor rodando na porta ${PORT}`);

@@ -191,6 +191,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Carregar configurações da empresa
     loadCompanySettings();
 
+    // Inicializar gerenciamento de usuários
+    initUserManagement();
+
     // Adicionar efeitos visuais
     addVisualEffects();
 
@@ -610,9 +613,289 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Inicializar gerenciamento de usuários
+    function initUserManagement() {
+        // Event listeners para botões
+        const addUserBtn = document.getElementById('add-user-btn');
+        const closeModal = document.getElementById('closeModal');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const saveUserBtn = document.getElementById('saveUserBtn');
+        const userForm = document.getElementById('userForm');
+        const avatarInput = document.getElementById('userAvatar');
+
+        if (addUserBtn) {
+            addUserBtn.addEventListener('click', () => openUserModal());
+        }
+
+        if (closeModal) {
+            closeModal.addEventListener('click', () => closeUserModal());
+        }
+
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => closeUserModal());
+        }
+
+        if (saveUserBtn) {
+            saveUserBtn.addEventListener('click', () => saveUser());
+        }
+
+        if (avatarInput) {
+            avatarInput.addEventListener('change', handleAvatarUpload);
+        }
+
+        // Fechar modal ao clicar fora
+        const modal = document.getElementById('userModal');
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeUserModal();
+                }
+            });
+        }
+
+        // Carregar lista de usuários
+        loadUsers();
+    }
+
+    // Abrir modal de usuário
+    function openUserModal(userId = null) {
+        const modal = document.getElementById('userModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const userIdInput = document.getElementById('userId');
+        const userNameInput = document.getElementById('userName');
+        const userEmailInput = document.getElementById('userEmail');
+        const userPasswordInput = document.getElementById('userPassword');
+        const userRoleInput = document.getElementById('userRole');
+        const avatarPreview = document.getElementById('avatarPreview');
+
+        if (userId) {
+            // Modo edição
+            modalTitle.textContent = 'Editar Usuário';
+            userIdInput.value = userId;
+            userPasswordInput.required = false;
+            userPasswordInput.placeholder = 'Deixe em branco para manter a senha atual';
+            
+            // Carregar dados do usuário
+            loadUserData(userId);
+        } else {
+            // Modo criação
+            modalTitle.textContent = 'Novo Usuário';
+            userIdInput.value = '';
+            userForm.reset();
+            userPasswordInput.required = true;
+            userPasswordInput.placeholder = 'Digite a senha';
+            avatarPreview.innerHTML = '<i class="fas fa-user"></i>';
+        }
+
+        modal.classList.add('show');
+    }
+
+    // Fechar modal de usuário
+    function closeUserModal() {
+        const modal = document.getElementById('userModal');
+        modal.classList.remove('show');
+    }
+
+    // Carregar dados do usuário para edição
+    async function loadUserData(userId) {
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch(`/api/users/${userId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const user = await response.json();
+                
+                document.getElementById('userName').value = user.name || '';
+                document.getElementById('userEmail').value = user.email || '';
+                document.getElementById('userRole').value = user.role || 'user';
+                
+                // Atualizar preview do avatar
+                const avatarPreview = document.getElementById('avatarPreview');
+                if (user.avatar) {
+                    avatarPreview.innerHTML = `<img src="${user.avatar}" alt="Avatar">`;
+                } else {
+                    avatarPreview.innerHTML = '<i class="fas fa-user"></i>';
+                }
+            } else {
+                showNotification('Erro ao carregar dados do usuário', 'error');
+            }
+        } catch (error) {
+            console.error('Erro ao carregar usuário:', error);
+            showNotification('Erro ao carregar dados do usuário', 'error');
+        }
+    }
+
+    // Salvar usuário
+    async function saveUser() {
+        const userId = document.getElementById('userId').value;
+        const name = document.getElementById('userName').value;
+        const email = document.getElementById('userEmail').value;
+        const password = document.getElementById('userPassword').value;
+        const role = document.getElementById('userRole').value;
+        const avatar = document.getElementById('userAvatar').files[0];
+
+        // Validar campos obrigatórios
+        if (!name || !email) {
+            showNotification('Nome e email são obrigatórios', 'error');
+            return;
+        }
+
+        if (!userId && !password) {
+            showNotification('Senha é obrigatória para novos usuários', 'error');
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('authToken');
+            const formData = new FormData();
+            
+            formData.append('name', name);
+            formData.append('email', email);
+            formData.append('role', role);
+            
+            if (password) {
+                formData.append('password', password);
+            }
+            
+            if (avatar) {
+                formData.append('avatar', avatar);
+            }
+
+            const url = userId ? `/api/users/${userId}` : '/api/users';
+            const method = userId ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                showNotification(result.message, 'success');
+                closeUserModal();
+                loadUsers(); // Recarregar lista
+            } else {
+                const error = await response.json();
+                showNotification(error.message, 'error');
+            }
+        } catch (error) {
+            console.error('Erro ao salvar usuário:', error);
+            showNotification('Erro ao salvar usuário', 'error');
+        }
+    }
+
+    // Carregar lista de usuários
+    async function loadUsers() {
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/api/users', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const users = await response.json();
+                renderUsers(users);
+            } else {
+                console.error('Erro ao carregar usuários:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar usuários:', error);
+        }
+    }
+
+    // Renderizar lista de usuários
+    function renderUsers(users) {
+        const usersList = document.querySelector('.users-list');
+        if (!usersList) return;
+
+        usersList.innerHTML = '';
+
+        users.forEach(user => {
+            const userCard = document.createElement('div');
+            userCard.className = 'user-card';
+            userCard.innerHTML = `
+                <div class="user-avatar">
+                    ${user.avatar ? `<img src="${user.avatar}" alt="Avatar">` : '<i class="fas fa-user"></i>'}
+                </div>
+                <div class="user-info">
+                    <h4>${user.name}</h4>
+                    <p>${user.email}</p>
+                    <span class="user-role">${user.role.toUpperCase()}</span>
+                </div>
+                <div class="user-actions">
+                    <button class="btn-icon" onclick="editUser('${user._id}')" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-icon danger" onclick="deleteUser('${user._id}')" title="Excluir">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            usersList.appendChild(userCard);
+        });
+    }
+
+    // Editar usuário
+    function editUser(userId) {
+        openUserModal(userId);
+    }
+
+    // Deletar usuário
+    async function deleteUser(userId) {
+        if (!confirm('Tem certeza que deseja excluir este usuário?')) {
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch(`/api/users/${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                showNotification(result.message, 'success');
+                loadUsers(); // Recarregar lista
+            } else {
+                const error = await response.json();
+                showNotification(error.message, 'error');
+            }
+        } catch (error) {
+            console.error('Erro ao deletar usuário:', error);
+            showNotification('Erro ao deletar usuário', 'error');
+        }
+    }
+
+    // Lidar com upload de avatar
+    function handleAvatarUpload(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const avatarPreview = document.getElementById('avatarPreview');
+                avatarPreview.innerHTML = `<img src="${e.target.result}" alt="Avatar">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
     // Expor funções globalmente para uso em outras páginas
     window.showNotification = showNotification;
     window.logout = logout;
     window.updateUserAvatar = updateUserAvatar;
     window.loadUserPhoto = loadUserPhoto;
+    window.editUser = editUser;
+    window.deleteUser = deleteUser;
 });

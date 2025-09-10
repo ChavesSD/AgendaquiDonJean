@@ -586,6 +586,70 @@
         </main>
     </div>
 
+    <!-- Modal de Usuário -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Novo Usuário</h3>
+                <button class="modal-close" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm" class="config-form">
+                    <input type="hidden" id="userId" value="">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="userName">Nome Completo</label>
+                            <input type="text" id="userName" placeholder="Digite o nome completo" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="userEmail">Email</label>
+                            <input type="email" id="userEmail" placeholder="Digite o email" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="userPassword">Senha</label>
+                            <input type="password" id="userPassword" placeholder="Digite a senha" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="userRole">Função</label>
+                            <select id="userRole" required>
+                                <option value="user">Usuário</option>
+                                <option value="admin">Administrador</option>
+                                <option value="manager">Gerente</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="userAvatar">Foto do Usuário</label>
+                        <div class="avatar-upload">
+                            <div class="avatar-preview" id="avatarPreview">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <input type="file" id="userAvatar" accept="image/*" style="display: none;">
+                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('userAvatar').click()">
+                                <i class="fas fa-camera"></i>
+                                Escolher Foto
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelBtn">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveUserBtn">
+                    <i class="fas fa-save"></i>
+                    Salvar Usuário
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/dashboard.js"></script>
 </body>
 </html>
