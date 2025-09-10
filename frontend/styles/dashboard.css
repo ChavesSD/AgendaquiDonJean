@@ -1827,16 +1827,33 @@ body {
 
 .backup-meta {
     display: flex;
-    gap: 15px;
+    gap: 12px;
     flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
 }
 
 .backup-meta span {
     color: rgba(255, 255, 255, 0.6);
     font-size: 12px;
     background: rgba(255, 255, 255, 0.1);
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+.backup-meta span:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.backup-meta span i {
+    font-size: 11px;
+    color: #975756;
 }
 
 .backup-actions {
@@ -1973,6 +1990,17 @@ body {
         flex-direction: column;
         align-items: flex-start;
         gap: 15px;
+    }
+    
+    .backup-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .backup-meta span {
+        width: 100%;
+        justify-content: flex-start;
     }
     
     .backup-actions {
