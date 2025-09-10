@@ -426,14 +426,11 @@ app.put('/api/users/:id', authenticateToken, upload.single('avatar'), async (req
             return res.status(404).json({ message: 'Usuário não encontrado' });
         }
 
-        // Verificar se é o usuário admin original
-        const isOriginalAdmin = user.email === 'admin@chstúdio.com' && user.name === 'Desenvolvedor';
+        // Verificar se é o usuário logado atual
         const isCurrentUser = user._id.toString() === req.user.userId;
         
-        // Só permite editar se for o próprio usuário E não for o admin original, ou se for o admin original editando a si mesmo
-        const canEdit = (isCurrentUser && !isOriginalAdmin) || (isOriginalAdmin && isCurrentUser);
-        
-        if (!canEdit) {
+        // Permite editar apenas se for o próprio usuário
+        if (!isCurrentUser) {
             return res.status(403).json({ message: 'Apenas o próprio usuário pode editar seu perfil' });
         }
 

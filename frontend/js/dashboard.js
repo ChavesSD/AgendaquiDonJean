@@ -909,8 +909,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
             const isCurrentUser = user._id === currentUser._id;
             
-            // Só permite editar se for o próprio usuário E não for o admin original, ou se for o admin original editando a si mesmo
-            const canEdit = (isCurrentUser && !isOriginalAdmin) || (isOriginalAdmin && isCurrentUser);
+            // Permite editar se for o próprio usuário (independente de ser admin ou não)
+            const canEdit = isCurrentUser;
             
             userCard.innerHTML = `
                 <div class="user-info">
@@ -948,13 +948,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
         const isCurrentUser = userId === currentUser._id;
         
-        // Verificar se é o admin original
-        const isOriginalAdmin = currentUser.email === 'admin@chstúdio.com' && currentUser.name === 'Desenvolvedor';
-        
-        // Só permite editar se for o próprio usuário E não for o admin original, ou se for o admin original editando a si mesmo
-        const canEdit = (isCurrentUser && !isOriginalAdmin) || (isOriginalAdmin && isCurrentUser);
-        
-        if (!canEdit) {
+        // Permite editar apenas se for o próprio usuário
+        if (!isCurrentUser) {
             showNotification('Apenas o próprio usuário pode editar seu perfil', 'error');
             return;
         }
