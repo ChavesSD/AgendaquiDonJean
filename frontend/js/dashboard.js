@@ -1013,6 +1013,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Verificar se é o usuário logado atual
             const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
             const isCurrentUser = user._id === currentUser._id;
+            const isCurrentUserAdmin = currentUser.role === 'admin';
             
             // Debug adicional
             console.log('Comparação de usuários:', {
@@ -1020,7 +1021,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentUserId: currentUser._id,
                 isCurrentUser: isCurrentUser,
                 userEmail: user.email,
-                currentUserEmail: currentUser.email
+                currentUserEmail: currentUser.email,
+                isCurrentUserAdmin: isCurrentUserAdmin
             });
             
             // Debug logs
@@ -1035,8 +1037,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Permite editar se for o próprio usuário (independente de ser admin ou não)
             const canEdit = isCurrentUser;
             
-            // Permite excluir se não for o admin original
-            const canDelete = !isOriginalAdmin;
+            // Admin pode excluir qualquer usuário, outros usuários não podem excluir o admin original
+            const canDelete = isCurrentUserAdmin || !isOriginalAdmin;
             
             userCard.innerHTML = `
                 <div class="user-info">
@@ -1105,14 +1107,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Deletar usuário
     async function deleteUser(userId) {
-        // Verificar se é o usuário admin original que está tentando ser excluído
         const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
+        const isCurrentUserAdmin = currentUser.role === 'admin';
         
         // Buscar o usuário que está sendo excluído para verificar se é o admin original
         const users = await loadUsersForDeletion();
         const userToDelete = users.find(u => u._id === userId);
         
-        if (userToDelete && userToDelete.email === 'admin@chstudio.com' && userToDelete.name === 'Desenvolvedor') {
+        // Se não for admin, não pode excluir o admin original
+        if (!isCurrentUserAdmin && userToDelete && userToDelete.email === 'admin@chstudio.com' && userToDelete.name === 'Desenvolvedor') {
             showNotification('Não é possível excluir o usuário administrador do sistema', 'error');
             return;
         }

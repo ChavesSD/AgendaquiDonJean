@@ -544,14 +544,22 @@ app.delete('/api/users/:id', authenticateToken, async (req, res) => {
             return res.status(404).json({ message: 'Usuário não encontrado' });
         }
 
-        // Não permitir deletar o próprio usuário
-        if (user._id.toString() === req.user.userId) {
-            return res.status(400).json({ message: 'Não é possível deletar seu próprio usuário' });
-        }
-
-        // Não permitir deletar o usuário administrador original
-        if (user.email === 'admin@chstudio.com' && user.name === 'Desenvolvedor') {
-            return res.status(400).json({ message: 'Não é possível excluir o usuário administrador do sistema' });
+        // Verificar se é o usuário logado atual
+        const isCurrentUser = user._id.toString() === req.user.userId;
+        
+        // Buscar dados do usuário logado para verificar se é admin
+        const currentUser = await User.findById(req.user.userId);
+        const isCurrentUserAdmin = currentUser.role === 'admin';
+        
+        // Se não for admin, não pode deletar o próprio usuário nem o admin original
+        if (!isCurrentUserAdmin) {
+            if (isCurrentUser) {
+                return res.status(400).json({ message: 'Não é possível deletar seu próprio usuário' });
+            }
+            
+            if (user.email === 'admin@chstudio.com' && user.name === 'Desenvolvedor') {
+                return res.status(400).json({ message: 'Não é possível excluir o usuário administrador do sistema' });
+            }
         }
 
         await User.findByIdAndDelete(id);
