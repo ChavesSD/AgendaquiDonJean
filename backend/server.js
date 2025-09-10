@@ -364,6 +364,12 @@ app.post('/api/users', authenticateToken, upload.single('avatar'), async (req, r
         });
 
         await user.save();
+        
+        console.log('Usuário criado com avatar:', {
+            name: user.name,
+            hasAvatar: !!user.avatar,
+            avatarLength: user.avatar ? user.avatar.length : 0
+        });
 
         // Retornar usuário sem senha
         const userResponse = user.toObject();
@@ -445,6 +451,12 @@ app.put('/api/users/:id', authenticateToken, upload.single('avatar'), async (req
         }
 
         await user.save();
+        
+        console.log('Usuário salvo com avatar:', {
+            name: user.name,
+            hasAvatar: !!user.avatar,
+            avatarLength: user.avatar ? user.avatar.length : 0
+        });
 
         // Retornar usuário sem senha
         const userResponse = user.toObject();
