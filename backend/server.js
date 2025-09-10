@@ -480,8 +480,12 @@ app.put('/api/users/:id', authenticateToken, upload.single('avatar'), async (req
         // Verificar se é o usuário logado atual
         const isCurrentUser = user._id.toString() === req.user.userId;
         
-        // Permite editar apenas se for o próprio usuário
-        if (!isCurrentUser) {
+        // Buscar dados do usuário logado para verificar se é admin
+        const currentUser = await User.findById(req.user.userId);
+        const isCurrentUserAdmin = currentUser.role === 'admin';
+        
+        // Admin pode editar qualquer usuário, outros usuários só podem editar a si mesmos
+        if (!isCurrentUserAdmin && !isCurrentUser) {
             return res.status(403).json({ message: 'Apenas o próprio usuário pode editar seu perfil' });
         }
 

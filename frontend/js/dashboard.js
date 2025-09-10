@@ -1034,8 +1034,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentUserEmail: currentUser.email
             });
             
-            // Permite editar se for o próprio usuário (independente de ser admin ou não)
-            const canEdit = isCurrentUser;
+            // Admin pode editar qualquer usuário, outros usuários só podem editar a si mesmos
+            const canEdit = isCurrentUserAdmin || isCurrentUser;
             
             // Admin pode excluir qualquer usuário, outros usuários não podem excluir o admin original
             const canDelete = isCurrentUserAdmin || !isOriginalAdmin;
@@ -1075,9 +1075,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Verificar se é o usuário logado atual
         const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
         const isCurrentUser = userId === currentUser._id;
+        const isCurrentUserAdmin = currentUser.role === 'admin';
         
-        // Permite editar apenas se for o próprio usuário
-        if (!isCurrentUser) {
+        // Admin pode editar qualquer usuário, outros usuários só podem editar a si mesmos
+        if (!isCurrentUserAdmin && !isCurrentUser) {
             showNotification('Apenas o próprio usuário pode editar seu perfil', 'error');
             return;
         }
