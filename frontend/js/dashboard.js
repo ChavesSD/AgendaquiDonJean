@@ -871,21 +871,38 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const userCard = document.createElement('div');
             userCard.className = 'user-card';
-            let avatarHtml;
+            // Criar avatar dinamicamente
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = 'user-avatar';
+            
             if (user.avatar && user.avatar.trim() !== '') {
-                avatarHtml = `<img src="${user.avatar}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="console.error('Erro ao carregar avatar:', this.src); this.style.display='none'; this.nextElementSibling.style.display='block';">
-                    <i class="fas fa-user" style="display: none;"></i>`;
+                const img = document.createElement('img');
+                img.src = user.avatar;
+                img.alt = 'Avatar';
+                img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; border-radius: 50%;';
+                img.onerror = function() {
+                    console.error('Erro ao carregar avatar:', this.src);
+                    this.style.display = 'none';
+                    const icon = this.nextElementSibling;
+                    if (icon) icon.style.display = 'block';
+                };
+                
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-user';
+                icon.style.display = 'none';
+                
+                avatarDiv.appendChild(img);
+                avatarDiv.appendChild(icon);
+                
+                console.log('Avatar criado com imagem:', user.avatar.substring(0, 50) + '...');
             } else {
-                avatarHtml = '<i class="fas fa-user"></i>';
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-user';
+                avatarDiv.appendChild(icon);
+                console.log('Avatar criado com ícone padrão');
             }
             
-            console.log('HTML do avatar:', avatarHtml);
-            console.log('Avatar URL completa:', user.avatar);
-            
             userCard.innerHTML = `
-                <div class="user-avatar">
-                    ${avatarHtml}
-                </div>
                 <div class="user-info">
                     <h4>${user.name}</h4>
                     <p>${user.email}</p>
@@ -900,6 +917,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     </button>
                 </div>
             `;
+            
+            // Inserir avatar no início do card
+            userCard.insertBefore(avatarDiv, userCard.firstChild);
             usersList.appendChild(userCard);
         });
     }
