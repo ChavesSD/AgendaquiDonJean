@@ -15,7 +15,8 @@
     "express-rate-limit": "^6.10.0",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.19.0",
-    "mongoose": "^7.5.0"
+    "mongoose": "^7.5.0",
+    "multer": "^2.0.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

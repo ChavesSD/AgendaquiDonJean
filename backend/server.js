@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const multer = require('multer');
 require('dotenv').config();
 
 const app = express();
@@ -10,6 +11,23 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Configurar multer para upload de arquivos
+const storage = multer.memoryStorage();
+const upload = multer({ 
+    storage: storage,
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB
+    },
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Apenas arquivos de imagem são permitidos'), false);
+        }
+    }
+});
 
 // Servir arquivos estáticos do frontend
 app.use(express.static(path.join(__dirname, '../frontend')));
@@ -277,26 +295,18 @@ app.get('/api/users', authenticateToken, async (req, res) => {
     }
 });
 
-app.post('/api/users', authenticateToken, async (req, res) => {
+app.post('/api/users', authenticateToken, upload.single('avatar'), async (req, res) => {
     try {
-        // Verificar se é FormData ou JSON
-        const isFormData = req.headers['content-type'] && req.headers['content-type'].includes('multipart/form-data');
-        
-        let name, email, password, role, avatar;
-        
-        if (isFormData) {
-            // Dados enviados via FormData (com upload de arquivo)
-            name = req.body.name;
-            email = req.body.email;
-            password = req.body.password;
-            role = req.body.role;
-            avatar = req.body.avatar;
-        } else {
-            // Dados enviados via JSON
-            ({ name, email, password, role, avatar } = req.body);
-        }
+        const { name, email, password, role } = req.body;
+        const avatarFile = req.file;
 
-        console.log('Dados recebidos:', { name, email, password: password ? '***' : 'undefined', role, avatar });
+        console.log('Dados recebidos:', { 
+            name, 
+            email, 
+            password: password ? '***' : 'undefined', 
+            role,
+            hasAvatar: !!avatarFile
+        });
 
         // Validar dados obrigatórios
         if (!name || !email || !password) {
@@ -309,6 +319,13 @@ app.post('/api/users', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: 'Email já está em uso' });
         }
 
+        // Processar avatar se fornecido
+        let avatarUrl = '';
+        if (avatarFile) {
+            // Converter buffer para base64 para armazenamento simples
+            avatarUrl = `data:${avatarFile.mimetype};base64,${avatarFile.buffer.toString('base64')}`;
+        }
+
         // Criar usuário
         const bcrypt = require('bcryptjs');
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -318,7 +335,7 @@ app.post('/api/users', authenticateToken, async (req, res) => {
             email,
             password: hashedPassword,
             role: role || 'user',
-            avatar: avatar || ''
+            avatar: avatarUrl
         });
 
         await user.save();
@@ -355,28 +372,19 @@ app.get('/api/users/:id', authenticateToken, async (req, res) => {
     }
 });
 
-app.put('/api/users/:id', authenticateToken, async (req, res) => {
+app.put('/api/users/:id', authenticateToken, upload.single('avatar'), async (req, res) => {
     try {
         const { id } = req.params;
-        
-        // Verificar se é FormData ou JSON
-        const isFormData = req.headers['content-type'] && req.headers['content-type'].includes('multipart/form-data');
-        
-        let name, email, role, avatar, password;
-        
-        if (isFormData) {
-            // Dados enviados via FormData (com upload de arquivo)
-            name = req.body.name;
-            email = req.body.email;
-            role = req.body.role;
-            avatar = req.body.avatar;
-            password = req.body.password;
-        } else {
-            // Dados enviados via JSON
-            ({ name, email, role, avatar, password } = req.body);
-        }
+        const { name, email, role, password } = req.body;
+        const avatarFile = req.file;
 
-        console.log('Dados de atualização recebidos:', { name, email, role, avatar, password: password ? '***' : 'undefined' });
+        console.log('Dados de atualização recebidos:', { 
+            name, 
+            email, 
+            role, 
+            password: password ? '***' : 'undefined',
+            hasAvatar: !!avatarFile
+        });
 
         // Verificar se usuário existe
         const user = await User.findById(id);
@@ -396,7 +404,11 @@ app.put('/api/users/:id', authenticateToken, async (req, res) => {
         user.name = name || user.name;
         user.email = email || user.email;
         user.role = role || user.role;
-        user.avatar = avatar || user.avatar;
+
+        // Processar avatar se fornecido
+        if (avatarFile) {
+            user.avatar = `data:${avatarFile.mimetype};base64,${avatarFile.buffer.toString('base64')}`;
+        }
 
         // Atualizar senha se fornecida
         if (password) {
