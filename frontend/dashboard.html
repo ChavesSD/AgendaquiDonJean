@@ -67,7 +67,8 @@
             <div class="sidebar-footer">
                 <div class="user-info">
                     <div class="user-avatar">
-                        <i class="fas fa-user"></i>
+                        <img src="/assets/Logo.png" alt="Avatar" id="userAvatarImg" style="display: none;">
+                        <i class="fas fa-user" id="userAvatarIcon"></i>
                     </div>
                     <div class="user-details">
                         <span class="user-name" id="userName">Usuário</span>
@@ -102,7 +103,8 @@
                     <div class="user-menu">
                         <button class="user-menu-btn">
                             <div class="user-avatar-small">
-                                <i class="fas fa-user"></i>
+                                <img src="/assets/Logo.png" alt="Avatar" id="userAvatarImgSmall" style="display: none;">
+                                <i class="fas fa-user" id="userAvatarIconSmall"></i>
                             </div>
                             <span id="userNameSmall">Usuário</span>
                             <i class="fas fa-chevron-down"></i>
@@ -248,10 +250,336 @@
                     <div class="page-header">
                         <h2>Configurações</h2>
                     </div>
-                    <div class="empty-state">
-                        <i class="fas fa-cog"></i>
-                        <h3>Configurações em desenvolvimento</h3>
-                        <p>Esta funcionalidade será implementada em breve.</p>
+                    
+                    <!-- Abas de Configurações -->
+                    <div class="config-tabs">
+                        <div class="tab-buttons">
+                            <button class="tab-btn active" data-tab="geral">
+                                <i class="fas fa-building"></i>
+                                <span>Geral</span>
+                            </button>
+                            <button class="tab-btn" data-tab="usuarios">
+                                <i class="fas fa-users"></i>
+                                <span>Usuários</span>
+                            </button>
+                            <button class="tab-btn" data-tab="whatsapp">
+                                <i class="fab fa-whatsapp"></i>
+                                <span>WhatsApp</span>
+                            </button>
+                            <button class="tab-btn" data-tab="backup">
+                                <i class="fas fa-database"></i>
+                                <span>Backup/Manutenção</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Conteúdo das Abas -->
+                        <div class="tab-content">
+                            <!-- Aba Geral -->
+                            <div class="tab-pane active" id="geral-tab">
+                                <div class="config-section">
+                                    <h3>Dados da Empresa</h3>
+                                    <form class="config-form">
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="empresa-nome">Nome da Empresa</label>
+                                                <input type="text" id="empresa-nome" placeholder="Digite o nome da empresa">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="empresa-cnpj">CNPJ</label>
+                                                <input type="text" id="empresa-cnpj" placeholder="00.000.000/0000-00">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="empresa-cep">CEP</label>
+                                                <input type="text" id="empresa-cep" placeholder="00000-000">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="empresa-rua">Rua</label>
+                                                <input type="text" id="empresa-rua" placeholder="Nome da rua">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="empresa-numero">Número</label>
+                                                <input type="text" id="empresa-numero" placeholder="123">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="empresa-bairro">Bairro</label>
+                                                <input type="text" id="empresa-bairro" placeholder="Nome do bairro">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="empresa-cidade">Cidade</label>
+                                                <input type="text" id="empresa-cidade" placeholder="Nome da cidade">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="empresa-estado">Estado</label>
+                                                <select id="empresa-estado">
+                                                    <option value="">Selecione o estado</option>
+                                                    <option value="AC">Acre</option>
+                                                    <option value="AL">Alagoas</option>
+                                                    <option value="AP">Amapá</option>
+                                                    <option value="AM">Amazonas</option>
+                                                    <option value="BA">Bahia</option>
+                                                    <option value="CE">Ceará</option>
+                                                    <option value="DF">Distrito Federal</option>
+                                                    <option value="ES">Espírito Santo</option>
+                                                    <option value="GO">Goiás</option>
+                                                    <option value="MA">Maranhão</option>
+                                                    <option value="MT">Mato Grosso</option>
+                                                    <option value="MS">Mato Grosso do Sul</option>
+                                                    <option value="MG">Minas Gerais</option>
+                                                    <option value="PA">Pará</option>
+                                                    <option value="PB">Paraíba</option>
+                                                    <option value="PR">Paraná</option>
+                                                    <option value="PE">Pernambuco</option>
+                                                    <option value="PI">Piauí</option>
+                                                    <option value="RJ">Rio de Janeiro</option>
+                                                    <option value="RN">Rio Grande do Norte</option>
+                                                    <option value="RS">Rio Grande do Sul</option>
+                                                    <option value="RO">Rondônia</option>
+                                                    <option value="RR">Roraima</option>
+                                                    <option value="SC">Santa Catarina</option>
+                                                    <option value="SP">São Paulo</option>
+                                                    <option value="SE">Sergipe</option>
+                                                    <option value="TO">Tocantins</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-actions">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save"></i>
+                                                Salvar Dados
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                                
+                                <div class="config-section">
+                                    <h3>Horário de Funcionamento</h3>
+                                    <form class="config-form">
+                                        <div class="horario-grid">
+                                            <div class="dia-config">
+                                                <h4>Segunda a Sexta</h4>
+                                                <div class="form-row">
+                                                    <div class="form-group">
+                                                        <label>Abertura</label>
+                                                        <input type="time" value="08:00">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Fechamento</label>
+                                                        <input type="time" value="18:00">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="dia-config">
+                                                <h4>Sábado</h4>
+                                                <div class="form-row">
+                                                    <div class="form-group">
+                                                        <label>Abertura</label>
+                                                        <input type="time" value="08:00">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Fechamento</label>
+                                                        <input type="time" value="12:00">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" checked>
+                                                        <span class="checkmark"></span>
+                                                        Funciona aos sábados
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="dia-config">
+                                                <h4>Domingo</h4>
+                                                <div class="form-row">
+                                                    <div class="form-group">
+                                                        <label>Abertura</label>
+                                                        <input type="time" value="08:00">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Fechamento</label>
+                                                        <input type="time" value="12:00">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                        Funciona aos domingos
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-actions">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-clock"></i>
+                                                Salvar Horários
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <!-- Aba Usuários -->
+                            <div class="tab-pane" id="usuarios-tab">
+                                <div class="config-section">
+                                    <div class="section-header">
+                                        <h3>Gerenciar Usuários</h3>
+                                        <button class="btn btn-primary" id="add-user-btn">
+                                            <i class="fas fa-plus"></i>
+                                            Novo Usuário
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="users-list">
+                                        <div class="user-card">
+                                            <div class="user-avatar">
+                                                <img src="/assets/Logo.png" alt="Usuário">
+                                            </div>
+                                            <div class="user-info">
+                                                <h4>Administrador</h4>
+                                                <p>admin@chstudio.com</p>
+                                                <span class="user-role">Administrador</span>
+                                            </div>
+                                            <div class="user-actions">
+                                                <button class="btn-icon" title="Editar">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn-icon" title="Excluir">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Aba WhatsApp -->
+                            <div class="tab-pane" id="whatsapp-tab">
+                                <div class="config-section">
+                                    <h3>Integração WhatsApp</h3>
+                                    <div class="whatsapp-status">
+                                        <div class="status-indicator">
+                                            <i class="fas fa-circle"></i>
+                                            <span>Desconectado</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="qr-code-container">
+                                        <div class="qr-code">
+                                            <i class="fab fa-whatsapp"></i>
+                                            <p>QR Code aparecerá aqui</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="whatsapp-actions">
+                                        <button class="btn btn-primary">
+                                            <i class="fas fa-qrcode"></i>
+                                            Conectar WhatsApp
+                                        </button>
+                                        <button class="btn btn-secondary">
+                                            <i class="fas fa-disconnect"></i>
+                                            Desconectar
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="config-section">
+                                        <h4>Mensagens Automáticas</h4>
+                                        <form class="config-form">
+                                            <div class="form-group">
+                                                <label for="msg-boas-vindas">Mensagem de Boas-vindas</label>
+                                                <textarea id="msg-boas-vindas" rows="4" placeholder="Digite a mensagem de boas-vindas..."></textarea>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="msg-confirmacao">Mensagem de Confirmação</label>
+                                                <textarea id="msg-confirmacao" rows="4" placeholder="Digite a mensagem de confirmação..."></textarea>
+                                            </div>
+                                            <div class="form-actions">
+                                                <button type="submit" class="btn btn-primary">
+                                                    <i class="fas fa-save"></i>
+                                                    Salvar Mensagens
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Aba Backup/Manutenção -->
+                            <div class="tab-pane" id="backup-tab">
+                                <div class="config-section">
+                                    <h3>Backup e Manutenção</h3>
+                                    
+                                    <div class="backup-actions">
+                                        <button class="btn btn-primary">
+                                            <i class="fas fa-download"></i>
+                                            Criar Backup
+                                        </button>
+                                        <button class="btn btn-secondary">
+                                            <i class="fas fa-upload"></i>
+                                            Restaurar Backup
+                                        </button>
+                                        <button class="btn btn-warning">
+                                            <i class="fas fa-tools"></i>
+                                            Manutenção do Banco
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="backup-filters">
+                                        <h4>Filtrar Backups</h4>
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="data-inicio">Data Início</label>
+                                                <input type="date" id="data-inicio">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="data-fim">Data Fim</label>
+                                                <input type="date" id="data-fim">
+                                            </div>
+                                            <div class="form-group">
+                                                <button class="btn btn-primary">
+                                                    <i class="fas fa-search"></i>
+                                                    Filtrar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="backup-list">
+                                        <h4>Backups Disponíveis</h4>
+                                        <div class="backup-item">
+                                            <div class="backup-info">
+                                                <i class="fas fa-database"></i>
+                                                <div>
+                                                    <h5>backup_2024_01_15.sql</h5>
+                                                    <p>15/01/2024 - 14:30</p>
+                                                </div>
+                                            </div>
+                                            <div class="backup-actions">
+                                                <button class="btn-icon" title="Download">
+                                                    <i class="fas fa-download"></i>
+                                                </button>
+                                                <button class="btn-icon" title="Restaurar">
+                                                    <i class="fas fa-undo"></i>
+                                                </button>
+                                                <button class="btn-icon" title="Excluir">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

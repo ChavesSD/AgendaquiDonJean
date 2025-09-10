@@ -113,6 +113,45 @@ document.addEventListener('DOMContentLoaded', function() {
             userName.textContent = user.name || 'Usuário';
             userNameSmall.textContent = user.name || 'Usuário';
             userRole.textContent = user.role === 'admin' ? 'Administrador' : 'Usuário';
+            
+            // Atualizar avatar do usuário
+            updateUserAvatar(user.avatar);
+        }
+    }
+
+    // Atualizar avatar do usuário
+    function updateUserAvatar(avatarUrl, showNotification = false) {
+        // Avatar da sidebar
+        const userAvatarImg = document.getElementById('userAvatarImg');
+        const userAvatarIcon = document.getElementById('userAvatarIcon');
+        
+        // Avatar do cabeçalho
+        const userAvatarImgSmall = document.getElementById('userAvatarImgSmall');
+        const userAvatarIconSmall = document.getElementById('userAvatarIconSmall');
+        
+        if (avatarUrl && avatarUrl !== '') {
+            // Atualizar avatar da sidebar
+            userAvatarImg.src = avatarUrl;
+            userAvatarImg.style.display = 'block';
+            userAvatarIcon.style.display = 'none';
+            
+            // Atualizar avatar do cabeçalho
+            userAvatarImgSmall.src = avatarUrl;
+            userAvatarImgSmall.style.display = 'block';
+            userAvatarIconSmall.style.display = 'none';
+            
+            // Mostrar notificação apenas se solicitado
+            if (showNotification) {
+                showNotification('Foto do usuário carregada com sucesso!', 'success');
+            }
+        } else {
+            // Usar ícone padrão na sidebar
+            userAvatarImg.style.display = 'none';
+            userAvatarIcon.style.display = 'block';
+            
+            // Usar ícone padrão no cabeçalho
+            userAvatarImgSmall.style.display = 'none';
+            userAvatarIconSmall.style.display = 'block';
         }
     }
 
@@ -145,6 +184,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Carregar dados iniciais
     loadDashboardData();
+
+    // Inicializar abas de configurações
+    initConfigTabs();
+
+    // Carregar configurações da empresa
+    loadCompanySettings();
 
     // Adicionar efeitos visuais
     addVisualEffects();
@@ -246,7 +291,285 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     document.head.appendChild(notificationStyle);
 
+    // Inicializar abas de configurações
+    function initConfigTabs() {
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetTab = this.getAttribute('data-tab');
+                
+                // Remover active de todos os botões
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Adicionar active ao botão clicado
+                this.classList.add('active');
+                
+                // Esconder todas as abas
+                tabPanes.forEach(pane => pane.classList.remove('active'));
+                
+                // Mostrar aba correspondente
+                const targetPane = document.getElementById(`${targetTab}-tab`);
+                if (targetPane) {
+                    targetPane.classList.add('active');
+                }
+            });
+        });
+
+        // Event listeners para formulários de configurações
+        initConfigForms();
+    }
+
+    // Inicializar formulários de configurações
+    function initConfigForms() {
+        // Formulário de dados da empresa
+        const empresaForm = document.querySelector('#geral-tab form');
+        if (empresaForm) {
+            empresaForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    companyName: document.getElementById('empresa-nome').value,
+                    cnpj: document.getElementById('empresa-cnpj').value,
+                    cep: document.getElementById('empresa-cep').value,
+                    street: document.getElementById('empresa-rua').value,
+                    number: document.getElementById('empresa-numero').value,
+                    neighborhood: document.getElementById('empresa-bairro').value,
+                    city: document.getElementById('empresa-cidade').value,
+                    state: document.getElementById('empresa-estado').value
+                };
+
+                await saveCompanySettings(formData);
+            });
+        }
+
+        // Integração com ViaCEP
+        initCepIntegration();
+
+        // Formulário de horário de funcionamento
+        const horarioForm = document.querySelector('#geral-tab .config-section:nth-child(2) form');
+        if (horarioForm) {
+            horarioForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const workingHours = {
+                    weekdays: {
+                        open: document.querySelector('.dia-config:nth-child(1) input[type="time"]:first-of-type').value,
+                        close: document.querySelector('.dia-config:nth-child(1) input[type="time"]:last-of-type').value
+                    },
+                    saturday: {
+                        enabled: document.querySelector('.dia-config:nth-child(2) input[type="checkbox"]').checked,
+                        open: document.querySelector('.dia-config:nth-child(2) input[type="time"]:first-of-type').value,
+                        close: document.querySelector('.dia-config:nth-child(2) input[type="time"]:last-of-type').value
+                    },
+                    sunday: {
+                        enabled: document.querySelector('.dia-config:nth-child(3) input[type="checkbox"]').checked,
+                        open: document.querySelector('.dia-config:nth-child(3) input[type="time"]:first-of-type').value,
+                        close: document.querySelector('.dia-config:nth-child(3) input[type="time"]:last-of-type').value
+                    }
+                };
+
+                const formData = { workingHours };
+                await saveCompanySettings(formData);
+            });
+        }
+    }
+
+
+    // Função para carregar foto do usuário com notificação
+    function loadUserPhoto(avatarUrl) {
+        updateUserAvatar(avatarUrl, true);
+    }
+
+    // Carregar configurações da empresa
+    async function loadCompanySettings() {
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/api/company-settings', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const settings = await response.json();
+                populateCompanyForm(settings);
+            } else {
+                console.error('Erro ao carregar configurações:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar configurações:', error);
+        }
+    }
+
+    // Preencher formulário com dados da empresa
+    function populateCompanyForm(settings) {
+        // Dados da empresa
+        document.getElementById('empresa-nome').value = settings.companyName || '';
+        document.getElementById('empresa-cnpj').value = settings.cnpj || '';
+        document.getElementById('empresa-cep').value = settings.cep || '';
+        document.getElementById('empresa-rua').value = settings.street || '';
+        document.getElementById('empresa-numero').value = settings.number || '';
+        document.getElementById('empresa-bairro').value = settings.neighborhood || '';
+        document.getElementById('empresa-cidade').value = settings.city || '';
+        document.getElementById('empresa-estado').value = settings.state || '';
+
+        // Horário de funcionamento
+        if (settings.workingHours) {
+            const weekdays = settings.workingHours.weekdays;
+            if (weekdays) {
+                document.querySelector('input[type="time"][value="08:00"]').value = weekdays.open || '08:00';
+                document.querySelector('input[type="time"][value="18:00"]').value = weekdays.close || '18:00';
+            }
+
+            const saturday = settings.workingHours.saturday;
+            if (saturday) {
+                const saturdayInputs = document.querySelectorAll('.dia-config:nth-child(2) input[type="time"]');
+                if (saturdayInputs.length >= 2) {
+                    saturdayInputs[0].value = saturday.open || '08:00';
+                    saturdayInputs[1].value = saturday.close || '12:00';
+                }
+                const saturdayCheckbox = document.querySelector('.dia-config:nth-child(2) input[type="checkbox"]');
+                if (saturdayCheckbox) {
+                    saturdayCheckbox.checked = saturday.enabled || false;
+                }
+            }
+
+            const sunday = settings.workingHours.sunday;
+            if (sunday) {
+                const sundayInputs = document.querySelectorAll('.dia-config:nth-child(3) input[type="time"]');
+                if (sundayInputs.length >= 2) {
+                    sundayInputs[0].value = sunday.open || '08:00';
+                    sundayInputs[1].value = sunday.close || '12:00';
+                }
+                const sundayCheckbox = document.querySelector('.dia-config:nth-child(3) input[type="checkbox"]');
+                if (sundayCheckbox) {
+                    sundayCheckbox.checked = sunday.enabled || false;
+                }
+            }
+        }
+    }
+
+    // Salvar configurações da empresa
+    async function saveCompanySettings(formData) {
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/api/company-settings', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                showNotification('Configurações salvas com sucesso!', 'success');
+                return true;
+            } else {
+                const error = await response.json();
+                showNotification(error.message || 'Erro ao salvar configurações', 'error');
+                return false;
+            }
+        } catch (error) {
+            console.error('Erro ao salvar configurações:', error);
+            showNotification('Erro ao salvar configurações', 'error');
+            return false;
+        }
+    }
+
+    // Inicializar integração com ViaCEP
+    function initCepIntegration() {
+        const cepInput = document.getElementById('empresa-cep');
+        if (!cepInput) return;
+
+        // Máscara para CEP
+        cepInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            value = value.replace(/(\d{5})(\d)/, '$1-$2');
+            e.target.value = value;
+        });
+
+        // Buscar CEP quando completar 9 caracteres (00000-000)
+        cepInput.addEventListener('blur', function(e) {
+            const cep = e.target.value.replace(/\D/g, '');
+            if (cep.length === 8 && !e.target.disabled) {
+                buscarCep(cep);
+            }
+        });
+
+        // Buscar CEP ao pressionar Enter
+        cepInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const cep = e.target.value.replace(/\D/g, '');
+                if (cep.length === 8 && !e.target.disabled) {
+                    e.preventDefault();
+                    buscarCep(cep);
+                }
+            }
+        });
+
+        // Validação em tempo real
+        cepInput.addEventListener('input', function(e) {
+            const cep = e.target.value.replace(/\D/g, '');
+            if (cep.length === 8) {
+                // Adicionar classe para indicar que está pronto para busca
+                e.target.classList.add('cep-ready');
+            } else {
+                e.target.classList.remove('cep-ready');
+            }
+        });
+    }
+
+    // Buscar dados do CEP na API ViaCEP
+    async function buscarCep(cep) {
+        const cepInput = document.getElementById('empresa-cep');
+        const cepContainer = cepInput.closest('.form-group');
+        
+        try {
+            // Mostrar loading visual
+            cepInput.disabled = true;
+            cepInput.value = 'Buscando...';
+            cepContainer.classList.add('cep-loading');
+
+            const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+            const data = await response.json();
+
+            if (data.erro) {
+                showNotification('CEP não encontrado. Verifique o número digitado.', 'error');
+                cepInput.value = '';
+                cepInput.focus();
+                return;
+            }
+
+            // Preencher campos automaticamente
+            document.getElementById('empresa-rua').value = data.logradouro || '';
+            document.getElementById('empresa-bairro').value = data.bairro || '';
+            document.getElementById('empresa-cidade').value = data.localidade || '';
+            document.getElementById('empresa-estado').value = data.uf || '';
+
+            // Focar no campo número
+            document.getElementById('empresa-numero').focus();
+
+            showNotification(`Endereço encontrado: ${data.logradouro}, ${data.bairro} - ${data.localidade}/${data.uf}`, 'success');
+
+        } catch (error) {
+            console.error('Erro ao buscar CEP:', error);
+            showNotification('Erro ao buscar CEP. Verifique sua conexão e tente novamente.', 'error');
+            cepInput.value = '';
+            cepInput.focus();
+        } finally {
+            // Restaurar campo CEP
+            cepInput.disabled = false;
+            cepContainer.classList.remove('cep-loading');
+        }
+    }
+
     // Expor funções globalmente para uso em outras páginas
     window.showNotification = showNotification;
     window.logout = logout;
+    window.updateUserAvatar = updateUserAvatar;
+    window.loadUserPhoto = loadUserPhoto;
 });

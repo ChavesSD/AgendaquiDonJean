@@ -39,6 +39,7 @@ mongoose.connect(MONGODB_URI, {
 
 // Modelos
 const User = require('./models/User');
+const CompanySettings = require('./models/CompanySettings');
 const authService = require('./simple-auth');
 
 // Rotas de autenticação
@@ -119,6 +120,90 @@ app.get('/api/auth/verify', authenticateToken, (req, res) => {
 // Rotas protegidas
 app.get('/api/dashboard', authenticateToken, (req, res) => {
     res.json({ message: 'Dados do dashboard' });
+});
+
+// Rotas para configurações da empresa
+app.get('/api/company-settings', authenticateToken, async (req, res) => {
+    try {
+        let settings = await CompanySettings.findOne();
+        
+        if (!settings) {
+            // Criar configurações padrão se não existirem
+            settings = new CompanySettings({
+                companyName: 'CH Studio',
+                cnpj: '',
+                cep: '',
+                street: '',
+                number: '',
+                neighborhood: '',
+                city: '',
+                state: ''
+            });
+            await settings.save();
+        }
+        
+        res.json(settings);
+    } catch (error) {
+        console.error('Erro ao buscar configurações:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+app.put('/api/company-settings', authenticateToken, async (req, res) => {
+    try {
+        const {
+            companyName,
+            cnpj,
+            cep,
+            street,
+            number,
+            neighborhood,
+            city,
+            state,
+            workingHours
+        } = req.body;
+
+        // Validar dados obrigatórios
+        if (!companyName || !cnpj || !cep || !street || !number || !neighborhood || !city || !state) {
+            return res.status(400).json({ message: 'Todos os campos obrigatórios devem ser preenchidos' });
+        }
+
+        // Buscar ou criar configurações
+        let settings = await CompanySettings.findOne();
+        
+        if (!settings) {
+            settings = new CompanySettings();
+        }
+
+        // Atualizar dados da empresa
+        settings.companyName = companyName;
+        settings.cnpj = cnpj;
+        settings.cep = cep;
+        settings.street = street;
+        settings.number = number;
+        settings.neighborhood = neighborhood;
+        settings.city = city;
+        settings.state = state;
+
+        // Atualizar horário de funcionamento se fornecido
+        if (workingHours) {
+            settings.workingHours = {
+                weekdays: workingHours.weekdays || settings.workingHours.weekdays,
+                saturday: workingHours.saturday || settings.workingHours.saturday,
+                sunday: workingHours.sunday || settings.workingHours.sunday
+            };
+        }
+
+        await settings.save();
+
+        res.json({ 
+            message: 'Configurações salvas com sucesso',
+            settings 
+        });
+    } catch (error) {
+        console.error('Erro ao salvar configurações:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
 });
 
 // Servir arquivos estáticos do frontend
