@@ -912,6 +912,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
             const isCurrentUser = user._id === currentUser._id;
             
+            // Debug adicional
+            console.log('Comparação de usuários:', {
+                userId: user._id,
+                currentUserId: currentUser._id,
+                isCurrentUser: isCurrentUser,
+                userEmail: user.email,
+                currentUserEmail: currentUser.email
+            });
+            
             // Debug logs
             console.log('Debug renderUsers:', {
                 userId: user._id,
@@ -923,6 +932,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Permite editar se for o próprio usuário (independente de ser admin ou não)
             const canEdit = isCurrentUser;
+            
+            // Permite excluir se não for o admin original
+            const canDelete = !isOriginalAdmin;
             
             userCard.innerHTML = `
                 <div class="user-info">
@@ -937,10 +949,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             ${!canEdit ? 'disabled' : ''}>
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn-icon danger ${isOriginalAdmin ? 'disabled' : ''}" 
-                            onclick="${isOriginalAdmin ? 'showNotification("Não é possível excluir o usuário administrador do sistema", "error")' : `deleteUser('${user._id}')`}" 
-                            title="${isOriginalAdmin ? 'Usuário protegido' : 'Excluir'}"
-                            ${isOriginalAdmin ? 'disabled' : ''}>
+                    <button class="btn-icon danger ${!canDelete ? 'disabled' : ''}" 
+                            onclick="${!canDelete ? 'showNotification("Não é possível excluir o usuário administrador do sistema", "error")' : `deleteUser('${user._id}')`}" 
+                            title="${!canDelete ? 'Usuário protegido' : 'Excluir'}"
+                            ${!canDelete ? 'disabled' : ''}>
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -969,13 +981,36 @@ document.addEventListener('DOMContentLoaded', function() {
         openUserModal(userId);
     }
 
+    // Carregar usuários para verificação de exclusão
+    async function loadUsersForDeletion() {
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/api/users', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.ok) {
+                return await response.json();
+            }
+            return [];
+        } catch (error) {
+            console.error('Erro ao carregar usuários:', error);
+            return [];
+        }
+    }
+
     // Deletar usuário
     async function deleteUser(userId) {
-        // Verificar se é o usuário admin original (não pode ser excluído)
+        // Verificar se é o usuário admin original que está tentando ser excluído
         const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
-        const isOriginalAdmin = currentUser.email === 'admin@chstudio.com' && currentUser.name === 'Desenvolvedor';
         
-        if (isOriginalAdmin) {
+        // Buscar o usuário que está sendo excluído para verificar se é o admin original
+        const users = await loadUsersForDeletion();
+        const userToDelete = users.find(u => u._id === userId);
+        
+        if (userToDelete && userToDelete.email === 'admin@chstudio.com' && userToDelete.name === 'Desenvolvedor') {
             showNotification('Não é possível excluir o usuário administrador do sistema', 'error');
             return;
         }
