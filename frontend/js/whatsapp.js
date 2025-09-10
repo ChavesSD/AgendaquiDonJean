@@ -26,6 +26,12 @@ class WhatsAppManager {
             connectBtn.addEventListener('click', () => this.connect());
         }
 
+        // Botão gerar QR Code
+        const generateQrBtn = document.getElementById('generate-qr');
+        if (generateQrBtn) {
+            generateQrBtn.addEventListener('click', () => this.generateQRCode());
+        }
+
         // Botão desconectar
         const disconnectBtn = document.getElementById('disconnect-whatsapp');
         if (disconnectBtn) {
@@ -124,6 +130,37 @@ class WhatsAppManager {
         } catch (error) {
             console.error('Erro ao conectar:', error);
             this.showNotification('Erro ao conectar WhatsApp', 'error');
+        }
+    }
+
+    // Gerar QR Code
+    async generateQRCode() {
+        try {
+            this.updateConnectionStatus('connecting');
+            this.showNotification('Gerando QR Code...', 'info');
+            
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/api/whatsapp/generate-qr', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                this.showNotification('QR Code sendo gerado...', 'success');
+                this.updateConnectionStatus('qr_ready');
+            } else {
+                this.showNotification(result.message, 'error');
+                this.updateConnectionStatus('disconnected');
+            }
+        } catch (error) {
+            console.error('Erro ao gerar QR Code:', error);
+            this.showNotification('Erro ao gerar QR Code', 'error');
+            this.updateConnectionStatus('disconnected');
         }
     }
 
@@ -229,6 +266,7 @@ class WhatsAppManager {
         const sendTestBtn = document.getElementById('send-test-message');
         const sendAutomaticBtn = document.getElementById('send-automatic-message');
         const testConnectionBtn = document.getElementById('test-connection');
+        const generateQrBtn = document.getElementById('generate-qr');
         
         if (connectBtn && disconnectBtn) {
             if (status === 'connected') {
@@ -237,12 +275,21 @@ class WhatsAppManager {
                 if (sendTestBtn) sendTestBtn.style.display = 'inline-block';
                 if (sendAutomaticBtn) sendAutomaticBtn.style.display = 'inline-block';
                 if (testConnectionBtn) testConnectionBtn.style.display = 'inline-block';
+                if (generateQrBtn) generateQrBtn.style.display = 'none';
+            } else if (status === 'qr_ready') {
+                connectBtn.style.display = 'none';
+                disconnectBtn.style.display = 'none';
+                if (sendTestBtn) sendTestBtn.style.display = 'none';
+                if (sendAutomaticBtn) sendAutomaticBtn.style.display = 'none';
+                if (testConnectionBtn) testConnectionBtn.style.display = 'none';
+                if (generateQrBtn) generateQrBtn.style.display = 'none';
             } else {
                 connectBtn.style.display = 'inline-block';
                 disconnectBtn.style.display = 'none';
                 if (sendTestBtn) sendTestBtn.style.display = 'none';
                 if (sendAutomaticBtn) sendAutomaticBtn.style.display = 'none';
                 if (testConnectionBtn) testConnectionBtn.style.display = 'none';
+                if (generateQrBtn) generateQrBtn.style.display = 'inline-block';
             }
         }
     }

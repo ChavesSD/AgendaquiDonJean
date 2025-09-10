@@ -1633,6 +1633,19 @@ body {
     min-width: 150px;
 }
 
+.whatsapp-actions .btn-success {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.whatsapp-actions .btn-success:hover {
+    background: linear-gradient(135deg, #45a049, #3d8b40);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
 .client-info {
     margin: 20px 0;
     padding: 15px;
