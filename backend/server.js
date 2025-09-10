@@ -60,7 +60,9 @@ mongoose.connect(MONGODB_URI, {
 const User = require('./models/User');
 const CompanySettings = require('./models/CompanySettings');
 const WhatsAppMessages = require('./models/WhatsAppMessages');
+const Backup = require('./models/Backup');
 const authService = require('./simple-auth');
+const backupService = require('./services/backupService');
 
 // Rotas de autenticação
 app.post('/api/auth/login', async (req, res) => {
@@ -708,6 +710,71 @@ whatsappService.setCallbacks({
             body: message.body,
             timestamp: message.timestamp
         });
+    }
+});
+
+// ==================== ROTAS DE BACKUP ====================
+
+// Criar backup
+app.post('/api/backup/create', authenticateToken, async (req, res) => {
+    try {
+        const { description } = req.body;
+        const userId = req.user.id;
+        
+        const result = await backupService.createBackup(userId, description);
+        res.json(result);
+    } catch (error) {
+        console.error('Erro ao criar backup:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Listar backups
+app.get('/api/backup/list', authenticateToken, async (req, res) => {
+    try {
+        const { startDate, endDate } = req.query;
+        const result = await backupService.listBackups(startDate, endDate);
+        res.json(result);
+    } catch (error) {
+        console.error('Erro ao listar backups:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Restaurar backup
+app.post('/api/backup/restore/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
+        
+        const result = await backupService.restoreBackup(id, userId);
+        res.json(result);
+    } catch (error) {
+        console.error('Erro ao restaurar backup:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Manutenção do banco
+app.post('/api/backup/maintenance', authenticateToken, async (req, res) => {
+    try {
+        const result = await backupService.performMaintenance();
+        res.json(result);
+    } catch (error) {
+        console.error('Erro na manutenção:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Deletar backup
+app.delete('/api/backup/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await backupService.deleteBackup(id);
+        res.json(result);
+    } catch (error) {
+        console.error('Erro ao deletar backup:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
     }
 });
 
