@@ -902,8 +902,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Avatar criado com ícone padrão');
             }
             
-            // Verificar se é o usuário admin
-            const isAdmin = user.email === 'admin@chstúdio.com' || user.name === 'Desenvolvedor';
+            // Verificar se é o usuário admin original
+            const isOriginalAdmin = user.email === 'admin@chstúdio.com' && user.name === 'Desenvolvedor';
+            
+            // Verificar se é o usuário logado atual
+            const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
+            const isCurrentUser = user._id === currentUser._id;
+            
+            // Só permite editar se for o próprio usuário E não for o admin original, ou se for o admin original editando a si mesmo
+            const canEdit = (isCurrentUser && !isOriginalAdmin) || (isOriginalAdmin && isCurrentUser);
             
             userCard.innerHTML = `
                 <div class="user-info">
@@ -912,13 +919,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     <span class="user-role">${user.role.toUpperCase()}</span>
                 </div>
                 <div class="user-actions">
-                    <button class="btn-icon" onclick="editUser('${user._id}')" title="Editar">
+                    <button class="btn-icon ${!canEdit ? 'disabled' : ''}" 
+                            onclick="${!canEdit ? 'showNotification("Apenas o próprio usuário pode editar seu perfil", "error")' : `editUser('${user._id}')`}" 
+                            title="${!canEdit ? 'Edição restrita' : 'Editar'}"
+                            ${!canEdit ? 'disabled' : ''}>
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn-icon danger ${isAdmin ? 'disabled' : ''}" 
-                            onclick="${isAdmin ? 'showNotification("Não é possível excluir o usuário administrador do sistema", "error")' : `deleteUser('${user._id}')`}" 
-                            title="${isAdmin ? 'Usuário protegido' : 'Excluir'}"
-                            ${isAdmin ? 'disabled' : ''}>
+                    <button class="btn-icon danger ${isOriginalAdmin ? 'disabled' : ''}" 
+                            onclick="${isOriginalAdmin ? 'showNotification("Não é possível excluir o usuário administrador do sistema", "error")' : `deleteUser('${user._id}')`}" 
+                            title="${isOriginalAdmin ? 'Usuário protegido' : 'Excluir'}"
+                            ${isOriginalAdmin ? 'disabled' : ''}>
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -933,13 +943,32 @@ document.addEventListener('DOMContentLoaded', function() {
     // Editar usuário
     function editUser(userId) {
         console.log('Editando usuário com ID:', userId);
+        
+        // Verificar se é o usuário logado atual
+        const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
+        const isCurrentUser = userId === currentUser._id;
+        
+        // Verificar se é o admin original
+        const isOriginalAdmin = currentUser.email === 'admin@chstúdio.com' && currentUser.name === 'Desenvolvedor';
+        
+        // Só permite editar se for o próprio usuário E não for o admin original, ou se for o admin original editando a si mesmo
+        const canEdit = (isCurrentUser && !isOriginalAdmin) || (isOriginalAdmin && isCurrentUser);
+        
+        if (!canEdit) {
+            showNotification('Apenas o próprio usuário pode editar seu perfil', 'error');
+            return;
+        }
+        
         openUserModal(userId);
     }
 
     // Deletar usuário
     async function deleteUser(userId) {
-        // Verificar se é o usuário admin
-        if (userId === 'admin' || userId === 'admin@chstúdio.com') {
+        // Verificar se é o usuário admin original (não pode ser excluído)
+        const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
+        const isOriginalAdmin = currentUser.email === 'admin@chstúdio.com' && currentUser.name === 'Desenvolvedor';
+        
+        if (isOriginalAdmin) {
             showNotification('Não é possível excluir o usuário administrador do sistema', 'error');
             return;
         }

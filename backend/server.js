@@ -426,6 +426,17 @@ app.put('/api/users/:id', authenticateToken, upload.single('avatar'), async (req
             return res.status(404).json({ message: 'Usuário não encontrado' });
         }
 
+        // Verificar se é o usuário admin original
+        const isOriginalAdmin = user.email === 'admin@chstúdio.com' && user.name === 'Desenvolvedor';
+        const isCurrentUser = user._id.toString() === req.user.userId;
+        
+        // Só permite editar se for o próprio usuário E não for o admin original, ou se for o admin original editando a si mesmo
+        const canEdit = (isCurrentUser && !isOriginalAdmin) || (isOriginalAdmin && isCurrentUser);
+        
+        if (!canEdit) {
+            return res.status(403).json({ message: 'Apenas o próprio usuário pode editar seu perfil' });
+        }
+
         // Verificar se email já está em uso por outro usuário
         if (email && email !== user.email) {
             const existingUser = await User.findOne({ email, _id: { $ne: id } });
@@ -490,8 +501,8 @@ app.delete('/api/users/:id', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: 'Não é possível deletar seu próprio usuário' });
         }
 
-        // Não permitir deletar o usuário administrador
-        if (user.email === 'admin@chstúdio.com' || user.name === 'Desenvolvedor') {
+        // Não permitir deletar o usuário administrador original
+        if (user.email === 'admin@chstúdio.com' && user.name === 'Desenvolvedor') {
             return res.status(400).json({ message: 'Não é possível excluir o usuário administrador do sistema' });
         }
 
