@@ -663,7 +663,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const modal = document.getElementById('userModal');
         const modalTitle = document.getElementById('modalTitle');
         const userIdInput = document.getElementById('userId');
-        const userNameInput = document.getElementById('userName');
+        const userNameInput = document.getElementById('modalUserName');
         const userEmailInput = document.getElementById('userEmail');
         const userPasswordInput = document.getElementById('userPassword');
         const userRoleInput = document.getElementById('userRole');
@@ -723,7 +723,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const user = await response.json();
                 console.log('Dados do usuário carregados:', user);
                 
-                document.getElementById('userName').value = user.name || '';
+                document.getElementById('modalUserName').value = user.name || '';
                 document.getElementById('userEmail').value = user.email || '';
                 document.getElementById('userRole').value = user.role || 'user';
                 
@@ -748,7 +748,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Salvar usuário
     async function saveUser() {
         const userId = document.getElementById('userId').value;
-        const name = document.getElementById('userName').value;
+        const name = document.getElementById('modalUserName').value;
         const email = document.getElementById('userEmail').value;
         const password = document.getElementById('userPassword').value;
         const role = document.getElementById('userRole').value;
