@@ -738,7 +738,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 document.getElementById('modalUserName').value = user.name || '';
                 document.getElementById('userEmail').value = user.email || '';
-                document.getElementById('userRole').value = user.role || 'user';
+                document.getElementById('modalUserRole').value = user.role || 'user';
                 
                 // Atualizar preview do avatar
                 const avatarPreview = document.getElementById('avatarPreview');
@@ -764,7 +764,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const name = document.getElementById('modalUserName').value;
         const email = document.getElementById('userEmail').value;
         const password = document.getElementById('userPassword').value;
-        const role = document.getElementById('userRole').value;
+        const role = document.getElementById('modalUserRole').value;
         const avatar = document.getElementById('userAvatar').files[0];
 
         // Validar campos obrigatórios
