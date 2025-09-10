@@ -778,7 +778,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             if (avatar) {
+                console.log('Avatar selecionado:', avatar.name, avatar.size, avatar.type);
                 formData.append('avatar', avatar);
+            } else {
+                console.log('Nenhum avatar selecionado');
             }
 
             const url = userId ? `/api/users/${userId}` : '/api/users';
@@ -819,6 +822,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (response.ok) {
                 const users = await response.json();
+                console.log('Usuários carregados da API:', users);
                 renderUsers(users);
             } else {
                 console.error('Erro ao carregar usuários:', response.statusText);
@@ -833,9 +837,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const usersList = document.querySelector('.users-list');
         if (!usersList) return;
 
+        console.log('Renderizando usuários:', users);
+
         usersList.innerHTML = '';
 
         users.forEach(user => {
+            console.log('Usuário:', user.name, 'Avatar:', user.avatar ? 'Sim' : 'Não');
+            
             const userCard = document.createElement('div');
             userCard.className = 'user-card';
             userCard.innerHTML = `

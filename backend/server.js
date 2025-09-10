@@ -345,6 +345,9 @@ app.post('/api/users', authenticateToken, upload.single('avatar'), async (req, r
         if (avatarFile) {
             // Converter buffer para base64 para armazenamento simples
             avatarUrl = `data:${avatarFile.mimetype};base64,${avatarFile.buffer.toString('base64')}`;
+            console.log('Avatar processado:', avatarUrl.substring(0, 50) + '...');
+        } else {
+            console.log('Nenhum arquivo de avatar recebido');
         }
 
         // Criar usuário
@@ -429,6 +432,9 @@ app.put('/api/users/:id', authenticateToken, upload.single('avatar'), async (req
         // Processar avatar se fornecido
         if (avatarFile) {
             user.avatar = `data:${avatarFile.mimetype};base64,${avatarFile.buffer.toString('base64')}`;
+            console.log('Avatar atualizado:', user.avatar.substring(0, 50) + '...');
+        } else {
+            console.log('Nenhum arquivo de avatar para atualização');
         }
 
         // Atualizar senha se fornecida
