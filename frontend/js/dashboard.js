@@ -353,10 +353,25 @@ document.addEventListener('DOMContentLoaded', function() {
             horarioForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
+                // Validar campos obrigatórios
+                const weekdaysOpen = document.getElementById('weekdays-open').value;
+                const weekdaysClose = document.getElementById('weekdays-close').value;
+                
+                if (!weekdaysOpen || !weekdaysClose) {
+                    showNotification('Horário de funcionamento de segunda a sexta é obrigatório', 'error');
+                    return;
+                }
+
+                // Validar horários (abertura deve ser menor que fechamento)
+                if (weekdaysOpen >= weekdaysClose) {
+                    showNotification('Horário de abertura deve ser menor que o de fechamento', 'error');
+                    return;
+                }
+
                 const workingHours = {
                     weekdays: {
-                        open: document.getElementById('weekdays-open').value,
-                        close: document.getElementById('weekdays-close').value
+                        open: weekdaysOpen,
+                        close: weekdaysClose
                     },
                     saturday: {
                         enabled: document.getElementById('saturday-enabled').checked,
@@ -369,6 +384,30 @@ document.addEventListener('DOMContentLoaded', function() {
                         close: document.getElementById('sunday-close').value
                     }
                 };
+
+                // Validar horários do sábado se ativado
+                if (workingHours.saturday.enabled) {
+                    if (!workingHours.saturday.open || !workingHours.saturday.close) {
+                        showNotification('Preencha os horários do sábado', 'error');
+                        return;
+                    }
+                    if (workingHours.saturday.open >= workingHours.saturday.close) {
+                        showNotification('Horário de abertura do sábado deve ser menor que o de fechamento', 'error');
+                        return;
+                    }
+                }
+
+                // Validar horários do domingo se ativado
+                if (workingHours.sunday.enabled) {
+                    if (!workingHours.sunday.open || !workingHours.sunday.close) {
+                        showNotification('Preencha os horários do domingo', 'error');
+                        return;
+                    }
+                    if (workingHours.sunday.open >= workingHours.sunday.close) {
+                        showNotification('Horário de abertura do domingo deve ser menor que o de fechamento', 'error');
+                        return;
+                    }
+                }
 
                 const formData = { workingHours };
                 await saveCompanySettings(formData);

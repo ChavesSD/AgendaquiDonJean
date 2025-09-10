@@ -163,11 +163,6 @@ app.put('/api/company-settings', authenticateToken, async (req, res) => {
             workingHours
         } = req.body;
 
-        // Validar dados obrigatórios
-        if (!companyName || !cnpj || !cep || !street || !number || !neighborhood || !city || !state) {
-            return res.status(400).json({ message: 'Todos os campos obrigatórios devem ser preenchidos' });
-        }
-
         // Buscar ou criar configurações
         let settings = await CompanySettings.findOne();
         
@@ -175,23 +170,48 @@ app.put('/api/company-settings', authenticateToken, async (req, res) => {
             settings = new CompanySettings();
         }
 
-        // Atualizar dados da empresa
-        settings.companyName = companyName;
-        settings.cnpj = cnpj;
-        settings.cep = cep;
-        settings.street = street;
-        settings.number = number;
-        settings.neighborhood = neighborhood;
-        settings.city = city;
-        settings.state = state;
+        // Atualizar dados da empresa apenas se fornecidos
+        if (companyName !== undefined) settings.companyName = companyName;
+        if (cnpj !== undefined) settings.cnpj = cnpj;
+        if (cep !== undefined) settings.cep = cep;
+        if (street !== undefined) settings.street = street;
+        if (number !== undefined) settings.number = number;
+        if (neighborhood !== undefined) settings.neighborhood = neighborhood;
+        if (city !== undefined) settings.city = city;
+        if (state !== undefined) settings.state = state;
 
         // Atualizar horário de funcionamento se fornecido
         if (workingHours) {
-            settings.workingHours = {
-                weekdays: workingHours.weekdays || settings.workingHours.weekdays,
-                saturday: workingHours.saturday || settings.workingHours.saturday,
-                sunday: workingHours.sunday || settings.workingHours.sunday
-            };
+            if (!settings.workingHours) {
+                settings.workingHours = {
+                    weekdays: { open: '08:00', close: '18:00' },
+                    saturday: { enabled: true, open: '08:00', close: '12:00' },
+                    sunday: { enabled: false, open: '08:00', close: '12:00' }
+                };
+            }
+
+            if (workingHours.weekdays) {
+                settings.workingHours.weekdays = {
+                    open: workingHours.weekdays.open || settings.workingHours.weekdays.open,
+                    close: workingHours.weekdays.close || settings.workingHours.weekdays.close
+                };
+            }
+
+            if (workingHours.saturday) {
+                settings.workingHours.saturday = {
+                    enabled: workingHours.saturday.enabled !== undefined ? workingHours.saturday.enabled : settings.workingHours.saturday.enabled,
+                    open: workingHours.saturday.open || settings.workingHours.saturday.open,
+                    close: workingHours.saturday.close || settings.workingHours.saturday.close
+                };
+            }
+
+            if (workingHours.sunday) {
+                settings.workingHours.sunday = {
+                    enabled: workingHours.sunday.enabled !== undefined ? workingHours.sunday.enabled : settings.workingHours.sunday.enabled,
+                    open: workingHours.sunday.open || settings.workingHours.sunday.open,
+                    close: workingHours.sunday.close || settings.workingHours.sunday.close
+                };
+            }
         }
 
         await settings.save();
