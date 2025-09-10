@@ -996,6 +996,19 @@ body {
     color: white;
 }
 
+.btn-icon.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+}
+
+.btn-icon.disabled:hover {
+    background: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+    transform: none;
+}
+
 /* Animations */
 @keyframes fadeIn {
     from { opacity: 0; }

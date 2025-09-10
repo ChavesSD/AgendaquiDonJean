@@ -490,6 +490,11 @@ app.delete('/api/users/:id', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: 'Não é possível deletar seu próprio usuário' });
         }
 
+        // Não permitir deletar o usuário administrador
+        if (user.email === 'admin@chstúdio.com' || user.name === 'Desenvolvedor') {
+            return res.status(400).json({ message: 'Não é possível excluir o usuário administrador do sistema' });
+        }
+
         await User.findByIdAndDelete(id);
 
         res.json({ message: 'Usuário deletado com sucesso' });

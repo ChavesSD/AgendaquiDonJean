@@ -902,6 +902,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Avatar criado com ícone padrão');
             }
             
+            // Verificar se é o usuário admin
+            const isAdmin = user.email === 'admin@chstúdio.com' || user.name === 'Desenvolvedor';
+            
             userCard.innerHTML = `
                 <div class="user-info">
                     <h4>${user.name}</h4>
@@ -912,7 +915,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     <button class="btn-icon" onclick="editUser('${user._id}')" title="Editar">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn-icon danger" onclick="deleteUser('${user._id}')" title="Excluir">
+                    <button class="btn-icon danger ${isAdmin ? 'disabled' : ''}" 
+                            onclick="${isAdmin ? 'showNotification("Não é possível excluir o usuário administrador do sistema", "error")' : `deleteUser('${user._id}')`}" 
+                            title="${isAdmin ? 'Usuário protegido' : 'Excluir'}"
+                            ${isAdmin ? 'disabled' : ''}>
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -932,6 +938,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Deletar usuário
     async function deleteUser(userId) {
+        // Verificar se é o usuário admin
+        if (userId === 'admin' || userId === 'admin@chstúdio.com') {
+            showNotification('Não é possível excluir o usuário administrador do sistema', 'error');
+            return;
+        }
+
         if (!confirm('Tem certeza que deseja excluir este usuário?')) {
             return;
         }
