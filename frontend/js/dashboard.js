@@ -115,6 +115,9 @@ document.addEventListener('DOMContentLoaded', function() {
             userNameSmall.textContent = user.name || 'Usuário';
             userRole.textContent = user.role === 'admin' ? 'Administrador' : 'Usuário';
             
+            // Salvar dados do usuário no localStorage para uso posterior
+            localStorage.setItem('userData', JSON.stringify(user));
+            
             // Atualizar avatar do usuário
             updateUserAvatar(user.avatar);
         }
@@ -903,11 +906,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Verificar se é o usuário admin original
-            const isOriginalAdmin = user.email === 'admin@chstúdio.com' && user.name === 'Desenvolvedor';
+            const isOriginalAdmin = user.email === 'admin@chstudio.com' && user.name === 'Desenvolvedor';
             
             // Verificar se é o usuário logado atual
             const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
             const isCurrentUser = user._id === currentUser._id;
+            
+            // Debug logs
+            console.log('Debug renderUsers:', {
+                userId: user._id,
+                currentUserId: currentUser._id,
+                isCurrentUser: isCurrentUser,
+                userEmail: user.email,
+                currentUserEmail: currentUser.email
+            });
             
             // Permite editar se for o próprio usuário (independente de ser admin ou não)
             const canEdit = isCurrentUser;
@@ -961,7 +973,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function deleteUser(userId) {
         // Verificar se é o usuário admin original (não pode ser excluído)
         const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
-        const isOriginalAdmin = currentUser.email === 'admin@chstúdio.com' && currentUser.name === 'Desenvolvedor';
+        const isOriginalAdmin = currentUser.email === 'admin@chstudio.com' && currentUser.name === 'Desenvolvedor';
         
         if (isOriginalAdmin) {
             showNotification('Não é possível excluir o usuário administrador do sistema', 'error');
