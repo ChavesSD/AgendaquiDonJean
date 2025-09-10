@@ -783,6 +783,12 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 console.log('Nenhum avatar selecionado');
             }
+            
+            // Debug: verificar se FormData contém avatar
+            console.log('FormData entries:');
+            for (let [key, value] of formData.entries()) {
+                console.log(key, value);
+            }
 
             const url = userId ? `/api/users/${userId}` : '/api/users';
             const method = userId ? 'PUT' : 'POST';
