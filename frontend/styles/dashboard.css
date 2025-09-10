@@ -9,6 +9,8 @@ body {
     background: url('/assets/Background Dashboard.jpg') center center/cover no-repeat fixed;
     color: #333;
     overflow-x: hidden;
+    margin: 0;
+    padding: 0;
 }
 
 .dashboard-container {
@@ -29,7 +31,7 @@ body {
     z-index: 1000;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
     backdrop-filter: blur(10px);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 2px solid #975756;
 }
 
 .sidebar.collapsed {
@@ -43,7 +45,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-bottom: 1px solid rgba(151, 87, 86, 0.1);
+    border-bottom: 2px solid #975756;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
@@ -290,6 +292,8 @@ body {
     top: 0;
     z-index: 100;
     border-bottom: 2px solid #975756;
+    margin-left: 0;
+    margin-right: 0;
 }
 
 .header-left {
