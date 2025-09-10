@@ -279,7 +279,24 @@ app.get('/api/users', authenticateToken, async (req, res) => {
 
 app.post('/api/users', authenticateToken, async (req, res) => {
     try {
-        const { name, email, password, role, avatar } = req.body;
+        // Verificar se é FormData ou JSON
+        const isFormData = req.headers['content-type'] && req.headers['content-type'].includes('multipart/form-data');
+        
+        let name, email, password, role, avatar;
+        
+        if (isFormData) {
+            // Dados enviados via FormData (com upload de arquivo)
+            name = req.body.name;
+            email = req.body.email;
+            password = req.body.password;
+            role = req.body.role;
+            avatar = req.body.avatar;
+        } else {
+            // Dados enviados via JSON
+            ({ name, email, password, role, avatar } = req.body);
+        }
+
+        console.log('Dados recebidos:', { name, email, password: password ? '***' : 'undefined', role, avatar });
 
         // Validar dados obrigatórios
         if (!name || !email || !password) {
@@ -341,7 +358,25 @@ app.get('/api/users/:id', authenticateToken, async (req, res) => {
 app.put('/api/users/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, email, role, avatar } = req.body;
+        
+        // Verificar se é FormData ou JSON
+        const isFormData = req.headers['content-type'] && req.headers['content-type'].includes('multipart/form-data');
+        
+        let name, email, role, avatar, password;
+        
+        if (isFormData) {
+            // Dados enviados via FormData (com upload de arquivo)
+            name = req.body.name;
+            email = req.body.email;
+            role = req.body.role;
+            avatar = req.body.avatar;
+            password = req.body.password;
+        } else {
+            // Dados enviados via JSON
+            ({ name, email, role, avatar, password } = req.body);
+        }
+
+        console.log('Dados de atualização recebidos:', { name, email, role, avatar, password: password ? '***' : 'undefined' });
 
         // Verificar se usuário existe
         const user = await User.findById(id);
@@ -362,6 +397,12 @@ app.put('/api/users/:id', authenticateToken, async (req, res) => {
         user.email = email || user.email;
         user.role = role || user.role;
         user.avatar = avatar || user.avatar;
+
+        // Atualizar senha se fornecida
+        if (password) {
+            const bcrypt = require('bcryptjs');
+            user.password = await bcrypt.hash(password, 10);
+        }
 
         await user.save();
 
