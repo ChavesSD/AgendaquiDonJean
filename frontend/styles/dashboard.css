@@ -850,6 +850,19 @@ body {
     justify-content: flex-end;
 }
 
+/* Seção de avatar centralizada */
+.avatar-section {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.avatar-section .avatar-upload {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
 /* Avatar Upload */
 .avatar-upload {
     display: flex;
