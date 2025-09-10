@@ -355,18 +355,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 const workingHours = {
                     weekdays: {
-                        open: document.querySelector('.dia-config:nth-child(1) input[type="time"]:first-of-type').value,
-                        close: document.querySelector('.dia-config:nth-child(1) input[type="time"]:last-of-type').value
+                        open: document.getElementById('weekdays-open').value,
+                        close: document.getElementById('weekdays-close').value
                     },
                     saturday: {
-                        enabled: document.querySelector('.dia-config:nth-child(2) input[type="checkbox"]').checked,
-                        open: document.querySelector('.dia-config:nth-child(2) input[type="time"]:first-of-type').value,
-                        close: document.querySelector('.dia-config:nth-child(2) input[type="time"]:last-of-type').value
+                        enabled: document.getElementById('saturday-enabled').checked,
+                        open: document.getElementById('saturday-open').value,
+                        close: document.getElementById('saturday-close').value
                     },
                     sunday: {
-                        enabled: document.querySelector('.dia-config:nth-child(3) input[type="checkbox"]').checked,
-                        open: document.querySelector('.dia-config:nth-child(3) input[type="time"]:first-of-type').value,
-                        close: document.querySelector('.dia-config:nth-child(3) input[type="time"]:last-of-type').value
+                        enabled: document.getElementById('sunday-enabled').checked,
+                        open: document.getElementById('sunday-open').value,
+                        close: document.getElementById('sunday-close').value
                     }
                 };
 
@@ -419,34 +419,32 @@ document.addEventListener('DOMContentLoaded', function() {
         if (settings.workingHours) {
             const weekdays = settings.workingHours.weekdays;
             if (weekdays) {
-                document.querySelector('input[type="time"][value="08:00"]').value = weekdays.open || '08:00';
-                document.querySelector('input[type="time"][value="18:00"]').value = weekdays.close || '18:00';
+                const weekdaysOpen = document.getElementById('weekdays-open');
+                const weekdaysClose = document.getElementById('weekdays-close');
+                if (weekdaysOpen) weekdaysOpen.value = weekdays.open || '08:00';
+                if (weekdaysClose) weekdaysClose.value = weekdays.close || '18:00';
             }
 
             const saturday = settings.workingHours.saturday;
             if (saturday) {
-                const saturdayInputs = document.querySelectorAll('.dia-config:nth-child(2) input[type="time"]');
-                if (saturdayInputs.length >= 2) {
-                    saturdayInputs[0].value = saturday.open || '08:00';
-                    saturdayInputs[1].value = saturday.close || '12:00';
-                }
-                const saturdayCheckbox = document.querySelector('.dia-config:nth-child(2) input[type="checkbox"]');
-                if (saturdayCheckbox) {
-                    saturdayCheckbox.checked = saturday.enabled || false;
-                }
+                const saturdayOpen = document.getElementById('saturday-open');
+                const saturdayClose = document.getElementById('saturday-close');
+                const saturdayEnabled = document.getElementById('saturday-enabled');
+                
+                if (saturdayOpen) saturdayOpen.value = saturday.open || '08:00';
+                if (saturdayClose) saturdayClose.value = saturday.close || '12:00';
+                if (saturdayEnabled) saturdayEnabled.checked = saturday.enabled || false;
             }
 
             const sunday = settings.workingHours.sunday;
             if (sunday) {
-                const sundayInputs = document.querySelectorAll('.dia-config:nth-child(3) input[type="time"]');
-                if (sundayInputs.length >= 2) {
-                    sundayInputs[0].value = sunday.open || '08:00';
-                    sundayInputs[1].value = sunday.close || '12:00';
-                }
-                const sundayCheckbox = document.querySelector('.dia-config:nth-child(3) input[type="checkbox"]');
-                if (sundayCheckbox) {
-                    sundayCheckbox.checked = sunday.enabled || false;
-                }
+                const sundayOpen = document.getElementById('sunday-open');
+                const sundayClose = document.getElementById('sunday-close');
+                const sundayEnabled = document.getElementById('sunday-enabled');
+                
+                if (sundayOpen) sundayOpen.value = sunday.open || '08:00';
+                if (sundayClose) sundayClose.value = sunday.close || '12:00';
+                if (sundayEnabled) sundayEnabled.checked = sunday.enabled || false;
             }
         }
     }
