@@ -800,6 +800,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 showNotification(result.message, 'success');
                 closeUserModal();
                 loadUsers(); // Recarregar lista
+                
+                // Se for edição do usuário atual, atualizar dados do header/sidebar
+                if (userId) {
+                    const currentUserId = localStorage.getItem('userId');
+                    if (currentUserId === userId) {
+                        // Recarregar dados do usuário atual
+                        checkAuthentication();
+                    }
+                }
             } else {
                 const error = await response.json();
                 showNotification(error.message, 'error');
@@ -846,9 +855,15 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const userCard = document.createElement('div');
             userCard.className = 'user-card';
+            const avatarHtml = user.avatar ? 
+                `<img src="${user.avatar}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">` : 
+                '<i class="fas fa-user"></i>';
+            
+            console.log('HTML do avatar:', avatarHtml);
+            
             userCard.innerHTML = `
                 <div class="user-avatar">
-                    ${user.avatar ? `<img src="${user.avatar}" alt="Avatar">` : '<i class="fas fa-user"></i>'}
+                    ${avatarHtml}
                 </div>
                 <div class="user-info">
                     <h4>${user.name}</h4>
@@ -907,10 +922,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleAvatarUpload(event) {
         const file = event.target.files[0];
         if (file) {
+            console.log('Arquivo selecionado:', file.name, file.size, file.type);
             const reader = new FileReader();
             reader.onload = function(e) {
                 const avatarPreview = document.getElementById('avatarPreview');
-                avatarPreview.innerHTML = `<img src="${e.target.result}" alt="Avatar">`;
+                avatarPreview.innerHTML = `<img src="${e.target.result}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                console.log('Preview atualizado com:', e.target.result.substring(0, 50) + '...');
             };
             reader.readAsDataURL(file);
         }
