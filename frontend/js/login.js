@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('loginForm');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
+    const passwordToggle = document.getElementById('passwordToggle');
     const loginBtn = document.querySelector('.login-btn');
 
     // Verificar se há credenciais salvas
@@ -12,6 +13,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // Validação em tempo real
     emailInput.addEventListener('input', validateEmail);
     passwordInput.addEventListener('input', validatePassword);
+
+    // Toggle de visibilidade da senha
+    passwordToggle.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        // Alterar ícone
+        const icon = this.querySelector('i');
+        if (type === 'text') {
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
 
     function validateEmail() {
         const email = emailInput.value;
