@@ -1519,3 +1519,140 @@ body {
         margin-bottom: 15px;
     }
 }
+
+/* ==================== WHATSAPP INTEGRATION ==================== */
+
+.whatsapp-status {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+}
+
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.status-dot.connected {
+    background: #4CAF50;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+.status-dot.connecting {
+    background: #FF9800;
+    animation: pulse 1.5s infinite;
+}
+
+.status-dot.qr-ready {
+    background: #2196F3;
+    animation: pulse 1.5s infinite;
+}
+
+.status-dot.disconnected {
+    background: #F44336;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.qr-code-container {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.qr-code-placeholder {
+    width: 200px;
+    height: 200px;
+    border: 2px dashed rgba(151, 87, 86, 0.3);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    color: rgba(151, 87, 86, 0.6);
+    text-align: center;
+}
+
+.qr-code-placeholder i {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.qr-code-placeholder p {
+    font-size: 14px;
+    margin: 0;
+}
+
+.qr-code-wrapper {
+    width: 200px;
+    height: 200px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.qr-code-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.qr-code-text {
+    margin-top: 10px;
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+}
+
+.whatsapp-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.whatsapp-actions .btn {
+    min-width: 150px;
+}
+
+.client-info {
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(76, 175, 80, 0.1);
+    border-radius: 12px;
+    border-left: 4px solid #4CAF50;
+}
+
+.client-info h4 {
+    margin: 0 0 10px 0;
+    color: #4CAF50;
+    font-size: 16px;
+}
+
+.client-info p {
+    margin: 5px 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.client-info strong {
+    color: #333;
+}

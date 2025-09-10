@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const multer = require('multer');
+const whatsappService = require('./services/whatsappService');
 require('dotenv').config();
 
 const app = express();
@@ -496,8 +497,104 @@ app.delete('/api/users/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// ==================== ROTAS WHATSAPP ====================
+
+// Obter status do WhatsApp
+app.get('/api/whatsapp/status', authenticateToken, (req, res) => {
+    try {
+        const status = whatsappService.getStatus();
+        res.json(status);
+    } catch (error) {
+        console.error('Erro ao obter status do WhatsApp:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Conectar WhatsApp
+app.post('/api/whatsapp/connect', authenticateToken, async (req, res) => {
+    try {
+        const result = await whatsappService.connect();
+        res.json(result);
+    } catch (error) {
+        console.error('Erro ao conectar WhatsApp:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Desconectar WhatsApp
+app.post('/api/whatsapp/disconnect', authenticateToken, async (req, res) => {
+    try {
+        const result = await whatsappService.disconnect();
+        res.json(result);
+    } catch (error) {
+        console.error('Erro ao desconectar WhatsApp:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Enviar mensagem
+app.post('/api/whatsapp/send-message', authenticateToken, async (req, res) => {
+    try {
+        const { number, message } = req.body;
+        
+        if (!number || !message) {
+            return res.status(400).json({ message: 'Número e mensagem são obrigatórios' });
+        }
+
+        const result = await whatsappService.sendMessage(number, message);
+        res.json(result);
+    } catch (error) {
+        console.error('Erro ao enviar mensagem:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Obter informações do cliente
+app.get('/api/whatsapp/client-info', authenticateToken, async (req, res) => {
+    try {
+        const info = await whatsappService.getClientInfo();
+        res.json(info);
+    } catch (error) {
+        console.error('Erro ao obter informações do cliente:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// WebSocket para atualizações em tempo real
+const http = require('http');
+const { Server } = require('socket.io');
+
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
+
+// Configurar callbacks do WhatsApp para WebSocket
+whatsappService.setCallbacks({
+    onQR: (qrCodeImage) => {
+        io.emit('whatsapp_qr', { qrCode: qrCodeImage });
+    },
+    onReady: () => {
+        io.emit('whatsapp_ready', { message: 'WhatsApp conectado com sucesso!' });
+    },
+    onDisconnected: (reason) => {
+        io.emit('whatsapp_disconnected', { reason });
+    },
+    onMessage: (message) => {
+        io.emit('whatsapp_message', { 
+            from: message.from,
+            body: message.body,
+            timestamp: message.timestamp
+        });
+    }
+});
+
 // Iniciar servidor
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`🚀 Servidor rodando na porta ${PORT}`);
     console.log(`📱 Acesse: http://localhost:${PORT}`);
+    console.log(`🔌 WebSocket ativo para atualizações em tempo real`);
 });

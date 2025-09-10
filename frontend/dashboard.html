@@ -467,46 +467,52 @@
                             <div class="tab-pane" id="whatsapp-tab">
                                 <div class="config-section">
                                     <h3>Integração WhatsApp</h3>
-                                    <div class="whatsapp-status">
+                                    <div class="whatsapp-status" id="whatsapp-status">
                                         <div class="status-indicator">
-                                            <i class="fas fa-circle"></i>
-                                            <span>Desconectado</span>
+                                            <span class="status-dot disconnected"></span>
+                                            <span class="status-text">Desconectado</span>
                                         </div>
                                     </div>
                                     
-                                    <div class="qr-code-container">
-                                        <div class="qr-code">
+                                    <div class="qr-code-container" id="qr-code-container">
+                                        <div class="qr-code-placeholder">
                                             <i class="fab fa-whatsapp"></i>
                                             <p>QR Code aparecerá aqui</p>
                                         </div>
                                     </div>
                                     
                                     <div class="whatsapp-actions">
-                                        <button class="btn btn-primary">
+                                        <button class="btn btn-primary" id="connect-whatsapp">
                                             <i class="fas fa-qrcode"></i>
                                             Conectar WhatsApp
                                         </button>
-                                        <button class="btn btn-secondary">
+                                        <button class="btn btn-secondary" id="disconnect-whatsapp" style="display: none;">
                                             <i class="fas fa-disconnect"></i>
                                             Desconectar
                                         </button>
+                                        <button class="btn btn-success" id="send-test-message" style="display: none;">
+                                            <i class="fas fa-paper-plane"></i>
+                                            Enviar Teste
+                                        </button>
                                     </div>
+                                    
+                                    <div id="client-info" style="display: none;"></div>
                                     
                                     <div class="config-section">
                                         <h4>Mensagens Automáticas</h4>
                                         <form class="config-form">
                                             <div class="form-group">
-                                                <label for="msg-boas-vindas">Mensagem de Boas-vindas</label>
-                                                <textarea id="msg-boas-vindas" rows="4" placeholder="Digite a mensagem de boas-vindas..."></textarea>
+                                                <label for="welcome-message">Mensagem de Boas-vindas</label>
+                                                <textarea id="welcome-message" rows="4" placeholder="Digite a mensagem de boas-vindas..."></textarea>
                                             </div>
                                             <div class="form-group">
                                                 <label for="msg-confirmacao">Mensagem de Confirmação</label>
                                                 <textarea id="msg-confirmacao" rows="4" placeholder="Digite a mensagem de confirmação..."></textarea>
                                             </div>
                                             <div class="form-actions">
-                                                <button type="submit" class="btn btn-primary">
+                                                <button type="button" class="btn btn-primary" id="save-welcome-message">
                                                     <i class="fas fa-save"></i>
-                                                    Salvar Mensagens
+                                                    Salvar Mensagem
                                                 </button>
                                             </div>
                                         </form>
@@ -650,6 +656,11 @@
         </div>
     </div>
 
+    <!-- Socket.IO -->
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <!-- Scripts -->
     <script src="js/dashboard.js"></script>
+    <script src="js/whatsapp.js"></script>
 </body>
 </html>
