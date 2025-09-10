@@ -659,6 +659,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Abrir modal de usuário
     function openUserModal(userId = null) {
+        console.log('Abrindo modal para usuário:', userId);
         const modal = document.getElementById('userModal');
         const modalTitle = document.getElementById('modalTitle');
         const userIdInput = document.getElementById('userId');
@@ -670,6 +671,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (userId) {
             // Modo edição
+            console.log('Modo edição - ID:', userId);
             modalTitle.textContent = 'Editar Usuário';
             userIdInput.value = userId;
             userPasswordInput.required = false;
@@ -679,6 +681,7 @@ document.addEventListener('DOMContentLoaded', function() {
             loadUserData(userId);
         } else {
             // Modo criação
+            console.log('Modo criação');
             modalTitle.textContent = 'Novo Usuário';
             userIdInput.value = '';
             userForm.reset();
@@ -699,15 +702,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // Carregar dados do usuário para edição
     async function loadUserData(userId) {
         try {
+            console.log('Carregando dados do usuário:', userId);
             const token = localStorage.getItem('authToken');
+            
+            if (!token) {
+                showNotification('Token de autenticação não encontrado', 'error');
+                return;
+            }
+
             const response = await fetch(`/api/users/${userId}`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 }
             });
 
+            console.log('Resposta da API:', response.status, response.statusText);
+
             if (response.ok) {
                 const user = await response.json();
+                console.log('Dados do usuário carregados:', user);
                 
                 document.getElementById('userName').value = user.name || '';
                 document.getElementById('userEmail').value = user.email || '';
@@ -721,7 +735,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     avatarPreview.innerHTML = '<i class="fas fa-user"></i>';
                 }
             } else {
-                showNotification('Erro ao carregar dados do usuário', 'error');
+                const errorData = await response.json();
+                console.error('Erro da API:', errorData);
+                showNotification(errorData.message || 'Erro ao carregar dados do usuário', 'error');
             }
         } catch (error) {
             console.error('Erro ao carregar usuário:', error);
@@ -846,6 +862,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Editar usuário
     function editUser(userId) {
+        console.log('Editando usuário com ID:', userId);
         openUserModal(userId);
     }
 

@@ -320,6 +320,24 @@ app.post('/api/users', authenticateToken, async (req, res) => {
     }
 });
 
+app.get('/api/users/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // Buscar usuário por ID
+        const user = await User.findById(id, { password: 0 }); // Excluir senha do retorno
+        
+        if (!user) {
+            return res.status(404).json({ message: 'Usuário não encontrado' });
+        }
+
+        res.json(user);
+    } catch (error) {
+        console.error('Erro ao buscar usuário:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
 app.put('/api/users/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
