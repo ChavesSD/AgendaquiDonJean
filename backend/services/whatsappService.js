@@ -129,6 +129,112 @@ class WhatsAppService {
         }
     }
 
+    // Gerar novo QR Code (força nova conexão)
+    async generateNewQRCode() {
+        try {
+            // Desconectar e limpar instância anterior se existir
+            if (this.client) {
+                console.log('Desconectando instância anterior para gerar novo QR...');
+                await this.disconnect();
+                // Aguardar um pouco para garantir desconexão
+                await new Promise(resolve => setTimeout(resolve, 3000));
+            }
+
+            // Limpar estado
+            this.isConnected = false;
+            this.status = 'disconnected';
+            this.qrCode = null;
+            this.qrCodeImage = null;
+            this.clientInfo = null;
+
+            console.log('Criando nova instância do WhatsApp para novo QR...');
+            
+            // Criar nova instância com ID único
+            const timestamp = Date.now();
+            this.client = new Client({
+                authStrategy: new LocalAuth({
+                    clientId: `ch-studio-whatsapp-${timestamp}`
+                }),
+                puppeteer: {
+                    headless: true,
+                    args: [
+                        '--no-sandbox',
+                        '--disable-setuid-sandbox',
+                        '--disable-dev-shm-usage',
+                        '--disable-accelerated-2d-canvas',
+                        '--no-first-run',
+                        '--no-zygote',
+                        '--single-process',
+                        '--disable-gpu'
+                    ]
+                }
+            });
+
+            // Evento: QR Code gerado
+            this.client.on('qr', async (qr) => {
+                console.log('NOVO QR Code gerado');
+                this.qrCode = qr;
+                this.status = 'qr_ready';
+                
+                // Gerar QR Code como imagem
+                try {
+                    const qrCodeImage = await qrcode.toDataURL(qr);
+                    this.qrCodeImage = qrCodeImage;
+                    
+                    if (this.callbacks.onQR) {
+                        this.callbacks.onQR(qrCodeImage);
+                    }
+                } catch (error) {
+                    console.error('Erro ao gerar QR Code:', error);
+                }
+            });
+
+            // Evento: Cliente pronto
+            this.client.on('ready', () => {
+                console.log('Nova instância WhatsApp conectada com sucesso!');
+                this.isConnected = true;
+                this.status = 'connected';
+                this.qrCode = null;
+                this.qrCodeImage = null;
+                
+                if (this.callbacks.onReady) {
+                    this.callbacks.onReady();
+                }
+            });
+
+            // Evento: Cliente desconectado
+            this.client.on('disconnected', (reason) => {
+                console.log('Nova instância desconectada:', reason);
+                this.isConnected = false;
+                this.status = 'disconnected';
+                this.qrCode = null;
+                this.qrCodeImage = null;
+                this.clientInfo = null;
+                
+                if (this.callbacks.onDisconnected) {
+                    this.callbacks.onDisconnected(reason);
+                }
+            });
+
+            // Evento: Mensagem recebida
+            this.client.on('message', message => {
+                if (this.callbacks.onMessage) {
+                    this.callbacks.onMessage(message);
+                }
+            });
+
+            // Inicializar cliente
+            await this.client.initialize();
+            this.status = 'connecting';
+            
+            return { success: true, message: 'Gerando novo QR Code...' };
+        } catch (error) {
+            console.error('Erro ao gerar novo QR Code:', error);
+            this.status = 'error';
+            return { success: false, message: 'Erro ao gerar QR Code: ' + error.message };
+        }
+    }
+
     // Desconectar WhatsApp
     async disconnect() {
         try {

@@ -137,7 +137,7 @@ class WhatsAppManager {
     async generateQRCode() {
         try {
             this.updateConnectionStatus('connecting');
-            this.showNotification('Gerando QR Code...', 'info');
+            this.showNotification('Gerando novo QR Code...', 'info');
             
             const token = localStorage.getItem('authToken');
             const response = await fetch('/api/whatsapp/generate-qr', {
@@ -151,7 +151,7 @@ class WhatsAppManager {
             const result = await response.json();
             
             if (result.success) {
-                this.showNotification('QR Code sendo gerado...', 'success');
+                this.showNotification('Novo QR Code sendo gerado...', 'success');
                 this.updateConnectionStatus('qr_ready');
             } else {
                 this.showNotification(result.message, 'error');

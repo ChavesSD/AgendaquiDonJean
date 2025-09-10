@@ -525,7 +525,7 @@ app.post('/api/whatsapp/connect', authenticateToken, async (req, res) => {
 // Gerar QR Code
 app.post('/api/whatsapp/generate-qr', authenticateToken, async (req, res) => {
     try {
-        const result = await whatsappService.connect();
+        const result = await whatsappService.generateNewQRCode();
         res.json(result);
     } catch (error) {
         console.error('Erro ao gerar QR Code:', error);
