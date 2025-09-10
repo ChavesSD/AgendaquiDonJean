@@ -134,6 +134,51 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+// Middleware de permissões
+const requirePermission = (permission) => {
+    return async (req, res, next) => {
+        try {
+            const user = await User.findById(req.user.userId);
+            if (!user) {
+                return res.status(404).json({ message: 'Usuário não encontrado' });
+            }
+
+            const userRole = user.role || 'user';
+            const permissions = {
+                admin: {
+                    canCreateUsers: true,
+                    canCreateAdmin: true,
+                    canAccessBackup: true,
+                    canAccessAllPages: true
+                },
+                manager: {
+                    canCreateUsers: true,
+                    canCreateAdmin: false,
+                    canAccessBackup: false,
+                    canAccessAllPages: true
+                },
+                user: {
+                    canCreateUsers: false,
+                    canCreateAdmin: false,
+                    canAccessBackup: false,
+                    canAccessAllPages: false
+                }
+            };
+
+            const userPermissions = permissions[userRole] || permissions.user;
+            
+            if (!userPermissions[permission]) {
+                return res.status(403).json({ message: 'Você não tem permissão para realizar esta ação' });
+            }
+
+            next();
+        } catch (error) {
+            console.error('Erro na verificação de permissões:', error);
+            res.status(500).json({ message: 'Erro interno do servidor' });
+        }
+    };
+};
+
 // Rota para verificar token
 app.get('/api/auth/verify', authenticateToken, async (req, res) => {
     try {
@@ -309,7 +354,7 @@ app.post('/api/auth/create-admin', async (req, res) => {
 });
 
 // Rotas para gerenciamento de usuários
-app.get('/api/users', authenticateToken, async (req, res) => {
+app.get('/api/users', authenticateToken, requirePermission('canCreateUsers'), async (req, res) => {
     try {
         const users = await User.find({}, { password: 0 }); // Excluir senha do retorno
         console.log('Usuários encontrados:', users.map(u => ({ name: u.name, hasAvatar: !!u.avatar, avatarLength: u.avatar ? u.avatar.length : 0 })));
@@ -320,7 +365,7 @@ app.get('/api/users', authenticateToken, async (req, res) => {
     }
 });
 
-app.post('/api/users', authenticateToken, upload.single('avatar'), async (req, res) => {
+app.post('/api/users', authenticateToken, requirePermission('canCreateUsers'), upload.single('avatar'), async (req, res) => {
     try {
         const { name, email, password, role } = req.body;
         const avatarFile = req.file;
@@ -342,6 +387,12 @@ app.post('/api/users', authenticateToken, upload.single('avatar'), async (req, r
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: 'Email já está em uso' });
+        }
+
+        // Verificar se gerente está tentando criar admin
+        const currentUser = await User.findById(req.user.userId);
+        if (currentUser.role === 'manager' && role === 'admin') {
+            return res.status(403).json({ message: 'Gerentes não podem criar usuários administradores' });
         }
 
         // Processar avatar se fornecido
@@ -728,7 +779,7 @@ whatsappService.setCallbacks({
 // ==================== ROTAS DE BACKUP ====================
 
 // Criar backup
-app.post('/api/backup/create', authenticateToken, async (req, res) => {
+app.post('/api/backup/create', authenticateToken, requirePermission('canAccessBackup'), async (req, res) => {
     try {
         const result = await backupService.createBackup();
         res.json(result);
@@ -739,7 +790,7 @@ app.post('/api/backup/create', authenticateToken, async (req, res) => {
 });
 
 // Listar backups
-app.get('/api/backup/list', authenticateToken, async (req, res) => {
+app.get('/api/backup/list', authenticateToken, requirePermission('canAccessBackup'), async (req, res) => {
     try {
         const { startDate, endDate } = req.query;
         let backups;

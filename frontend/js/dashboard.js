@@ -13,6 +13,49 @@ document.addEventListener('DOMContentLoaded', function() {
     // Verificar autenticação
     checkAuthentication();
 
+    // Sistema de permissões
+    const PERMISSIONS = {
+        admin: {
+            canCreateUsers: true,
+            canCreateAdmin: true,
+            canAccessBackup: true,
+            canAccessAllPages: true,
+            pages: ['dashboard', 'agenda', 'financeiro', 'profissionais', 'servicos', 'relatorios', 'configuracoes']
+        },
+        manager: {
+            canCreateUsers: true,
+            canCreateAdmin: false,
+            canAccessBackup: false,
+            canAccessAllPages: true,
+            pages: ['dashboard', 'agenda', 'financeiro', 'profissionais', 'servicos', 'relatorios', 'configuracoes']
+        },
+        user: {
+            canCreateUsers: false,
+            canCreateAdmin: false,
+            canAccessBackup: false,
+            canAccessAllPages: false,
+            pages: ['dashboard', 'agenda']
+        }
+    };
+
+    // Função para verificar permissões
+    function hasPermission(permission) {
+        const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
+        const userRole = currentUser.role || 'user';
+        const userPermissions = PERMISSIONS[userRole] || PERMISSIONS.user;
+        
+        return userPermissions[permission] || false;
+    }
+
+    // Função para verificar acesso a página
+    function canAccessPage(pageName) {
+        const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
+        const userRole = currentUser.role || 'user';
+        const userPermissions = PERMISSIONS[userRole] || PERMISSIONS.user;
+        
+        return userPermissions.pages.includes(pageName);
+    }
+
     // Toggle sidebar
     sidebarToggle.addEventListener('click', function() {
         sidebar.classList.toggle('collapsed');
@@ -52,6 +95,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Função para mostrar página
     function showPage(pageName) {
+        // Verificar se o usuário tem permissão para acessar a página
+        if (!canAccessPage(pageName)) {
+            showNotification('Você não tem permissão para acessar esta página', 'error');
+            return;
+        }
+
         // Esconder todas as páginas
         pageContents.forEach(page => {
             page.classList.remove('active');
@@ -97,6 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const data = await response.json();
                 console.log('Dados do usuário carregados na autenticação:', data.user);
                 updateUserInfo(data.user);
+                applyUserPermissions(data.user);
             } else {
                 localStorage.removeItem('authToken');
                 window.location.href = '/';
@@ -113,13 +163,48 @@ document.addEventListener('DOMContentLoaded', function() {
         if (user) {
             userName.textContent = user.name || 'Usuário';
             userNameSmall.textContent = user.name || 'Usuário';
-            userRole.textContent = user.role === 'admin' ? 'Administrador' : 'Usuário';
+            userRole.textContent = user.role === 'admin' ? 'Administrador' : user.role === 'manager' ? 'Gerente' : 'Usuário';
             
             // Salvar dados do usuário no localStorage para uso posterior
             localStorage.setItem('userData', JSON.stringify(user));
             
             // Atualizar avatar do usuário
             updateUserAvatar(user.avatar);
+        }
+    }
+
+    // Aplicar permissões do usuário na interface
+    function applyUserPermissions(user) {
+        const userRole = user.role || 'user';
+        const permissions = PERMISSIONS[userRole] || PERMISSIONS.user;
+
+        // Ocultar/mostrar itens do menu baseado nas permissões
+        const menuItems = document.querySelectorAll('.nav-item');
+        menuItems.forEach(item => {
+            const pageName = item.querySelector('.nav-link')?.getAttribute('data-page');
+            if (pageName && !permissions.pages.includes(pageName)) {
+                item.style.display = 'none';
+            } else {
+                item.style.display = 'block';
+            }
+        });
+
+        // Aplicar permissões específicas
+        applySpecificPermissions(permissions);
+    }
+
+    // Aplicar permissões específicas
+    function applySpecificPermissions(permissions) {
+        // Ocultar aba de Backup/Manutenção se não tiver permissão
+        const backupTab = document.querySelector('[data-tab="backup-tab"]');
+        if (backupTab) {
+            backupTab.style.display = permissions.canAccessBackup ? 'block' : 'none';
+        }
+
+        // Ocultar botão de criar usuário se não tiver permissão
+        const addUserBtn = document.getElementById('add-user-btn');
+        if (addUserBtn) {
+            addUserBtn.style.display = permissions.canCreateUsers ? 'block' : 'none';
         }
     }
 
@@ -672,6 +757,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Abrir modal de usuário
     function openUserModal(userId = null) {
+        // Verificar se pode criar usuários
+        if (!userId && !hasPermission('canCreateUsers')) {
+            showNotification('Você não tem permissão para criar usuários', 'error');
+            return;
+        }
+
         console.log('Abrindo modal para usuário:', userId);
         const modal = document.getElementById('userModal');
         const modalTitle = document.getElementById('modalTitle');
@@ -679,7 +770,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const userNameInput = document.getElementById('modalUserName');
         const userEmailInput = document.getElementById('userEmail');
         const userPasswordInput = document.getElementById('userPassword');
-        const userRoleInput = document.getElementById('userRole');
+        const userRoleInput = document.getElementById('modalUserRole');
         const avatarPreview = document.getElementById('avatarPreview');
 
         if (userId) {
@@ -701,6 +792,17 @@ document.addEventListener('DOMContentLoaded', function() {
             userPasswordInput.required = true;
             userPasswordInput.placeholder = 'Digite a senha';
             avatarPreview.innerHTML = '<i class="fas fa-user"></i>';
+        }
+
+        // Aplicar restrições de role baseado nas permissões
+        if (userRoleInput) {
+            const adminOption = userRoleInput.querySelector('option[value="admin"]');
+            if (adminOption) {
+                adminOption.style.display = hasPermission('canCreateAdmin') ? 'block' : 'none';
+                if (!hasPermission('canCreateAdmin')) {
+                    userRoleInput.value = 'user'; // Definir como user por padrão
+                }
+            }
         }
 
         modal.classList.add('show');
