@@ -856,10 +856,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const userCard = document.createElement('div');
             userCard.className = 'user-card';
             const avatarHtml = user.avatar ? 
-                `<img src="${user.avatar}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">` : 
+                `<img src="${user.avatar}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="console.error('Erro ao carregar avatar:', this.src)">` : 
                 '<i class="fas fa-user"></i>';
             
             console.log('HTML do avatar:', avatarHtml);
+            console.log('Avatar URL completa:', user.avatar);
             
             userCard.innerHTML = `
                 <div class="user-avatar">
