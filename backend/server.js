@@ -59,6 +59,7 @@ mongoose.connect(MONGODB_URI, {
 // Modelos
 const User = require('./models/User');
 const CompanySettings = require('./models/CompanySettings');
+const WhatsAppMessages = require('./models/WhatsAppMessages');
 const authService = require('./simple-auth');
 
 // Rotas de autenticação
@@ -556,6 +557,96 @@ app.get('/api/whatsapp/client-info', authenticateToken, async (req, res) => {
         res.json(info);
     } catch (error) {
         console.error('Erro ao obter informações do cliente:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// ==================== ROTAS MENSAGENS AUTOMÁTICAS ====================
+
+// Obter mensagens automáticas
+app.get('/api/whatsapp/messages', authenticateToken, async (req, res) => {
+    try {
+        let messages = await WhatsAppMessages.findOne({ isActive: true });
+        
+        if (!messages) {
+            // Criar mensagens padrão se não existirem
+            messages = new WhatsAppMessages({
+                welcomeMessage: 'Olá! Seja bem-vindo ao CH Studio! Como posso ajudá-lo?',
+                outOfHoursMessage: 'Olá! Obrigado por entrar em contato. Estamos fora do horário de funcionamento. Retornaremos em breve!'
+            });
+            await messages.save();
+        }
+        
+        res.json({
+            welcomeMessage: messages.welcomeMessage,
+            outOfHoursMessage: messages.outOfHoursMessage
+        });
+    } catch (error) {
+        console.error('Erro ao obter mensagens automáticas:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Salvar mensagens automáticas
+app.put('/api/whatsapp/messages', authenticateToken, async (req, res) => {
+    try {
+        const { welcomeMessage, outOfHoursMessage } = req.body;
+        
+        if (!welcomeMessage && !outOfHoursMessage) {
+            return res.status(400).json({ message: 'Pelo menos uma mensagem deve ser fornecida' });
+        }
+        
+        let messages = await WhatsAppMessages.findOne({ isActive: true });
+        
+        if (!messages) {
+            messages = new WhatsAppMessages();
+        }
+        
+        if (welcomeMessage !== undefined) {
+            messages.welcomeMessage = welcomeMessage;
+        }
+        
+        if (outOfHoursMessage !== undefined) {
+            messages.outOfHoursMessage = outOfHoursMessage;
+        }
+        
+        await messages.save();
+        
+        res.json({ 
+            message: 'Mensagens automáticas salvas com sucesso!',
+            welcomeMessage: messages.welcomeMessage,
+            outOfHoursMessage: messages.outOfHoursMessage
+        });
+    } catch (error) {
+        console.error('Erro ao salvar mensagens automáticas:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Enviar mensagem automática
+app.post('/api/whatsapp/send-automatic', authenticateToken, async (req, res) => {
+    try {
+        const { number } = req.body;
+        
+        if (!number) {
+            return res.status(400).json({ message: 'Número é obrigatório' });
+        }
+
+        // Buscar mensagens automáticas
+        const messages = await WhatsAppMessages.findOne({ isActive: true });
+        if (!messages) {
+            return res.status(404).json({ message: 'Mensagens automáticas não configuradas' });
+        }
+
+        const result = await whatsappService.sendAutomaticMessage(
+            number, 
+            messages.welcomeMessage, 
+            messages.outOfHoursMessage
+        );
+        
+        res.json(result);
+    } catch (error) {
+        console.error('Erro ao enviar mensagem automática:', error);
         res.status(500).json({ message: 'Erro interno do servidor' });
     }
 });

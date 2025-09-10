@@ -206,6 +206,57 @@ class WhatsAppService {
             return null;
         }
     }
+
+    // Verificar se está dentro do horário de funcionamento
+    isWithinBusinessHours() {
+        const now = new Date();
+        const dayOfWeek = now.getDay(); // 0 = domingo, 1 = segunda, etc.
+        const currentTime = now.getHours() * 60 + now.getMinutes(); // minutos desde meia-noite
+
+        // Horários padrão (pode ser configurado via banco de dados)
+        const businessHours = {
+            1: { start: 8 * 60, end: 18 * 60 }, // Segunda: 8h às 18h
+            2: { start: 8 * 60, end: 18 * 60 }, // Terça: 8h às 18h
+            3: { start: 8 * 60, end: 18 * 60 }, // Quarta: 8h às 18h
+            4: { start: 8 * 60, end: 18 * 60 }, // Quinta: 8h às 18h
+            5: { start: 8 * 60, end: 18 * 60 }, // Sexta: 8h às 18h
+            6: { start: 8 * 60, end: 12 * 60 }, // Sábado: 8h às 12h
+            0: { start: 0, end: 0 } // Domingo: fechado
+        };
+
+        const todayHours = businessHours[dayOfWeek];
+        if (!todayHours || todayHours.start === todayHours.end) {
+            return false; // Fechado
+        }
+
+        return currentTime >= todayHours.start && currentTime <= todayHours.end;
+    }
+
+    // Enviar mensagem automática baseada no horário
+    async sendAutomaticMessage(contactNumber, welcomeMessage, outOfHoursMessage) {
+        try {
+            if (!this.client || !this.isConnected) {
+                throw new Error('WhatsApp não está conectado');
+            }
+
+            const isWithinHours = this.isWithinBusinessHours();
+            const message = isWithinHours ? welcomeMessage : outOfHoursMessage;
+
+            if (!message || message.trim() === '') {
+                console.log('Nenhuma mensagem automática configurada');
+                return;
+            }
+
+            const chatId = contactNumber.includes('@c.us') ? contactNumber : `${contactNumber}@c.us`;
+            await this.client.sendMessage(chatId, message);
+            
+            console.log(`Mensagem automática enviada para ${contactNumber}: ${isWithinHours ? 'boas-vindas' : 'fora do horário'}`);
+            return { success: true, messageType: isWithinHours ? 'welcome' : 'outOfHours' };
+        } catch (error) {
+            console.error('Erro ao enviar mensagem automática:', error);
+            throw error;
+        }
+    }
 }
 
 // Instância singleton
