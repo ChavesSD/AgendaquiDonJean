@@ -5,7 +5,30 @@ class BackupManager {
 
     init() {
         this.setupEventListeners();
-        this.loadBackups();
+        // Só carregar backups se o usuário tiver permissão
+        if (this.hasBackupPermission()) {
+            this.loadBackups();
+        }
+    }
+
+    // Verificar se o usuário tem permissão para acessar backup
+    hasBackupPermission() {
+        try {
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            const userRole = userData.role || 'user';
+            
+            // Permissões baseadas no role
+            const permissions = {
+                admin: { canAccessBackup: true },
+                manager: { canAccessBackup: false },
+                user: { canAccessBackup: false }
+            };
+            
+            return permissions[userRole]?.canAccessBackup || false;
+        } catch (error) {
+            console.error('Erro ao verificar permissões:', error);
+            return false;
+        }
     }
 
     setupEventListeners() {
@@ -275,6 +298,12 @@ class BackupManager {
 
     // Carregar backups
     async loadBackups() {
+        // Verificar permissão antes de fazer a requisição
+        if (!this.hasBackupPermission()) {
+            console.log('Usuário não tem permissão para acessar backups');
+            return;
+        }
+
         try {
             const token = localStorage.getItem('authToken');
             const response = await fetch('/api/backup/list', {

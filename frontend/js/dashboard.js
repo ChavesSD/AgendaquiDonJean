@@ -20,21 +20,21 @@ document.addEventListener('DOMContentLoaded', function() {
             canCreateAdmin: true,
             canAccessBackup: true,
             canAccessAllPages: true,
-            pages: ['dashboard', 'agenda', 'financeiro', 'profissionais', 'servicos', 'relatorios', 'configuracoes']
+            pages: ['dashboard', 'agenda', 'estoque', 'financeiro', 'profissionais', 'servicos', 'relatorios', 'configuracoes']
         },
         manager: {
             canCreateUsers: true,
             canCreateAdmin: false,
             canAccessBackup: false,
             canAccessAllPages: true,
-            pages: ['dashboard', 'agenda', 'financeiro', 'profissionais', 'servicos', 'relatorios', 'configuracoes']
+            pages: ['dashboard', 'agenda', 'estoque', 'financeiro', 'profissionais', 'servicos', 'relatorios', 'configuracoes']
         },
         user: {
             canCreateUsers: false,
             canCreateAdmin: false,
             canAccessBackup: false,
             canAccessAllPages: false,
-            pages: ['dashboard', 'agenda']
+            pages: ['dashboard', 'agenda', 'estoque']
         }
     };
 
@@ -116,6 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const pageTitles = {
             'dashboard': 'Dashboard',
             'agenda': 'Agenda',
+            'estoque': 'Estoque',
             'financeiro': 'Financeiro',
             'profissionais': 'Profissionais',
             'servicos': 'Serviços',

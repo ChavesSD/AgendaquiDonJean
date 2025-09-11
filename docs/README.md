@@ -2,6 +2,8 @@
 
 Sistema completo de gestão empresarial desenvolvido com HTML, CSS, JavaScript (Frontend) e Node.js + MongoDB (Backend).
 
+> 📚 **Para documentação completa e detalhada, consulte: [DOCUMENTACAO-COMPLETA.md](DOCUMENTACAO-COMPLETA.md)**
+
 ## 🚀 Funcionalidades
 
 - **Autenticação segura** com JWT
