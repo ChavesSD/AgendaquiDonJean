@@ -994,19 +994,28 @@ app.post('/api/professionals', authenticateToken, upload.single('photo'), async 
             dailyCapacity: parseInt(dailyCapacity) || 0,
             status: status || 'active',
             photo: photoUrl,
-            userAccount: createUserAccount === 'true',
-            userEmail: createUserAccount === 'true' ? userEmail : null
+            userAccount: createUserAccount === 'true' || createUserAccount === true || createUserAccount === 'on',
+            userEmail: (createUserAccount === 'true' || createUserAccount === true || createUserAccount === 'on') ? userEmail : null
         });
 
         // Se deve criar conta de usuário
-        if (createUserAccount === 'true') {
+        if (createUserAccount === 'true' || createUserAccount === true || createUserAccount === 'on') {
+            console.log('Criando conta de usuário para profissional:', {
+                userEmail,
+                userPassword: userPassword ? '***' : 'undefined',
+                firstName,
+                lastName
+            });
+
             if (!userEmail || !userPassword) {
+                console.log('Erro: Email ou senha não fornecidos');
                 return res.status(400).json({ message: 'Email e senha são obrigatórios para criar conta de usuário' });
             }
 
             // Verificar se email já existe
             const existingUser = await User.findOne({ email: userEmail });
             if (existingUser) {
+                console.log('Erro: Email já existe:', userEmail);
                 return res.status(400).json({ message: 'Este email já está em uso' });
             }
 
@@ -1019,8 +1028,14 @@ app.post('/api/professionals', authenticateToken, upload.single('photo'), async 
                 avatar: photoUrl
             });
 
-            await user.save();
-            professional.userId = user._id;
+            try {
+                await user.save();
+                console.log('Usuário criado com sucesso:', user._id);
+                professional.userId = user._id;
+            } catch (userError) {
+                console.error('Erro ao criar usuário:', userError);
+                return res.status(500).json({ message: 'Erro ao criar conta de usuário' });
+            }
         }
 
         await professional.save();
@@ -1076,7 +1091,7 @@ app.put('/api/professionals/:id', authenticateToken, upload.single('photo'), asy
         }
 
         // Gerenciar conta de usuário
-        if (createUserAccount === 'true') {
+        if (createUserAccount === 'true' || createUserAccount === true || createUserAccount === 'on') {
             if (!userEmail) {
                 return res.status(400).json({ message: 'Email é obrigatório para criar conta de usuário' });
             }

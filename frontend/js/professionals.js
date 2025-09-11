@@ -42,6 +42,9 @@ class ProfessionalManager {
                 if (credentialsSection) {
                     credentialsSection.style.display = e.target.checked ? 'block' : 'none';
                 }
+                
+                // Debug
+                console.log('Checkbox createUserAccount:', e.target.checked);
             });
         }
 
@@ -151,6 +154,28 @@ class ProfessionalManager {
         const professionalId = formData.get('id');
         const isEdit = professionalId !== '';
 
+        // Validar se deve criar usuário
+        const createUserAccount = formData.get('createUserAccount');
+        if (createUserAccount === 'on') {
+            const userEmail = formData.get('userEmail');
+            const userPassword = formData.get('userPassword');
+            
+            if (!userEmail || !userPassword) {
+                this.showNotification('Email e senha são obrigatórios para criar conta de usuário', 'error');
+                return;
+            }
+        }
+
+        // Debug: verificar dados do formulário
+        console.log('Dados do formulário:');
+        for (let [key, value] of formData.entries()) {
+            if (key === 'userPassword') {
+                console.log(key, '***');
+            } else {
+                console.log(key, value);
+            }
+        }
+
         try {
             const token = localStorage.getItem('authToken');
             const url = isEdit ? `/api/professionals/${professionalId}` : '/api/professionals';
@@ -170,7 +195,12 @@ class ProfessionalManager {
                 this.showNotification(result.message, 'success');
                 this.closeModal();
                 this.loadProfessionals();
+                // Recarregar usuários se foi criado um usuário
+                if (window.loadUsers) {
+                    window.loadUsers();
+                }
             } else {
+                console.error('Erro na resposta:', result);
                 this.showNotification(result.message, 'error');
             }
         } catch (error) {

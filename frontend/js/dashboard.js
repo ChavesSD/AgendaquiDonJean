@@ -769,8 +769,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const modalTitle = document.getElementById('modalTitle');
         const userIdInput = document.getElementById('userId');
         const userNameInput = document.getElementById('modalUserName');
-        const userEmailInput = document.getElementById('userEmail');
-        const userPasswordInput = document.getElementById('userPassword');
+        const userEmailInput = document.getElementById('modalUserEmail');
+        const userPasswordInput = document.getElementById('modalUserPassword');
         const userRoleInput = document.getElementById('modalUserRole');
         const avatarPreview = document.getElementById('avatarPreview');
 
@@ -840,7 +840,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Dados do usuário carregados:', user);
                 
                 document.getElementById('modalUserName').value = user.name || '';
-                document.getElementById('userEmail').value = user.email || '';
+                document.getElementById('modalUserEmail').value = user.email || '';
                 document.getElementById('modalUserRole').value = user.role || 'user';
                 
                 // Atualizar preview do avatar
@@ -865,8 +865,8 @@ document.addEventListener('DOMContentLoaded', function() {
     async function saveUser() {
         const userId = document.getElementById('userId').value;
         const name = document.getElementById('modalUserName').value;
-        const email = document.getElementById('userEmail').value;
-        const password = document.getElementById('userPassword').value;
+        const email = document.getElementById('modalUserEmail').value;
+        const password = document.getElementById('modalUserPassword').value;
         const role = document.getElementById('modalUserRole').value;
         const avatar = document.getElementById('userAvatar').files[0];
 
