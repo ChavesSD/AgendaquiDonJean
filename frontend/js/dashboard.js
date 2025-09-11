@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
             canCreateAdmin: false,
             canAccessBackup: false,
             canAccessAllPages: false,
-            pages: ['dashboard', 'agenda', 'estoque']
+            pages: ['dashboard', 'agenda', 'comissoes']
         }
     };
 
@@ -116,6 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const pageTitles = {
             'dashboard': 'Dashboard',
             'agenda': 'Agenda',
+            'comissoes': 'Minhas Comissões',
             'estoque': 'Estoque',
             'financeiro': 'Financeiro',
             'profissionais': 'Profissionais',

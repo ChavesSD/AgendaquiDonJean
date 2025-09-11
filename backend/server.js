@@ -1020,10 +1020,13 @@ app.post('/api/professionals', authenticateToken, upload.single('photo'), async 
             }
 
             // Criar usuário
+            const bcrypt = require('bcryptjs');
+            const hashedPassword = await bcrypt.hash(userPassword, 10);
+            
             const user = new User({
                 name: `${firstName} ${lastName}`,
                 email: userEmail,
-                password: userPassword,
+                password: hashedPassword,
                 role: 'user',
                 avatar: photoUrl
             });
@@ -1103,7 +1106,8 @@ app.put('/api/professionals/:id', authenticateToken, upload.single('photo'), asy
                     user.name = `${firstName} ${lastName}`;
                     user.email = userEmail;
                     if (userPassword) {
-                        user.password = userPassword;
+                        const bcrypt = require('bcryptjs');
+                        user.password = await bcrypt.hash(userPassword, 10);
                     }
                     if (professional.photo) {
                         user.avatar = professional.photo;
@@ -1117,10 +1121,13 @@ app.put('/api/professionals/:id', authenticateToken, upload.single('photo'), asy
                     return res.status(400).json({ message: 'Este email já está em uso' });
                 }
 
+                const bcrypt = require('bcryptjs');
+                const hashedPassword = await bcrypt.hash(userPassword || '123456', 10);
+                
                 const user = new User({
                     name: `${firstName} ${lastName}`,
                     email: userEmail,
-                    password: userPassword || '123456', // Senha padrão se não fornecida
+                    password: hashedPassword,
                     role: 'user',
                     avatar: professional.photo
                 });
