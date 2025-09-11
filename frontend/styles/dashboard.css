@@ -64,8 +64,8 @@ body {
 /* Logo para sidebar aberta */
 .sidebar-logo-open {
     display: block;
-    width: 270px;
-    height: 270px;
+    width: 180px;
+    height: 180px;
 }
 
 .sidebar-logo-collapsed {
@@ -1783,9 +1783,10 @@ body {
 }
 
 .backup-list-section h4 {
-    color: #fff;
+    color: #2c3e50;
     margin-bottom: 15px;
-    font-size: 18px;
+    font-size: 20px;
+    font-weight: 600;
 }
 
 .backup-list {
@@ -1794,6 +1795,297 @@ body {
     padding: 20px;
     max-height: 400px;
     overflow-y: auto;
+}
+
+/* Tabela de Backups */
+.backup-table-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(151, 87, 86, 0.1);
+    position: relative;
+}
+
+.backup-table-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #975756, #7a4443);
+}
+
+.backup-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: transparent;
+}
+
+.backup-table thead {
+    background: linear-gradient(135deg, #975756, #7a4443);
+}
+
+.backup-table thead th {
+    color: #fff;
+    font-weight: 600;
+    padding: 20px 15px;
+    text-align: left;
+    border: none;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+}
+
+.backup-table thead th:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 20%;
+    bottom: 20%;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.backup-table tbody tr {
+    border-bottom: 1px solid rgba(151, 87, 86, 0.1);
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.backup-table tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.backup-table tbody tr:hover {
+    background: rgba(151, 87, 86, 0.05);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(151, 87, 86, 0.1);
+}
+
+.backup-table tbody td {
+    padding: 18px 15px;
+    vertical-align: top;
+    color: #2c3e50;
+    font-size: 14px;
+    border: none;
+}
+
+.backup-name {
+    min-width: 200px;
+}
+
+.backup-name-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.backup-name-content i {
+    color: #975756;
+    font-size: 18px;
+    background: rgba(151, 87, 86, 0.1);
+    padding: 8px;
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.backup-name-content strong {
+    color: #2c3e50;
+    font-size: 15px;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 3px;
+}
+
+.backup-name-content small {
+    color: #7f8c8d;
+    font-size: 12px;
+    font-style: italic;
+}
+
+.backup-date,
+.backup-size,
+.backup-collections {
+    color: #2c3e50;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.backup-date i,
+.backup-size i,
+.backup-collections i {
+    color: #975756;
+    margin-right: 8px;
+    font-size: 14px;
+    background: rgba(151, 87, 86, 0.1);
+    padding: 6px;
+    border-radius: 6px;
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.status-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.status-completed {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: #fff;
+    border: none;
+}
+
+.status-processing {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: #fff;
+    border: none;
+}
+
+.status-failed {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: #fff;
+    border: none;
+}
+
+.status-pending {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: #fff;
+    border: none;
+}
+
+.status-imported {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    color: #fff;
+    border: none;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.action-buttons .btn {
+    padding: 6px 10px;
+    min-width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.action-buttons .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.action-buttons .btn-primary {
+    background: linear-gradient(135deg, #975756, #7a4443);
+    color: #fff;
+}
+
+.action-buttons .btn-primary:hover {
+    background: linear-gradient(135deg, #7a4443, #6b3a39);
+}
+
+.action-buttons .btn-info {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: #fff;
+}
+
+.action-buttons .btn-info:hover {
+    background: linear-gradient(135deg, #2980b9, #21618c);
+}
+
+.action-buttons .btn-danger {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: #fff;
+}
+
+.action-buttons .btn-danger:hover {
+    background: linear-gradient(135deg, #c0392b, #a93226);
+}
+
+.loading-row td {
+    text-align: center;
+    color: #7f8c8d;
+    font-style: italic;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.loading-row i {
+    margin-right: 10px;
+    color: #975756;
+    font-size: 18px;
+    animation: spin 1s linear infinite;
+}
+
+.no-backups-row td {
+    text-align: center;
+    color: #7f8c8d;
+    font-style: italic;
+    padding: 50px;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.no-backups {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.no-backups i {
+    font-size: 48px;
+    color: #975756;
+    background: rgba(151, 87, 86, 0.1);
+    padding: 20px;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.no-backups span {
+    font-size: 16px;
+    font-weight: 500;
 }
 
 .backup-item {
@@ -2011,5 +2303,119 @@ body {
     .modal-content {
         width: 95%;
         margin: 10% auto;
+    }
+
+    /* Responsive para Tabela de Backups */
+    .backup-table-container {
+        overflow-x: auto;
+        border-radius: 12px;
+    }
+    
+    .backup-table {
+        min-width: 600px;
+    }
+    
+    .backup-table thead th {
+        padding: 15px 10px;
+        font-size: 12px;
+    }
+    
+    .backup-table tbody td {
+        padding: 15px 10px;
+        font-size: 13px;
+    }
+    
+    .backup-name {
+        min-width: 150px;
+    }
+    
+    .backup-name-content {
+        gap: 8px;
+    }
+    
+    .backup-name-content i {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+        padding: 6px;
+    }
+    
+    .action-buttons {
+        flex-wrap: wrap;
+        gap: 5px;
+        justify-content: flex-start;
+    }
+    
+    .action-buttons .btn {
+        min-width: 28px;
+        height: 28px;
+        font-size: 11px;
+        padding: 4px 6px;
+    }
+    
+    .status-badge {
+        font-size: 10px;
+        padding: 6px 10px;
+    }
+    
+    .backup-date i,
+    .backup-size i,
+    .backup-collections i {
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+        padding: 4px;
+    }
+}
+
+@media (max-width: 480px) {
+    .backup-table thead th {
+        padding: 12px 8px;
+        font-size: 11px;
+    }
+    
+    .backup-table tbody td {
+        padding: 12px 8px;
+        font-size: 12px;
+    }
+    
+    .backup-name-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .backup-name-content i {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+        padding: 5px;
+    }
+    
+    .action-buttons {
+        justify-content: flex-start;
+        width: 100%;
+        gap: 4px;
+    }
+    
+    .action-buttons .btn {
+        min-width: 24px;
+        height: 24px;
+        font-size: 10px;
+        padding: 3px 5px;
+    }
+    
+    .status-badge {
+        font-size: 9px;
+        padding: 4px 8px;
+    }
+    
+    .backup-date i,
+    .backup-size i,
+    .backup-collections i {
+        width: 18px;
+        height: 18px;
+        font-size: 10px;
+        padding: 3px;
     }
 }

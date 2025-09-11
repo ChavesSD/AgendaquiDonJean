@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const multer = require('multer');
 const whatsappService = require('./services/whatsappService');
 const backupService = require('./services/backupService');
@@ -17,6 +18,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Configurar multer para upload de arquivos
 const storage = multer.memoryStorage();
+
+// Upload para imagens (avatar)
 const upload = multer({ 
     storage: storage,
     limits: {
@@ -27,6 +30,21 @@ const upload = multer({
             cb(null, true);
         } else {
             cb(new Error('Apenas arquivos de imagem são permitidos'), false);
+        }
+    }
+});
+
+// Upload para backups (arquivos ZIP)
+const uploadBackup = multer({
+    storage: storage,
+    limits: {
+        fileSize: 100 * 1024 * 1024 // 100MB
+    },
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype === 'application/zip' || file.originalname.toLowerCase().endsWith('.zip')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Apenas arquivos ZIP são permitidos para backup'), false);
         }
     }
 });
@@ -844,8 +862,74 @@ app.delete('/api/backup/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// Download de backup
+app.get('/api/backup/download/:id', authenticateToken, requirePermission('canAccessBackup'), async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = backupService.getBackupForDownload(id);
+        
+        if (!result.success) {
+            return res.status(404).json({ message: result.message });
+        }
+
+        const backup = result.backup;
+        
+        // Verificar se o arquivo existe
+        if (!fs.existsSync(backup.filepath)) {
+            return res.status(404).json({ message: 'Arquivo de backup não encontrado' });
+        }
+
+        // Configurar headers para download
+        res.setHeader('Content-Disposition', `attachment; filename="${backup.filename}"`);
+        res.setHeader('Content-Type', 'application/zip');
+        res.setHeader('Content-Length', backup.size);
+
+        // Enviar arquivo
+        const fileStream = fs.createReadStream(backup.filepath);
+        fileStream.pipe(res);
+
+        fileStream.on('error', (error) => {
+            console.error('Erro ao enviar arquivo:', error);
+            if (!res.headersSent) {
+                res.status(500).json({ message: 'Erro ao enviar arquivo' });
+            }
+        });
+
+    } catch (error) {
+        console.error('Erro no download do backup:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Importar backup
+app.post('/api/backup/import', authenticateToken, requirePermission('canAccessBackup'), uploadBackup.single('backupFile'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'Nenhum arquivo foi enviado' });
+        }
+
+        console.log('Arquivo recebido:', {
+            originalname: req.file.originalname,
+            mimetype: req.file.mimetype,
+            size: req.file.size
+        });
+
+        const result = await backupService.importBackup(req.file.buffer, req.file.originalname);
+        
+        if (result.success) {
+            res.json(result);
+        } else {
+            res.status(400).json({ message: result.message });
+        }
+
+    } catch (error) {
+        console.error('Erro ao importar backup:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
 // Manutenção do banco
-app.post('/api/backup/maintenance', authenticateToken, async (req, res) => {
+app.post('/api/backup/maintenance', authenticateToken, requirePermission('canAccessBackup'), async (req, res) => {
     try {
         const result = await backupService.performMaintenance();
         res.json(result);

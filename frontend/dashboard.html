@@ -491,9 +491,15 @@
                                     <!-- Fluxo Automático -->
                                     <div class="config-section">
                                         <h4>Fluxo Automático</h4>
+                                        <div class="whatsapp-status">
+                                            <div class="status-indicator">
+                                                <span class="status-dot disconnected"></span>
+                                                <span class="status-text">Em Desenvolvimento</span>
+                                            </div>
+                                        </div>
                                         <div class="coming-soon-simple">
                                             <i class="fas fa-cogs"></i>
-                                            <span>Em Implementação</span>
+                                            <span>Funcionalidade em desenvolvimento</span>
                                         </div>
                                     </div>
                                 </div>
@@ -509,15 +515,18 @@
                                             <i class="fas fa-download"></i>
                                             Criar Backup
                                         </button>
-                                        <button class="btn btn-secondary" id="restore-backup">
+                                        <button class="btn btn-success" id="import-backup">
                                             <i class="fas fa-upload"></i>
-                                            Restaurar Backup
+                                            Importar Backup
                                         </button>
                                         <button class="btn btn-warning" id="maintenance-db">
                                             <i class="fas fa-tools"></i>
                                             Manutenção do Banco
                                         </button>
                                     </div>
+                                    
+                                    <!-- Input oculto para upload de arquivo -->
+                                    <input type="file" id="backup-file-input" accept=".zip" style="display: none;">
                                     
                                     <div class="backup-filters">
                                         <h4>Filtrar Backups</h4>
@@ -541,11 +550,27 @@
 
                                     <div class="backup-list-section">
                                         <h4>Backups Disponíveis</h4>
-                                        <div class="backup-list" id="backup-list">
-                                            <div class="loading">
-                                                <i class="fas fa-spinner fa-spin"></i>
-                                                Carregando backups...
-                                            </div>
+                                        <div class="backup-table-container">
+                                            <table class="backup-table" id="backup-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Nome do Backup</th>
+                                                        <th>Data de Criação</th>
+                                                        <th>Tamanho</th>
+                                                        <th>Coleções</th>
+                                                        <th>Status</th>
+                                                        <th>Ações</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="backup-list">
+                                                    <tr class="loading-row">
+                                                        <td colspan="6" class="loading">
+                                                            <i class="fas fa-spinner fa-spin"></i>
+                                                            Carregando backups...
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
