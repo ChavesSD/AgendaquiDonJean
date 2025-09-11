@@ -181,15 +181,73 @@
                 <div class="page-content" id="profissionais-page">
                     <div class="page-header">
                         <h2>Profissionais</h2>
-                        <button class="btn btn-primary">
+                        <button class="btn btn-primary" id="add-professional-btn">
                             <i class="fas fa-plus"></i>
                             Novo Profissional
                         </button>
                     </div>
-                    <div class="empty-state">
-                        <i class="fas fa-users"></i>
-                        <h3>Profissionais em desenvolvimento</h3>
-                        <p>Esta funcionalidade será implementada em breve.</p>
+
+                    <!-- Cards de Estatísticas -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-professionals">0</h3>
+                                <p>Total de Profissionais</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon active">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="active-professionals">0</h3>
+                                <p>Profissionais Ativos</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon inactive">
+                                <i class="fas fa-user-times"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="inactive-professionals">0</h3>
+                                <p>Profissionais Inativos</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon vacation">
+                                <i class="fas fa-umbrella-beach"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="vacation-professionals">0</h3>
+                                <p>Profissionais Férias</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon leave">
+                                <i class="fas fa-user-clock"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="leave-professionals">0</h3>
+                                <p>Profissionais Licença</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Profissionais -->
+                    <div class="professionals-section">
+                        <div class="section-header">
+                            <h3>Lista de Profissionais</h3>
+                            <div class="search-box">
+                                <input type="text" id="professional-search" placeholder="Buscar profissional...">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+                        <div class="professionals-list" id="professionals-list">
+                            <!-- Lista será carregada dinamicamente -->
+                        </div>
                     </div>
                 </div>
 
@@ -671,9 +729,111 @@
     <!-- Socket.IO -->
     <script src="/socket.io/socket.io.js"></script>
     
+    <!-- Modal de Profissional -->
+    <div class="modal" id="professionalModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="professionalModalTitle">Novo Profissional</h3>
+                <span class="close" id="closeProfessionalModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="professionalForm" enctype="multipart/form-data">
+                    <input type="hidden" id="professionalId" name="id">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="professionalPhoto">Foto do Profissional</label>
+                            <div class="photo-upload">
+                                <input type="file" id="professionalPhoto" name="photo" accept="image/*">
+                                <div class="photo-preview" id="photoPreview">
+                                    <i class="fas fa-user"></i>
+                                    <span>Clique para adicionar foto</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="professionalStatus">Status</label>
+                            <select id="professionalStatus" name="status" required>
+                                <option value="active">Ativo</option>
+                                <option value="inactive">Inativo</option>
+                                <option value="vacation">Férias</option>
+                                <option value="leave">Licença</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="professionalFirstName">Nome</label>
+                            <input type="text" id="professionalFirstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="professionalLastName">Sobrenome</label>
+                            <input type="text" id="professionalLastName" name="lastName" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="professionalContact">Contato</label>
+                            <input type="tel" id="professionalContact" name="contact" placeholder="(11) 99999-9999">
+                        </div>
+                        <div class="form-group">
+                            <label for="professionalEmail">Email</label>
+                            <input type="email" id="professionalEmail" name="email">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="professionalAddress">Endereço</label>
+                        <textarea id="professionalAddress" name="address" rows="3" placeholder="Rua, número, bairro, cidade - UF"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="professionalFunction">Função</label>
+                            <input type="text" id="professionalFunction" name="function" placeholder="Ex: Cabeleireiro, Manicure, etc.">
+                        </div>
+                        <div class="form-group">
+                            <label for="professionalDailyCapacity">Atendimentos por Dia</label>
+                            <input type="number" id="professionalDailyCapacity" name="dailyCapacity" min="1" max="50" placeholder="Ex: 10">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="createUserAccount" name="createUserAccount">
+                            <label for="createUserAccount">Tornar este profissional um usuário do sistema</label>
+                        </div>
+                    </div>
+
+                    <div id="userCredentialsSection" style="display: none;">
+                        <h4>Credenciais de Acesso</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="userEmail">Email de Acesso</label>
+                                <input type="email" id="userEmail" name="userEmail" placeholder="usuario@email.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="userPassword">Senha</label>
+                                <input type="password" id="userPassword" name="userPassword" placeholder="Mínimo 6 caracteres">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" id="cancelProfessional">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" id="saveProfessional">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="js/dashboard.js"></script>
     <script src="js/whatsapp.js"></script>
     <script src="js/backup.js"></script>
+    <script src="js/professionals.js"></script>
 </body>
 </html>

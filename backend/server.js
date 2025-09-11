@@ -79,6 +79,7 @@ mongoose.connect(MONGODB_URI, {
 const User = require('./models/User');
 const CompanySettings = require('./models/CompanySettings');
 const WhatsAppMessages = require('./models/WhatsAppMessages');
+const Professional = require('./models/Professional');
 const authService = require('./simple-auth');
 
 // Rotas de autenticação
@@ -935,6 +936,231 @@ app.post('/api/backup/maintenance', authenticateToken, requirePermission('canAcc
         res.json(result);
     } catch (error) {
         console.error('Erro na manutenção:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// ==================== ROTAS DE PROFISSIONAIS ====================
+
+// Listar profissionais
+app.get('/api/professionals', authenticateToken, async (req, res) => {
+    try {
+        const professionals = await Professional.find().sort({ createdAt: -1 });
+        res.json({ success: true, professionals });
+    } catch (error) {
+        console.error('Erro ao listar profissionais:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Criar profissional
+app.post('/api/professionals', authenticateToken, upload.single('photo'), async (req, res) => {
+    try {
+        const {
+            firstName,
+            lastName,
+            contact,
+            email,
+            address,
+            function: professionalFunction,
+            dailyCapacity,
+            status,
+            createUserAccount,
+            userEmail,
+            userPassword
+        } = req.body;
+
+        // Validar campos obrigatórios
+        if (!firstName || !lastName) {
+            return res.status(400).json({ message: 'Nome e sobrenome são obrigatórios' });
+        }
+
+        // Processar foto se fornecida
+        let photoUrl = null;
+        if (req.file) {
+            // Converter para base64
+            const base64 = req.file.buffer.toString('base64');
+            photoUrl = `data:${req.file.mimetype};base64,${base64}`;
+        }
+
+        // Criar profissional
+        const professional = new Professional({
+            firstName,
+            lastName,
+            contact,
+            email,
+            address,
+            function: professionalFunction,
+            dailyCapacity: parseInt(dailyCapacity) || 0,
+            status: status || 'active',
+            photo: photoUrl,
+            userAccount: createUserAccount === 'true',
+            userEmail: createUserAccount === 'true' ? userEmail : null
+        });
+
+        // Se deve criar conta de usuário
+        if (createUserAccount === 'true') {
+            if (!userEmail || !userPassword) {
+                return res.status(400).json({ message: 'Email e senha são obrigatórios para criar conta de usuário' });
+            }
+
+            // Verificar se email já existe
+            const existingUser = await User.findOne({ email: userEmail });
+            if (existingUser) {
+                return res.status(400).json({ message: 'Este email já está em uso' });
+            }
+
+            // Criar usuário
+            const user = new User({
+                name: `${firstName} ${lastName}`,
+                email: userEmail,
+                password: userPassword,
+                role: 'user',
+                avatar: photoUrl
+            });
+
+            await user.save();
+            professional.userId = user._id;
+        }
+
+        await professional.save();
+
+        res.json({ 
+            success: true, 
+            message: 'Profissional criado com sucesso',
+            professional 
+        });
+    } catch (error) {
+        console.error('Erro ao criar profissional:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Atualizar profissional
+app.put('/api/professionals/:id', authenticateToken, upload.single('photo'), async (req, res) => {
+    try {
+        const { id } = req.params;
+        const {
+            firstName,
+            lastName,
+            contact,
+            email,
+            address,
+            function: professionalFunction,
+            dailyCapacity,
+            status,
+            createUserAccount,
+            userEmail,
+            userPassword
+        } = req.body;
+
+        const professional = await Professional.findById(id);
+        if (!professional) {
+            return res.status(404).json({ message: 'Profissional não encontrado' });
+        }
+
+        // Atualizar dados básicos
+        professional.firstName = firstName;
+        professional.lastName = lastName;
+        professional.contact = contact;
+        professional.email = email;
+        professional.address = address;
+        professional.function = professionalFunction;
+        professional.dailyCapacity = parseInt(dailyCapacity) || 0;
+        professional.status = status;
+
+        // Processar foto se fornecida
+        if (req.file) {
+            const base64 = req.file.buffer.toString('base64');
+            professional.photo = `data:${req.file.mimetype};base64,${base64}`;
+        }
+
+        // Gerenciar conta de usuário
+        if (createUserAccount === 'true') {
+            if (!userEmail) {
+                return res.status(400).json({ message: 'Email é obrigatório para criar conta de usuário' });
+            }
+
+            if (professional.userId) {
+                // Atualizar usuário existente
+                const user = await User.findById(professional.userId);
+                if (user) {
+                    user.name = `${firstName} ${lastName}`;
+                    user.email = userEmail;
+                    if (userPassword) {
+                        user.password = userPassword;
+                    }
+                    if (professional.photo) {
+                        user.avatar = professional.photo;
+                    }
+                    await user.save();
+                }
+            } else {
+                // Criar novo usuário
+                const existingUser = await User.findOne({ email: userEmail });
+                if (existingUser) {
+                    return res.status(400).json({ message: 'Este email já está em uso' });
+                }
+
+                const user = new User({
+                    name: `${firstName} ${lastName}`,
+                    email: userEmail,
+                    password: userPassword || '123456', // Senha padrão se não fornecida
+                    role: 'user',
+                    avatar: professional.photo
+                });
+
+                await user.save();
+                professional.userId = user._id;
+            }
+            professional.userAccount = true;
+            professional.userEmail = userEmail;
+        } else {
+            // Remover conta de usuário se existir
+            if (professional.userId) {
+                await User.findByIdAndDelete(professional.userId);
+                professional.userId = null;
+            }
+            professional.userAccount = false;
+            professional.userEmail = null;
+        }
+
+        await professional.save();
+
+        res.json({ 
+            success: true, 
+            message: 'Profissional atualizado com sucesso',
+            professional 
+        });
+    } catch (error) {
+        console.error('Erro ao atualizar profissional:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Excluir profissional
+app.delete('/api/professionals/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const professional = await Professional.findById(id);
+        if (!professional) {
+            return res.status(404).json({ message: 'Profissional não encontrado' });
+        }
+
+        // Excluir usuário associado se existir
+        if (professional.userId) {
+            await User.findByIdAndDelete(professional.userId);
+        }
+
+        await Professional.findByIdAndDelete(id);
+
+        res.json({ 
+            success: true, 
+            message: 'Profissional excluído com sucesso' 
+        });
+    } catch (error) {
+        console.error('Erro ao excluir profissional:', error);
         res.status(500).json({ message: 'Erro interno do servidor' });
     }
 });
