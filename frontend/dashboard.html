@@ -171,15 +171,112 @@
                 <div class="page-content" id="estoque-page">
                     <div class="page-header">
                         <h2>Estoque</h2>
-                        <button class="btn btn-primary">
-                            <i class="fas fa-plus"></i>
-                            Novo Produto
-                        </button>
                     </div>
-                    <div class="empty-state">
-                        <i class="fas fa-boxes"></i>
-                        <h3>Estoque em desenvolvimento</h3>
-                        <p>Esta funcionalidade será implementada em breve.</p>
+
+                    <!-- Cards de Estatísticas -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-boxes"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-products">0</h3>
+                                <p>Total de Produtos</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon active">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="active-products">0</h3>
+                                <p>Produtos Ativos</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="low-stock-products">0</h3>
+                                <p>Estoque Baixo</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon danger">
+                                <i class="fas fa-times-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="out-of-stock-products">0</h3>
+                                <p>Sem Estoque</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico de Estoque -->
+                    <div class="chart-section">
+                        <div class="section-header">
+                            <h3>Nível de Estoque por Produto</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="stockChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Abas de Estoque -->
+                    <div class="tabs-section">
+                        <div class="tabs-header">
+                            <button class="tab-btn active" data-tab="entrada">
+                                <i class="fas fa-plus-circle"></i>
+                                Entrada
+                            </button>
+                            <button class="tab-btn" data-tab="saida">
+                                <i class="fas fa-minus-circle"></i>
+                                Saída
+                            </button>
+                        </div>
+
+                        <!-- Aba de Entrada -->
+                        <div id="entrada-tab" class="tab-content active">
+                            <div class="tab-header">
+                                <h3>Gerenciar Produtos</h3>
+                                <button id="add-product-btn" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i>
+                                    Novo Produto
+                                </button>
+                            </div>
+                            <div class="products-section">
+                                <div class="section-header">
+                                    <h4>Lista de Produtos</h4>
+                                    <div class="search-box">
+                                        <i class="fas fa-search"></i>
+                                        <input type="text" id="product-search" placeholder="Buscar produtos...">
+                                    </div>
+                                </div>
+                                <div id="products-list" class="products-list">
+                                    <!-- Lista será carregada dinamicamente -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Aba de Saída -->
+                        <div id="saida-tab" class="tab-content">
+                            <div class="tab-header">
+                                <h3>Retirar Produtos do Estoque</h3>
+                            </div>
+                            <div class="products-section">
+                                <div class="section-header">
+                                    <h4>Produtos Disponíveis</h4>
+                                    <div class="search-box">
+                                        <i class="fas fa-search"></i>
+                                        <input type="text" id="stock-search" placeholder="Buscar produtos...">
+                                    </div>
+                                </div>
+                                <div id="stock-list" class="products-list">
+                                    <!-- Lista será carregada dinamicamente -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -277,15 +374,55 @@
                 <div class="page-content" id="servicos-page">
                     <div class="page-header">
                         <h2>Serviços</h2>
-                        <button class="btn btn-primary">
+                        <button class="btn btn-primary" id="add-service-btn">
                             <i class="fas fa-plus"></i>
                             Novo Serviço
                         </button>
                     </div>
-                    <div class="empty-state">
-                        <i class="fas fa-cogs"></i>
-                        <h3>Serviços em desenvolvimento</h3>
-                        <p>Esta funcionalidade será implementada em breve.</p>
+
+                    <!-- Cards de Estatísticas -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-cogs"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-services">0</h3>
+                                <p>Total de Serviços</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon active">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="active-services">0</h3>
+                                <p>Serviços Ativos</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon inactive">
+                                <i class="fas fa-times-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="inactive-services">0</h3>
+                                <p>Serviços Inativos</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Serviços -->
+                    <div class="services-section">
+                        <div class="section-header">
+                            <h3>Lista de Serviços</h3>
+                            <div class="search-box">
+                                <input type="text" id="service-search" placeholder="Buscar serviço...">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+                        <div class="services-list" id="services-list">
+                            <!-- Lista será carregada dinamicamente -->
+                        </div>
                     </div>
                 </div>
 
@@ -852,10 +989,246 @@
         </div>
     </div>
 
+    <!-- Modal de Serviço -->
+    <div class="modal" id="serviceModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="serviceModalTitle">Novo Serviço</h3>
+                <span class="close" id="closeServiceModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="serviceForm">
+                    <input type="hidden" id="serviceId" name="id">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="serviceName">Nome do Serviço</label>
+                            <input type="text" id="serviceName" name="name" required placeholder="Ex: Corte de Cabelo">
+                        </div>
+                        <div class="form-group">
+                            <label for="serviceStatus">Status</label>
+                            <select id="serviceStatus" name="status" required>
+                                <option value="active">Ativo</option>
+                                <option value="inactive">Inativo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="serviceDuration">Tempo do Serviço</label>
+                            <div class="duration-input">
+                                <input type="number" id="serviceDuration" name="duration" min="1" required placeholder="30">
+                                <select id="serviceDurationUnit" name="durationUnit" required>
+                                    <option value="minutes">Minutos</option>
+                                    <option value="hours">Horas</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="servicePrice">Valor do Serviço (R$)</label>
+                            <input type="number" id="servicePrice" name="price" step="0.01" min="0" required placeholder="50.00">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="serviceCommission">Percentual de Comissão (%)</label>
+                            <input type="number" id="serviceCommission" name="commission" min="0" max="100" step="0.01" required placeholder="30.00">
+                        </div>
+                        <div class="form-group">
+                            <label for="serviceDescription">Descrição</label>
+                            <textarea id="serviceDescription" name="description" rows="3" placeholder="Descrição do serviço..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Profissionais Aptos</label>
+                        <div class="professionals-checkbox-list" id="professionals-checkbox-list">
+                            <!-- Lista será carregada dinamicamente -->
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" id="cancelService">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" id="saveService">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Produto -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="productModalTitle">Novo Produto</h3>
+                <span class="close" id="closeProductModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="productForm" enctype="multipart/form-data">
+                    <input type="hidden" id="productId" name="id">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productPhoto">Foto do Produto</label>
+                            <div class="photo-upload">
+                                <input type="file" id="productPhoto" name="photo" accept="image/*">
+                                <div class="photo-preview" id="productPhotoPreview">
+                                    <i class="fas fa-image"></i>
+                                    <span>Clique para adicionar foto</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="productStatus">Status</label>
+                            <select id="productStatus" name="status" required>
+                                <option value="active">Ativo</option>
+                                <option value="inactive">Inativo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productName">Nome do Produto</label>
+                            <input type="text" id="productName" name="name" required placeholder="Ex: Shampoo Hidratante">
+                        </div>
+                        <div class="form-group">
+                            <label for="productCategory">Categoria</label>
+                            <input type="text" id="productCategory" name="category" placeholder="Ex: Cabelo, Maquiagem, etc.">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productDescription">Descrição</label>
+                        <textarea id="productDescription" name="description" rows="3" placeholder="Descrição do produto..."></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productQuantity">Quantidade Atual</label>
+                            <input type="number" id="productQuantity" name="quantity" min="0" required placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="productUnit">Unidade</label>
+                            <select id="productUnit" name="unit" required>
+                                <option value="unidade">Unidade</option>
+                                <option value="kg">Quilograma (kg)</option>
+                                <option value="g">Grama (g)</option>
+                                <option value="litro">Litro</option>
+                                <option value="ml">Mililitro (ml)</option>
+                                <option value="metro">Metro</option>
+                                <option value="cm">Centímetro (cm)</option>
+                                <option value="caixa">Caixa</option>
+                                <option value="pacote">Pacote</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productMinQuantity">Quantidade Mínima</label>
+                            <input type="number" id="productMinQuantity" name="minQuantity" min="0" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="productMaxQuantity">Quantidade Máxima</label>
+                            <input type="number" id="productMaxQuantity" name="maxQuantity" min="0" placeholder="1000">
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" id="cancelProduct">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" id="saveProduct">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Entrada de Estoque -->
+    <div class="modal" id="stockEntryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Adicionar Estoque</h3>
+                <span class="close" id="closeStockEntryModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="stockEntryForm">
+                    <input type="hidden" id="stockEntryProductId">
+                    
+                    <div class="form-group">
+                        <label>Produto</label>
+                        <div class="product-info" id="stockEntryProductInfo">
+                            <!-- Informações do produto serão carregadas aqui -->
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="stockEntryAmount">Quantidade a Adicionar</label>
+                            <input type="number" id="stockEntryAmount" name="amount" min="1" required placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="stockEntryReason">Motivo</label>
+                            <input type="text" id="stockEntryReason" name="reason" placeholder="Ex: Compra, Doação, etc.">
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" id="cancelStockEntry">Cancelar</button>
+                        <button type="submit" class="btn btn-success" id="saveStockEntry">Adicionar Estoque</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Saída de Estoque -->
+    <div class="modal" id="stockExitModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Retirar Estoque</h3>
+                <span class="close" id="closeStockExitModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="stockExitForm">
+                    <input type="hidden" id="stockExitProductId">
+                    
+                    <div class="form-group">
+                        <label>Produto</label>
+                        <div class="product-info" id="stockExitProductInfo">
+                            <!-- Informações do produto serão carregadas aqui -->
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="stockExitAmount">Quantidade a Retirar</label>
+                            <input type="number" id="stockExitAmount" name="amount" min="1" required placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="stockExitReason">Motivo</label>
+                            <input type="text" id="stockExitReason" name="reason" placeholder="Ex: Venda, Uso interno, etc.">
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" id="cancelStockExit">Cancelar</button>
+                        <button type="submit" class="btn btn-warning" id="saveStockExit">Retirar Estoque</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/dashboard.js"></script>
     <script src="js/whatsapp.js"></script>
     <script src="js/backup.js"></script>
     <script src="js/professionals.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/stock.js"></script>
 </body>
 </html>
