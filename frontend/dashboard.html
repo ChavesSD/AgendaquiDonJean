@@ -317,15 +317,161 @@
                 <div class="page-content" id="financeiro-page">
                     <div class="page-header">
                         <h2>Financeiro</h2>
-                        <button class="btn btn-primary">
-                            <i class="fas fa-plus"></i>
-                            Nova Transação
-                        </button>
+                        <div class="date-filters">
+                            <input type="month" id="finance-month-filter" value="">
+                            <button class="btn btn-secondary" id="clear-date-filters">
+                                <i class="fas fa-times"></i>
+                                Limpar
+                            </button>
+                        </div>
                     </div>
-                    <div class="empty-state">
-                        <i class="fas fa-chart-line"></i>
-                        <h3>Financeiro em desenvolvimento</h3>
-                        <p>Esta funcionalidade será implementada em breve.</p>
+
+                    <!-- Cards de Estatísticas -->
+                    <div class="finance-stats">
+                        <div class="stat-card revenue">
+                            <div class="stat-icon">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-revenue">R$ 0,00</h3>
+                                <p>Total de Receita</p>
+                            </div>
+                        </div>
+                        <div class="stat-card expenses">
+                            <div class="stat-icon">
+                                <i class="fas fa-arrow-down"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-expenses">R$ 0,00</h3>
+                                <p>Total de Gastos</p>
+                            </div>
+                        </div>
+                        <div class="stat-card profit">
+                            <div class="stat-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-profit">R$ 0,00</h3>
+                                <p>Lucro Total</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico de Evolução -->
+                    <div class="chart-section">
+                        <h3>Evolução Financeira</h3>
+                        <div class="chart-container">
+                            <canvas id="financeChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Abas de Financeiro -->
+                    <div class="finance-tabs">
+                        <div class="tab-buttons">
+                            <button class="tab-btn active" data-tab="receitas">
+                                <i class="fas fa-plus-circle"></i>
+                                <span>Receitas</span>
+                            </button>
+                            <button class="tab-btn" data-tab="gastos">
+                                <i class="fas fa-minus-circle"></i>
+                                <span>Gastos</span>
+                            </button>
+                            <button class="tab-btn" data-tab="maquininha">
+                                <i class="fas fa-credit-card"></i>
+                                <span>Maquininha</span>
+                            </button>
+                            <button class="tab-btn" data-tab="historico-financeiro">
+                                <i class="fas fa-history"></i>
+                                <span>Histórico</span>
+                            </button>
+                            <button class="btn btn-primary" id="add-revenue-btn">
+                                <i class="fas fa-plus"></i>
+                                <span>Nova Receita</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Conteúdo das Abas -->
+                        <div class="tab-content">
+                            <!-- Aba Receitas -->
+                            <div class="tab-pane active" id="receitas-tab">
+                                <div class="revenue-section">
+                                    <div class="section-header">
+                                        <h3>Gerenciar Receitas</h3>
+                                        <div class="search-box">
+                                            <i class="fas fa-search"></i>
+                                            <input type="text" id="revenue-search" placeholder="Buscar receita...">
+                                        </div>
+                                    </div>
+                                    <div class="revenue-list" id="revenue-list">
+                                        <!-- Lista será carregada dinamicamente -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Aba Gastos -->
+                            <div class="tab-pane" id="gastos-tab">
+                                <div class="expenses-section">
+                                    <div class="section-header">
+                                        <h3>Gerenciar Gastos</h3>
+                                        <div class="search-box">
+                                            <i class="fas fa-search"></i>
+                                            <input type="text" id="expenses-search" placeholder="Buscar gasto...">
+                                        </div>
+                                    </div>
+                                    <div class="expenses-list" id="expenses-list">
+                                        <!-- Lista será carregada dinamicamente -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Aba Maquininha -->
+                            <div class="tab-pane" id="maquininha-tab">
+                                <div class="pos-section">
+                                    <div class="section-header">
+                                        <h3>Gerenciar Maquininhas</h3>
+                                        <div class="pos-actions">
+                                            <button class="btn btn-success" id="add-pos-btn">
+                                                <i class="fas fa-plus"></i>
+                                                Nova Maquininha
+                                            </button>
+                                            <button class="btn btn-primary" id="add-sale-btn">
+                                                <i class="fas fa-shopping-cart"></i>
+                                                Nova Venda
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="pos-list" id="pos-list">
+                                        <!-- Lista será carregada dinamicamente -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Aba Histórico Financeiro -->
+                            <div class="tab-pane" id="historico-financeiro-tab">
+                                <div class="finance-history-section">
+                                    <div class="section-header">
+                                        <h3>Histórico Financeiro</h3>
+                                        <div class="history-filters">
+                                            <select id="finance-history-type-filter">
+                                                <option value="">Todos os tipos</option>
+                                                <option value="receita">Receitas</option>
+                                                <option value="gasto">Gastos</option>
+                                                <option value="venda">Vendas</option>
+                                            </select>
+                                            <input type="date" id="finance-history-date-from" placeholder="Data inicial">
+                                            <input type="date" id="finance-history-date-to" placeholder="Data final">
+                                            <button class="btn btn-secondary" id="clear-finance-history-filters">
+                                                <i class="fas fa-times"></i>
+                                                Limpar
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="finance-history-list" id="finance-history-list">
+                                        <!-- Histórico será carregado aqui -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1273,6 +1419,200 @@
         </div>
     </div>
 
+    <!-- ==================== MODAIS FINANCEIROS ==================== -->
+
+    <!-- Modal de Receita -->
+    <div class="modal" id="revenue-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="revenue-modal-title">Nova Receita</h3>
+                <button class="close-btn" onclick="closeRevenueModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="revenue-form">
+                    <div class="form-group">
+                        <label for="revenue-name">Nome da Receita *</label>
+                        <input type="text" id="revenue-name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="revenue-type">Tipo *</label>
+                        <select id="revenue-type" name="type" required>
+                            <option value="">Selecione o tipo</option>
+                            <option value="unique">Única</option>
+                            <option value="fixed">Fixa</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="revenue-value">Valor *</label>
+                        <input type="number" id="revenue-value" name="value" step="0.01" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="revenue-description">Descrição</label>
+                        <textarea id="revenue-description" name="description" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeRevenueModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveRevenue()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Gasto -->
+    <div class="modal" id="expense-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="expense-modal-title">Novo Gasto</h3>
+                <button class="close-btn" onclick="closeExpenseModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="expense-form">
+                    <div class="form-group">
+                        <label for="expense-name">Nome do Gasto *</label>
+                        <input type="text" id="expense-name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="expense-type">Tipo *</label>
+                        <select id="expense-type" name="type" required onchange="toggleInstallments()">
+                            <option value="">Selecione o tipo</option>
+                            <option value="unique">Única</option>
+                            <option value="installment">Parcelado</option>
+                            <option value="fixed">Fixo</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="expense-value">Valor *</label>
+                        <input type="number" id="expense-value" name="value" step="0.01" min="0" required>
+                    </div>
+                    
+                    <div class="form-group" id="installments-group" style="display: none;">
+                        <label for="expense-installments">Número de Parcelas</label>
+                        <input type="number" id="expense-installments" name="totalInstallments" min="2" max="60">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="expense-description">Descrição</label>
+                        <textarea id="expense-description" name="description" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeExpenseModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveExpense()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Maquininha -->
+    <div class="modal" id="pos-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="pos-modal-title">Nova Maquininha</h3>
+                <button class="close-btn" onclick="closePosModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="pos-form">
+                    <div class="form-group">
+                        <label for="pos-name">Nome da Maquininha *</label>
+                        <input type="text" id="pos-name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pos-photo">Foto (URL)</label>
+                        <input type="url" id="pos-photo" name="photo" placeholder="https://exemplo.com/foto.jpg">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pos-rate">Taxa (%) *</label>
+                        <input type="number" id="pos-rate" name="rate" step="0.01" min="0" max="100" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pos-description">Descrição</label>
+                        <textarea id="pos-description" name="description" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closePosModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="savePos()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Venda -->
+    <div class="modal" id="sale-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nova Venda</h3>
+                <button class="close-btn" onclick="closeSaleModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="sale-form">
+                    <div class="form-group">
+                        <label for="sale-pos">Maquininha *</label>
+                        <select id="sale-pos" name="posMachineId" required>
+                            <option value="">Selecione a maquininha</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="sale-value">Valor da Venda *</label>
+                        <input type="number" id="sale-value" name="value" step="0.01" min="0" required onchange="calculateProfit()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="sale-professional">Profissional *</label>
+                        <select id="sale-professional" name="professionalId" required>
+                            <option value="">Selecione o profissional</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="sale-commission">Comissão do Profissional (%)</label>
+                        <input type="number" id="sale-commission" name="professionalCommission" step="0.01" min="0" max="100" required onchange="calculateProfit()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="sale-description">Descrição</label>
+                        <textarea id="sale-description" name="description" rows="3"></textarea>
+                    </div>
+                    
+                    <!-- Resultado do cálculo -->
+                    <div class="sale-result" id="sale-result" style="display: none;">
+                        <h4>Resumo da Venda</h4>
+                        <div class="result-item">
+                            <span>Valor da Venda:</span>
+                            <span id="result-sale-value">R$ 0,00</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Taxa da Maquininha:</span>
+                            <span id="result-pos-fee">R$ 0,00</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Comissão do Profissional:</span>
+                            <span id="result-professional-commission">R$ 0,00</span>
+                        </div>
+                        <div class="result-item total">
+                            <span>Lucro Líquido:</span>
+                            <span id="result-net-profit">R$ 0,00</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeSaleModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveSale()">Registrar Venda</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/dashboard.js"></script>
@@ -1281,5 +1621,6 @@
     <script src="js/professionals.js"></script>
     <script src="js/services.js"></script>
     <script src="js/stock.js"></script>
+    <script src="js/finance.js"></script>
 </body>
 </html>

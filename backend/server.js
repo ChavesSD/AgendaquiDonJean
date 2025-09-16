@@ -82,6 +82,10 @@ const WhatsAppMessages = require('./models/WhatsAppMessages');
 const Professional = require('./models/Professional');
 const Service = require('./models/Service');
 const Product = require('./models/Product');
+const Revenue = require('./models/Revenue');
+const Expense = require('./models/Expense');
+const PosMachine = require('./models/PosMachine');
+const Sale = require('./models/Sale');
 const authService = require('./simple-auth');
 
 // Rotas de autenticação
@@ -1745,6 +1749,356 @@ app.delete('/api/services/:id', authenticateToken, async (req, res) => {
     } catch (error) {
         console.error('Erro ao excluir serviço:', error);
         res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// ==================== ROTAS FINANCEIRAS ====================
+
+// Rota para obter dados financeiros gerais
+app.get('/api/finance', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        
+        // Buscar receitas
+        const revenues = await Revenue.find({ user: userId, isActive: true })
+            .sort({ date: -1 });
+        
+        // Buscar gastos
+        const expenses = await Expense.find({ user: userId, isActive: true })
+            .sort({ date: -1 });
+        
+        // Buscar maquininhas
+        const posMachines = await PosMachine.find({ user: userId, isActive: true })
+            .sort({ createdAt: -1 });
+        
+        // Buscar vendas
+        const sales = await Sale.find({ user: userId })
+            .populate('posMachine', 'name rate')
+            .populate('professional', 'name')
+            .sort({ date: -1 });
+        
+        // Buscar histórico financeiro
+        const history = [];
+        
+        // Adicionar receitas ao histórico
+        revenues.forEach(revenue => {
+            history.push({
+                type: 'receita',
+                name: revenue.name,
+                value: revenue.value,
+                date: revenue.date,
+                description: revenue.description,
+                userName: req.user.name
+            });
+        });
+        
+        // Adicionar gastos ao histórico
+        expenses.forEach(expense => {
+            history.push({
+                type: 'gasto',
+                name: expense.name,
+                value: expense.value,
+                date: expense.date,
+                description: expense.description,
+                userName: req.user.name
+            });
+        });
+        
+        // Adicionar vendas ao histórico
+        sales.forEach(sale => {
+            history.push({
+                type: 'venda',
+                name: `Venda - ${sale.posMachine.name}`,
+                value: sale.value,
+                date: sale.date,
+                description: `Profissional: ${sale.professional.name}`,
+                userName: req.user.name
+            });
+        });
+        
+        // Ordenar histórico por data
+        history.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        res.json({
+            success: true,
+            revenues,
+            expenses,
+            posMachines,
+            sales,
+            history
+        });
+    } catch (error) {
+        console.error('Erro ao buscar dados financeiros:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// ==================== ROTAS DE RECEITAS ====================
+
+// Criar receita
+app.post('/api/revenues', authenticateToken, async (req, res) => {
+    try {
+        const { name, type, value, description } = req.body;
+        
+        if (!name || !type || !value) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Nome, tipo e valor são obrigatórios' 
+            });
+        }
+        
+        const revenue = new Revenue({
+            name,
+            type,
+            value: parseFloat(value),
+            description,
+            user: req.user.userId
+        });
+        
+        await revenue.save();
+        
+        res.status(201).json({ success: true, revenue });
+    } catch (error) {
+        console.error('Erro ao criar receita:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// Atualizar receita
+app.put('/api/revenues/:id', authenticateToken, async (req, res) => {
+    try {
+        const { name, type, value, description } = req.body;
+        
+        const revenue = await Revenue.findOneAndUpdate(
+            { _id: req.params.id, user: req.user.userId },
+            { name, type, value: parseFloat(value), description },
+            { new: true }
+        );
+        
+        if (!revenue) {
+            return res.status(404).json({ success: false, message: 'Receita não encontrada' });
+        }
+        
+        res.json({ success: true, revenue });
+    } catch (error) {
+        console.error('Erro ao atualizar receita:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// Excluir receita
+app.delete('/api/revenues/:id', authenticateToken, async (req, res) => {
+    try {
+        const revenue = await Revenue.findOneAndUpdate(
+            { _id: req.params.id, user: req.user.userId },
+            { isActive: false },
+            { new: true }
+        );
+        
+        if (!revenue) {
+            return res.status(404).json({ success: false, message: 'Receita não encontrada' });
+        }
+        
+        res.json({ success: true, message: 'Receita excluída com sucesso' });
+    } catch (error) {
+        console.error('Erro ao excluir receita:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// ==================== ROTAS DE GASTOS ====================
+
+// Criar gasto
+app.post('/api/expenses', authenticateToken, async (req, res) => {
+    try {
+        const { name, type, value, description, totalInstallments } = req.body;
+        
+        if (!name || !type || !value) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Nome, tipo e valor são obrigatórios' 
+            });
+        }
+        
+        const expense = new Expense({
+            name,
+            type,
+            value: parseFloat(value),
+            description,
+            totalInstallments: type === 'installment' ? parseInt(totalInstallments) : 1,
+            user: req.user.userId
+        });
+        
+        await expense.save();
+        
+        res.status(201).json({ success: true, expense });
+    } catch (error) {
+        console.error('Erro ao criar gasto:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// Atualizar gasto
+app.put('/api/expenses/:id', authenticateToken, async (req, res) => {
+    try {
+        const { name, type, value, description, totalInstallments } = req.body;
+        
+        const expense = await Expense.findOneAndUpdate(
+            { _id: req.params.id, user: req.user.userId },
+            { 
+                name, 
+                type, 
+                value: parseFloat(value), 
+                description,
+                totalInstallments: type === 'installment' ? parseInt(totalInstallments) : 1
+            },
+            { new: true }
+        );
+        
+        if (!expense) {
+            return res.status(404).json({ success: false, message: 'Gasto não encontrado' });
+        }
+        
+        res.json({ success: true, expense });
+    } catch (error) {
+        console.error('Erro ao atualizar gasto:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// Excluir gasto
+app.delete('/api/expenses/:id', authenticateToken, async (req, res) => {
+    try {
+        const expense = await Expense.findOneAndUpdate(
+            { _id: req.params.id, user: req.user.userId },
+            { isActive: false },
+            { new: true }
+        );
+        
+        if (!expense) {
+            return res.status(404).json({ success: false, message: 'Gasto não encontrado' });
+        }
+        
+        res.json({ success: true, message: 'Gasto excluído com sucesso' });
+    } catch (error) {
+        console.error('Erro ao excluir gasto:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// ==================== ROTAS DE MAQUININHAS ====================
+
+// Criar maquininha
+app.post('/api/pos-machines', authenticateToken, async (req, res) => {
+    try {
+        const { name, photo, rate, description } = req.body;
+        
+        if (!name || !rate) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Nome e taxa são obrigatórios' 
+            });
+        }
+        
+        const posMachine = new PosMachine({
+            name,
+            photo,
+            rate: parseFloat(rate),
+            description,
+            user: req.user.userId
+        });
+        
+        await posMachine.save();
+        
+        res.status(201).json({ success: true, posMachine });
+    } catch (error) {
+        console.error('Erro ao criar maquininha:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// Atualizar maquininha
+app.put('/api/pos-machines/:id', authenticateToken, async (req, res) => {
+    try {
+        const { name, photo, rate, description } = req.body;
+        
+        const posMachine = await PosMachine.findOneAndUpdate(
+            { _id: req.params.id, user: req.user.userId },
+            { name, photo, rate: parseFloat(rate), description },
+            { new: true }
+        );
+        
+        if (!posMachine) {
+            return res.status(404).json({ success: false, message: 'Maquininha não encontrada' });
+        }
+        
+        res.json({ success: true, posMachine });
+    } catch (error) {
+        console.error('Erro ao atualizar maquininha:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// Excluir maquininha
+app.delete('/api/pos-machines/:id', authenticateToken, async (req, res) => {
+    try {
+        const posMachine = await PosMachine.findOneAndUpdate(
+            { _id: req.params.id, user: req.user.userId },
+            { isActive: false },
+            { new: true }
+        );
+        
+        if (!posMachine) {
+            return res.status(404).json({ success: false, message: 'Maquininha não encontrada' });
+        }
+        
+        res.json({ success: true, message: 'Maquininha excluída com sucesso' });
+    } catch (error) {
+        console.error('Erro ao excluir maquininha:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// ==================== ROTAS DE VENDAS ====================
+
+// Criar venda
+app.post('/api/sales', authenticateToken, async (req, res) => {
+    try {
+        const { posMachineId, value, professionalId, professionalCommission, description } = req.body;
+        
+        if (!posMachineId || !value || !professionalId || !professionalCommission) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Maquininha, valor, profissional e comissão são obrigatórios' 
+            });
+        }
+        
+        // Buscar maquininha para obter a taxa
+        const posMachine = await PosMachine.findById(posMachineId);
+        if (!posMachine) {
+            return res.status(404).json({ success: false, message: 'Maquininha não encontrada' });
+        }
+        
+        const sale = new Sale({
+            posMachine: posMachineId,
+            value: parseFloat(value),
+            professional: professionalId,
+            professionalCommission: parseFloat(professionalCommission),
+            posRate: posMachine.rate,
+            description,
+            user: req.user.userId
+        });
+        
+        await sale.save();
+        
+        // Popular dados para resposta
+        await sale.populate('posMachine', 'name rate');
+        await sale.populate('professional', 'name');
+        
+        res.status(201).json({ success: true, sale });
+    } catch (error) {
+        console.error('Erro ao criar venda:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
     }
 });
 

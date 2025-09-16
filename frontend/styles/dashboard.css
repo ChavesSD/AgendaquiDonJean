@@ -3909,3 +3909,379 @@ body {
 .photo-upload input[type="url"]:valid + .photo-preview span {
     color: #27ae60;
 }
+
+/* ==================== FINANCEIRO ==================== */
+
+/* Filtros de Data */
+.date-filters {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.date-filters input[type="month"] {
+    padding: 10px 15px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.date-filters input[type="month"]:focus {
+    outline: none;
+    border-color: #975756;
+    box-shadow: 0 0 0 3px rgba(151, 87, 86, 0.1);
+}
+
+/* Cards de Estatísticas Financeiras */
+.finance-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.finance-stats .stat-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(151, 87, 86, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: all 0.3s ease;
+}
+
+.finance-stats .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+}
+
+.finance-stats .stat-card.revenue {
+    border-left: 4px solid #27ae60;
+}
+
+.finance-stats .stat-card.expenses {
+    border-left: 4px solid #e74c3c;
+}
+
+.finance-stats .stat-card.profit {
+    border-left: 4px solid #f39c12;
+}
+
+.finance-stats .stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+}
+
+.finance-stats .stat-card.revenue .stat-icon {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
+.finance-stats .stat-card.expenses .stat-icon {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.finance-stats .stat-card.profit .stat-icon {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+.finance-stats .stat-content h3 {
+    margin: 0 0 5px 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.finance-stats .stat-content p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Seção do Gráfico */
+.chart-section {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(151, 87, 86, 0.1);
+    margin-bottom: 30px;
+}
+
+.chart-section h3 {
+    margin: 0 0 20px 0;
+    color: #2c3e50;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+/* Abas de Financeiro */
+.finance-tabs {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(151, 87, 86, 0.1);
+    overflow: hidden;
+}
+
+.finance-tabs .tab-buttons {
+    display: flex;
+    background: rgba(151, 87, 86, 0.05);
+    border-bottom: 1px solid rgba(151, 87, 86, 0.1);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.finance-tabs .tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #666;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.finance-tabs .tab-btn:hover {
+    background: rgba(151, 87, 86, 0.1);
+    color: #975756;
+}
+
+.finance-tabs .tab-btn.active {
+    background: #975756;
+    color: white;
+}
+
+.finance-tabs .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #975756, #7a4443);
+}
+
+.finance-tabs .tab-content {
+    padding: 30px;
+}
+
+/* Seções das Abas */
+.revenue-section,
+.expenses-section,
+.pos-section,
+.finance-history-section {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(151, 87, 86, 0.1);
+}
+
+/* Ações da Maquininha */
+.pos-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+/* Listas */
+.revenue-list,
+.expenses-list,
+.pos-list,
+.finance-history-list {
+    display: grid;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+/* Cards de Itens */
+.revenue-item,
+.expense-item,
+.pos-item {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid #e1e5e9;
+    transition: all 0.3s ease;
+}
+
+.revenue-item:hover,
+.expense-item:hover,
+.pos-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.revenue-item {
+    border-left-color: #27ae60;
+}
+
+.expense-item {
+    border-left-color: #e74c3c;
+}
+
+.pos-item {
+    border-left-color: #3498db;
+}
+
+/* Responsive para Financeiro */
+@media (max-width: 768px) {
+    .finance-stats {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .finance-stats .stat-card {
+        padding: 20px;
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .finance-stats .stat-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+    
+    .finance-stats .stat-content h3 {
+        font-size: 24px;
+    }
+    
+    .date-filters {
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
+    }
+    
+    .finance-tabs .tab-btn {
+        padding: 15px;
+        font-size: 14px;
+    }
+    
+    .finance-tabs .tab-content {
+        padding: 20px;
+    }
+    
+    .pos-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .finance-stats .stat-card {
+        padding: 15px;
+    }
+    
+    .finance-stats .stat-content h3 {
+        font-size: 20px;
+    }
+    
+    .finance-tabs .tab-btn {
+        padding: 12px;
+        font-size: 12px;
+    }
+    
+    .finance-tabs .tab-content {
+        padding: 15px;
+    }
+}
+
+/* ==================== MODAIS FINANCEIROS ==================== */
+
+/* Modal de Venda - Resultado */
+.sale-result {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    border: 1px solid #e9ecef;
+}
+
+.sale-result h4 {
+    margin: 0 0 15px 0;
+    color: #2c3e50;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.result-item:last-child {
+    border-bottom: none;
+}
+
+.result-item.total {
+    font-weight: 700;
+    font-size: 16px;
+    color: #2c3e50;
+    background: #e8f5e8;
+    padding: 12px;
+    border-radius: 6px;
+    margin-top: 10px;
+}
+
+.result-item span:first-child {
+    color: #6c757d;
+}
+
+.result-item span:last-child {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+/* Campos de formulário específicos */
+#installments-group {
+    transition: all 0.3s ease;
+}
+
+#installments-group.show {
+    display: block !important;
+}
+
+/* Responsive para modais financeiros */
+@media (max-width: 768px) {
+    .sale-result {
+        padding: 15px;
+    }
+    
+    .result-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .result-item span:last-child {
+        align-self: flex-end;
+    }
+}
