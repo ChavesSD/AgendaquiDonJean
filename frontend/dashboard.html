@@ -318,7 +318,18 @@
                     <div class="page-header">
                         <h2>Financeiro</h2>
                         <div class="date-filters">
-                            <input type="month" id="finance-month-filter" value="">
+                            <div class="filter-group">
+                                <label for="finance-date-from">Data Início</label>
+                                <input type="date" id="finance-date-from" placeholder="dd/mm/aaaa">
+                            </div>
+                            <div class="filter-group">
+                                <label for="finance-date-to">Data Fim</label>
+                                <input type="date" id="finance-date-to" placeholder="dd/mm/aaaa">
+                            </div>
+                            <button class="btn btn-primary" id="filter-finance-dates">
+                                <i class="fas fa-search"></i>
+                                Filtrar
+                            </button>
                             <button class="btn btn-secondary" id="clear-date-filters">
                                 <i class="fas fa-times"></i>
                                 Limpar

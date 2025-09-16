@@ -3916,22 +3916,47 @@ body {
 .date-filters {
     display: flex;
     gap: 15px;
-    align-items: center;
+    align-items: end;
+    flex-wrap: wrap;
 }
 
-.date-filters input[type="month"] {
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filter-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.date-filters input[type="date"] {
     padding: 10px 15px;
     border: 2px solid #e1e5e9;
     border-radius: 8px;
     font-size: 14px;
     background: white;
     transition: all 0.3s ease;
+    min-width: 150px;
 }
 
-.date-filters input[type="month"]:focus {
+.date-filters input[type="date"]:focus {
     outline: none;
     border-color: #975756;
     box-shadow: 0 0 0 3px rgba(151, 87, 86, 0.1);
+}
+
+.date-filters input[type="date"]::-webkit-calendar-picker-indicator {
+    color: #975756;
+    cursor: pointer;
+}
+
+.date-filters input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    color: #7a4443;
 }
 
 /* Cards de Estatísticas Financeiras */
@@ -4173,8 +4198,17 @@ body {
     
     .date-filters {
         flex-direction: column;
-        gap: 10px;
+        gap: 15px;
         align-items: stretch;
+    }
+    
+    .filter-group {
+        width: 100%;
+    }
+    
+    .date-filters input[type="date"] {
+        width: 100%;
+        min-width: auto;
     }
     
     .finance-tabs .tab-btn {

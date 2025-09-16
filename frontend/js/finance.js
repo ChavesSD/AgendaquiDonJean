@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Elementos do DOM
-    const financeMonthFilter = document.getElementById('finance-month-filter');
+    const financeDateFrom = document.getElementById('finance-date-from');
+    const financeDateTo = document.getElementById('finance-date-to');
+    const filterFinanceDates = document.getElementById('filter-finance-dates');
     const clearDateFilters = document.getElementById('clear-date-filters');
     
     // Cards de estatísticas
@@ -44,7 +46,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let financeHistory = [];
     
     // Filtros aplicados
-    let currentMonth = '';
+    let currentDateFrom = '';
+    let currentDateTo = '';
     let filteredRevenues = [];
     let filteredExpenses = [];
     let filteredFinanceHistory = [];
@@ -54,8 +57,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function init() {
         // Event listeners
-        if (financeMonthFilter) {
-            financeMonthFilter.addEventListener('change', handleMonthFilter);
+        if (filterFinanceDates) {
+            filterFinanceDates.addEventListener('click', handleDateFilter);
         }
         if (clearDateFilters) {
             clearDateFilters.addEventListener('click', clearDateFiltersFunc);
@@ -165,23 +168,50 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Atualizar estatísticas
     function updateStatistics() {
-        const currentDate = new Date();
-        const month = currentMonth || currentDate.getFullYear() + '-' + String(currentDate.getMonth() + 1).padStart(2, '0');
+        let filteredRevenues = revenues;
+        let filteredExpenses = expenses;
         
-        const monthRevenues = revenues.filter(r => {
-            const revenueDate = new Date(r.date);
-            const revenueMonth = revenueDate.getFullYear() + '-' + String(revenueDate.getMonth() + 1).padStart(2, '0');
-            return revenueMonth === month;
-        });
+        // Aplicar filtros de data se definidos
+        if (currentDateFrom || currentDateTo) {
+            filteredRevenues = revenues.filter(r => {
+                const revenueDate = new Date(r.date);
+                let matches = true;
+                
+                if (currentDateFrom) {
+                    const fromDate = new Date(currentDateFrom);
+                    matches = matches && revenueDate >= fromDate;
+                }
+                
+                if (currentDateTo) {
+                    const toDate = new Date(currentDateTo);
+                    toDate.setHours(23, 59, 59, 999);
+                    matches = matches && revenueDate <= toDate;
+                }
+                
+                return matches;
+            });
+            
+            filteredExpenses = expenses.filter(e => {
+                const expenseDate = new Date(e.date);
+                let matches = true;
+                
+                if (currentDateFrom) {
+                    const fromDate = new Date(currentDateFrom);
+                    matches = matches && expenseDate >= fromDate;
+                }
+                
+                if (currentDateTo) {
+                    const toDate = new Date(currentDateTo);
+                    toDate.setHours(23, 59, 59, 999);
+                    matches = matches && expenseDate <= toDate;
+                }
+                
+                return matches;
+            });
+        }
         
-        const monthExpenses = expenses.filter(e => {
-            const expenseDate = new Date(e.date);
-            const expenseMonth = expenseDate.getFullYear() + '-' + String(expenseDate.getMonth() + 1).padStart(2, '0');
-            return expenseMonth === month;
-        });
-        
-        const totalRev = monthRevenues.reduce((sum, r) => sum + (r.value || 0), 0);
-        const totalExp = monthExpenses.reduce((sum, e) => sum + (e.value || 0), 0);
+        const totalRev = filteredRevenues.reduce((sum, r) => sum + (r.value || 0), 0);
+        const totalExp = filteredExpenses.reduce((sum, e) => sum + (e.value || 0), 0);
         const profit = totalRev - totalExp;
         
         if (totalRevenue) totalRevenue.textContent = formatCurrency(totalRev);
@@ -430,20 +460,64 @@ document.addEventListener('DOMContentLoaded', function() {
             months.push(monthName);
             
             // Calcular receitas do mês
-            const monthRevenues = revenues.filter(r => {
+            let monthRevenues = revenues.filter(r => {
                 const revenueDate = new Date(r.date);
                 const revenueMonth = revenueDate.getFullYear() + '-' + String(revenueDate.getMonth() + 1).padStart(2, '0');
                 return revenueMonth === monthKey;
             });
+            
+            // Aplicar filtros de data se definidos
+            if (currentDateFrom || currentDateTo) {
+                monthRevenues = monthRevenues.filter(r => {
+                    const revenueDate = new Date(r.date);
+                    let matches = true;
+                    
+                    if (currentDateFrom) {
+                        const fromDate = new Date(currentDateFrom);
+                        matches = matches && revenueDate >= fromDate;
+                    }
+                    
+                    if (currentDateTo) {
+                        const toDate = new Date(currentDateTo);
+                        toDate.setHours(23, 59, 59, 999);
+                        matches = matches && revenueDate <= toDate;
+                    }
+                    
+                    return matches;
+                });
+            }
+            
             const monthRevenueTotal = monthRevenues.reduce((sum, r) => sum + (r.value || 0), 0);
             revenueData.push(monthRevenueTotal);
             
             // Calcular gastos do mês
-            const monthExpenses = expenses.filter(e => {
+            let monthExpenses = expenses.filter(e => {
                 const expenseDate = new Date(e.date);
                 const expenseMonth = expenseDate.getFullYear() + '-' + String(expenseDate.getMonth() + 1).padStart(2, '0');
                 return expenseMonth === monthKey;
             });
+            
+            // Aplicar filtros de data se definidos
+            if (currentDateFrom || currentDateTo) {
+                monthExpenses = monthExpenses.filter(e => {
+                    const expenseDate = new Date(e.date);
+                    let matches = true;
+                    
+                    if (currentDateFrom) {
+                        const fromDate = new Date(currentDateFrom);
+                        matches = matches && expenseDate >= fromDate;
+                    }
+                    
+                    if (currentDateTo) {
+                        const toDate = new Date(currentDateTo);
+                        toDate.setHours(23, 59, 59, 999);
+                        matches = matches && expenseDate <= toDate;
+                    }
+                    
+                    return matches;
+                });
+            }
+            
             const monthExpenseTotal = monthExpenses.reduce((sum, e) => sum + (e.value || 0), 0);
             expenseData.push(monthExpenseTotal);
         }
@@ -540,10 +614,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Limpar filtros de data
     function clearDateFiltersFunc() {
-        if (financeMonthFilter) {
-            financeMonthFilter.value = '';
+        if (financeDateFrom) {
+            financeDateFrom.value = '';
         }
-        currentMonth = '';
+        if (financeDateTo) {
+            financeDateTo.value = '';
+        }
+        currentDateFrom = '';
+        currentDateTo = '';
         loadFinanceData();
     }
 
@@ -557,10 +635,27 @@ document.addEventListener('DOMContentLoaded', function() {
         renderFinanceHistory();
     }
 
-    // Manipular filtro de mês
-    function handleMonthFilter(event) {
-        currentMonth = event.target.value;
-        loadFinanceData();
+    // Manipular filtro de data
+    function handleDateFilter() {
+        currentDateFrom = financeDateFrom ? financeDateFrom.value : '';
+        currentDateTo = financeDateTo ? financeDateTo.value : '';
+        
+        // Validar datas
+        if (currentDateFrom && currentDateTo) {
+            const fromDate = new Date(currentDateFrom);
+            const toDate = new Date(currentDateTo);
+            
+            if (fromDate > toDate) {
+                showNotification('A data de início deve ser anterior à data de fim', 'error');
+                return;
+            }
+        }
+        
+        updateStatistics();
+        updateFinanceChart();
+        renderRevenues();
+        renderExpenses();
+        renderFinanceHistory();
     }
 
     // Funções auxiliares
