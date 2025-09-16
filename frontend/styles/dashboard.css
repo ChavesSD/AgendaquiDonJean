@@ -3360,22 +3360,22 @@ body {
 }
 
 /* Cores específicas para histórico financeiro */
-.history-item.revenue {
+.history-item.receita {
     border-left-color: #27ae60;
     background: linear-gradient(135deg, #f8fff9, #f0f9f0);
 }
 
-.history-item.expense {
+.history-item.gasto {
     border-left-color: #e74c3c;
     background: linear-gradient(135deg, #fff8f8, #f9f0f0);
 }
 
-.history-item.pos {
+.history-item.maquininha {
     border-left-color: #3498db;
     background: linear-gradient(135deg, #f8fbff, #f0f6ff);
 }
 
-.history-item.sale {
+.history-item.venda {
     border-left-color: #9b59b6;
     background: linear-gradient(135deg, #faf8ff, #f5f0ff);
 }
@@ -3409,22 +3409,22 @@ body {
 }
 
 /* Cores dos tipos para histórico financeiro */
-.history-item-type.revenue {
+.history-item-type.receita {
     background: rgba(39, 174, 96, 0.1);
     color: #27ae60;
 }
 
-.history-item-type.expense {
+.history-item-type.gasto {
     background: rgba(231, 76, 60, 0.1);
     color: #e74c3c;
 }
 
-.history-item-type.pos {
+.history-item-type.maquininha {
     background: rgba(52, 152, 219, 0.1);
     color: #3498db;
 }
 
-.history-item-type.sale {
+.history-item-type.venda {
     background: rgba(155, 89, 182, 0.1);
     color: #9b59b6;
 }
