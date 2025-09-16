@@ -993,12 +993,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('pos-rate').value = pos.rate;
                 document.getElementById('pos-description').value = pos.description || '';
                 form.dataset.posId = posId;
+                // Carregar previsualização da foto
+                handlePosPhotoUrlChange();
             }
         } else {
             // Nova maquininha
             title.textContent = 'Nova Maquininha';
             form.reset();
             delete form.dataset.posId;
+            // Resetar previsualização
+            const preview = document.getElementById('pos-photo-preview');
+            preview.innerHTML = `<i class="fas fa-credit-card"></i>
+                                <span>Nenhuma imagem selecionada</span>`;
         }
         
         modal.style.display = 'flex';
@@ -1169,6 +1175,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Função para lidar com mudança de URL da foto da maquininha
+    function handlePosPhotoUrlChange() {
+        const photoUrl = document.getElementById('pos-photo').value;
+        const preview = document.getElementById('pos-photo-preview');
+        
+        if (photoUrl && photoUrl.trim() !== '') {
+            preview.innerHTML = `<img src="${photoUrl}" alt="Preview da maquininha" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div style="display: none; flex-direction: column; align-items: center; gap: 10px;">
+                                    <i class="fas fa-exclamation-triangle" style="color: #e74c3c; font-size: 24px;"></i>
+                                    <span style="color: #e74c3c; font-size: 12px;">Erro ao carregar imagem</span>
+                                </div>`;
+        } else {
+            preview.innerHTML = `<i class="fas fa-credit-card"></i>
+                                <span>Nenhuma imagem selecionada</span>`;
+        }
+    }
+
     // Funções globais para os botões
     window.openRevenueModal = openRevenueModal;
     window.closeRevenueModal = closeRevenueModal;
@@ -1184,4 +1207,5 @@ document.addEventListener('DOMContentLoaded', function() {
     window.closeSaleModal = closeSaleModal;
     window.saveSale = saveSale;
     window.calculateProfit = calculateProfit;
+    window.handlePosPhotoUrlChange = handlePosPhotoUrlChange;
 });
