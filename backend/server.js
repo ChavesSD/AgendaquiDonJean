@@ -1189,6 +1189,365 @@ app.delete('/api/professionals/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// ==================== ROTAS DE PRODUTOS (ESTOQUE) ====================
+
+// Listar produtos
+app.get('/api/products', authenticateToken, async (req, res) => {
+    try {
+        const products = await Product.find().sort({ createdAt: -1 });
+        res.json({ success: true, products });
+    } catch (error) {
+        console.error('Erro ao listar produtos:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Obter produto por ID
+app.get('/api/products/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const product = await Product.findById(id);
+        
+        if (!product) {
+            return res.status(404).json({ message: 'Produto não encontrado' });
+        }
+
+        res.json({ success: true, product });
+    } catch (error) {
+        console.error('Erro ao buscar produto:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Criar produto
+app.post('/api/products', authenticateToken, async (req, res) => {
+    try {
+        const {
+            name,
+            category,
+            description,
+            quantity,
+            minQuantity,
+            price,
+            supplier,
+            status,
+            photo
+        } = req.body;
+
+        // Validar campos obrigatórios
+        if (!name || !quantity || !minQuantity) {
+            return res.status(400).json({ message: 'Nome, quantidade e quantidade mínima são obrigatórios' });
+        }
+
+        // Validar URL da foto se fornecida
+        let photoUrl = null;
+        if (photo && photo.trim()) {
+            try {
+                new URL(photo);
+                photoUrl = photo.trim();
+            } catch (error) {
+                return res.status(400).json({ message: 'URL da foto inválida' });
+            }
+        }
+
+        // Criar produto
+        const product = new Product({
+            name,
+            category,
+            description,
+            quantity: parseInt(quantity),
+            minQuantity: parseInt(minQuantity),
+            price: parseFloat(price) || 0,
+            supplier,
+            status: status || 'active',
+            photo: photoUrl
+        });
+
+        // Adicionar movimentação inicial de entrada
+        if (parseInt(quantity) > 0) {
+            product.movements.push({
+                type: 'entrada',
+                quantity: parseInt(quantity),
+                reason: 'Estoque inicial',
+                notes: 'Produto adicionado ao sistema',
+                user: req.user.userId,
+                date: new Date()
+            });
+        }
+
+        await product.save();
+
+        res.json({ 
+            success: true, 
+            message: 'Produto criado com sucesso',
+            product 
+        });
+    } catch (error) {
+        console.error('Erro ao criar produto:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Atualizar produto
+app.put('/api/products/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const {
+            name,
+            category,
+            description,
+            quantity,
+            minQuantity,
+            price,
+            supplier,
+            status,
+            photo
+        } = req.body;
+
+        const product = await Product.findById(id);
+        if (!product) {
+            return res.status(404).json({ message: 'Produto não encontrado' });
+        }
+
+        // Calcular diferença de quantidade
+        const oldQuantity = product.quantity;
+        const newQuantity = parseInt(quantity);
+        const quantityDifference = newQuantity - oldQuantity;
+
+        // Atualizar dados básicos
+        product.name = name || product.name;
+        product.category = category;
+        product.description = description;
+        product.minQuantity = parseInt(minQuantity) || product.minQuantity;
+        product.price = parseFloat(price) || product.price;
+        product.supplier = supplier;
+        product.status = status || product.status;
+
+        // Validar e atualizar URL da foto se fornecida
+        if (photo !== undefined) {
+            if (photo && photo.trim()) {
+                try {
+                    new URL(photo);
+                    product.photo = photo.trim();
+                } catch (error) {
+                    return res.status(400).json({ message: 'URL da foto inválida' });
+                }
+            } else {
+                product.photo = null;
+            }
+        }
+
+        // Adicionar movimentação se quantidade mudou
+        if (quantityDifference !== 0) {
+            product.movements.push({
+                type: quantityDifference > 0 ? 'entrada' : 'saida',
+                quantity: Math.abs(quantityDifference),
+                reason: quantityDifference > 0 ? 'Ajuste de estoque (entrada)' : 'Ajuste de estoque (saída)',
+                notes: `Quantidade ajustada de ${oldQuantity} para ${newQuantity}`,
+                user: req.user.userId,
+                date: new Date()
+            });
+        }
+
+        await product.save();
+
+        res.json({ 
+            success: true, 
+            message: 'Produto atualizado com sucesso',
+            product 
+        });
+    } catch (error) {
+        console.error('Erro ao atualizar produto:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Excluir produto
+app.delete('/api/products/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const product = await Product.findById(id);
+        if (!product) {
+            return res.status(404).json({ message: 'Produto não encontrado' });
+        }
+
+        await Product.findByIdAndDelete(id);
+
+        res.json({ 
+            success: true, 
+            message: 'Produto excluído com sucesso' 
+        });
+    } catch (error) {
+        console.error('Erro ao excluir produto:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Adicionar itens ao produto
+app.post('/api/products/:id/add-items', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { quantity, reason, notes } = req.body;
+
+        if (!quantity || quantity <= 0) {
+            return res.status(400).json({ message: 'Quantidade deve ser maior que zero' });
+        }
+
+        const product = await Product.findById(id);
+        if (!product) {
+            return res.status(404).json({ message: 'Produto não encontrado' });
+        }
+
+        // Atualizar quantidade
+        product.quantity += quantity;
+
+        // Adicionar movimentação
+        product.movements.push({
+            type: 'entrada',
+            quantity: quantity,
+            reason: reason || 'Adição de itens',
+            notes: notes || '',
+            user: req.user.userId,
+            date: new Date()
+        });
+
+        await product.save();
+
+        res.json({ 
+            success: true, 
+            message: 'Itens adicionados com sucesso',
+            product 
+        });
+    } catch (error) {
+        console.error('Erro ao adicionar itens:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Retirar produto do estoque
+app.post('/api/products/withdraw', authenticateToken, async (req, res) => {
+    try {
+        const { productId, quantity, reason, notes } = req.body;
+
+        // Validar dados
+        if (!productId || !quantity || !reason) {
+            return res.status(400).json({ message: 'ID do produto, quantidade e motivo são obrigatórios' });
+        }
+
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ message: 'Produto não encontrado' });
+        }
+
+        const withdrawalQuantity = parseInt(quantity);
+        if (withdrawalQuantity <= 0) {
+            return res.status(400).json({ message: 'Quantidade deve ser maior que zero' });
+        }
+
+        if (withdrawalQuantity > product.quantity) {
+            return res.status(400).json({ message: 'Quantidade solicitada maior que o estoque disponível' });
+        }
+
+        // Adicionar movimentação de saída
+        product.movements.push({
+            type: 'saida',
+            quantity: withdrawalQuantity,
+            reason,
+            notes: notes || '',
+            user: req.user.userId,
+            date: new Date()
+        });
+
+        await product.save();
+
+        res.json({ 
+            success: true, 
+            message: `${withdrawalQuantity} unidades retiradas do estoque com sucesso`,
+            product 
+        });
+    } catch (error) {
+        console.error('Erro ao retirar produto:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Adicionar produto ao estoque
+app.post('/api/products/add', authenticateToken, async (req, res) => {
+    try {
+        const { productId, quantity, reason, notes } = req.body;
+
+        // Validar dados
+        if (!productId || !quantity) {
+            return res.status(400).json({ message: 'ID do produto e quantidade são obrigatórios' });
+        }
+
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ message: 'Produto não encontrado' });
+        }
+
+        const addQuantity = parseInt(quantity);
+        if (addQuantity <= 0) {
+            return res.status(400).json({ message: 'Quantidade deve ser maior que zero' });
+        }
+
+        // Adicionar movimentação de entrada
+        product.movements.push({
+            type: 'entrada',
+            quantity: addQuantity,
+            reason: reason || 'Entrada de estoque',
+            notes: notes || '',
+            user: req.user.userId,
+            date: new Date()
+        });
+
+        await product.save();
+
+        res.json({ 
+            success: true, 
+            message: `${addQuantity} unidades adicionadas ao estoque com sucesso`,
+            product 
+        });
+    } catch (error) {
+        console.error('Erro ao adicionar produto:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Obter estatísticas do estoque
+app.get('/api/products/statistics', authenticateToken, async (req, res) => {
+    try {
+        const statistics = await Product.getStockStatistics();
+        res.json({ success: true, statistics });
+    } catch (error) {
+        console.error('Erro ao obter estatísticas:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Obter produtos com estoque baixo
+app.get('/api/products/low-stock', authenticateToken, async (req, res) => {
+    try {
+        const products = await Product.findLowStock();
+        res.json({ success: true, products });
+    } catch (error) {
+        console.error('Erro ao buscar produtos com estoque baixo:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Obter produtos sem estoque
+app.get('/api/products/out-of-stock', authenticateToken, async (req, res) => {
+    try {
+        const products = await Product.findOutOfStock();
+        res.json({ success: true, products });
+    } catch (error) {
+        console.error('Erro ao buscar produtos sem estoque:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
 // ==================== ROTAS DE SERVIÇOS ====================
 
 // Listar serviços
@@ -1341,247 +1700,6 @@ app.delete('/api/services/:id', authenticateToken, async (req, res) => {
         });
     } catch (error) {
         console.error('Erro ao excluir serviço:', error);
-        res.status(500).json({ message: 'Erro interno do servidor' });
-    }
-});
-
-// ==================== ROTAS DE PRODUTOS (ESTOQUE) ====================
-
-// Listar produtos
-app.get('/api/products', authenticateToken, async (req, res) => {
-    try {
-        const products = await Product.find().sort({ createdAt: -1 });
-        res.json({ success: true, products });
-    } catch (error) {
-        console.error('Erro ao listar produtos:', error);
-        res.status(500).json({ message: 'Erro interno do servidor' });
-    }
-});
-
-// Criar produto
-app.post('/api/products', authenticateToken, upload.single('photo'), async (req, res) => {
-    try {
-        const {
-            name,
-            description,
-            quantity,
-            minQuantity,
-            maxQuantity,
-            unit,
-            category
-        } = req.body;
-
-        // Validar campos obrigatórios
-        if (!name || quantity === undefined) {
-            return res.status(400).json({ message: 'Nome e quantidade são obrigatórios' });
-        }
-
-        // Processar foto se fornecida
-        let photoUrl = null;
-        if (req.file) {
-            const base64 = req.file.buffer.toString('base64');
-            photoUrl = `data:${req.file.mimetype};base64,${base64}`;
-        }
-
-        // Criar produto
-        const product = new Product({
-            name,
-            description,
-            quantity: parseInt(quantity) || 0,
-            minQuantity: parseInt(minQuantity) || 0,
-            maxQuantity: parseInt(maxQuantity) || 1000,
-            unit: unit || 'unidade',
-            category,
-            photo: photoUrl,
-            createdBy: req.user.userId
-        });
-
-        await product.save();
-
-        res.json({ 
-            success: true, 
-            message: 'Produto criado com sucesso',
-            product 
-        });
-    } catch (error) {
-        console.error('Erro ao criar produto:', error);
-        res.status(500).json({ message: 'Erro interno do servidor' });
-    }
-});
-
-// Atualizar produto
-app.put('/api/products/:id', authenticateToken, upload.single('photo'), async (req, res) => {
-    try {
-        const { id } = req.params;
-        const {
-            name,
-            description,
-            quantity,
-            minQuantity,
-            maxQuantity,
-            unit,
-            category,
-            status
-        } = req.body;
-
-        const product = await Product.findById(id);
-        if (!product) {
-            return res.status(404).json({ message: 'Produto não encontrado' });
-        }
-
-        // Atualizar dados
-        product.name = name || product.name;
-        product.description = description;
-        product.quantity = quantity !== undefined ? parseInt(quantity) : product.quantity;
-        product.minQuantity = minQuantity !== undefined ? parseInt(minQuantity) : product.minQuantity;
-        product.maxQuantity = maxQuantity !== undefined ? parseInt(maxQuantity) : product.maxQuantity;
-        product.unit = unit || product.unit;
-        product.category = category;
-        product.status = status || product.status;
-        product.updatedBy = req.user.userId;
-
-        // Processar foto se fornecida
-        if (req.file) {
-            const base64 = req.file.buffer.toString('base64');
-            product.photo = `data:${req.file.mimetype};base64,${base64}`;
-        }
-
-        await product.save();
-
-        res.json({ 
-            success: true, 
-            message: 'Produto atualizado com sucesso',
-            product 
-        });
-    } catch (error) {
-        console.error('Erro ao atualizar produto:', error);
-        res.status(500).json({ message: 'Erro interno do servidor' });
-    }
-});
-
-// Excluir produto
-app.delete('/api/products/:id', authenticateToken, async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        const product = await Product.findById(id);
-        if (!product) {
-            return res.status(404).json({ message: 'Produto não encontrado' });
-        }
-
-        await Product.findByIdAndDelete(id);
-
-        res.json({ 
-            success: true, 
-            message: 'Produto excluído com sucesso' 
-        });
-    } catch (error) {
-        console.error('Erro ao excluir produto:', error);
-        res.status(500).json({ message: 'Erro interno do servidor' });
-    }
-});
-
-// Adicionar estoque (entrada)
-app.post('/api/products/:id/add-stock', authenticateToken, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { amount, reason } = req.body;
-
-        if (!amount || amount <= 0) {
-            return res.status(400).json({ message: 'Quantidade deve ser maior que zero' });
-        }
-
-        const product = await Product.findById(id);
-        if (!product) {
-            return res.status(404).json({ message: 'Produto não encontrado' });
-        }
-
-        await product.addStock(parseInt(amount), reason || 'Entrada de estoque');
-
-        res.json({ 
-            success: true, 
-            message: 'Estoque adicionado com sucesso',
-            product 
-        });
-    } catch (error) {
-        console.error('Erro ao adicionar estoque:', error);
-        res.status(500).json({ message: 'Erro interno do servidor' });
-    }
-});
-
-// Remover estoque (saída)
-app.post('/api/products/:id/remove-stock', authenticateToken, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { amount, reason } = req.body;
-
-        if (!amount || amount <= 0) {
-            return res.status(400).json({ message: 'Quantidade deve ser maior que zero' });
-        }
-
-        const product = await Product.findById(id);
-        if (!product) {
-            return res.status(404).json({ message: 'Produto não encontrado' });
-        }
-
-        if (product.quantity < amount) {
-            return res.status(400).json({ message: 'Quantidade insuficiente em estoque' });
-        }
-
-        await product.removeStock(parseInt(amount), reason || 'Saída de estoque');
-
-        res.json({ 
-            success: true, 
-            message: 'Estoque removido com sucesso',
-            product 
-        });
-    } catch (error) {
-        console.error('Erro ao remover estoque:', error);
-        res.status(500).json({ message: 'Erro interno do servidor' });
-    }
-});
-
-// Obter estatísticas do estoque
-app.get('/api/products/stats', authenticateToken, async (req, res) => {
-    try {
-        const totalProducts = await Product.countDocuments();
-        const activeProducts = await Product.countDocuments({ status: 'active' });
-        const outOfStock = await Product.countDocuments({ quantity: { $lte: 0 } });
-        const lowStock = await Product.countDocuments({
-            $expr: {
-                $lte: ['$quantity', '$minQuantity']
-            },
-            quantity: { $gt: 0 }
-        });
-
-        // Produtos por categoria
-        const productsByCategory = await Product.aggregate([
-            { $match: { status: 'active' } },
-            { $group: { _id: '$category', count: { $sum: 1 } } },
-            { $sort: { count: -1 } }
-        ]);
-
-        // Produtos com estoque baixo
-        const lowStockProducts = await Product.find({
-            $expr: {
-                $lte: ['$quantity', '$minQuantity']
-            },
-            status: 'active'
-        }).select('name quantity minQuantity');
-
-        res.json({
-            success: true,
-            stats: {
-                totalProducts,
-                activeProducts,
-                outOfStock,
-                lowStock,
-                productsByCategory,
-                lowStockProducts
-            }
-        });
-    } catch (error) {
-        console.error('Erro ao obter estatísticas:', error);
         res.status(500).json({ message: 'Erro interno do servidor' });
     }
 });

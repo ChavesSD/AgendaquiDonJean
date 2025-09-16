@@ -3,118 +3,159 @@ const mongoose = require('mongoose');
 const productSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: [true, 'Nome do produto é obrigatório'],
-        trim: true,
-        maxlength: [100, 'Nome do produto não pode ter mais de 100 caracteres']
+        required: true,
+        trim: true
+    },
+    category: {
+        type: String,
+        trim: true
     },
     description: {
         type: String,
-        trim: true,
-        maxlength: [500, 'Descrição não pode ter mais de 500 caracteres']
-    },
-    photo: {
-        type: String, // URL da foto ou base64
-        default: null
+        trim: true
     },
     quantity: {
         type: Number,
-        required: [true, 'Quantidade é obrigatória'],
-        min: [0, 'Quantidade não pode ser negativa'],
+        required: true,
+        min: 0,
         default: 0
     },
     minQuantity: {
         type: Number,
-        min: [0, 'Quantidade mínima não pode ser negativa'],
+        required: true,
+        min: 0,
         default: 0
     },
-    maxQuantity: {
+    price: {
         type: Number,
-        min: [0, 'Quantidade máxima não pode ser negativa'],
-        default: 1000
+        min: 0,
+        default: 0
     },
-    unit: {
+    supplier: {
         type: String,
-        enum: ['unidade', 'kg', 'g', 'litro', 'ml', 'metro', 'cm', 'caixa', 'pacote'],
-        default: 'unidade'
+        trim: true
     },
-    category: {
+    photo: {
         type: String,
-        trim: true,
-        maxlength: [50, 'Categoria não pode ter mais de 50 caracteres']
+        default: null
     },
     status: {
         type: String,
-        enum: ['active', 'inactive', 'out_of_stock'],
+        enum: ['active', 'inactive'],
         default: 'active'
     },
-    createdBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    updatedBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    }
+    // Histórico de movimentações
+    movements: [{
+        type: {
+            type: String,
+            enum: ['entrada', 'saida'],
+            required: true
+        },
+        quantity: {
+            type: Number,
+            required: true,
+            min: 1
+        },
+        reason: {
+            type: String,
+            trim: true
+        },
+        notes: {
+            type: String,
+            trim: true
+        },
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        },
+        date: {
+            type: Date,
+            default: Date.now
+        }
+    }]
 }, {
-    timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true }
+    timestamps: true
 });
 
 // Índices para melhor performance
-productSchema.index({ name: 1 });
-productSchema.index({ category: 1 });
+productSchema.index({ name: 'text', category: 'text', supplier: 'text' });
 productSchema.index({ status: 1 });
-productSchema.index({ createdBy: 1 });
+productSchema.index({ quantity: 1 });
+
+// Middleware para atualizar quantidade automaticamente
+productSchema.pre('save', function(next) {
+    // Calcular quantidade atual baseada nas movimentações
+    if (this.movements && this.movements.length > 0) {
+        let currentQuantity = 0;
+        this.movements.forEach(movement => {
+            if (movement.type === 'entrada') {
+                currentQuantity += movement.quantity;
+            } else if (movement.type === 'saida') {
+                currentQuantity -= movement.quantity;
+            }
+        });
+        this.quantity = Math.max(0, currentQuantity);
+    }
+    next();
+});
+
+// Método para adicionar movimentação
+productSchema.methods.addMovement = function(movementData) {
+    this.movements.push(movementData);
+    return this.save();
+};
+
+// Método para calcular quantidade atual
+productSchema.methods.calculateCurrentQuantity = function() {
+    let currentQuantity = 0;
+    this.movements.forEach(movement => {
+        if (movement.type === 'entrada') {
+            currentQuantity += movement.quantity;
+        } else if (movement.type === 'saida') {
+            currentQuantity -= movement.quantity;
+        }
+    });
+    return Math.max(0, currentQuantity);
+};
+
+// Método para verificar se está em estoque baixo
+productSchema.methods.isLowStock = function() {
+    return this.quantity <= this.minQuantity && this.quantity > 0;
+};
+
+// Método para verificar se está sem estoque
+productSchema.methods.isOutOfStock = function() {
+    return this.quantity === 0;
+};
+
+// Método para verificar se está em estoque normal
+productSchema.methods.isInStock = function() {
+    return this.quantity > this.minQuantity;
+};
 
 // Virtual para status do estoque
 productSchema.virtual('stockStatus').get(function() {
-    if (this.quantity <= 0) {
-        return 'out_of_stock';
-    } else if (this.quantity <= this.minQuantity) {
-        return 'low_stock';
-    } else if (this.quantity >= this.maxQuantity) {
-        return 'overstock';
-    }
-    return 'normal';
+    if (this.isOutOfStock()) return 'out-of-stock';
+    if (this.isLowStock()) return 'low-stock';
+    return 'in-stock';
 });
 
-// Virtual para texto do status do estoque
+// Virtual para status do estoque em português
 productSchema.virtual('stockStatusText').get(function() {
-    const statusMap = {
-        'out_of_stock': 'Sem Estoque',
-        'low_stock': 'Estoque Baixo',
-        'normal': 'Normal',
-        'overstock': 'Estoque Alto'
-    };
-    return statusMap[this.stockStatus] || 'Desconhecido';
-});
-
-// Virtual para cor do status
-productSchema.virtual('stockStatusColor').get(function() {
-    const colorMap = {
-        'out_of_stock': '#e74c3c',
-        'low_stock': '#f39c12',
-        'normal': '#27ae60',
-        'overstock': '#3498db'
-    };
-    return colorMap[this.stockStatus] || '#95a5a6';
-});
-
-// Middleware para atualizar updatedBy antes de salvar
-productSchema.pre('save', function(next) {
-    if (this.isModified() && !this.isNew) {
-        this.updatedBy = this.createdBy; // Em um sistema real, seria o usuário atual
-    }
-    next();
+    if (this.isOutOfStock()) return 'Sem Estoque';
+    if (this.isLowStock()) return 'Estoque Baixo';
+    return 'Em Estoque';
 });
 
 // Método estático para buscar produtos com estoque baixo
 productSchema.statics.findLowStock = function() {
     return this.find({
         $expr: {
-            $lte: ['$quantity', '$minQuantity']
+            $and: [
+                { $lte: ['$quantity', '$minQuantity'] },
+                { $gt: ['$quantity', 0] }
+            ]
         },
         status: 'active'
     });
@@ -123,24 +164,34 @@ productSchema.statics.findLowStock = function() {
 // Método estático para buscar produtos sem estoque
 productSchema.statics.findOutOfStock = function() {
     return this.find({
-        quantity: { $lte: 0 },
+        quantity: 0,
         status: 'active'
     });
 };
 
-// Método de instância para adicionar estoque
-productSchema.methods.addStock = function(amount, reason = 'Entrada') {
-    this.quantity += amount;
-    return this.save();
+// Método estático para buscar produtos em estoque
+productSchema.statics.findInStock = function() {
+    return this.find({
+        $expr: {
+            $gt: ['$quantity', '$minQuantity']
+        },
+        status: 'active'
+    });
 };
 
-// Método de instância para remover estoque
-productSchema.methods.removeStock = function(amount, reason = 'Saída') {
-    if (this.quantity < amount) {
-        throw new Error('Quantidade insuficiente em estoque');
-    }
-    this.quantity -= amount;
-    return this.save();
+// Método estático para estatísticas do estoque
+productSchema.statics.getStockStatistics = async function() {
+    const total = await this.countDocuments();
+    const inStock = await this.findInStock().countDocuments();
+    const lowStock = await this.findLowStock().countDocuments();
+    const outOfStock = await this.findOutOfStock().countDocuments();
+    
+    return {
+        total,
+        inStock,
+        lowStock,
+        outOfStock
+    };
 };
 
 module.exports = mongoose.model('Product', productSchema);
