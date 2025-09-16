@@ -3359,6 +3359,27 @@ body {
     border-left-color: #e74c3c;
 }
 
+/* Cores específicas para histórico financeiro */
+.history-item.revenue {
+    border-left-color: #27ae60;
+    background: linear-gradient(135deg, #f8fff9, #f0f9f0);
+}
+
+.history-item.expense {
+    border-left-color: #e74c3c;
+    background: linear-gradient(135deg, #fff8f8, #f9f0f0);
+}
+
+.history-item.pos {
+    border-left-color: #3498db;
+    background: linear-gradient(135deg, #f8fbff, #f0f6ff);
+}
+
+.history-item.sale {
+    border-left-color: #9b59b6;
+    background: linear-gradient(135deg, #faf8ff, #f5f0ff);
+}
+
 .history-item-header {
     display: flex;
     justify-content: between;
@@ -3385,6 +3406,27 @@ body {
 .history-item-type.saida {
     background: rgba(231, 76, 60, 0.1);
     color: #e74c3c;
+}
+
+/* Cores dos tipos para histórico financeiro */
+.history-item-type.revenue {
+    background: rgba(39, 174, 96, 0.1);
+    color: #27ae60;
+}
+
+.history-item-type.expense {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+}
+
+.history-item-type.pos {
+    background: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+}
+
+.history-item-type.sale {
+    background: rgba(155, 89, 182, 0.1);
+    color: #9b59b6;
 }
 
 .history-item-date {
