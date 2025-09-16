@@ -1202,6 +1202,50 @@ app.get('/api/products', authenticateToken, async (req, res) => {
     }
 });
 
+// Obter histórico de movimentações
+app.get('/api/products/history', authenticateToken, async (req, res) => {
+    try {
+        const products = await Product.find().select('name category movements');
+        
+        const history = [];
+        
+        for (const product of products) {
+            for (const movement of product.movements) {
+                // Buscar dados do usuário
+                let userName = 'Usuário Desconhecido';
+                try {
+                    const user = await User.findById(movement.user);
+                    if (user) {
+                        userName = user.name;
+                    }
+                } catch (userError) {
+                    console.log('Usuário não encontrado:', movement.user);
+                }
+                
+                history.push({
+                    productId: product._id,
+                    productName: product.name,
+                    productCategory: product.category,
+                    type: movement.type,
+                    quantity: movement.quantity,
+                    reason: movement.reason,
+                    notes: movement.notes,
+                    userName: userName,
+                    date: movement.date
+                });
+            }
+        }
+        
+        // Ordenar por data (mais recente primeiro)
+        history.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        res.json({ success: true, history });
+    } catch (error) {
+        console.error('Erro ao obter histórico:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
 // Obter produto por ID
 app.get('/api/products/:id', authenticateToken, async (req, res) => {
     try {

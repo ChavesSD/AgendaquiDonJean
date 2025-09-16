@@ -238,6 +238,10 @@
                                 <i class="fas fa-minus-circle"></i>
                                 <span>Saída</span>
                             </button>
+                            <button class="tab-btn" data-tab="historico">
+                                <i class="fas fa-history"></i>
+                                <span>Histórico</span>
+                            </button>
                             <button class="btn btn-primary" id="add-product-tab-btn">
                                 <i class="fas fa-plus"></i>
                                 <span>Novo Produto</span>
@@ -274,6 +278,34 @@
                                     </div>
                                     <div class="withdrawal-list" id="withdrawal-list">
                                         <!-- Lista será carregada dinamicamente -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Aba Histórico -->
+                            <div class="tab-pane" id="historico-tab">
+                                <div class="history-section">
+                                    <div class="section-header">
+                                        <h3>Histórico de Movimentações</h3>
+                                        <div class="history-filters">
+                                            <select id="history-type-filter">
+                                                <option value="">Todos os tipos</option>
+                                                <option value="entrada">Entradas</option>
+                                                <option value="saida">Saídas</option>
+                                            </select>
+                                            <select id="history-product-filter">
+                                                <option value="">Todos os produtos</option>
+                                            </select>
+                                            <input type="date" id="history-date-from" placeholder="Data inicial">
+                                            <input type="date" id="history-date-to" placeholder="Data final">
+                                            <button class="btn btn-secondary" id="clear-history-filters">
+                                                <i class="fas fa-times"></i>
+                                                Limpar
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="history-list" id="history-list">
+                                        <!-- Histórico será carregado aqui -->
                                     </div>
                                 </div>
                             </div>

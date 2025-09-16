@@ -27,6 +27,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const productsList = document.getElementById('products-list');
     const withdrawalList = document.getElementById('withdrawal-list');
+    const historyList = document.getElementById('history-list');
+    
+    // Filtros do histórico
+    const historyTypeFilter = document.getElementById('history-type-filter');
+    const historyProductFilter = document.getElementById('history-product-filter');
+    const historyDateFrom = document.getElementById('history-date-from');
+    const historyDateTo = document.getElementById('history-date-to');
+    const clearHistoryFilters = document.getElementById('clear-history-filters');
     
     const productSearch = document.getElementById('product-search');
     const withdrawalSearch = document.getElementById('withdrawal-search');
@@ -44,6 +52,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let products = [];
     let filteredProducts = [];
     let filteredWithdrawalProducts = [];
+    let historyData = [];
+    let filteredHistory = [];
 
     // Inicializar
     init();
@@ -81,6 +91,23 @@ document.addEventListener('DOMContentLoaded', function() {
             tab.addEventListener('click', () => switchTab(tab.dataset.tab));
         });
         
+        // Filtros do histórico
+        if (historyTypeFilter) {
+            historyTypeFilter.addEventListener('change', filterHistory);
+        }
+        if (historyProductFilter) {
+            historyProductFilter.addEventListener('change', filterHistory);
+        }
+        if (historyDateFrom) {
+            historyDateFrom.addEventListener('change', filterHistory);
+        }
+        if (historyDateTo) {
+            historyDateTo.addEventListener('change', filterHistory);
+        }
+        if (clearHistoryFilters) {
+            clearHistoryFilters.addEventListener('click', clearHistoryFiltersFunc);
+        }
+        
         // Busca
         productSearch.addEventListener('input', (e) => filterProducts(e.target.value));
         withdrawalSearch.addEventListener('input', (e) => filterWithdrawalProducts(e.target.value));
@@ -96,6 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Carregar dados iniciais
         loadProducts();
+        loadHistory();
     }
 
     // Carregar produtos
@@ -138,6 +166,154 @@ document.addEventListener('DOMContentLoaded', function() {
         inStockProducts.textContent = inStock;
         lowStockProducts.textContent = lowStock;
         outOfStockProducts.textContent = outOfStock;
+    }
+
+    // Carregar histórico
+    async function loadHistory() {
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/api/products/history', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                historyData = result.history || [];
+                filteredHistory = [...historyData];
+                renderHistory();
+                populateProductFilter();
+            } else {
+                console.error('Erro ao carregar histórico:', response.statusText);
+                showNotification('Erro ao carregar histórico', 'error');
+            }
+        } catch (error) {
+            console.error('Erro ao carregar histórico:', error);
+            showNotification('Erro ao carregar histórico', 'error');
+        }
+    }
+
+    // Renderizar histórico
+    function renderHistory() {
+        if (!historyList) return;
+
+        if (filteredHistory.length === 0) {
+            historyList.innerHTML = `
+                <div class="empty-history">
+                    <i class="fas fa-history"></i>
+                    <h3>Nenhum histórico encontrado</h3>
+                    <p>As movimentações de estoque aparecerão aqui.</p>
+                </div>
+            `;
+            return;
+        }
+
+        historyList.innerHTML = filteredHistory.map(item => `
+            <div class="history-item ${item.type}">
+                <div class="history-item-header">
+                    <div class="history-item-type ${item.type}">
+                        <i class="fas fa-${item.type === 'entrada' ? 'plus' : 'minus'}"></i>
+                        ${item.type === 'entrada' ? 'Entrada' : 'Saída'}
+                    </div>
+                    <div class="history-item-date">
+                        ${formatDateTime(item.date)}
+                    </div>
+                </div>
+                
+                <div class="history-item-content">
+                    <div class="history-item-info">
+                        <h4>${item.productName}</h4>
+                        <p>Categoria: ${item.productCategory || 'N/A'}</p>
+                    </div>
+                    
+                    <div class="history-item-quantity">
+                        ${item.type === 'entrada' ? '+' : '-'}${item.quantity}
+                    </div>
+                    
+                    <div class="history-item-user">
+                        <i class="fas fa-user"></i>
+                        ${item.userName || 'Usuário'}
+                    </div>
+                </div>
+                
+                <div class="history-item-reason">
+                    <strong>Motivo:</strong> ${item.reason}
+                </div>
+                
+                ${item.notes ? `
+                    <div class="history-item-notes">
+                        <strong>Observações:</strong> ${item.notes}
+                    </div>
+                ` : ''}
+            </div>
+        `).join('');
+    }
+
+    // Popular filtro de produtos
+    function populateProductFilter() {
+        if (!historyProductFilter) return;
+        
+        const uniqueProducts = [...new Set(historyData.map(item => item.productName))];
+        historyProductFilter.innerHTML = '<option value="">Todos os produtos</option>' +
+            uniqueProducts.map(product => `<option value="${product}">${product}</option>`).join('');
+    }
+
+    // Filtrar histórico
+    function filterHistory() {
+        if (!historyData) return;
+
+        const typeFilter = historyTypeFilter?.value || '';
+        const productFilter = historyProductFilter?.value || '';
+        const dateFrom = historyDateFrom?.value || '';
+        const dateTo = historyDateTo?.value || '';
+
+        filteredHistory = historyData.filter(item => {
+            const matchesType = !typeFilter || item.type === typeFilter;
+            const matchesProduct = !productFilter || item.productName === productFilter;
+            
+            let matchesDate = true;
+            if (dateFrom || dateTo) {
+                const itemDate = new Date(item.date);
+                if (dateFrom) {
+                    const fromDate = new Date(dateFrom);
+                    matchesDate = matchesDate && itemDate >= fromDate;
+                }
+                if (dateTo) {
+                    const toDate = new Date(dateTo);
+                    toDate.setHours(23, 59, 59, 999);
+                    matchesDate = matchesDate && itemDate <= toDate;
+                }
+            }
+
+            return matchesType && matchesProduct && matchesDate;
+        });
+
+        renderHistory();
+    }
+
+    // Limpar filtros do histórico
+    function clearHistoryFiltersFunc() {
+        if (historyTypeFilter) historyTypeFilter.value = '';
+        if (historyProductFilter) historyProductFilter.value = '';
+        if (historyDateFrom) historyDateFrom.value = '';
+        if (historyDateTo) historyDateTo.value = '';
+        
+        filteredHistory = [...historyData];
+        renderHistory();
+    }
+
+    // Formatar data e hora
+    function formatDateTime(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
     }
 
     // Renderizar produtos
@@ -316,6 +492,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Mostrar aba correspondente
         document.getElementById(`${tabName}-tab`).classList.add('active');
+        
+        // Renderizar conteúdo específico da aba
+        if (tabName === 'entrada') {
+            renderProducts();
+        } else if (tabName === 'saida') {
+            renderWithdrawalProducts();
+        } else if (tabName === 'historico') {
+            renderHistory();
+        }
     }
 
     // Abrir modal de produto
