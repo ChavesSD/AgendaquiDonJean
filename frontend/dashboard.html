@@ -1530,11 +1530,6 @@
             <div class="modal-body">
                 <form id="pos-form">
                     <div class="form-group">
-                        <label for="pos-name">Nome da Maquininha *</label>
-                        <input type="text" id="pos-name" name="name" required>
-                    </div>
-                    
-                    <div class="form-group">
                         <label for="pos-photo">Foto (URL)</label>
                         <div class="photo-upload">
                             <div class="photo-preview" id="pos-photo-preview">
@@ -1543,6 +1538,11 @@
                             </div>
                             <input type="url" id="pos-photo" name="photo" placeholder="https://exemplo.com/foto.jpg" onchange="handlePosPhotoUrlChange()">
                         </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pos-name">Nome da Maquininha *</label>
+                        <input type="text" id="pos-name" name="name" required>
                     </div>
                     
                     <div class="form-group">
