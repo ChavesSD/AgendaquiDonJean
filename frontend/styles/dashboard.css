@@ -3994,7 +3994,7 @@ body {
 }
 
 .finance-stats .stat-card.profit {
-    border-left: 4px solid #f39c12;
+    border-left: 4px solid #3498db;
 }
 
 .finance-stats .stat-icon {
@@ -4017,7 +4017,7 @@ body {
 }
 
 .finance-stats .stat-card.profit .stat-icon {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
+    background: linear-gradient(135deg, #3498db, #2980b9);
 }
 
 .finance-stats .stat-content h3 {
