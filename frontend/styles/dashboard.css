@@ -4151,6 +4151,7 @@ body {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     border-left: 4px solid #e1e5e9;
     transition: all 0.3s ease;
+    margin-bottom: 15px;
 }
 
 .revenue-item:hover,
@@ -4170,6 +4171,155 @@ body {
 
 .pos-item {
     border-left-color: #3498db;
+}
+
+/* Layout dos Cards */
+.revenue-item .item-content,
+.expense-item .item-content,
+.pos-item .item-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.revenue-item .item-info,
+.expense-item .item-info,
+.pos-item .item-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.revenue-item .item-details,
+.expense-item .item-details,
+.pos-item .item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.revenue-item h4,
+.expense-item h4,
+.pos-item h4 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.revenue-item .item-type,
+.expense-item .item-type {
+    display: inline-block;
+    background: #f8f9fa;
+    color: #6c757d;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.revenue-item .item-value,
+.expense-item .item-value,
+.pos-item .item-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.revenue-item .item-date,
+.expense-item .item-date,
+.pos-item .item-date {
+    font-size: 12px;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.revenue-item .item-installments {
+    font-size: 12px;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.revenue-item .item-photo,
+.expense-item .item-photo,
+.pos-item .item-photo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #6c757d;
+    flex-shrink: 0;
+}
+
+.revenue-item .item-photo img,
+.expense-item .item-photo img,
+.pos-item .item-photo img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.revenue-item .item-actions,
+.expense-item .item-actions,
+.pos-item .item-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.revenue-item .btn-sm,
+.expense-item .btn-sm,
+.pos-item .btn-sm {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+.revenue-item .btn-primary.btn-sm,
+.expense-item .btn-primary.btn-sm,
+.pos-item .btn-primary.btn-sm {
+    background: #3498db;
+    border-color: #3498db;
+}
+
+.revenue-item .btn-primary.btn-sm:hover,
+.expense-item .btn-primary.btn-sm:hover,
+.pos-item .btn-primary.btn-sm:hover {
+    background: #2980b9;
+    border-color: #2980b9;
+}
+
+.revenue-item .btn-danger.btn-sm,
+.expense-item .btn-danger.btn-sm,
+.pos-item .btn-danger.btn-sm {
+    background: #e74c3c;
+    border-color: #e74c3c;
+}
+
+.revenue-item .btn-danger.btn-sm:hover,
+.expense-item .btn-danger.btn-sm:hover,
+.pos-item .btn-danger.btn-sm:hover {
+    background: #c0392b;
+    border-color: #c0392b;
 }
 
 /* Responsive para Financeiro */
@@ -4223,6 +4373,28 @@ body {
     .pos-actions {
         flex-direction: column;
         gap: 10px;
+    }
+    
+    .revenue-item .item-content,
+    .expense-item .item-content,
+    .pos-item .item-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+    
+    .revenue-item .item-info,
+    .expense-item .item-info,
+    .pos-item .item-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .revenue-item .item-actions,
+    .expense-item .item-actions,
+    .pos-item .item-actions {
+        justify-content: center;
     }
 }
 

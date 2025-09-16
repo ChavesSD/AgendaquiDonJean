@@ -270,26 +270,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
         revenueList.innerHTML = filteredRevenues.map(revenue => `
             <div class="revenue-item">
-                <div class="item-header">
-                    <h4>${revenue.name}</h4>
-                    <span class="item-type">${revenue.type === 'unique' ? 'Única' : 'Fixa'}</span>
-                </div>
                 <div class="item-content">
-                    <div class="item-value">
-                        <strong>${formatCurrency(revenue.value)}</strong>
+                    <div class="item-info">
+                        <h4>${revenue.name}</h4>
+                        <div class="item-details">
+                            <span class="item-type">${revenue.type === 'unique' ? 'Única' : 'Fixa'}</span>
+                            <div class="item-value">
+                                <strong>${formatCurrency(revenue.value)}</strong>
+                            </div>
+                            <div class="item-date">
+                                <i class="fas fa-calendar"></i>
+                                ${formatDate(revenue.date)}
+                            </div>
+                        </div>
                     </div>
-                    <div class="item-date">
-                        <i class="fas fa-calendar"></i>
-                        ${formatDate(revenue.date)}
+                    <div class="item-actions">
+                        <button class="btn btn-primary btn-sm" onclick="editRevenue('${revenue._id}')" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteRevenue('${revenue._id}')" title="Excluir">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
-                </div>
-                <div class="item-actions">
-                    <button class="btn btn-primary" onclick="editRevenue('${revenue._id}')" title="Editar">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-danger" onclick="deleteRevenue('${revenue._id}')" title="Excluir">
-                        <i class="fas fa-trash"></i>
-                    </button>
                 </div>
             </div>
         `).join('');
@@ -312,32 +314,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
         expensesList.innerHTML = filteredExpenses.map(expense => `
             <div class="expense-item">
-                <div class="item-header">
-                    <h4>${expense.name}</h4>
-                    <span class="item-type">${getExpenseTypeLabel(expense.type)}</span>
-                </div>
                 <div class="item-content">
-                    <div class="item-value">
-                        <strong>${formatCurrency(expense.value)}</strong>
-                    </div>
-                    <div class="item-date">
-                        <i class="fas fa-calendar"></i>
-                        ${formatDate(expense.date)}
-                    </div>
-                    ${expense.installments ? `
-                        <div class="item-installments">
-                            <i class="fas fa-credit-card"></i>
-                            ${expense.currentInstallment}/${expense.totalInstallments} parcelas
+                    <div class="item-info">
+                        <h4>${expense.name}</h4>
+                        <div class="item-details">
+                            <span class="item-type">${getExpenseTypeLabel(expense.type)}</span>
+                            <div class="item-value">
+                                <strong>${formatCurrency(expense.value)}</strong>
+                            </div>
+                            <div class="item-date">
+                                <i class="fas fa-calendar"></i>
+                                ${formatDate(expense.date)}
+                            </div>
+                            ${expense.installments ? `
+                                <div class="item-installments">
+                                    <i class="fas fa-credit-card"></i>
+                                    ${expense.currentInstallment}/${expense.totalInstallments} parcelas
+                                </div>
+                            ` : ''}
                         </div>
-                    ` : ''}
-                </div>
-                <div class="item-actions">
-                    <button class="btn btn-primary" onclick="editExpense('${expense._id}')" title="Editar">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-danger" onclick="deleteExpense('${expense._id}')" title="Excluir">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn btn-primary btn-sm" onclick="editExpense('${expense._id}')" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteExpense('${expense._id}')" title="Excluir">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         `).join('');
@@ -360,29 +364,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
         posList.innerHTML = posMachines.map(pos => `
             <div class="pos-item">
-                <div class="item-header">
-                    <h4>${pos.name}</h4>
-                    <span class="item-rate">Taxa: ${pos.rate}%</span>
-                </div>
                 <div class="item-content">
-                    <div class="item-photo">
-                        ${pos.photo ? 
-                            `<img src="${pos.photo}" alt="${pos.name}">` : 
-                            '<i class="fas fa-credit-card"></i>'
-                        }
-                    </div>
                     <div class="item-info">
-                        <p><strong>Taxa:</strong> ${pos.rate}%</p>
-                        <p><strong>Cadastrada em:</strong> ${formatDate(pos.createdAt)}</p>
+                        <div class="item-photo">
+                            ${pos.photo ? 
+                                `<img src="${pos.photo}" alt="${pos.name}">` : 
+                                '<i class="fas fa-credit-card"></i>'
+                            }
+                        </div>
+                        <div class="item-details">
+                            <h4>${pos.name}</h4>
+                            <p><strong>Taxa:</strong> ${pos.rate}%</p>
+                            <p><strong>Cadastrada em:</strong> ${formatDate(pos.createdAt)}</p>
+                        </div>
                     </div>
-                </div>
-                <div class="item-actions">
-                    <button class="btn btn-primary" onclick="editPos('${pos._id}')" title="Editar">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-danger" onclick="deletePos('${pos._id}')" title="Excluir">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                    <div class="item-actions">
+                        <button class="btn btn-primary btn-sm" onclick="editPos('${pos._id}')" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deletePos('${pos._id}')" title="Excluir">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         `).join('');
