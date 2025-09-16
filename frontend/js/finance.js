@@ -453,6 +453,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const months = [];
         const revenueData = [];
         const expenseData = [];
+        const profitData = [];
 
         for (let i = 11; i >= 0; i--) {
             const date = new Date();
@@ -523,6 +524,10 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const monthExpenseTotal = monthExpenses.reduce((sum, e) => sum + (e.value || 0), 0);
             expenseData.push(monthExpenseTotal);
+            
+            // Calcular lucro do mês (receitas - gastos)
+            const monthProfit = monthRevenueTotal - monthExpenseTotal;
+            profitData.push(monthProfit);
         }
 
         financeChart = new Chart(ctx, {
@@ -543,6 +548,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     backgroundColor: 'rgba(231, 76, 60, 0.1)',
                     tension: 0.4,
                     fill: true
+                }, {
+                    label: 'Lucro',
+                    data: profitData,
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    tension: 0.4,
+                    fill: false,
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
                 }]
             },
             options: {
