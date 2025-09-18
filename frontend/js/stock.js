@@ -375,36 +375,45 @@ document.addEventListener('DOMContentLoaded', function() {
         const isEntradaTab = currentTab === 'entrada';
         
         card.innerHTML = `
-            <div class="product-photo">
+            <div class="product-icon">
                 ${product.photo ? 
                     `<img src="${product.photo}" alt="${product.name}">` : 
-                    '<i class="fas fa-image"></i>'
+                    '<i class="fas fa-box"></i>'
                 }
             </div>
             <div class="product-info">
                 <h4>${product.name}</h4>
                 <p class="product-category">${product.category || 'Sem categoria'}</p>
                 <div class="product-details">
-                    <span><i class="fas fa-tag"></i> ${product.supplier || 'Sem fornecedor'}</span>
-                    <span><i class="fas fa-dollar-sign"></i> R$ ${product.price || '0,00'}</span>
-                    <span><i class="fas fa-calendar"></i> ${formatDate(product.createdAt)}</span>
+                    <span class="product-supplier">
+                        <i class="fas fa-tag"></i>
+                        ${product.supplier || 'Sem fornecedor'}
+                    </span>
+                    <span class="product-price">
+                        <i class="fas fa-dollar-sign"></i>
+                        R$ ${product.price || '0,00'}
+                    </span>
+                    <span class="product-date">
+                        <i class="fas fa-calendar"></i>
+                        ${formatDate(product.createdAt)}
+                    </span>
                 </div>
             </div>
-            <div class="product-stock">
-                <span class="stock-level ${stockLevelClass}">${stockLevel}</span>
-                <span class="stock-quantity">${product.quantity}</span>
+            <div class="product-status">
+                <span class="status-badge ${stockLevelClass}">${stockLevel}</span>
+                <span class="stock-quantity">${product.quantity} unidades</span>
             </div>
             <div class="product-actions">
-                <button class="btn btn-primary" onclick="editProduct('${product._id}')" title="Editar">
+                <button class="btn btn-sm btn-primary" onclick="editProduct('${product._id}')" title="Editar">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button class="btn ${isEntradaTab ? 'btn-success' : 'btn-warning'}" 
+                <button class="btn btn-sm ${isEntradaTab ? 'btn-success' : 'btn-warning'}" 
                         onclick="${isEntradaTab ? 'openAddItemsModal' : 'withdrawProduct'}('${product._id}')" 
                         title="${isEntradaTab ? 'Adicionar itens' : 'Retirar'}" 
                         ${!isEntradaTab && product.quantity === 0 ? 'disabled' : ''}>
                     <i class="fas fa-${isEntradaTab ? 'plus' : 'minus'}"></i>
                 </button>
-                <button class="btn btn-danger" onclick="deleteProduct('${product._id}')" title="Excluir">
+                <button class="btn btn-sm btn-danger" onclick="deleteProduct('${product._id}')" title="Excluir">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -422,26 +431,32 @@ document.addEventListener('DOMContentLoaded', function() {
         const stockLevelClass = stockLevel.toLowerCase().replace(' ', '-');
         
         card.innerHTML = `
-            <div class="product-photo">
+            <div class="product-icon">
                 ${product.photo ? 
                     `<img src="${product.photo}" alt="${product.name}">` : 
-                    '<i class="fas fa-image"></i>'
+                    '<i class="fas fa-box"></i>'
                 }
             </div>
             <div class="product-info">
                 <h4>${product.name}</h4>
                 <p class="product-category">${product.category || 'Sem categoria'}</p>
                 <div class="product-details">
-                    <span><i class="fas fa-tag"></i> ${product.supplier || 'Sem fornecedor'}</span>
-                    <span><i class="fas fa-dollar-sign"></i> R$ ${product.price || '0,00'}</span>
+                    <span class="product-supplier">
+                        <i class="fas fa-tag"></i>
+                        ${product.supplier || 'Sem fornecedor'}
+                    </span>
+                    <span class="product-price">
+                        <i class="fas fa-dollar-sign"></i>
+                        R$ ${product.price || '0,00'}
+                    </span>
                 </div>
             </div>
-            <div class="product-stock">
-                <span class="stock-level ${stockLevelClass}">${stockLevel}</span>
-                <span class="stock-quantity">${product.quantity}</span>
+            <div class="product-status">
+                <span class="status-badge ${stockLevelClass}">${stockLevel}</span>
+                <span class="stock-quantity">${product.quantity} unidades</span>
             </div>
             <div class="product-actions">
-                <button class="btn btn-warning" onclick="withdrawProduct('${product._id}')" title="Retirar" ${product.quantity === 0 ? 'disabled' : ''}>
+                <button class="btn btn-sm btn-warning" onclick="withdrawProduct('${product._id}')" title="Retirar" ${product.quantity === 0 ? 'disabled' : ''}>
                     <i class="fas fa-minus"></i> Retirar
                 </button>
             </div>

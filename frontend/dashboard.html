@@ -139,15 +139,168 @@
                 <div class="page-content" id="agenda-page">
                     <div class="page-header">
                         <h2>Agenda</h2>
-                        <button class="btn btn-primary">
-                            <i class="fas fa-plus"></i>
-                            Novo Agendamento
-                        </button>
+                        <div class="date-filters">
+                            <div class="filter-group">
+                                <label for="agenda-date-from">Data Início</label>
+                                <input type="date" id="agenda-date-from" placeholder="dd/mm/aaaa">
+                            </div>
+                            <div class="filter-group">
+                                <label for="agenda-date-to">Data Fim</label>
+                                <input type="date" id="agenda-date-to" placeholder="dd/mm/aaaa">
+                            </div>
+                            <button class="btn btn-primary" id="filter-agenda-dates">
+                                <i class="fas fa-search"></i>
+                                Filtrar
+                            </button>
+                            <button class="btn btn-secondary" id="clear-agenda-filters">
+                                <i class="fas fa-times"></i>
+                                Limpar
+                            </button>
+                        </div>
                     </div>
-                    <div class="empty-state">
-                        <i class="fas fa-calendar-alt"></i>
-                        <h3>Agenda em desenvolvimento</h3>
-                        <p>Esta funcionalidade será implementada em breve.</p>
+
+                    <!-- Cards de Estatísticas -->
+                    <div class="agenda-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-appointments">0</h3>
+                                <p>Total de Agendamentos</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon pending">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="pending-appointments">0</h3>
+                                <p>Pendentes</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon confirmed">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="confirmed-appointments">0</h3>
+                                <p>Confirmados</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon cancelled">
+                                <i class="fas fa-times-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="cancelled-appointments">0</h3>
+                                <p>Cancelados</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Abas de Agenda -->
+                    <div class="agenda-tabs">
+                        <div class="tab-buttons">
+                            <button class="tab-btn active" data-tab="agendamentos">
+                                <i class="fas fa-list"></i>
+                                <span>Agendamentos</span>
+                            </button>
+                            <button class="tab-btn" data-tab="calendario">
+                                <i class="fas fa-calendar"></i>
+                                <span>Calendário</span>
+                            </button>
+                            <button class="tab-btn" data-tab="agenda">
+                                <i class="fas fa-calendar-day"></i>
+                                <span>Agenda</span>
+                            </button>
+                            <button class="tab-btn" data-tab="configuracao">
+                                <i class="fas fa-cog"></i>
+                                <span>Configuração</span>
+                            </button>
+                            <button class="btn btn-primary" id="new-appointment-btn">
+                                <i class="fas fa-plus"></i>
+                                <span>Novo Agendamento</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Conteúdo das Abas -->
+                        <div class="tab-content">
+                            <!-- Aba Agendamentos -->
+                            <div class="tab-pane active" id="agendamentos-tab">
+                                <div class="appointments-section">
+                                    <div class="section-header">
+                                        <h3>Gerenciar Agendamentos</h3>
+                                        <div class="appointment-filters">
+                                            <select id="professional-filter">
+                                                <option value="">Todos os Profissionais</option>
+                                            </select>
+                                            <div class="search-box">
+                                                <input type="text" id="appointment-search" placeholder="Buscar agendamento...">
+                                                <i class="fas fa-search"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="appointments-list" id="appointments-list">
+                                        <!-- Lista será carregada dinamicamente -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Aba Calendário -->
+                            <div class="tab-pane" id="calendario-tab">
+                                <div class="calendar-section">
+                                    <div class="section-header">
+                                        <h3>Visualização em Calendário</h3>
+                                        <div class="calendar-actions">
+                                            <button class="btn btn-secondary" id="prev-month">
+                                                <i class="fas fa-chevron-left"></i>
+                                                Mês Anterior
+                                            </button>
+                                            <span class="current-month" id="current-month">Janeiro 2024</span>
+                                            <button class="btn btn-secondary" id="next-month">
+                                                Próximo Mês
+                                                <i class="fas fa-chevron-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="calendar-container" id="calendar-container">
+                                        <!-- Calendário será carregado dinamicamente -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Aba Agenda -->
+                            <div class="tab-pane" id="agenda-tab">
+                                <div class="agenda-section">
+                                    <div class="section-header">
+                                        <h3>Agenda do Dia</h3>
+                                        <div class="agenda-actions">
+                                            <input type="date" id="agenda-day" class="agenda-date-picker">
+                                            <button class="btn btn-primary" id="today-btn">
+                                                <i class="fas fa-calendar-day"></i>
+                                                Hoje
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="agenda-timeline" id="agenda-timeline">
+                                        <!-- Timeline será carregada dinamicamente -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Aba Configuração -->
+                            <div class="tab-pane" id="configuracao-tab">
+                                <div class="config-section">
+                                    <h3>Configurações da Agenda</h3>
+                                    <div class="empty-state">
+                                        <i class="fas fa-cog"></i>
+                                        <h3>Configurações em desenvolvimento</h3>
+                                        <p>Esta funcionalidade será implementada em breve.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1630,6 +1783,74 @@
         </div>
     </div>
 
+    <!-- Modal de Novo Agendamento -->
+    <div class="modal" id="appointmentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="appointmentModalTitle">Novo Agendamento</h3>
+                <button class="modal-close" id="closeAppointmentModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="appointmentForm">
+                    <input type="hidden" id="appointmentId" name="id">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="appointmentProfessional">Profissional *</label>
+                            <select id="appointmentProfessional" name="professionalId" required>
+                                <option value="">Selecione o profissional</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="appointmentService">Serviço *</label>
+                            <select id="appointmentService" name="serviceId" required>
+                                <option value="">Selecione o serviço</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="appointmentDate">Data *</label>
+                            <input type="date" id="appointmentDate" name="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="appointmentTime">Horário *</label>
+                            <select id="appointmentTime" name="time" required>
+                                <option value="">Selecione o horário</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="appointmentClientName">Nome do Cliente *</label>
+                            <input type="text" id="appointmentClientName" name="clientName" required placeholder="Digite o nome completo">
+                        </div>
+                        <div class="form-group">
+                            <label for="appointmentClientPhone">WhatsApp *</label>
+                            <input type="tel" id="appointmentClientPhone" name="clientPhone" required placeholder="(11) 99999-9999">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="appointmentNotes">Observações</label>
+                        <textarea id="appointmentNotes" name="notes" rows="3" placeholder="Observações adicionais..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelAppointment">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveAppointment">
+                    <i class="fas fa-save"></i>
+                    Salvar Agendamento
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/dashboard.js"></script>
@@ -1639,5 +1860,6 @@
     <script src="js/services.js"></script>
     <script src="js/stock.js"></script>
     <script src="js/finance.js"></script>
+    <script src="js/agenda.js"></script>
 </body>
 </html>

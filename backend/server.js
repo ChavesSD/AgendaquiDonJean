@@ -86,6 +86,7 @@ const Revenue = require('./models/Revenue');
 const Expense = require('./models/Expense');
 const PosMachine = require('./models/PosMachine');
 const Sale = require('./models/Sale');
+const Appointment = require('./models/Appointment');
 const authService = require('./simple-auth');
 
 // Rotas de autenticação
@@ -2098,6 +2099,484 @@ app.post('/api/sales', authenticateToken, async (req, res) => {
         res.status(201).json({ success: true, sale });
     } catch (error) {
         console.error('Erro ao criar venda:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// ==================== ROTAS DE AGENDAMENTOS ====================
+
+// Listar agendamentos
+app.get('/api/appointments', authenticateToken, async (req, res) => {
+    try {
+        const { startDate, endDate, professionalId, status } = req.query;
+        
+        let filter = {};
+        
+        // Filtro por data
+        if (startDate || endDate) {
+            filter.date = {};
+            if (startDate) filter.date.$gte = new Date(startDate);
+            if (endDate) filter.date.$lte = new Date(endDate);
+        }
+        
+        // Filtro por profissional
+        if (professionalId) {
+            filter.professional = professionalId;
+        }
+        
+        // Filtro por status
+        if (status) {
+            filter.status = status;
+        }
+        
+        const appointments = await Appointment.find(filter)
+            .populate('professional', 'firstName lastName function photo')
+            .populate('service', 'name price duration')
+            .sort({ date: 1, time: 1 });
+        
+        res.json({ success: true, appointments });
+    } catch (error) {
+        console.error('Erro ao listar agendamentos:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Obter estatísticas de agendamentos
+app.get('/api/appointments/statistics', authenticateToken, async (req, res) => {
+    try {
+        const { startDate, endDate } = req.query;
+        
+        let filter = {};
+        if (startDate || endDate) {
+            filter.date = {};
+            if (startDate) filter.date.$gte = new Date(startDate);
+            if (endDate) filter.date.$lte = new Date(endDate);
+        }
+        
+        const total = await Appointment.countDocuments(filter);
+        const pending = await Appointment.countDocuments({ ...filter, status: 'pending' });
+        const confirmed = await Appointment.countDocuments({ ...filter, status: 'confirmed' });
+        const cancelled = await Appointment.countDocuments({ ...filter, status: 'cancelled' });
+        const completed = await Appointment.countDocuments({ ...filter, status: 'completed' });
+        
+        res.json({
+            success: true,
+            statistics: {
+                total,
+                pending,
+                confirmed,
+                cancelled,
+                completed
+            }
+        });
+    } catch (error) {
+        console.error('Erro ao obter estatísticas:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Criar agendamento
+app.post('/api/appointments', authenticateToken, async (req, res) => {
+    try {
+        const {
+            professionalId,
+            serviceId,
+            date,
+            time,
+            clientName,
+            clientPhone,
+            notes
+        } = req.body;
+        
+        // Validar campos obrigatórios
+        if (!professionalId || !serviceId || !date || !time || !clientName || !clientPhone) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Todos os campos obrigatórios devem ser preenchidos' 
+            });
+        }
+        
+        // Verificar se profissional existe
+        const professional = await Professional.findById(professionalId);
+        if (!professional) {
+            return res.status(404).json({ success: false, message: 'Profissional não encontrado' });
+        }
+        
+        // Verificar se serviço existe
+        const service = await Service.findById(serviceId);
+        if (!service) {
+            return res.status(404).json({ success: false, message: 'Serviço não encontrado' });
+        }
+        
+        // Verificar se horário está disponível
+        const existingAppointment = await Appointment.findOne({
+            professional: professionalId,
+            date: new Date(date),
+            time: time,
+            status: { $in: ['pending', 'confirmed'] }
+        });
+        
+        if (existingAppointment) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Horário já está ocupado para este profissional' 
+            });
+        }
+        
+        // Criar agendamento
+        const appointment = new Appointment({
+            professional: professionalId,
+            service: serviceId,
+            date: new Date(date),
+            time: time,
+            clientName,
+            clientPhone,
+            notes: notes || '',
+            status: 'pending',
+            createdBy: req.user.userId
+        });
+        
+        await appointment.save();
+        
+        // Popular dados para resposta
+        await appointment.populate('professional', 'firstName lastName function photo');
+        await appointment.populate('service', 'name price duration');
+        
+        res.status(201).json({ 
+            success: true, 
+            message: 'Agendamento criado com sucesso',
+            appointment 
+        });
+    } catch (error) {
+        console.error('Erro ao criar agendamento:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// Atualizar agendamento
+app.put('/api/appointments/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const {
+            professionalId,
+            serviceId,
+            date,
+            time,
+            clientName,
+            clientPhone,
+            notes,
+            status
+        } = req.body;
+        
+        const appointment = await Appointment.findById(id);
+        if (!appointment) {
+            return res.status(404).json({ success: false, message: 'Agendamento não encontrado' });
+        }
+        
+        // Verificar se profissional existe
+        if (professionalId) {
+            const professional = await Professional.findById(professionalId);
+            if (!professional) {
+                return res.status(404).json({ success: false, message: 'Profissional não encontrado' });
+            }
+        }
+        
+        // Verificar se serviço existe
+        if (serviceId) {
+            const service = await Service.findById(serviceId);
+            if (!service) {
+                return res.status(404).json({ success: false, message: 'Serviço não encontrado' });
+            }
+        }
+        
+        // Verificar disponibilidade de horário se data/horário mudou
+        if ((date || time) && (professionalId || appointment.professional)) {
+            const checkDate = date ? new Date(date) : appointment.date;
+            const checkTime = time || appointment.time;
+            const checkProfessional = professionalId || appointment.professional;
+            
+            const existingAppointment = await Appointment.findOne({
+                _id: { $ne: id },
+                professional: checkProfessional,
+                date: checkDate,
+                time: checkTime,
+                status: { $in: ['pending', 'confirmed'] }
+            });
+            
+            if (existingAppointment) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'Horário já está ocupado para este profissional' 
+                });
+            }
+        }
+        
+        // Atualizar dados
+        if (professionalId) appointment.professional = professionalId;
+        if (serviceId) appointment.service = serviceId;
+        if (date) appointment.date = new Date(date);
+        if (time) appointment.time = time;
+        if (clientName) appointment.clientName = clientName;
+        if (clientPhone) appointment.clientPhone = clientPhone;
+        if (notes !== undefined) appointment.notes = notes;
+        if (status) appointment.status = status;
+        
+        appointment.updatedBy = req.user.userId;
+        
+        await appointment.save();
+        
+        // Popular dados para resposta
+        await appointment.populate('professional', 'firstName lastName function photo');
+        await appointment.populate('service', 'name price duration');
+        
+        res.json({ 
+            success: true, 
+            message: 'Agendamento atualizado com sucesso',
+            appointment 
+        });
+    } catch (error) {
+        console.error('Erro ao atualizar agendamento:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// Marcar agendamento como finalizado
+app.put('/api/appointments/:id/complete', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const appointment = await Appointment.findById(id)
+            .populate('professional', 'firstName lastName function')
+            .populate('service', 'name price commission');
+        
+        if (!appointment) {
+            return res.status(404).json({ success: false, message: 'Agendamento não encontrado' });
+        }
+        
+        if (appointment.status === 'completed') {
+            return res.status(400).json({ success: false, message: 'Agendamento já foi finalizado' });
+        }
+        
+        // Atualizar status
+        appointment.status = 'completed';
+        appointment.completedAt = new Date();
+        appointment.completedBy = req.user.userId;
+        
+        await appointment.save();
+        
+        // Criar receita automaticamente
+        const revenue = new Revenue({
+            name: `Agendamento - ${appointment.service.name}`,
+            type: 'agendamento',
+            value: appointment.service.price,
+            description: `Agendamento finalizado - Cliente: ${appointment.clientName}, Profissional: ${appointment.professional.firstName} ${appointment.professional.lastName}`,
+            user: req.user.userId,
+            appointmentId: appointment._id
+        });
+        
+        await revenue.save();
+        
+        // Calcular e criar comissão do profissional
+        const commissionValue = appointment.service.price * (appointment.service.commission / 100);
+        const professionalRevenue = new Revenue({
+            name: `Comissão - ${appointment.service.name}`,
+            type: 'comissao',
+            value: commissionValue,
+            description: `Comissão do agendamento - Cliente: ${appointment.clientName}, Profissional: ${appointment.professional.firstName} ${appointment.professional.lastName}`,
+            user: req.user.userId,
+            appointmentId: appointment._id,
+            professionalId: appointment.professional._id
+        });
+        
+        await professionalRevenue.save();
+        
+        res.json({ 
+            success: true, 
+            message: 'Agendamento finalizado com sucesso',
+            appointment,
+            revenue: {
+                total: appointment.service.price,
+                commission: commissionValue
+            }
+        });
+    } catch (error) {
+        console.error('Erro ao finalizar agendamento:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// Confirmar agendamento
+app.put('/api/appointments/:id/confirm', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const appointment = await Appointment.findById(id);
+        if (!appointment) {
+            return res.status(404).json({ success: false, message: 'Agendamento não encontrado' });
+        }
+        
+        if (appointment.status === 'confirmed') {
+            return res.status(400).json({ success: false, message: 'Agendamento já está confirmado' });
+        }
+        
+        if (appointment.status === 'cancelled') {
+            return res.status(400).json({ success: false, message: 'Não é possível confirmar um agendamento cancelado' });
+        }
+        
+        appointment.status = 'confirmed';
+        appointment.confirmedAt = new Date();
+        appointment.confirmedBy = req.user.userId;
+        
+        await appointment.save();
+        
+        res.json({ 
+            success: true, 
+            message: 'Agendamento confirmado com sucesso',
+            appointment 
+        });
+    } catch (error) {
+        console.error('Erro ao confirmar agendamento:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// Cancelar agendamento
+app.put('/api/appointments/:id/cancel', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { reason } = req.body;
+        
+        const appointment = await Appointment.findById(id);
+        if (!appointment) {
+            return res.status(404).json({ success: false, message: 'Agendamento não encontrado' });
+        }
+        
+        if (appointment.status === 'cancelled') {
+            return res.status(400).json({ success: false, message: 'Agendamento já está cancelado' });
+        }
+        
+        if (appointment.status === 'completed') {
+            return res.status(400).json({ success: false, message: 'Não é possível cancelar um agendamento finalizado' });
+        }
+        
+        appointment.status = 'cancelled';
+        appointment.cancelledAt = new Date();
+        appointment.cancelledBy = req.user.userId;
+        appointment.cancellationReason = reason || '';
+        
+        await appointment.save();
+        
+        res.json({ 
+            success: true, 
+            message: 'Agendamento cancelado com sucesso',
+            appointment 
+        });
+    } catch (error) {
+        console.error('Erro ao cancelar agendamento:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// Excluir agendamento
+app.delete('/api/appointments/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const appointment = await Appointment.findById(id);
+        if (!appointment) {
+            return res.status(404).json({ success: false, message: 'Agendamento não encontrado' });
+        }
+        
+        // Não permitir exclusão de agendamentos finalizados
+        if (appointment.status === 'completed') {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Não é possível excluir um agendamento finalizado' 
+            });
+        }
+        
+        await Appointment.findByIdAndDelete(id);
+        
+        res.json({ 
+            success: true, 
+            message: 'Agendamento excluído com sucesso' 
+        });
+    } catch (error) {
+        console.error('Erro ao excluir agendamento:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// Obter horários disponíveis
+app.get('/api/appointments/available-times', authenticateToken, async (req, res) => {
+    try {
+        const { professionalId, date } = req.query;
+        
+        if (!professionalId || !date) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'ID do profissional e data são obrigatórios' 
+            });
+        }
+        
+        // Horários padrão (8h às 18h)
+        const startHour = 8;
+        const endHour = 18;
+        const availableTimes = [];
+        
+        for (let hour = startHour; hour < endHour; hour++) {
+            for (let minute = 0; minute < 60; minute += 30) {
+                const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                
+                // Verificar se horário está ocupado
+                const existingAppointment = await Appointment.findOne({
+                    professional: professionalId,
+                    date: new Date(date),
+                    time: timeString,
+                    status: { $in: ['pending', 'confirmed'] }
+                });
+                
+                if (!existingAppointment) {
+                    availableTimes.push(timeString);
+                }
+            }
+        }
+        
+        res.json({ 
+            success: true, 
+            availableTimes 
+        });
+    } catch (error) {
+        console.error('Erro ao obter horários disponíveis:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// Obter agendamentos por data (para calendário)
+app.get('/api/appointments/by-date', authenticateToken, async (req, res) => {
+    try {
+        const { date } = req.query;
+        
+        if (!date) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Data é obrigatória' 
+            });
+        }
+        
+        const appointments = await Appointment.find({
+            date: new Date(date)
+        })
+        .populate('professional', 'firstName lastName function photo')
+        .populate('service', 'name price duration')
+        .sort({ time: 1 });
+        
+        res.json({ 
+            success: true, 
+            appointments 
+        });
+    } catch (error) {
+        console.error('Erro ao obter agendamentos por data:', error);
         res.status(500).json({ success: false, message: 'Erro interno do servidor' });
     }
 });
