@@ -4,7 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
-const whatsappService = require('./services/whatsappService');
+// const whatsappService = require('./services/whatsappService'); // Comentado para evitar problemas no Render
 const backupService = require('./services/backupService');
 require('dotenv').config();
 
@@ -756,7 +756,8 @@ app.delete('/api/users/:id', authenticateToken, async (req, res) => {
 // Obter status do WhatsApp
 app.get('/api/whatsapp/status', authenticateToken, (req, res) => {
     try {
-        const status = whatsappService.getStatus();
+        // const status = whatsappService.getStatus(); // Comentado temporariamente
+        const status = { status: 'disabled', message: 'WhatsApp temporariamente desabilitado' };
         res.json(status);
     } catch (error) {
         console.error('Erro ao obter status do WhatsApp:', error);
@@ -767,7 +768,8 @@ app.get('/api/whatsapp/status', authenticateToken, (req, res) => {
 // Conectar WhatsApp
 app.post('/api/whatsapp/connect', authenticateToken, async (req, res) => {
     try {
-        const result = await whatsappService.connect();
+        // const result = await whatsappService.connect(); // Comentado temporariamente
+        const result = { success: false, message: 'WhatsApp temporariamente desabilitado' };
         res.json(result);
     } catch (error) {
         console.error('Erro ao conectar WhatsApp:', error);
@@ -778,7 +780,8 @@ app.post('/api/whatsapp/connect', authenticateToken, async (req, res) => {
 // Gerar QR Code
 app.post('/api/whatsapp/generate-qr', authenticateToken, async (req, res) => {
     try {
-        const result = await whatsappService.generateNewQRCode();
+        // const result = await whatsappService.generateNewQRCode(); // Comentado temporariamente
+        const result = { success: false, message: 'WhatsApp temporariamente desabilitado' };
         res.json(result);
     } catch (error) {
         console.error('Erro ao gerar QR Code:', error);
@@ -789,7 +792,8 @@ app.post('/api/whatsapp/generate-qr', authenticateToken, async (req, res) => {
 // Desconectar WhatsApp
 app.post('/api/whatsapp/disconnect', authenticateToken, async (req, res) => {
     try {
-        const result = await whatsappService.disconnect();
+        // const result = await whatsappService.disconnect(); // Comentado temporariamente
+        const result = { success: false, message: 'WhatsApp temporariamente desabilitado' };
         res.json(result);
     } catch (error) {
         console.error('Erro ao desconectar WhatsApp:', error);
@@ -806,7 +810,8 @@ app.post('/api/whatsapp/send-message', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: 'Número e mensagem são obrigatórios' });
         }
 
-        const result = await whatsappService.sendMessage(number, message);
+        // const result = await whatsappService.sendMessage(number, message); // Comentado temporariamente
+        const result = { success: false, message: 'WhatsApp temporariamente desabilitado' };
         res.json(result);
     } catch (error) {
         console.error('Erro ao enviar mensagem:', error);
@@ -817,7 +822,8 @@ app.post('/api/whatsapp/send-message', authenticateToken, async (req, res) => {
 // Obter informações do cliente
 app.get('/api/whatsapp/client-info', authenticateToken, async (req, res) => {
     try {
-        const info = await whatsappService.getClientInfo();
+        // const info = await whatsappService.getClientInfo(); // Comentado temporariamente
+        const info = { success: false, message: 'WhatsApp temporariamente desabilitado' };
         res.json(info);
     } catch (error) {
         console.error('Erro ao obter informações do cliente:', error);
@@ -897,7 +903,8 @@ app.post('/api/whatsapp/send-automatic', authenticateToken, async (req, res) => 
         }
 
         // Testar conexão primeiro
-        const connectionTest = await whatsappService.testConnection();
+        // const connectionTest = await whatsappService.testConnection(); // Comentado temporariamente
+        const connectionTest = { success: false, message: 'WhatsApp temporariamente desabilitado' };
         if (!connectionTest.success) {
             return res.status(400).json({ message: connectionTest.message });
         }
@@ -908,11 +915,12 @@ app.post('/api/whatsapp/send-automatic', authenticateToken, async (req, res) => 
             return res.status(404).json({ message: 'Mensagens automáticas não configuradas' });
         }
 
-        const result = await whatsappService.sendAutomaticMessage(
-            number, 
-            messages.welcomeMessage, 
-            messages.outOfHoursMessage
-        );
+        // const result = await whatsappService.sendAutomaticMessage( // Comentado temporariamente
+        //     number, 
+        //     messages.welcomeMessage, 
+        //     messages.outOfHoursMessage
+        // );
+        const result = { success: false, message: 'WhatsApp temporariamente desabilitado' };
         
         res.json(result);
     } catch (error) {
@@ -924,7 +932,8 @@ app.post('/api/whatsapp/send-automatic', authenticateToken, async (req, res) => 
 // Testar conexão do WhatsApp
 app.get('/api/whatsapp/test-connection', authenticateToken, async (req, res) => {
     try {
-        const result = await whatsappService.testConnection();
+        // const result = await whatsappService.testConnection(); // Comentado temporariamente
+        const result = { success: false, message: 'WhatsApp temporariamente desabilitado' };
         res.json(result);
     } catch (error) {
         console.error('Erro ao testar conexão:', error);
@@ -945,24 +954,24 @@ const io = new Server(server, {
 });
 
 // Configurar callbacks do WhatsApp para WebSocket
-whatsappService.setCallbacks({
-    onQR: (qrCodeImage) => {
-        io.emit('whatsapp_qr', { qrCode: qrCodeImage });
-    },
-    onReady: () => {
-        io.emit('whatsapp_ready', { message: 'WhatsApp conectado com sucesso!' });
-    },
-    onDisconnected: (reason) => {
-        io.emit('whatsapp_disconnected', { reason });
-    },
-    onMessage: (message) => {
-        io.emit('whatsapp_message', { 
-            from: message.from,
-            body: message.body,
-            timestamp: message.timestamp
-        });
-    }
-});
+// whatsappService.setCallbacks({ // Comentado temporariamente
+//     onQR: (qrCodeImage) => {
+//         io.emit('whatsapp_qr', { qrCode: qrCodeImage });
+//     },
+//     onReady: () => {
+//         io.emit('whatsapp_ready', { message: 'WhatsApp conectado com sucesso!' });
+//     },
+//     onDisconnected: (reason) => {
+//         io.emit('whatsapp_disconnected', { reason });
+//     },
+//     onMessage: (message) => {
+// //         io.emit('whatsapp_message', { 
+//             from: message.from,
+//             body: message.body,
+//             timestamp: message.timestamp
+//         });
+//     }
+// });
 
 // ==================== ROTAS DE BACKUP ====================
 
