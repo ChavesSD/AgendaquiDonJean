@@ -420,19 +420,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Inicializar AgendaManager quando a aba de agenda for ativada
                 if (targetTab === 'agendamentos') {
-                    console.log('🔄 Inicializando AgendaManager...');
                     if (typeof AgendaManager !== 'undefined') {
                         if (!window.agendaManager) {
-                            console.log('🆕 Criando nova instância do AgendaManager');
                             window.agendaManager = new AgendaManager();
                         } else {
-                            console.log('🔄 Recarregando dados do AgendaManager existente');
                             // Recarregar dados se já existir
                             window.agendaManager.loadAppointments();
                             window.agendaManager.loadStatistics();
                         }
-                    } else {
-                        console.error('❌ AgendaManager não está definido');
                     }
                 }
             });

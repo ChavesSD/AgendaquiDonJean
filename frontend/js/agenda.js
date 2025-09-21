@@ -134,8 +134,6 @@ class AgendaManager {
     async loadAppointments() {
         try {
             const token = localStorage.getItem('authToken');
-            console.log('🔑 Token encontrado:', token ? 'Sim' : 'Não');
-            console.log('🔑 Token (primeiros 20 chars):', token ? token.substring(0, 20) + '...' : 'N/A');
             
             let url = '/api/appointments?';
             const params = new URLSearchParams();
@@ -145,7 +143,6 @@ class AgendaManager {
             if (this.filters.professionalId) params.append('professionalId', this.filters.professionalId);
             
             url += params.toString();
-            console.log('🌐 URL da requisição:', url);
             
             const response = await fetch(url, {
                 headers: {
@@ -154,22 +151,16 @@ class AgendaManager {
                 }
             });
             
-            console.log('📊 Status da resposta:', response.status);
-            console.log('📊 Headers da resposta:', Object.fromEntries(response.headers.entries()));
-            
             if (response.ok) {
                 const data = await response.json();
-                console.log('📋 Resposta completa:', data);
-                console.log('📋 Agendamentos carregados:', data.appointments ? data.appointments.length : 'N/A');
                 this.appointments = data.appointments || [];
                 this.renderAppointments();
             } else {
                 const errorData = await response.json();
-                console.error('❌ Erro na API:', errorData);
-                console.error('❌ Status:', response.status, response.statusText);
+                console.error('Erro na API:', errorData);
             }
         } catch (error) {
-            console.error('💥 Erro ao carregar agendamentos:', error);
+            console.error('Erro ao carregar agendamentos:', error);
         }
     }
 

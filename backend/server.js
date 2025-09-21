@@ -428,8 +428,6 @@ app.get('/api/public/appointments', async (req, res) => {
 // Rota pública para criar agendamento
 app.post('/api/public/appointments', async (req, res) => {
     try {
-        console.log('📝 Recebendo dados do agendamento:', req.body);
-        
         const {
             professionalId,
             serviceId,
@@ -440,19 +438,8 @@ app.post('/api/public/appointments', async (req, res) => {
             clientPhone
         } = req.body;
 
-        console.log('🔍 Dados extraídos:', {
-            professionalId,
-            serviceId,
-            date,
-            time,
-            clientName,
-            clientLastName,
-            clientPhone
-        });
-
         // Validar dados obrigatórios
         if (!professionalId || !serviceId || !date || !time || !clientName || !clientPhone) {
-            console.log('❌ Dados obrigatórios não fornecidos');
             return res.status(400).json({ 
                 success: false, 
                 message: 'Dados obrigatórios não fornecidos' 
@@ -460,58 +447,24 @@ app.post('/api/public/appointments', async (req, res) => {
         }
 
         // Verificar se o profissional existe
-        console.log('🔍 Verificando profissional:', professionalId);
         const professional = await Professional.findById(professionalId);
         if (!professional) {
-            console.log('❌ Profissional não encontrado');
             return res.status(400).json({ 
                 success: false, 
                 message: 'Profissional não encontrado' 
             });
         }
-        console.log('✅ Profissional encontrado:', professional.firstName);
 
         // Verificar se o serviço existe
-        console.log('🔍 Verificando serviço:', serviceId);
         const service = await Service.findById(serviceId);
         if (!service) {
-            console.log('❌ Serviço não encontrado');
             return res.status(400).json({ 
                 success: false, 
                 message: 'Serviço não encontrado' 
             });
         }
-        console.log('✅ Serviço encontrado:', service.name);
-
-        // Verificar se já existe agendamento no mesmo horário (desabilitado temporariamente)
-        // const existingAppointment = await Appointment.findOne({
-        //     professional: professionalId,
-        //     date: new Date(date),
-        //     time: time,
-        //     status: { $in: ['pending', 'confirmed'] }
-        // });
-
-        // if (existingAppointment) {
-        //     return res.status(400).json({ 
-        //         success: false, 
-        //         message: 'Já existe um agendamento neste horário' 
-        //     });
-        // }
 
         // Criar novo agendamento
-        console.log('📝 Criando agendamento...');
-        console.log('📊 Dados do agendamento:', {
-            professional: professionalId,
-            service: serviceId,
-            date: new Date(date),
-            time: time,
-            clientName: clientName,
-            clientLastName: clientLastName,
-            clientPhone: clientPhone,
-            status: 'pending',
-            source: 'public_booking'
-        });
-        
         const appointment = new Appointment({
             professional: professionalId,
             service: serviceId,
@@ -524,15 +477,11 @@ app.post('/api/public/appointments', async (req, res) => {
             source: 'public_booking'
         });
 
-        console.log('💾 Salvando agendamento...');
         await appointment.save();
-        console.log('✅ Agendamento salvo com ID:', appointment._id);
 
         // Popular os dados para retorno
-        console.log('🔄 Populando dados...');
         await appointment.populate('professional', 'firstName lastName');
         await appointment.populate('service', 'name duration');
-        console.log('✅ Dados populados');
 
         res.json({ 
             success: true, 
@@ -541,16 +490,10 @@ app.post('/api/public/appointments', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('💥 Erro ao criar agendamento público:', error);
-        console.error('📊 Stack trace:', error.stack);
-        console.error('📋 Error details:', {
-            name: error.name,
-            message: error.message,
-            code: error.code
-        });
+        console.error('Erro ao criar agendamento público:', error);
         res.status(500).json({ 
             success: false, 
-            message: 'Erro interno do servidor: ' + error.message
+            message: 'Erro interno do servidor'
         });
     }
 });
@@ -2315,9 +2258,6 @@ app.post('/api/sales', authenticateToken, async (req, res) => {
 // Listar agendamentos
 app.get('/api/appointments', authenticateToken, async (req, res) => {
     try {
-        console.log('📋 Buscando agendamentos...');
-        console.log('🔍 Query params:', req.query);
-        
         const { startDate, endDate, professionalId, status } = req.query;
         
         let filter = {};
@@ -2339,21 +2279,14 @@ app.get('/api/appointments', authenticateToken, async (req, res) => {
             filter.status = status;
         }
         
-        console.log('🔍 Filtro aplicado:', filter);
-        
         const appointments = await Appointment.find(filter)
             .populate('professional', 'firstName lastName function photo')
             .populate('service', 'name price duration')
             .sort({ date: 1, time: 1 });
         
-        console.log('📋 Agendamentos encontrados:', appointments.length);
-        appointments.forEach(apt => {
-            console.log('📅', apt.date.toLocaleDateString('pt-BR'), apt.time, '-', apt.clientName, apt.clientLastName, '-', apt.status, '- Source:', apt.source || 'dashboard');
-        });
-        
         res.json({ success: true, appointments });
     } catch (error) {
-        console.error('💥 Erro ao listar agendamentos:', error);
+        console.error('Erro ao listar agendamentos:', error);
         res.status(500).json({ message: 'Erro interno do servidor' });
     }
 });
