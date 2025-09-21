@@ -14,6 +14,8 @@
 - **Build Command**: `cd backend && npm install`
 - **Start Command**: `cd backend && npm start`
 
+**⚠️ IMPORTANTE:** Use `&&` (não `;`) para garantir que o segundo comando só execute se o primeiro for bem-sucedido.
+
 ### 3. Variáveis de Ambiente
 
 Configure as seguintes variáveis de ambiente no painel do Render:
