@@ -65,6 +65,9 @@ app.use('/api/auth', limiter);
 // Conexão com MongoDB Atlas
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://chstudiobanco_db_user:VKwho9FvxKQiTO9E@cluster0.qj9gn8z.mongodb.net/ch-studio?retryWrites=true&w=majority&appName=Cluster0';
 
+console.log('🔗 Tentando conectar ao MongoDB...');
+console.log('📍 URI:', MONGODB_URI.substring(0, 50) + '...');
+
 mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -73,6 +76,7 @@ mongoose.connect(MONGODB_URI, {
 .catch(err => {
     console.log('⚠️  Erro ao conectar MongoDB Atlas:', err.message);
     console.log('💡 Verifique suas credenciais e conexão com a internet');
+    console.log('🔍 URI usada:', MONGODB_URI);
 });
 
 // Modelos
