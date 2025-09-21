@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CH Studio - Agendamento Online</title>
+    <link rel="icon" type="image/png" href="/assets/Favicon.png">
+    <link rel="stylesheet" href="styles/public-booking.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="booking-container">
+        <!-- Header -->
+        <header class="booking-header">
+            <div class="logo-container">
+                <img src="/assets/Logo.png" alt="CH Studio" class="logo">
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-steps">
+                    <div class="step active" data-step="1">
+                        <i class="fas fa-home"></i>
+                        <span>Bem-vindo</span>
+                    </div>
+                    <div class="step" data-step="2">
+                        <i class="fas fa-user-md"></i>
+                        <span>Profissional</span>
+                    </div>
+                    <div class="step" data-step="3">
+                        <i class="fas fa-cogs"></i>
+                        <span>Serviço</span>
+                    </div>
+                    <div class="step" data-step="4">
+                        <i class="fas fa-calendar"></i>
+                        <span>Horário</span>
+                    </div>
+                    <div class="step" data-step="5">
+                        <i class="fas fa-user"></i>
+                        <span>Dados</span>
+                    </div>
+                    <div class="step" data-step="6">
+                        <i class="fas fa-check"></i>
+                        <span>Confirmação</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="booking-main">
+            <!-- Etapa 1: Bem-vindo -->
+            <div class="booking-step active" id="step-1">
+                <div class="step-content">
+                    <div class="welcome-section">
+                        <h2>Bem-vindo ao <span id="companyName">CH Studio</span></h2>
+                        <p class="welcome-description">
+                            Agende seu horário de forma rápida e fácil. Nossa equipe de profissionais 
+                            está pronta para atendê-lo com excelência e qualidade.
+                        </p>
+                        <div class="company-info">
+                            <div class="info-item" id="workingHoursItem">
+                                <i class="fas fa-clock"></i>
+                                <span id="workingHours">Carregando...</span>
+                            </div>
+                            <div class="info-item" id="whatsappItem">
+                                <i class="fas fa-phone"></i>
+                                <span id="whatsappContact">Carregando...</span>
+                            </div>
+                            <div class="info-item" id="addressItem">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span id="companyAddress">Carregando...</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-large" onclick="nextStep()">
+                            <span>Começar Agendamento</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Etapa 2: Seleção do Profissional -->
+            <div class="booking-step" id="step-2">
+                <div class="step-content">
+                    <div class="step-header">
+                        <h2>Selecione o Profissional</h2>
+                        <p>Escolha o profissional que irá atendê-lo</p>
+                    </div>
+                    <div class="professionals-grid" id="professionalsGrid">
+                        <!-- Profissionais serão carregados dinamicamente -->
+                    </div>
+                    <div class="step-actions">
+                        <button class="btn btn-secondary" onclick="prevStep()">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Voltar</span>
+                        </button>
+                        <button class="btn btn-primary" onclick="nextStep()" id="nextProfessionalBtn" disabled>
+                            <span>Próximo</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Etapa 3: Seleção do Serviço -->
+            <div class="booking-step" id="step-3">
+                <div class="step-content">
+                    <div class="step-header">
+                        <h2>Selecione o Serviço</h2>
+                        <p>Escolha o serviço que deseja realizar</p>
+                    </div>
+                    <div class="services-grid" id="servicesGrid">
+                        <!-- Serviços serão carregados dinamicamente -->
+                    </div>
+                    <div class="step-actions">
+                        <button class="btn btn-secondary" onclick="prevStep()">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Voltar</span>
+                        </button>
+                        <button class="btn btn-primary" onclick="nextStep()" id="nextServiceBtn" disabled>
+                            <span>Próximo</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Etapa 4: Seleção do Horário -->
+            <div class="booking-step" id="step-4">
+                <div class="step-content">
+                    <div class="step-header">
+                        <h2>Selecione Data e Horário</h2>
+                        <p>Escolha a data e horário disponível</p>
+                    </div>
+                    <div class="schedule-section">
+                        <div class="calendar-container">
+                            <div class="calendar-header">
+                                <button class="btn btn-icon" onclick="previousMonth()">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <h3 id="currentMonth"></h3>
+                                <button class="btn btn-icon" onclick="nextMonth()">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                            <div class="calendar" id="calendar">
+                                <!-- Calendário será gerado dinamicamente -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="time-slots-section">
+                        <h4>Horários Disponíveis</h4>
+                        <div class="time-slots" id="timeSlots">
+                            <!-- Horários serão carregados dinamicamente -->
+                        </div>
+                    </div>
+                    <div class="step-actions">
+                        <button class="btn btn-secondary" onclick="prevStep()">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Voltar</span>
+                        </button>
+                        <button class="btn btn-primary" onclick="nextStep()" id="nextTimeBtn" disabled>
+                            <span>Próximo</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Etapa 5: Dados do Cliente -->
+            <div class="booking-step" id="step-5">
+                <div class="step-content">
+                    <div class="step-header">
+                        <h2>Seus Dados</h2>
+                        <p>Preencha seus dados para finalizar o agendamento</p>
+                    </div>
+                    <form class="client-form" id="clientForm">
+                        <div class="form-group">
+                            <label for="clientName">Nome *</label>
+                            <input type="text" id="clientName" name="clientName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="clientLastName">Sobrenome *</label>
+                            <input type="text" id="clientLastName" name="clientLastName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="clientPhone">WhatsApp *</label>
+                            <input type="tel" id="clientPhone" name="clientPhone" placeholder="(11) 99999-9999" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="clientNotes">Observações (opcional)</label>
+                            <textarea id="clientNotes" name="clientNotes" rows="3" placeholder="Alguma observação especial..."></textarea>
+                        </div>
+                    </form>
+                    <div class="step-actions">
+                        <button class="btn btn-secondary" onclick="prevStep()">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Voltar</span>
+                        </button>
+                        <button class="btn btn-primary" onclick="nextStep()">
+                            <span>Continuar</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Etapa 6: Revisão e Confirmação -->
+            <div class="booking-step" id="step-6">
+                <div class="step-content">
+                    <div class="step-header">
+                        <h2>Revisão do Agendamento</h2>
+                        <p>Confira os dados antes de confirmar</p>
+                    </div>
+                    <div class="booking-summary">
+                        <div class="summary-card">
+                            <h3>Resumo do Agendamento</h3>
+                            <div class="summary-item">
+                                <i class="fas fa-user-md"></i>
+                                <div>
+                                    <strong>Profissional:</strong>
+                                    <span id="summaryProfessional"></span>
+                                </div>
+                            </div>
+                            <div class="summary-item">
+                                <i class="fas fa-cogs"></i>
+                                <div>
+                                    <strong>Serviço:</strong>
+                                    <span id="summaryService"></span>
+                                </div>
+                            </div>
+                            <div class="summary-item">
+                                <i class="fas fa-calendar"></i>
+                                <div>
+                                    <strong>Data:</strong>
+                                    <span id="summaryDate"></span>
+                                </div>
+                            </div>
+                            <div class="summary-item">
+                                <i class="fas fa-clock"></i>
+                                <div>
+                                    <strong>Horário:</strong>
+                                    <span id="summaryTime"></span>
+                                </div>
+                            </div>
+                            <div class="summary-item">
+                                <i class="fas fa-user"></i>
+                                <div>
+                                    <strong>Cliente:</strong>
+                                    <span id="summaryClient"></span>
+                                </div>
+                            </div>
+                            <div class="summary-item">
+                                <i class="fas fa-phone"></i>
+                                <div>
+                                    <strong>WhatsApp:</strong>
+                                    <span id="summaryPhone"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step-actions">
+                        <button class="btn btn-secondary" onclick="prevStep()">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Voltar</span>
+                        </button>
+                        <button class="btn btn-success" onclick="confirmBooking()">
+                            <i class="fas fa-check"></i>
+                            <span>Confirmar Agendamento</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Processando...</p>
+            </div>
+        </div>
+
+        <!-- Success Modal -->
+        <div class="modal-overlay" id="successModal">
+            <div class="modal-content">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3>Agendamento Realizado!</h3>
+                <p>Seu agendamento foi enviado com sucesso. Você receberá uma confirmação via WhatsApp em breve.</p>
+                <button class="btn btn-primary" onclick="closeSuccessModal()">
+                    <span>Fechar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/public-booking.js"></script>
+</body>
+</html>

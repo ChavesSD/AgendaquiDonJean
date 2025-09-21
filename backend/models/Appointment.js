@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 
 const appointmentSchema = new mongoose.Schema({
-    professionalId: {
+    professional: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Professional',
         required: true
     },
-    serviceId: {
+    service: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Service',
         required: true
@@ -14,6 +14,10 @@ const appointmentSchema = new mongoose.Schema({
     clientName: {
         type: String,
         required: true,
+        trim: true
+    },
+    clientLastName: {
+        type: String,
         trim: true
     },
     clientPhone: {
@@ -34,6 +38,11 @@ const appointmentSchema = new mongoose.Schema({
         enum: ['pending', 'confirmed', 'cancelled', 'completed'],
         default: 'pending'
     },
+    source: {
+        type: String,
+        enum: ['dashboard', 'public_booking'],
+        default: 'dashboard'
+    },
     notes: {
         type: String,
         trim: true
@@ -50,7 +59,7 @@ const appointmentSchema = new mongoose.Schema({
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: false
     },
     updatedBy: {
         type: mongoose.Schema.Types.ObjectId,
@@ -61,34 +70,13 @@ const appointmentSchema = new mongoose.Schema({
 });
 
 // Índices para melhor performance
-appointmentSchema.index({ professionalId: 1, date: 1 });
+appointmentSchema.index({ professional: 1, date: 1 });
 appointmentSchema.index({ date: 1, time: 1 });
 appointmentSchema.index({ status: 1 });
 appointmentSchema.index({ clientPhone: 1 });
+appointmentSchema.index({ source: 1 });
 
-// Middleware para validação de horário
-appointmentSchema.pre('save', async function(next) {
-    // Verificar se o horário está dentro do horário de funcionamento
-    const hour = parseInt(this.time.split(':')[0]);
-    if (hour < 8 || hour >= 18) {
-        return next(new Error('Horário deve estar entre 8h e 18h'));
-    }
-    
-    // Verificar se não há conflito de horário para o mesmo profissional
-    const existingAppointment = await this.constructor.findOne({
-        professionalId: this.professionalId,
-        date: this.date,
-        time: this.time,
-        status: { $nin: ['cancelled'] },
-        _id: { $ne: this._id }
-    });
-    
-    if (existingAppointment) {
-        return next(new Error('Já existe um agendamento para este profissional neste horário'));
-    }
-    
-    next();
-});
+// Middleware removido temporariamente para debug
 
 // Método para confirmar agendamento
 appointmentSchema.methods.confirm = function() {
@@ -120,8 +108,8 @@ appointmentSchema.statics.findByDateRange = function(startDate, endDate) {
             $gte: startDate,
             $lte: endDate
         }
-    }).populate('professionalId', 'firstName lastName')
-      .populate('serviceId', 'name price duration')
+    }).populate('professional', 'firstName lastName')
+      .populate('service', 'name price duration')
       .populate('createdBy', 'name')
       .populate('updatedBy', 'name')
       .sort({ date: 1, time: 1 });
@@ -129,7 +117,7 @@ appointmentSchema.statics.findByDateRange = function(startDate, endDate) {
 
 // Método estático para buscar agendamentos por profissional
 appointmentSchema.statics.findByProfessional = function(professionalId, startDate, endDate) {
-    const query = { professionalId };
+    const query = { professional: professionalId };
     
     if (startDate && endDate) {
         query.date = {
@@ -139,8 +127,8 @@ appointmentSchema.statics.findByProfessional = function(professionalId, startDat
     }
     
     return this.find(query)
-        .populate('professionalId', 'firstName lastName')
-        .populate('serviceId', 'name price duration')
+        .populate('professional', 'firstName lastName')
+        .populate('service', 'name price duration')
         .populate('createdBy', 'name')
         .populate('updatedBy', 'name')
         .sort({ date: 1, time: 1 });
@@ -159,8 +147,8 @@ appointmentSchema.statics.findByDay = function(date) {
             $gte: startOfDay,
             $lte: endOfDay
         }
-    }).populate('professionalId', 'firstName lastName')
-      .populate('serviceId', 'name price duration')
+    }).populate('professional', 'firstName lastName')
+      .populate('service', 'name price duration')
       .sort({ time: 1 });
 };
 

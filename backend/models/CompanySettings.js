@@ -44,6 +44,13 @@ const companySettingsSchema = new mongoose.Schema({
         trim: true
     },
     
+    // Contato
+    whatsapp: {
+        type: String,
+        trim: true,
+        default: ''
+    },
+    
     // Horário de Funcionamento
     workingHours: {
         weekdays: {

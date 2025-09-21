@@ -1,0 +1,693 @@
+/* Reset e Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #8B4B8C 0%, #D4A574 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+/* Container Principal */
+.booking-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.booking-header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 30px 20px;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.logo-container img {
+    height: 100px;
+    width: auto;
+    max-width: 200px;
+}
+
+.logo-container h1 {
+    display: none;
+}
+
+/* Progress Bar */
+.progress-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: #e0e0e0;
+    border-radius: 2px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #8B4B8C, #D4A574);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+    width: 16.66%;
+}
+
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+}
+
+.step.active {
+    opacity: 1;
+}
+
+.step i {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+    color: #8B4B8C;
+}
+
+.step span {
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* Main Content */
+.booking-main {
+    flex: 1;
+    padding: 40px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.booking-step {
+    display: none;
+    animation: fadeIn 0.5s ease;
+}
+
+.booking-step.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.step-content {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.step-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.step-header h2 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.step-header p {
+    font-size: 1.1rem;
+    color: #7f8c8d;
+}
+
+/* Etapa 1: Bem-vindo */
+.welcome-section {
+    text-align: center;
+}
+
+
+.welcome-section h2 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.welcome-description {
+    font-size: 1.2rem;
+    color: #7f8c8d;
+    margin-bottom: 40px;
+    line-height: 1.6;
+}
+
+.company-info {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 40px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.info-item:last-child {
+    margin-bottom: 0;
+}
+
+.info-item i {
+    color: #8B4B8C;
+    margin-right: 15px;
+    width: 20px;
+}
+
+/* Etapa 2 e 3: Grids */
+.professionals-grid,
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.professional-card,
+.service-card {
+    background: #fff;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.professional-card:hover,
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.professional-card.selected,
+.service-card.selected {
+    border-color: #8B4B8C;
+    background: linear-gradient(135deg, #8B4B8C10, #D4A57410);
+}
+
+.professional-photo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 20px;
+    display: block;
+    border: 3px solid #8B4B8C;
+}
+
+.professional-name,
+.service-name {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.professional-function,
+.service-description {
+    color: #7f8c8d;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.service-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #27ae60;
+    text-align: center;
+}
+
+.service-duration {
+    font-size: 0.9rem;
+    color: #95a5a6;
+    text-align: center;
+}
+
+/* Etapa 4: Calendário */
+.schedule-section {
+    margin-bottom: 30px;
+}
+
+.time-slots-section {
+    margin-bottom: 40px;
+}
+
+.calendar-container {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.calendar-header h3 {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.calendar-day.other-month {
+    color: #bdc3c7;
+}
+
+.calendar-day.available {
+    background: #f0e6f7;
+    color: #8B4B8C;
+}
+
+.calendar-day.available:hover {
+    background: #8B4B8C;
+    color: white;
+}
+
+.calendar-day.selected {
+    background: #8B4B8C;
+    color: white;
+}
+
+.calendar-day.unavailable {
+    background: #f8f9fa;
+    color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+.time-slots-section {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.time-slots-section h4 {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.time-slots {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+}
+
+.time-slot {
+    padding: 12px;
+    background: #fff;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    font-weight: 500;
+}
+
+.time-slot:hover {
+    background: #8B4B8C;
+    color: white;
+}
+
+.time-slot.selected {
+    background: #8B4B8C;
+    color: white;
+    border-color: #8B4B8C;
+}
+
+.time-slot.unavailable {
+    background: #f8f9fa;
+    color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+/* Etapa 5: Formulário */
+.client-form {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #8B4B8C;
+}
+
+/* Etapa 6: Resumo */
+.booking-summary {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.summary-card {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 30px;
+}
+
+.summary-card h3 {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.summary-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.summary-item:last-child {
+    margin-bottom: 0;
+}
+
+.summary-item i {
+    font-size: 1.2rem;
+    color: #8B4B8C;
+    margin-right: 15px;
+    width: 20px;
+}
+
+.summary-item strong {
+    color: #2c3e50;
+    margin-right: 10px;
+}
+
+/* Botões */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    gap: 10px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #8B4B8C, #D4A574);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(139, 75, 140, 0.4);
+}
+
+.btn-secondary {
+    background: #95a5a6;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #7f8c8d;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.btn:disabled:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.btn-success {
+    background: #27ae60;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #229954;
+}
+
+.btn-large {
+    padding: 20px 40px;
+    font-size: 1.2rem;
+}
+
+.btn-icon {
+    padding: 10px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Step Actions */
+.step-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 40px;
+    gap: 20px;
+}
+
+.step-actions .btn {
+    flex: 1;
+    justify-content: center;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.loading-overlay.active {
+    display: flex;
+}
+
+.loading-spinner {
+    text-align: center;
+    color: white;
+}
+
+.loading-spinner i {
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+.loading-spinner p {
+    font-size: 1.2rem;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    max-width: 500px;
+    margin: 20px;
+}
+
+.success-icon {
+    font-size: 4rem;
+    color: #27ae60;
+    margin-bottom: 20px;
+}
+
+.modal-content h3 {
+    font-size: 2rem;
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.modal-content p {
+    font-size: 1.1rem;
+    color: #7f8c8d;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .booking-header {
+        padding: 20px 15px;
+    }
+    
+    .logo-container img {
+        height: 80px;
+    }
+    
+    .step-content {
+        padding: 20px;
+    }
+    
+    .step-header h2 {
+        font-size: 2rem;
+    }
+    
+    .schedule-section {
+        margin-bottom: 20px;
+    }
+    
+    .time-slots-section {
+        margin-top: 15px;
+        padding: 15px;
+    }
+    
+    .professionals-grid,
+    .services-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .step-actions {
+        flex-direction: column;
+    }
+    
+    .progress-steps {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .step span {
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .booking-main {
+        padding: 20px 10px;
+    }
+    
+    .step-content {
+        padding: 15px;
+    }
+    
+    .logo-container img {
+        height: 70px;
+    }
+    
+    
+    .welcome-section h2 {
+        font-size: 1.8rem;
+    }
+    
+    .step-header h2 {
+        font-size: 1.8rem;
+    }
+}

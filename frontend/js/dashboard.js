@@ -417,6 +417,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (targetPane) {
                     targetPane.classList.add('active');
                 }
+                
+                // Inicializar AgendaManager quando a aba de agenda for ativada
+                if (targetTab === 'agendamentos') {
+                    console.log('🔄 Inicializando AgendaManager...');
+                    if (typeof AgendaManager !== 'undefined') {
+                        if (!window.agendaManager) {
+                            console.log('🆕 Criando nova instância do AgendaManager');
+                            window.agendaManager = new AgendaManager();
+                        } else {
+                            console.log('🔄 Recarregando dados do AgendaManager existente');
+                            // Recarregar dados se já existir
+                            window.agendaManager.loadAppointments();
+                            window.agendaManager.loadStatistics();
+                        }
+                    } else {
+                        console.error('❌ AgendaManager não está definido');
+                    }
+                }
             });
         });
 
@@ -435,6 +453,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const formData = {
                     companyName: document.getElementById('empresa-nome').value,
                     cnpj: document.getElementById('empresa-cnpj').value,
+                    whatsapp: document.getElementById('empresa-whatsapp').value,
                     cep: document.getElementById('empresa-cep').value,
                     street: document.getElementById('empresa-rua').value,
                     number: document.getElementById('empresa-numero').value,
@@ -550,6 +569,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Dados da empresa
         document.getElementById('empresa-nome').value = settings.companyName || '';
         document.getElementById('empresa-cnpj').value = settings.cnpj || '';
+        document.getElementById('empresa-whatsapp').value = settings.whatsapp || '';
         document.getElementById('empresa-cep').value = settings.cep || '';
         document.getElementById('empresa-rua').value = settings.street || '';
         document.getElementById('empresa-numero').value = settings.number || '';
@@ -631,6 +651,22 @@ document.addEventListener('DOMContentLoaded', function() {
             value = value.replace(/(\d{5})(\d)/, '$1-$2');
             e.target.value = value;
         });
+        
+        // Máscara para WhatsApp
+        const whatsappInput = document.getElementById('empresa-whatsapp');
+        if (whatsappInput) {
+            whatsappInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 11) {
+                    value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+                } else if (value.length >= 7) {
+                    value = value.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+                } else if (value.length >= 3) {
+                    value = value.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+                }
+                e.target.value = value;
+            });
+        }
 
         // Buscar CEP quando completar 9 caracteres (00000-000)
         cepInput.addEventListener('blur', function(e) {
@@ -1172,4 +1208,99 @@ document.addEventListener('DOMContentLoaded', function() {
     window.loadUserPhoto = loadUserPhoto;
     window.editUser = editUser;
     window.deleteUser = deleteUser;
+    window.copyPublicLink = copyPublicLink;
 });
+
+// Função para copiar link da página pública
+function copyPublicLink() {
+    const publicUrl = window.location.origin + '/public-booking.html';
+    
+    navigator.clipboard.writeText(publicUrl).then(() => {
+        // Mostrar notificação de sucesso
+        showNotification('Link copiado para a área de transferência!', 'success');
+    }).catch(err => {
+        console.error('Erro ao copiar link:', err);
+        // Fallback para navegadores mais antigos
+        const textArea = document.createElement('textarea');
+        textArea.value = publicUrl;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showNotification('Link copiado para a área de transferência!', 'success');
+    });
+}
+
+// Função para mostrar notificações
+function showNotification(message, type = 'info') {
+    // Remover notificação existente
+    const existingNotification = document.querySelector('.notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+    
+    // Criar nova notificação
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+        <span>${message}</span>
+    `;
+    
+    // Adicionar estilos
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#27ae60' : '#3498db'};
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 500;
+        animation: slideIn 0.3s ease;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Remover após 3 segundos
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 300);
+    }, 3000);
+}
+
+// Adicionar estilos CSS para animações
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);

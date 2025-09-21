@@ -66,11 +66,13 @@ serviceSchema.index({ createdBy: 1 });
 
 // Virtual para calcular valor da comissão
 serviceSchema.virtual('commissionValue').get(function() {
+    if (!this.price || !this.commission) return 0;
     return (this.price * this.commission) / 100;
 });
 
 // Virtual para duração formatada
 serviceSchema.virtual('formattedDuration').get(function() {
+    if (!this.duration) return '0min';
     if (this.durationUnit === 'hours') {
         return `${this.duration}h`;
     }
@@ -79,6 +81,7 @@ serviceSchema.virtual('formattedDuration').get(function() {
 
 // Virtual para preço formatado
 serviceSchema.virtual('formattedPrice').get(function() {
+    if (!this.price) return 'R$ 0,00';
     return `R$ ${this.price.toFixed(2).replace('.', ',')}`;
 });
 

@@ -7,9 +7,15 @@ class AgendaManager {
         this.professionals = [];
         this.services = [];
         this.currentDate = new Date();
+        
+        // Definir filtros padrão para o mês atual
+        const today = new Date();
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        
         this.filters = {
-            startDate: '',
-            endDate: '',
+            startDate: this.formatDateForInput(firstDayOfMonth),
+            endDate: this.formatDateForInput(lastDayOfMonth),
             professionalId: '',
             search: ''
         };
@@ -24,6 +30,7 @@ class AgendaManager {
         await this.loadAppointments();
         await this.loadStatistics();
         this.setupDateFilters();
+        this.populateDateInputs();
     }
 
     setupEventListeners() {
@@ -59,22 +66,29 @@ class AgendaManager {
     }
 
     setupDateFilters() {
-        const today = new Date();
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        
-        document.getElementById('agenda-date-from').value = today.toISOString().split('T')[0];
-        document.getElementById('agenda-date-to').value = tomorrow.toISOString().split('T')[0];
-        
-        this.filters.startDate = today.toISOString().split('T')[0];
-        this.filters.endDate = tomorrow.toISOString().split('T')[0];
+        // Os filtros já foram definidos no constructor
+        // Apenas preencher os campos de input
+        this.populateDateInputs();
+    }
+
+    formatDateForInput(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    populateDateInputs() {
+        // Preencher os campos de data com os filtros atuais
+        document.getElementById('agenda-date-from').value = this.filters.startDate;
+        document.getElementById('agenda-date-to').value = this.filters.endDate;
     }
 
     async loadProfessionals() {
         try {
             const response = await fetch('/api/professionals', {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                 }
             });
             
@@ -92,7 +106,7 @@ class AgendaManager {
         try {
             const response = await fetch('/api/services', {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                 }
             });
             
@@ -119,6 +133,10 @@ class AgendaManager {
 
     async loadAppointments() {
         try {
+            const token = localStorage.getItem('authToken');
+            console.log('🔑 Token encontrado:', token ? 'Sim' : 'Não');
+            console.log('🔑 Token (primeiros 20 chars):', token ? token.substring(0, 20) + '...' : 'N/A');
+            
             let url = '/api/appointments?';
             const params = new URLSearchParams();
             
@@ -127,20 +145,31 @@ class AgendaManager {
             if (this.filters.professionalId) params.append('professionalId', this.filters.professionalId);
             
             url += params.toString();
+            console.log('🌐 URL da requisição:', url);
             
             const response = await fetch(url, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 }
             });
             
+            console.log('📊 Status da resposta:', response.status);
+            console.log('📊 Headers da resposta:', Object.fromEntries(response.headers.entries()));
+            
             if (response.ok) {
                 const data = await response.json();
-                this.appointments = data.appointments;
+                console.log('📋 Resposta completa:', data);
+                console.log('📋 Agendamentos carregados:', data.appointments ? data.appointments.length : 'N/A');
+                this.appointments = data.appointments || [];
                 this.renderAppointments();
+            } else {
+                const errorData = await response.json();
+                console.error('❌ Erro na API:', errorData);
+                console.error('❌ Status:', response.status, response.statusText);
             }
         } catch (error) {
-            console.error('Erro ao carregar agendamentos:', error);
+            console.error('💥 Erro ao carregar agendamentos:', error);
         }
     }
 
@@ -156,7 +185,7 @@ class AgendaManager {
             
             const response = await fetch(url, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                 }
             });
             
@@ -264,10 +293,10 @@ class AgendaManager {
         
         if (appointment.status === 'pending') {
             buttons += `
-                <button class="btn btn-success btn-sm" onclick="agendaManager.confirmAppointment('${appointment._id}')">
+                <button class="btn btn-success btn-sm" onclick="window.agendaManager.confirmAppointment('${appointment._id}')">
                     <i class="fas fa-check"></i> Confirmar
                 </button>
-                <button class="btn btn-warning btn-sm" onclick="agendaManager.cancelAppointment('${appointment._id}')">
+                <button class="btn btn-warning btn-sm" onclick="window.agendaManager.cancelAppointment('${appointment._id}')">
                     <i class="fas fa-times"></i> Cancelar
                 </button>
             `;
@@ -275,10 +304,10 @@ class AgendaManager {
         
         if (appointment.status === 'confirmed') {
             buttons += `
-                <button class="btn btn-primary btn-sm" onclick="agendaManager.completeAppointment('${appointment._id}')">
+                <button class="btn btn-primary btn-sm" onclick="window.agendaManager.completeAppointment('${appointment._id}')">
                     <i class="fas fa-check-circle"></i> Finalizar
                 </button>
-                <button class="btn btn-warning btn-sm" onclick="agendaManager.cancelAppointment('${appointment._id}')">
+                <button class="btn btn-warning btn-sm" onclick="window.agendaManager.cancelAppointment('${appointment._id}')">
                     <i class="fas fa-times"></i> Cancelar
                 </button>
             `;
@@ -286,10 +315,10 @@ class AgendaManager {
         
         if (appointment.status !== 'completed') {
             buttons += `
-                <button class="btn btn-info btn-sm" onclick="agendaManager.editAppointment('${appointment._id}')">
+                <button class="btn btn-info btn-sm" onclick="window.agendaManager.editAppointment('${appointment._id}')">
                     <i class="fas fa-edit"></i> Editar
                 </button>
-                <button class="btn btn-danger btn-sm" onclick="agendaManager.deleteAppointment('${appointment._id}')">
+                <button class="btn btn-danger btn-sm" onclick="window.agendaManager.deleteAppointment('${appointment._id}')">
                     <i class="fas fa-trash"></i> Excluir
                 </button>
             `;
@@ -326,11 +355,15 @@ class AgendaManager {
     }
 
     clearDateFilters() {
-        document.getElementById('agenda-date-from').value = '';
-        document.getElementById('agenda-date-to').value = '';
-        this.filters.startDate = '';
-        this.filters.endDate = '';
+        // Resetar para o mês atual
+        const today = new Date();
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
         
+        this.filters.startDate = this.formatDateForInput(firstDayOfMonth);
+        this.filters.endDate = this.formatDateForInput(lastDayOfMonth);
+        
+        this.populateDateInputs();
         this.loadAppointments();
         this.loadStatistics();
     }
@@ -406,7 +439,7 @@ class AgendaManager {
         try {
             const response = await fetch(`/api/appointments/available-times?professionalId=${professionalId}&date=${date}`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                 }
             });
             
@@ -471,7 +504,7 @@ class AgendaManager {
                 method: method,
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                 },
                 body: JSON.stringify(appointmentData)
             });
@@ -498,7 +531,7 @@ class AgendaManager {
                 const response = await fetch(`/api/appointments/${appointmentId}/confirm`, {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                     }
                 });
                 
@@ -527,7 +560,7 @@ class AgendaManager {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                     },
                     body: JSON.stringify({ reason })
                 });
@@ -554,7 +587,7 @@ class AgendaManager {
                 const response = await fetch(`/api/appointments/${appointmentId}/complete`, {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                     }
                 });
                 
@@ -587,7 +620,7 @@ class AgendaManager {
                 const response = await fetch(`/api/appointments/${appointmentId}`, {
                     method: 'DELETE',
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                     }
                 });
                 
@@ -649,6 +682,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Inicializar quando a página carregar
 let agendaManager;
-document.addEventListener('DOMContentLoaded', () => {
-    agendaManager = new AgendaManager();
-});
+// Comentado para inicializar apenas quando a aba for ativada
+// document.addEventListener('DOMContentLoaded', () => {
+//     agendaManager = new AgendaManager();
+// });
