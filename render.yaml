@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: ch-studio-backend
+    env: node
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: MONGODB_URI
+        value: mongodb+srv://chstudiobanco_db_user:VKwho9FvxKQiTO9E@cluster0.qj9gn8z.mongodb.net/ch-studio?retryWrites=true&w=majority&appName=Cluster0
+      - key: JWT_SECRET
+        value: ch-studio-super-secret-key-2024-production
+      - key: CORS_ORIGIN
+        value: "*"
