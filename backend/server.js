@@ -4,7 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
-// const whatsappService = require('./services/whatsappService'); // Comentado para evitar problemas no Render
+const whatsappService = require('./services/whatsappService');
 const backupService = require('./services/backupService');
 require('dotenv').config();
 
@@ -428,6 +428,8 @@ app.get('/api/public/appointments', async (req, res) => {
 // Rota pública para criar agendamento
 app.post('/api/public/appointments', async (req, res) => {
     try {
+        console.log('📝 Recebendo dados do agendamento:', req.body);
+        
         const {
             professionalId,
             serviceId,
@@ -438,8 +440,19 @@ app.post('/api/public/appointments', async (req, res) => {
             clientPhone
         } = req.body;
 
+        console.log('🔍 Dados extraídos:', {
+            professionalId,
+            serviceId,
+            date,
+            time,
+            clientName,
+            clientLastName,
+            clientPhone
+        });
+
         // Validar dados obrigatórios
         if (!professionalId || !serviceId || !date || !time || !clientName || !clientPhone) {
+            console.log('❌ Dados obrigatórios não fornecidos');
             return res.status(400).json({ 
                 success: false, 
                 message: 'Dados obrigatórios não fornecidos' 
@@ -447,24 +460,58 @@ app.post('/api/public/appointments', async (req, res) => {
         }
 
         // Verificar se o profissional existe
+        console.log('🔍 Verificando profissional:', professionalId);
         const professional = await Professional.findById(professionalId);
         if (!professional) {
+            console.log('❌ Profissional não encontrado');
             return res.status(400).json({ 
                 success: false, 
                 message: 'Profissional não encontrado' 
             });
         }
+        console.log('✅ Profissional encontrado:', professional.firstName);
 
         // Verificar se o serviço existe
+        console.log('🔍 Verificando serviço:', serviceId);
         const service = await Service.findById(serviceId);
         if (!service) {
+            console.log('❌ Serviço não encontrado');
             return res.status(400).json({ 
                 success: false, 
                 message: 'Serviço não encontrado' 
             });
         }
+        console.log('✅ Serviço encontrado:', service.name);
+
+        // Verificar se já existe agendamento no mesmo horário (desabilitado temporariamente)
+        // const existingAppointment = await Appointment.findOne({
+        //     professional: professionalId,
+        //     date: new Date(date),
+        //     time: time,
+        //     status: { $in: ['pending', 'confirmed'] }
+        // });
+
+        // if (existingAppointment) {
+        //     return res.status(400).json({ 
+        //         success: false, 
+        //         message: 'Já existe um agendamento neste horário' 
+        //     });
+        // }
 
         // Criar novo agendamento
+        console.log('📝 Criando agendamento...');
+        console.log('📊 Dados do agendamento:', {
+            professional: professionalId,
+            service: serviceId,
+            date: new Date(date),
+            time: time,
+            clientName: clientName,
+            clientLastName: clientLastName,
+            clientPhone: clientPhone,
+            status: 'pending',
+            source: 'public_booking'
+        });
+        
         const appointment = new Appointment({
             professional: professionalId,
             service: serviceId,
@@ -477,11 +524,15 @@ app.post('/api/public/appointments', async (req, res) => {
             source: 'public_booking'
         });
 
+        console.log('💾 Salvando agendamento...');
         await appointment.save();
+        console.log('✅ Agendamento salvo com ID:', appointment._id);
 
         // Popular os dados para retorno
+        console.log('🔄 Populando dados...');
         await appointment.populate('professional', 'firstName lastName');
         await appointment.populate('service', 'name duration');
+        console.log('✅ Dados populados');
 
         res.json({ 
             success: true, 
@@ -490,10 +541,16 @@ app.post('/api/public/appointments', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Erro ao criar agendamento público:', error);
+        console.error('💥 Erro ao criar agendamento público:', error);
+        console.error('📊 Stack trace:', error.stack);
+        console.error('📋 Error details:', {
+            name: error.name,
+            message: error.message,
+            code: error.code
+        });
         res.status(500).json({ 
             success: false, 
-            message: 'Erro interno do servidor'
+            message: 'Erro interno do servidor: ' + error.message
         });
     }
 });
@@ -756,8 +813,7 @@ app.delete('/api/users/:id', authenticateToken, async (req, res) => {
 // Obter status do WhatsApp
 app.get('/api/whatsapp/status', authenticateToken, (req, res) => {
     try {
-        // const status = whatsappService.getStatus(); // Comentado temporariamente
-        const status = { status: 'disabled', message: 'WhatsApp temporariamente desabilitado' };
+        const status = whatsappService.getStatus();
         res.json(status);
     } catch (error) {
         console.error('Erro ao obter status do WhatsApp:', error);
@@ -768,8 +824,7 @@ app.get('/api/whatsapp/status', authenticateToken, (req, res) => {
 // Conectar WhatsApp
 app.post('/api/whatsapp/connect', authenticateToken, async (req, res) => {
     try {
-        // const result = await whatsappService.connect(); // Comentado temporariamente
-        const result = { success: false, message: 'WhatsApp temporariamente desabilitado' };
+        const result = await whatsappService.connect();
         res.json(result);
     } catch (error) {
         console.error('Erro ao conectar WhatsApp:', error);
@@ -780,8 +835,7 @@ app.post('/api/whatsapp/connect', authenticateToken, async (req, res) => {
 // Gerar QR Code
 app.post('/api/whatsapp/generate-qr', authenticateToken, async (req, res) => {
     try {
-        // const result = await whatsappService.generateNewQRCode(); // Comentado temporariamente
-        const result = { success: false, message: 'WhatsApp temporariamente desabilitado' };
+        const result = await whatsappService.generateNewQRCode();
         res.json(result);
     } catch (error) {
         console.error('Erro ao gerar QR Code:', error);
@@ -792,8 +846,7 @@ app.post('/api/whatsapp/generate-qr', authenticateToken, async (req, res) => {
 // Desconectar WhatsApp
 app.post('/api/whatsapp/disconnect', authenticateToken, async (req, res) => {
     try {
-        // const result = await whatsappService.disconnect(); // Comentado temporariamente
-        const result = { success: false, message: 'WhatsApp temporariamente desabilitado' };
+        const result = await whatsappService.disconnect();
         res.json(result);
     } catch (error) {
         console.error('Erro ao desconectar WhatsApp:', error);
@@ -810,8 +863,7 @@ app.post('/api/whatsapp/send-message', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: 'Número e mensagem são obrigatórios' });
         }
 
-        // const result = await whatsappService.sendMessage(number, message); // Comentado temporariamente
-        const result = { success: false, message: 'WhatsApp temporariamente desabilitado' };
+        const result = await whatsappService.sendMessage(number, message);
         res.json(result);
     } catch (error) {
         console.error('Erro ao enviar mensagem:', error);
@@ -822,8 +874,7 @@ app.post('/api/whatsapp/send-message', authenticateToken, async (req, res) => {
 // Obter informações do cliente
 app.get('/api/whatsapp/client-info', authenticateToken, async (req, res) => {
     try {
-        // const info = await whatsappService.getClientInfo(); // Comentado temporariamente
-        const info = { success: false, message: 'WhatsApp temporariamente desabilitado' };
+        const info = await whatsappService.getClientInfo();
         res.json(info);
     } catch (error) {
         console.error('Erro ao obter informações do cliente:', error);
@@ -903,8 +954,7 @@ app.post('/api/whatsapp/send-automatic', authenticateToken, async (req, res) => 
         }
 
         // Testar conexão primeiro
-        // const connectionTest = await whatsappService.testConnection(); // Comentado temporariamente
-        const connectionTest = { success: false, message: 'WhatsApp temporariamente desabilitado' };
+        const connectionTest = await whatsappService.testConnection();
         if (!connectionTest.success) {
             return res.status(400).json({ message: connectionTest.message });
         }
@@ -915,12 +965,11 @@ app.post('/api/whatsapp/send-automatic', authenticateToken, async (req, res) => 
             return res.status(404).json({ message: 'Mensagens automáticas não configuradas' });
         }
 
-        // const result = await whatsappService.sendAutomaticMessage( // Comentado temporariamente
-        //     number, 
-        //     messages.welcomeMessage, 
-        //     messages.outOfHoursMessage
-        // );
-        const result = { success: false, message: 'WhatsApp temporariamente desabilitado' };
+        const result = await whatsappService.sendAutomaticMessage(
+            number, 
+            messages.welcomeMessage, 
+            messages.outOfHoursMessage
+        );
         
         res.json(result);
     } catch (error) {
@@ -932,8 +981,7 @@ app.post('/api/whatsapp/send-automatic', authenticateToken, async (req, res) => 
 // Testar conexão do WhatsApp
 app.get('/api/whatsapp/test-connection', authenticateToken, async (req, res) => {
     try {
-        // const result = await whatsappService.testConnection(); // Comentado temporariamente
-        const result = { success: false, message: 'WhatsApp temporariamente desabilitado' };
+        const result = await whatsappService.testConnection();
         res.json(result);
     } catch (error) {
         console.error('Erro ao testar conexão:', error);
@@ -954,24 +1002,24 @@ const io = new Server(server, {
 });
 
 // Configurar callbacks do WhatsApp para WebSocket
-// whatsappService.setCallbacks({ // Comentado temporariamente
-//     onQR: (qrCodeImage) => {
-//         io.emit('whatsapp_qr', { qrCode: qrCodeImage });
-//     },
-//     onReady: () => {
-//         io.emit('whatsapp_ready', { message: 'WhatsApp conectado com sucesso!' });
-//     },
-//     onDisconnected: (reason) => {
-//         io.emit('whatsapp_disconnected', { reason });
-//     },
-//     onMessage: (message) => {
-// //         io.emit('whatsapp_message', { 
-//             from: message.from,
-//             body: message.body,
-//             timestamp: message.timestamp
-//         });
-//     }
-// });
+whatsappService.setCallbacks({
+    onQR: (qrCodeImage) => {
+        io.emit('whatsapp_qr', { qrCode: qrCodeImage });
+    },
+    onReady: () => {
+        io.emit('whatsapp_ready', { message: 'WhatsApp conectado com sucesso!' });
+    },
+    onDisconnected: (reason) => {
+        io.emit('whatsapp_disconnected', { reason });
+    },
+    onMessage: (message) => {
+        io.emit('whatsapp_message', { 
+            from: message.from,
+            body: message.body,
+            timestamp: message.timestamp
+        });
+    }
+});
 
 // ==================== ROTAS DE BACKUP ====================
 
@@ -2267,6 +2315,9 @@ app.post('/api/sales', authenticateToken, async (req, res) => {
 // Listar agendamentos
 app.get('/api/appointments', authenticateToken, async (req, res) => {
     try {
+        console.log('📋 Buscando agendamentos...');
+        console.log('🔍 Query params:', req.query);
+        
         const { startDate, endDate, professionalId, status } = req.query;
         
         let filter = {};
@@ -2288,14 +2339,21 @@ app.get('/api/appointments', authenticateToken, async (req, res) => {
             filter.status = status;
         }
         
+        console.log('🔍 Filtro aplicado:', filter);
+        
         const appointments = await Appointment.find(filter)
             .populate('professional', 'firstName lastName function photo')
             .populate('service', 'name price duration')
             .sort({ date: 1, time: 1 });
         
+        console.log('📋 Agendamentos encontrados:', appointments.length);
+        appointments.forEach(apt => {
+            console.log('📅', apt.date.toLocaleDateString('pt-BR'), apt.time, '-', apt.clientName, apt.clientLastName, '-', apt.status, '- Source:', apt.source || 'dashboard');
+        });
+        
         res.json({ success: true, appointments });
     } catch (error) {
-        console.error('Erro ao listar agendamentos:', error);
+        console.error('💥 Erro ao listar agendamentos:', error);
         res.status(500).json({ message: 'Erro interno do servidor' });
     }
 });
