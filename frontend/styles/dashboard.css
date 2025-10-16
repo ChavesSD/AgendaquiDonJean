@@ -333,40 +333,6 @@ body {
     gap: 20px;
 }
 
-.notifications {
-    position: relative;
-}
-
-.notification-btn {
-    background: none;
-    border: none;
-    font-size: 18px;
-    color: #975756;
-    cursor: pointer;
-    padding: 12px;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-    position: relative;
-}
-
-.notification-btn:hover {
-    background: rgba(151, 87, 86, 0.1);
-    color: #7a4443;
-    transform: scale(1.05);
-}
-
-.notification-badge {
-    position: absolute;
-    top: 0;
-    right: 0;
-    background: #e74c3c;
-    color: white;
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 10px;
-    min-width: 16px;
-    text-align: center;
-}
 
 .user-menu-btn {
     display: flex;
@@ -5751,3 +5717,4 @@ body {
         align-self: flex-end;
     }
 }
+

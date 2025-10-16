@@ -1212,8 +1212,11 @@ class AgendaManager {
     }
 }
 
+
 // Event listeners para o modal
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('📄 DOM carregado, inicializando componentes...');
+    
     // Mudança de profissional
     document.getElementById('appointmentProfessional').addEventListener('change', (e) => {
         const professionalId = e.target.value;
@@ -1240,6 +1243,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
 
 // Inicializar quando a página carregar
 let agendaManager;
