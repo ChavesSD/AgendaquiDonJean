@@ -7,7 +7,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #8B4B8C 0%, #D4A574 100%);
+    background: url('/assets/Background Dashboard.jpg') center center / cover no-repeat fixed;
     min-height: 100vh;
     color: #333;
 }
@@ -64,7 +64,7 @@ body {
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #8B4B8C, #D4A574);
+    background: #975756;
     border-radius: 2px;
     transition: width 0.3s ease;
     width: 16.66%;
@@ -92,7 +92,7 @@ body {
 .step i {
     font-size: 1.5rem;
     margin-bottom: 8px;
-    color: #8B4B8C;
+    color: #975756;
 }
 
 .step span {
@@ -190,7 +190,7 @@ body {
 }
 
 .info-item i {
-    color: #8B4B8C;
+    color: #975756;
     margin-right: 15px;
     width: 20px;
 }
@@ -223,8 +223,8 @@ body {
 
 .professional-card.selected,
 .service-card.selected {
-    border-color: #8B4B8C;
-    background: linear-gradient(135deg, #8B4B8C10, #D4A57410);
+    border-color: #975756;
+    background: linear-gradient(135deg, rgba(151, 87, 86, 0.1), rgba(122, 68, 67, 0.1));
 }
 
 .professional-photo {
@@ -234,7 +234,7 @@ body {
     object-fit: cover;
     margin: 0 auto 20px;
     display: block;
-    border: 3px solid #8B4B8C;
+    border: 3px solid #975756;
 }
 
 .professional-name,
@@ -269,6 +269,83 @@ body {
 /* Etapa 4: Calendário */
 .schedule-section {
     margin-bottom: 30px;
+}
+
+.service-info-section {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #e1e5e9;
+}
+
+.service-info-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.service-info-left {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.service-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.service-info-item strong {
+    color: #2c3e50;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.service-info-item span {
+    color: #975756;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.service-info-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+}
+
+.service-info-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+.refresh-btn {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    background: #975756;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.refresh-btn:hover {
+    background: #7a4443;
+    transform: translateY(-1px);
 }
 
 .time-slots-section {
@@ -316,17 +393,17 @@ body {
 }
 
 .calendar-day.available {
-    background: #f0e6f7;
-    color: #8B4B8C;
+    background: rgba(151, 87, 86, 0.1);
+    color: #975756;
 }
 
 .calendar-day.available:hover {
-    background: #8B4B8C;
+    background: #975756;
     color: white;
 }
 
 .calendar-day.selected {
-    background: #8B4B8C;
+    background: #975756;
     color: white;
 }
 
@@ -368,20 +445,88 @@ body {
 }
 
 .time-slot:hover {
-    background: #8B4B8C;
+    background: #975756;
     color: white;
 }
 
 .time-slot.selected {
-    background: #8B4B8C;
+    background: #975756;
     color: white;
-    border-color: #8B4B8C;
+    border-color: #975756;
 }
 
 .time-slot.unavailable {
     background: #f8f9fa;
     color: #bdc3c7;
     cursor: not-allowed;
+}
+
+/* Informações de duração do serviço */
+.service-duration-info {
+    background: #e8f4f8;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-left: 4px solid #975756;
+}
+
+.service-duration-info p {
+    margin-bottom: 8px;
+    color: #2c3e50;
+}
+
+.service-duration-info p:last-child {
+    margin-bottom: 0;
+}
+
+.service-duration-info small {
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+/* Time slots com duração */
+.time-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.time-start {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.time-end {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    font-weight: 400;
+}
+
+.time-slot:hover .time-end {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.time-slot.selected .time-end {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Mensagens de carregamento e erro */
+.loading-times,
+.no-times {
+    text-align: center;
+    padding: 40px 20px;
+    color: #7f8c8d;
+    font-size: 1.1rem;
+}
+
+.no-times p {
+    margin-bottom: 10px;
+}
+
+.no-times small {
+    color: #95a5a6;
+    font-style: italic;
 }
 
 /* Etapa 5: Formulário */
@@ -414,7 +559,7 @@ body {
 .form-group input:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #8B4B8C;
+    border-color: #975756;
 }
 
 /* Etapa 6: Resumo */
@@ -452,7 +597,7 @@ body {
 
 .summary-item i {
     font-size: 1.2rem;
-    color: #8B4B8C;
+    color: #975756;
     margin-right: 15px;
     width: 20px;
 }
@@ -469,7 +614,7 @@ body {
     padding: 15px 30px;
     border: none;
     border-radius: 10px;
-    font-size: 1rem;
+    font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -478,22 +623,42 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #8B4B8C, #D4A574);
+    background: #975756;
     color: white;
+    box-shadow: 0 4px 15px rgba(151, 87, 86, 0.3);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(139, 75, 140, 0.4);
+    background: #7a4443;
+    box-shadow: 0 10px 20px rgba(151, 87, 86, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
 }
 
 .btn-secondary {
-    background: #95a5a6;
+    background: #6c757d;
     color: white;
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
 }
 
 .btn-secondary:hover {
-    background: #7f8c8d;
+    background: #5a6268;
+    box-shadow: 0 10px 20px rgba(108, 117, 125, 0.4);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    color: white;
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #2ecc71, #229954);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(39, 174, 96, 0.4);
 }
 
 .btn:disabled {
@@ -506,15 +671,6 @@ body {
 .btn:disabled:hover {
     transform: none !important;
     box-shadow: none !important;
-}
-
-.btn-success {
-    background: #27ae60;
-    color: white;
-}
-
-.btn-success:hover {
-    background: #229954;
 }
 
 .btn-large {
@@ -689,5 +845,40 @@ body {
     
     .step-header h2 {
         font-size: 1.8rem;
+    }
+    
+    .service-info-section {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .service-info-content {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .service-info-left {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .service-info-right {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+    }
+    
+    .service-info-description {
+        font-size: 0.8rem;
+        line-height: 1.4;
+    }
+    
+    .refresh-btn {
+        width: 100%;
+        justify-content: center;
     }
 }

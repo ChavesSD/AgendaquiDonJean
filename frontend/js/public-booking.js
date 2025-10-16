@@ -9,9 +9,16 @@ let bookingState = {
     professionals: [],
     services: [],
     appointments: [],
+    companySettings: null,
     currentMonth: new Date(),
     availableTimes: []
 };
+
+// Variáveis para controle de atualização automática
+let autoRefreshInterval = null;
+let lastAppointmentsCount = 0;
+let userActive = true;
+let lastActivityTime = Date.now();
 
 // Elementos DOM
 const progressFill = document.getElementById('progressFill');
@@ -24,7 +31,51 @@ document.addEventListener('DOMContentLoaded', function() {
     loadProfessionals();
     updateProgress();
     setupPhoneMask();
+    
+    // Iniciar atualização automática após carregar dados iniciais
+    setTimeout(() => {
+        startAutoRefresh();
+    }, 5000); // Aguardar 5 segundos para carregar dados iniciais
+    
+    // Detectar atividade do usuário
+    setupUserActivityDetection();
 });
+
+// Parar atualização automática quando a página for fechada
+window.addEventListener('beforeunload', function() {
+    stopAutoRefresh();
+});
+
+// Configurar detecção de atividade do usuário
+function setupUserActivityDetection() {
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    
+    events.forEach(event => {
+        document.addEventListener(event, () => {
+            const wasInactive = !userActive;
+            userActive = true;
+            lastActivityTime = Date.now();
+            
+            // Se o usuário estava inativo e voltou a ficar ativo, verificar mudanças imediatamente
+            if (wasInactive) {
+                console.log('👤 Usuário voltou a ficar ativo - verificando mudanças...');
+                checkForAppointmentChanges();
+            }
+        }, true);
+    });
+    
+    // Verificar se usuário está inativo a cada 30 segundos
+    setInterval(() => {
+        const now = Date.now();
+        const timeSinceLastActivity = now - lastActivityTime;
+        
+        if (timeSinceLastActivity > 60000) { // 1 minuto de inatividade
+            userActive = false;
+        } else {
+            userActive = true;
+        }
+    }, 30000);
+}
 
 // Carregar configurações da empresa
 async function loadCompanySettings() {
@@ -33,6 +84,7 @@ async function loadCompanySettings() {
         const data = await response.json();
         
         if (data) {
+            bookingState.companySettings = data;
             updateCompanyInfo(data);
         }
     } catch (error) {
@@ -100,6 +152,133 @@ function formatWorkingHours(workingHours) {
     }
     
     return hoursText || 'Seg-Sex 8h às 18h';
+}
+
+// ==================== VALIDAÇÕES DE NEGÓCIO ====================
+
+// Verificar se a empresa está aberta em um determinado dia e horário
+function isBusinessOpen(date, time) {
+    if (!bookingState.companySettings || !bookingState.companySettings.workingHours) {
+        return true; // Se não há configuração, permitir
+    }
+    
+    const dayOfWeek = date.getDay(); // 0 = domingo, 1 = segunda, etc.
+    const workingHours = bookingState.companySettings.workingHours;
+    
+    // Verificar se é dia útil (segunda a sexta)
+    if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+        return isTimeInRange(time, workingHours.weekdays.open, workingHours.weekdays.close);
+    }
+    
+    // Verificar se é sábado
+    if (dayOfWeek === 6) {
+        if (!workingHours.saturday.enabled) return false;
+        return isTimeInRange(time, workingHours.saturday.open, workingHours.saturday.close);
+    }
+    
+    // Verificar se é domingo
+    if (dayOfWeek === 0) {
+        if (!workingHours.sunday.enabled) return false;
+        return isTimeInRange(time, workingHours.sunday.open, workingHours.sunday.close);
+    }
+    
+    return false;
+}
+
+// Verificar se um horário está dentro de um intervalo
+function isTimeInRange(time, startTime, endTime) {
+    const timeMinutes = timeToMinutes(time);
+    const startMinutes = timeToMinutes(startTime);
+    const endMinutes = timeToMinutes(endTime);
+    
+    return timeMinutes >= startMinutes && timeMinutes < endMinutes;
+}
+
+// Verificar se um horário já passou no dia atual
+function isTimeInPast(date, time) {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const appointmentDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    
+    // Se não é hoje, não está no passado
+    if (appointmentDate.getTime() !== today.getTime()) {
+        return false;
+    }
+    
+    // Se é hoje, verificar se o horário já passou
+    const [hours, minutes] = time.split(':').map(Number);
+    const appointmentDateTime = new Date(today);
+    appointmentDateTime.setHours(hours, minutes, 0, 0);
+    
+    return appointmentDateTime <= now;
+}
+
+// Verificar capacidade diária do profissional
+function isProfessionalCapacityAvailable(professional, date) {
+    if (!professional.dailyCapacity || professional.dailyCapacity <= 0) {
+        return true; // Se não há limite, permitir
+    }
+    
+    const dateStr = date.toISOString().split('T')[0];
+    const appointmentsCount = bookingState.appointments.filter(apt => {
+        const aptDate = new Date(apt.date).toISOString().split('T')[0];
+        return aptDate === dateStr && 
+               apt.professional._id === professional._id &&
+               ['pending', 'confirmed'].includes(apt.status);
+    }).length;
+    
+    return appointmentsCount < professional.dailyCapacity;
+}
+
+// Verificar conflitos de horário considerando duração do serviço
+function hasTimeConflict(date, time, serviceDuration, professionalId) {
+    const dateStr = date.toISOString().split('T')[0];
+    const newStartMinutes = timeToMinutes(time);
+    const newEndMinutes = newStartMinutes + serviceDuration;
+    
+    console.log(`🔍 Verificando conflito para ${time} (${serviceDuration}min) no dia ${dateStr} para profissional ${professionalId}`);
+    
+    const hasConflict = bookingState.appointments.some(apt => {
+        const aptDate = new Date(apt.date).toISOString().split('T')[0];
+        
+        // Verificar se é o mesmo dia e profissional
+        if (aptDate !== dateStr || apt.professional._id !== professionalId) {
+            return false;
+        }
+        
+        // Verificar se o agendamento está ativo (pending ou confirmed)
+        if (!['pending', 'confirmed'].includes(apt.status)) {
+            console.log(`⏭️  Agendamento ${apt.time} ignorado - status: ${apt.status}`);
+            return false;
+        }
+        
+        const aptStartMinutes = timeToMinutes(apt.time);
+        const aptServiceDuration = getServiceDurationInMinutes(apt.service);
+        const aptEndMinutes = aptStartMinutes + aptServiceDuration;
+        
+        console.log(`📅 Agendamento existente: ${apt.time} (${aptServiceDuration}min) - status: ${apt.status}`);
+        console.log(`⏰ Período existente: ${aptStartMinutes}min até ${aptEndMinutes}min`);
+        console.log(`⏰ Novo período: ${newStartMinutes}min até ${newEndMinutes}min`);
+        
+        // Verificar sobreposição: novo agendamento não pode começar antes do anterior terminar
+        // e não pode terminar depois do próximo começar
+        // Condição: (novoInicio < existenteFim) E (novoFim > existenteInicio)
+        // IMPORTANTE: Se o agendamento existente termina exatamente quando o novo começa, não há conflito
+        // Mas se o novo agendamento começa exatamente quando o existente termina, também não há conflito
+        const isOverlapping = (newStartMinutes < aptEndMinutes && newEndMinutes > aptStartMinutes);
+        
+        if (isOverlapping) {
+            console.log(`❌ CONFLITO DETECTADO com agendamento ${apt.time} (status: ${apt.status})`);
+        }
+        
+        return isOverlapping;
+    });
+    
+    if (!hasConflict) {
+        console.log(`✅ Horário ${time} disponível`);
+    }
+    
+    return hasConflict;
 }
 
 // Máscara para telefone
@@ -323,11 +502,14 @@ function renderServices() {
         card.className = 'service-card';
         card.onclick = () => selectService(service);
         
+        const durationText = service.durationUnit === 'hours' ? 
+            `${service.duration}h` : `${service.duration}min`;
+        
         card.innerHTML = `
             <h3 class="service-name">${service.name}</h3>
             <p class="service-description">${service.description || 'Descrição não disponível'}</p>
             <div class="service-price">R$ ${(service.price || 0).toFixed(2)}</div>
-            <div class="service-duration">${service.duration || 0} ${service.durationUnit || 'min'}</div>
+            <div class="service-duration">${durationText}</div>
         `;
         
         grid.appendChild(card);
@@ -354,11 +536,22 @@ function selectService(service) {
 // Carregar agendamentos
 async function loadAppointments() {
     try {
-        const response = await fetch('/api/public/appointments');
+        // Adicionar timestamp para evitar cache
+        const timestamp = new Date().getTime();
+        const response = await fetch(`/api/public/appointments?t=${timestamp}`);
         const data = await response.json();
         
         if (data.success) {
             bookingState.appointments = data.appointments;
+            lastAppointmentsCount = data.appointments.length; // Atualizar contador
+            console.log('📋 Agendamentos carregados para verificação de conflitos:', data.appointments.length);
+            console.log('📋 Agendamentos ativos:', data.appointments.map(apt => ({
+                date: apt.date,
+                time: apt.time,
+                status: apt.status,
+                professional: apt.professional?.firstName,
+                service: apt.service?.name
+            })));
         }
     } catch (error) {
         console.error('Erro ao carregar agendamentos:', error);
@@ -432,19 +625,30 @@ function isDateAvailable(date) {
     // Não permitir datas passadas
     if (date < today) return false;
     
-    // Verificar se há agendamentos para esta data
-    const dateStr = date.toISOString().split('T')[0];
-    const hasAppointments = bookingState.appointments.some(apt => {
-        const aptDate = new Date(apt.date).toISOString().split('T')[0];
-        return aptDate === dateStr && 
-               apt.professional._id === bookingState.selectedProfessional._id &&
-               ['pending', 'confirmed'].includes(apt.status);
-    });
+    // Verificar se a empresa está aberta neste dia
+    if (!bookingState.companySettings || !bookingState.companySettings.workingHours) {
+        return true; // Se não há configuração, permitir
+    }
     
-    return !hasAppointments;
+    const dayOfWeek = date.getDay();
+    const workingHours = bookingState.companySettings.workingHours;
+    
+    // Verificar se é um dia de funcionamento
+    if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+        // Dia útil - sempre aberto se configurado
+        return true;
+    } else if (dayOfWeek === 6) {
+        // Sábado - verificar se está habilitado
+        return workingHours.saturday.enabled;
+    } else if (dayOfWeek === 0) {
+        // Domingo - verificar se está habilitado
+        return workingHours.sunday.enabled;
+    }
+    
+    return false;
 }
 
-function selectDate(date) {
+async function selectDate(date) {
     // Remover seleção anterior
     document.querySelectorAll('.calendar-day').forEach(day => {
         day.classList.remove('selected');
@@ -454,64 +658,265 @@ function selectDate(date) {
     event.currentTarget.classList.add('selected');
     bookingState.selectedDate = date;
     
+    // Verificar mudanças nos agendamentos antes de carregar horários
+    await checkForAppointmentChanges();
+    
     // Carregar horários disponíveis
-    loadAvailableTimes(date);
+    loadAvailableTimes(date).catch(error => {
+        console.error('Erro ao carregar horários disponíveis:', error);
+    });
 }
 
-function loadAvailableTimes(date) {
+async function loadAvailableTimes(date) {
     const timeSlots = document.getElementById('timeSlots');
-    timeSlots.innerHTML = '';
+    timeSlots.innerHTML = '<div class="loading-times">Carregando horários disponíveis...</div>';
     
-    // Horários de funcionamento (8h às 18h)
-    const startHour = 8;
-    const endHour = 18;
-    const serviceDuration = bookingState.selectedService.duration;
+    // Recarregar agendamentos para ter dados atualizados
+    await loadAppointments();
     
-    // Gerar horários disponíveis
-    for (let hour = startHour; hour < endHour; hour++) {
-        for (let minute = 0; minute < 60; minute += 30) {
-            const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-            
-            // Verificar se o horário está disponível
-            if (isTimeAvailable(date, timeString, serviceDuration)) {
-                const timeSlot = document.createElement('div');
-                timeSlot.className = 'time-slot';
-                timeSlot.textContent = timeString;
-                timeSlot.onclick = () => selectTime(timeString);
-                timeSlots.appendChild(timeSlot);
-            }
+    // Verificar se os agendamentos foram carregados
+    console.log('📋 Agendamentos carregados para verificação:', bookingState.appointments.length);
+    if (bookingState.appointments.length > 0) {
+        console.log('📋 Primeiro agendamento:', bookingState.appointments[0]);
+    }
+    
+    // Obter horários de funcionamento da empresa
+    const workingHours = getWorkingHoursForDate(date);
+    if (!workingHours) {
+        timeSlots.innerHTML = '<div class="no-times">Não há horários disponíveis para este dia.</div>';
+        return;
+    }
+    
+    const serviceDuration = getServiceDurationInMinutes(bookingState.selectedService);
+    const availableTimes = [];
+    
+    // Gerar horários baseados no horário de funcionamento
+    const startTime = workingHours.open;
+    const endTime = workingHours.close;
+    
+    const [startHour, startMinute] = startTime.split(':').map(Number);
+    const [endHour, endMinute] = endTime.split(':').map(Number);
+    
+    const startMinutes = startHour * 60 + startMinute;
+    const endMinutes = endHour * 60 + endMinute;
+    
+    // Gerar slots de 30 em 30 minutos
+    for (let minutes = startMinutes; minutes < endMinutes; minutes += 30) {
+        const hour = Math.floor(minutes / 60);
+        const minute = minutes % 60;
+        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        
+        // Verificar se o horário está disponível
+        if (isTimeAvailable(date, timeString, serviceDuration)) {
+            availableTimes.push(timeString);
         }
     }
+    
+    // Renderizar horários disponíveis
+    timeSlots.innerHTML = '';
+    
+    if (availableTimes.length === 0) {
+        const durationText = bookingState.selectedService.durationUnit === 'hours' ? 
+            `${bookingState.selectedService.duration}h` : `${bookingState.selectedService.duration}min`;
+        timeSlots.innerHTML = `
+            <div class="no-times">
+                <p>Não há horários disponíveis para este dia.</p>
+                <p><small>O serviço "${bookingState.selectedService.name}" tem duração de ${durationText}.</small></p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Adicionar informação sobre a duração do serviço na seção específica
+    const serviceInfoSection = document.getElementById('serviceInfoSection');
+    const durationText = bookingState.selectedService.durationUnit === 'hours' ? 
+        `${bookingState.selectedService.duration}h` : `${bookingState.selectedService.duration}min`;
+    const durationMinutesText = `${serviceDuration} minutos`;
+    
+    serviceInfoSection.innerHTML = `
+        <div class="service-info-content">
+            <div class="service-info-left">
+                <div class="service-info-item">
+                    <strong>Serviço</strong>
+                    <span>${bookingState.selectedService.name}</span>
+                </div>
+                <div class="service-info-item">
+                    <strong>Duração</strong>
+                    <span>${durationText} (${durationMinutesText})</span>
+                </div>
+            </div>
+            <div class="service-info-right">
+                <div class="service-info-description">
+                    Os horários mostrados são o início do serviço. O serviço terminará ${serviceDuration} minutos depois.
+                </div>
+                <button onclick="refreshAvailableTimes()" class="refresh-btn">
+                    <i class="fas fa-sync-alt"></i>
+                    Atualizar
+                </button>
+            </div>
+        </div>
+    `;
+    
+    availableTimes.forEach(time => {
+        const timeSlot = document.createElement('div');
+        timeSlot.className = 'time-slot';
+        timeSlot.innerHTML = `
+            <div class="time-start">${time}</div>
+            <div class="time-end">${formatEndTime(time, serviceDuration)}</div>
+        `;
+        timeSlot.onclick = () => selectTime(time);
+        timeSlots.appendChild(timeSlot);
+    });
+}
+
+// Obter horários de funcionamento para uma data específica
+function getWorkingHoursForDate(date) {
+    if (!bookingState.companySettings || !bookingState.companySettings.workingHours) {
+        return { open: '08:00', close: '18:00' }; // Horário padrão
+    }
+    
+    const dayOfWeek = date.getDay();
+    const workingHours = bookingState.companySettings.workingHours;
+    
+    if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+        // Dia útil
+        return workingHours.weekdays;
+    } else if (dayOfWeek === 6) {
+        // Sábado
+        return workingHours.saturday.enabled ? workingHours.saturday : null;
+    } else if (dayOfWeek === 0) {
+        // Domingo
+        return workingHours.sunday.enabled ? workingHours.sunday : null;
+    }
+    
+    return null;
 }
 
 function isTimeAvailable(date, time, duration) {
-    const dateStr = date.toISOString().split('T')[0];
+    // 1. Verificar se a empresa está aberta neste horário
+    if (!isBusinessOpen(date, time)) {
+        return false;
+    }
     
-    // Verificar se há conflitos com agendamentos existentes
-    return !bookingState.appointments.some(apt => {
-        const aptDate = new Date(apt.date).toISOString().split('T')[0];
-        if (aptDate !== dateStr || apt.professional._id !== bookingState.selectedProfessional._id) {
+    // 2. Verificar se o horário já passou (se for hoje)
+    if (isTimeInPast(date, time)) {
+        return false;
+    }
+    
+    // 3. Verificar se o profissional tem capacidade disponível
+    if (!isProfessionalCapacityAvailable(bookingState.selectedProfessional, date)) {
+        return false;
+    }
+    
+    // 4. Verificar se o horário + duração não ultrapassa o horário de fechamento
+    const workingHours = getWorkingHoursForDate(date);
+    if (workingHours) {
+        const timeMinutes = timeToMinutes(time);
+        const endTimeMinutes = timeToMinutes(workingHours.close);
+        const serviceEndMinutes = timeMinutes + duration;
+        
+        if (serviceEndMinutes > endTimeMinutes) {
             return false;
         }
-        
-        if (!['pending', 'confirmed'].includes(apt.status)) {
-            return false;
-        }
-        
-        // Verificar sobreposição de horários
-        const aptTime = apt.time;
-        const aptStart = timeToMinutes(aptTime);
-        const aptEnd = aptStart + apt.service.duration;
-        const newStart = timeToMinutes(time);
-        const newEnd = newStart + duration;
-        
-        return (newStart < aptEnd && newEnd > aptStart);
-    });
+    }
+    
+    // 5. Verificar conflitos de horário considerando duração do serviço
+    if (hasTimeConflict(date, time, duration, bookingState.selectedProfessional._id)) {
+        return false;
+    }
+    
+    return true;
 }
 
 function timeToMinutes(time) {
     const [hours, minutes] = time.split(':').map(Number);
     return hours * 60 + minutes;
+}
+
+// Função auxiliar para converter duração do serviço para minutos
+function getServiceDurationInMinutes(service) {
+    if (!service || !service.duration) return 0;
+    
+    if (service.durationUnit === 'hours') {
+        return service.duration * 60; // Converter horas para minutos
+    }
+    
+    return service.duration; // Já está em minutos
+}
+
+function formatEndTime(startTime, durationMinutes) {
+    const startMinutes = timeToMinutes(startTime);
+    const endMinutes = startMinutes + durationMinutes;
+    const endHour = Math.floor(endMinutes / 60);
+    const endMinute = endMinutes % 60;
+    return `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`;
+}
+
+// Função para atualizar horários disponíveis manualmente
+async function refreshAvailableTimes() {
+    if (bookingState.selectedDate) {
+        console.log('🔄 Atualizando horários disponíveis manualmente...');
+        await loadAvailableTimes(bookingState.selectedDate);
+    }
+}
+
+// Função para iniciar atualização automática
+function startAutoRefresh() {
+    // Parar intervalo anterior se existir
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+    }
+    
+    // Verificar mudanças a cada 15 segundos (mais frequente)
+    autoRefreshInterval = setInterval(async () => {
+        await checkForAppointmentChanges();
+    }, 15000); // 15 segundos
+    
+    console.log('🔄 Atualização automática iniciada (verificação a cada 15s)');
+}
+
+// Função para parar atualização automática
+function stopAutoRefresh() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+        console.log('⏹️ Atualização automática parada');
+    }
+}
+
+// Função para verificar mudanças nos agendamentos
+async function checkForAppointmentChanges() {
+    // Só verificar se o usuário estiver ativo ou se for uma verificação manual
+    if (!userActive) {
+        return;
+    }
+    
+    try {
+        const timestamp = new Date().getTime();
+        const response = await fetch(`/api/public/appointments?t=${timestamp}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            const currentCount = data.appointments.length;
+            
+            // Verificar se houve mudança no número de agendamentos
+            if (currentCount !== lastAppointmentsCount) {
+                console.log(`📊 Mudança detectada: ${lastAppointmentsCount} → ${currentCount} agendamentos`);
+                lastAppointmentsCount = currentCount;
+                
+                // Atualizar dados
+                bookingState.appointments = data.appointments;
+                
+                // Recarregar horários se uma data estiver selecionada
+                if (bookingState.selectedDate) {
+                    console.log('🔄 Recarregando horários devido a mudança nos agendamentos...');
+                    await loadAvailableTimes(bookingState.selectedDate);
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao verificar mudanças nos agendamentos:', error);
+    }
 }
 
 function selectTime(time) {
@@ -553,7 +958,13 @@ function updateSummary() {
     document.getElementById('summaryDate').textContent = 
         bookingState.selectedDate.toLocaleDateString('pt-BR');
     
-    document.getElementById('summaryTime').textContent = bookingState.selectedTime;
+    const serviceDuration = getServiceDurationInMinutes(bookingState.selectedService);
+    const endTime = formatEndTime(bookingState.selectedTime, serviceDuration);
+    const durationText = bookingState.selectedService.durationUnit === 'hours' ? 
+        `${bookingState.selectedService.duration}h` : `${bookingState.selectedService.duration}min`;
+    
+    document.getElementById('summaryTime').textContent = 
+        `${bookingState.selectedTime} - ${endTime} (${durationText})`;
     
     document.getElementById('summaryClient').textContent = 
         `${bookingState.clientData.name} ${bookingState.clientData.lastName}`;
@@ -566,6 +977,16 @@ async function confirmBooking() {
     try {
         showLoading(true);
         
+        // Validações finais antes de confirmar
+        const serviceDuration = getServiceDurationInMinutes(bookingState.selectedService);
+        
+        // Verificar se o horário ainda está disponível (pode ter sido ocupado por outro usuário)
+        if (!isTimeAvailable(bookingState.selectedDate, bookingState.selectedTime, serviceDuration)) {
+            alert('Este horário não está mais disponível. Por favor, selecione outro horário.');
+            showLoading(false);
+            return;
+        }
+        
         const appointmentData = {
             professionalId: bookingState.selectedProfessional._id,
             serviceId: bookingState.selectedService._id,
@@ -573,7 +994,9 @@ async function confirmBooking() {
             time: bookingState.selectedTime,
             clientName: bookingState.clientData.name,
             clientLastName: bookingState.clientData.lastName,
-            clientPhone: bookingState.clientData.phone
+            clientPhone: bookingState.clientData.phone,
+            notes: bookingState.clientData.notes || '',
+            source: 'public_booking'
         };
         
         const response = await fetch('/api/public/appointments', {
@@ -621,6 +1044,8 @@ function closeSuccessModal() {
 
 // Resetar agendamento
 function resetBooking() {
+    const companySettings = bookingState.companySettings; // Preservar configurações da empresa
+    
     bookingState = {
         currentStep: 1,
         selectedProfessional: null,
@@ -631,6 +1056,7 @@ function resetBooking() {
         professionals: [],
         services: [],
         appointments: [],
+        companySettings: companySettings,
         currentMonth: new Date(),
         availableTimes: []
     };

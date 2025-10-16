@@ -93,6 +93,23 @@ const Sale = require('./models/Sale');
 const Appointment = require('./models/Appointment');
 const authService = require('./simple-auth');
 
+// Função auxiliar para converter horário em minutos
+function timeToMinutes(time) {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours * 60 + minutes;
+}
+
+// Função auxiliar para converter duração do serviço para minutos
+function getServiceDurationInMinutes(service) {
+    if (!service || !service.duration) return 0;
+    
+    if (service.durationUnit === 'hours') {
+        return service.duration * 60; // Converter horas para minutos
+    }
+    
+    return service.duration; // Já está em minutos
+}
+
 // Rotas de autenticação
 app.post('/api/auth/login', async (req, res) => {
     try {
@@ -411,12 +428,22 @@ app.get('/api/public/services', async (req, res) => {
 
 app.get('/api/public/appointments', async (req, res) => {
     try {
+        console.log('🔍 Buscando agendamentos para página pública...');
+        
         const appointments = await Appointment.find({ 
             status: { $in: ['pending', 'confirmed'] } 
         })
         .populate('professional', 'firstName lastName')
-        .populate('service', 'name duration')
-        .select('professional service date time status');
+        .populate('service', 'name duration durationUnit')
+        .select('professional service date time status')
+        .sort({ date: 1, time: 1 });
+        
+        console.log(`📋 Agendamentos ativos encontrados: ${appointments.length}`);
+        appointments.forEach(apt => {
+            const serviceDuration = apt.service.durationUnit === 'hours' ? 
+                apt.service.duration * 60 : apt.service.duration;
+            console.log(`📅 ${apt.date.toLocaleDateString('pt-BR')} ${apt.time} - ${apt.professional?.firstName} - ${apt.service?.name} (${serviceDuration}min) - Status: ${apt.status}`);
+        });
         
         res.json({ success: true, appointments });
     } catch (error) {
@@ -483,20 +510,35 @@ app.post('/api/public/appointments', async (req, res) => {
         }
         console.log('✅ Serviço encontrado:', service.name);
 
-        // Verificar se já existe agendamento no mesmo horário (desabilitado temporariamente)
-        // const existingAppointment = await Appointment.findOne({
-        //     professional: professionalId,
-        //     date: new Date(date),
-        //     time: time,
-        //     status: { $in: ['pending', 'confirmed'] }
-        // });
-
-        // if (existingAppointment) {
-        //     return res.status(400).json({ 
-        //         success: false, 
-        //         message: 'Já existe um agendamento neste horário' 
-        //     });
-        // }
+        // Verificar se já existe agendamento que conflita com o horário solicitado
+        // Considerando a duração do serviço (convertendo para minutos)
+        const serviceDuration = getServiceDurationInMinutes(service); // em minutos
+        const requestedStartMinutes = timeToMinutes(time);
+        const requestedEndMinutes = requestedStartMinutes + serviceDuration;
+        
+        const conflictingAppointments = await Appointment.find({
+            professional: professionalId,
+            date: new Date(date),
+            status: { $in: ['pending', 'confirmed'] }
+        }).populate('service', 'duration durationUnit');
+        
+        for (const existingAppointment of conflictingAppointments) {
+            const existingStartMinutes = timeToMinutes(existingAppointment.time);
+            const existingServiceDuration = getServiceDurationInMinutes(existingAppointment.service);
+            const existingEndMinutes = existingStartMinutes + existingServiceDuration;
+            
+            // Verificar sobreposição de horários
+            // Novo agendamento não pode começar antes do anterior terminar
+            // e não pode terminar depois do próximo começar
+            if (requestedStartMinutes < existingEndMinutes && requestedEndMinutes > existingStartMinutes) {
+                const serviceDurationText = service.durationUnit === 'hours' ? 
+                    `${service.duration}h` : `${service.duration}min`;
+                return res.status(400).json({ 
+                    success: false, 
+                    message: `Horário não disponível. O serviço "${service.name}" (${serviceDurationText}) conflita com um agendamento existente.` 
+                });
+            }
+        }
 
         // Criar novo agendamento
         console.log('📝 Criando agendamento...');
@@ -2425,19 +2467,31 @@ app.post('/api/appointments', authenticateToken, async (req, res) => {
             return res.status(404).json({ success: false, message: 'Serviço não encontrado' });
         }
         
-        // Verificar se horário está disponível
-        const existingAppointment = await Appointment.findOne({
+        // Verificar se horário está disponível considerando duração do serviço
+        const serviceDuration = getServiceDurationInMinutes(service); // em minutos
+        const requestedStartMinutes = timeToMinutes(time);
+        const requestedEndMinutes = requestedStartMinutes + serviceDuration;
+        
+        const conflictingAppointments = await Appointment.find({
             professional: professionalId,
             date: new Date(date),
-            time: time,
             status: { $in: ['pending', 'confirmed'] }
-        });
+        }).populate('service', 'duration durationUnit');
         
-        if (existingAppointment) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Horário já está ocupado para este profissional' 
-            });
+        for (const existingAppointment of conflictingAppointments) {
+            const existingStartMinutes = timeToMinutes(existingAppointment.time);
+            const existingServiceDuration = getServiceDurationInMinutes(existingAppointment.service);
+            const existingEndMinutes = existingStartMinutes + existingServiceDuration;
+            
+            // Verificar sobreposição de horários
+            if (requestedStartMinutes < existingEndMinutes && requestedEndMinutes > existingStartMinutes) {
+                const serviceDurationText = service.durationUnit === 'hours' ? 
+                    `${service.duration}h` : `${service.duration}min`;
+                return res.status(400).json({ 
+                    success: false, 
+                    message: `Horário não disponível. O serviço "${service.name}" (${serviceDurationText}) conflita com um agendamento existente.` 
+                });
+            }
         }
         
         // Criar agendamento
@@ -2511,20 +2565,39 @@ app.put('/api/appointments/:id', authenticateToken, async (req, res) => {
             const checkDate = date ? new Date(date) : appointment.date;
             const checkTime = time || appointment.time;
             const checkProfessional = professionalId || appointment.professional;
+            const checkService = serviceId || appointment.service;
             
-            const existingAppointment = await Appointment.findOne({
+            // Buscar o serviço para obter a duração
+            const serviceToCheck = await Service.findById(checkService);
+            if (!serviceToCheck) {
+                return res.status(404).json({ success: false, message: 'Serviço não encontrado' });
+            }
+            
+            const serviceDuration = getServiceDurationInMinutes(serviceToCheck);
+            const requestedStartMinutes = timeToMinutes(checkTime);
+            const requestedEndMinutes = requestedStartMinutes + serviceDuration;
+            
+            const conflictingAppointments = await Appointment.find({
                 _id: { $ne: id },
                 professional: checkProfessional,
                 date: checkDate,
-                time: checkTime,
                 status: { $in: ['pending', 'confirmed'] }
-            });
+            }).populate('service', 'duration durationUnit');
             
-            if (existingAppointment) {
-                return res.status(400).json({ 
-                    success: false, 
-                    message: 'Horário já está ocupado para este profissional' 
-                });
+            for (const existingAppointment of conflictingAppointments) {
+                const existingStartMinutes = timeToMinutes(existingAppointment.time);
+                const existingServiceDuration = getServiceDurationInMinutes(existingAppointment.service);
+                const existingEndMinutes = existingStartMinutes + existingServiceDuration;
+                
+                // Verificar sobreposição de horários
+                if (requestedStartMinutes < existingEndMinutes && requestedEndMinutes > existingStartMinutes) {
+                    const serviceDurationText = serviceToCheck.durationUnit === 'hours' ? 
+                        `${serviceToCheck.duration}h` : `${serviceToCheck.duration}min`;
+                    return res.status(400).json({ 
+                        success: false, 
+                        message: `Horário não disponível. O serviço "${serviceToCheck.name}" (${serviceDurationText}) conflita com um agendamento existente.` 
+                    });
+                }
             }
         }
         
@@ -2727,7 +2800,7 @@ app.delete('/api/appointments/:id', authenticateToken, async (req, res) => {
 // Obter horários disponíveis
 app.get('/api/appointments/available-times', authenticateToken, async (req, res) => {
     try {
-        const { professionalId, date } = req.query;
+        const { professionalId, date, serviceId } = req.query;
         
         if (!professionalId || !date) {
             return res.status(400).json({ 
@@ -2736,24 +2809,53 @@ app.get('/api/appointments/available-times', authenticateToken, async (req, res)
             });
         }
         
+        // Buscar duração do serviço se fornecido
+        let serviceDuration = 30; // padrão 30 minutos
+        if (serviceId) {
+            const service = await Service.findById(serviceId);
+            if (service) {
+                serviceDuration = getServiceDurationInMinutes(service);
+            }
+        }
+        
         // Horários padrão (8h às 18h)
         const startHour = 8;
         const endHour = 18;
         const availableTimes = [];
         
+        // Buscar agendamentos existentes para o profissional na data
+        const existingAppointments = await Appointment.find({
+            professional: professionalId,
+            date: new Date(date),
+            status: { $in: ['pending', 'confirmed'] }
+        }).populate('service', 'duration durationUnit');
+        
         for (let hour = startHour; hour < endHour; hour++) {
             for (let minute = 0; minute < 60; minute += 30) {
                 const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                const requestedStartMinutes = timeToMinutes(timeString);
+                const requestedEndMinutes = requestedStartMinutes + serviceDuration;
                 
-                // Verificar se horário está ocupado
-                const existingAppointment = await Appointment.findOne({
-                    professional: professionalId,
-                    date: new Date(date),
-                    time: timeString,
-                    status: { $in: ['pending', 'confirmed'] }
-                });
+                // Verificar se o horário + duração não ultrapassa o horário de fechamento
+                if (requestedEndMinutes > (endHour * 60)) {
+                    continue;
+                }
                 
-                if (!existingAppointment) {
+                // Verificar conflitos com agendamentos existentes
+                let hasConflict = false;
+                for (const existingAppointment of existingAppointments) {
+                    const existingStartMinutes = timeToMinutes(existingAppointment.time);
+                    const existingServiceDuration = getServiceDurationInMinutes(existingAppointment.service);
+                    const existingEndMinutes = existingStartMinutes + existingServiceDuration;
+                    
+                    // Verificar sobreposição
+                    if (requestedStartMinutes < existingEndMinutes && requestedEndMinutes > existingStartMinutes) {
+                        hasConflict = true;
+                        break;
+                    }
+                }
+                
+                if (!hasConflict) {
                     availableTimes.push(timeString);
                 }
             }

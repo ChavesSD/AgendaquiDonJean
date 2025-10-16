@@ -210,9 +210,9 @@
                                 <i class="fas fa-calendar"></i>
                                 <span>Calendário</span>
                             </button>
-                            <button class="tab-btn" data-tab="agenda">
-                                <i class="fas fa-calendar-day"></i>
-                                <span>Agenda</span>
+                            <button class="tab-btn" data-tab="contatos">
+                                <i class="fas fa-address-book"></i>
+                                <span>Contatos</span>
                             </button>
                             <button class="tab-btn" data-tab="configuracao">
                                 <i class="fas fa-globe"></i>
@@ -257,7 +257,7 @@
                                                 <i class="fas fa-chevron-left"></i>
                                                 Mês Anterior
                                             </button>
-                                            <span class="current-month" id="current-month">Janeiro 2024</span>
+                                            <span class="current-month" id="current-month">Carregando...</span>
                                             <button class="btn btn-secondary" id="next-month">
                                                 Próximo Mês
                                                 <i class="fas fa-chevron-right"></i>
@@ -270,21 +270,44 @@
                                 </div>
                             </div>
 
-                            <!-- Aba Agenda -->
-                            <div class="tab-pane" id="agenda-tab">
-                                <div class="agenda-section">
+                            <!-- Aba Contatos -->
+                            <div class="tab-pane" id="contatos-tab">
+                                <div class="contacts-section">
                                     <div class="section-header">
-                                        <h3>Agenda do Dia</h3>
-                                        <div class="agenda-actions">
-                                            <input type="date" id="agenda-day" class="agenda-date-picker">
-                                            <button class="btn btn-primary" id="today-btn">
-                                                <i class="fas fa-calendar-day"></i>
-                                                Hoje
+                                        <h3>Gerenciar Contatos</h3>
+                                        <div class="contacts-actions">
+                                            <button class="btn btn-primary" id="sync-contacts-btn">
+                                                <i class="fas fa-sync-alt"></i>
+                                                Sincronizar WhatsApp
+                                            </button>
+                                            <button class="btn btn-secondary" id="add-contact-btn">
+                                                <i class="fas fa-plus"></i>
+                                                Novo Contato
                                             </button>
                                         </div>
                                     </div>
-                                    <div class="agenda-timeline" id="agenda-timeline">
-                                        <!-- Timeline será carregada dinamicamente -->
+                                    
+                                    <!-- Filtros e busca -->
+                                    <div class="contacts-filters">
+                                        <div class="search-box">
+                                            <input type="text" id="contact-search" placeholder="Buscar contato...">
+                                            <i class="fas fa-search"></i>
+                                        </div>
+                                        <select id="contact-source-filter">
+                                            <option value="">Todas as origens</option>
+                                            <option value="whatsapp">WhatsApp</option>
+                                            <option value="manual">Manual</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Lista de contatos -->
+                                    <div class="contacts-list" id="contacts-list">
+                                        <!-- Lista será carregada dinamicamente -->
+                                    </div>
+                                    
+                                    <!-- Paginação -->
+                                    <div class="pagination" id="contacts-pagination">
+                                        <!-- Paginação será carregada dinamicamente -->
                                     </div>
                                 </div>
                             </div>

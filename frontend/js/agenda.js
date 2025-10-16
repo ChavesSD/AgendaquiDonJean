@@ -341,8 +341,8 @@ class AgendaManager {
         // Carregar conteúdo específico da aba
         if (tabName === 'calendario') {
             this.loadCalendar();
-        } else if (tabName === 'agenda') {
-            this.loadDailyAgenda();
+        } else if (tabName === 'contatos') {
+            this.loadContacts();
         }
     }
 
@@ -640,14 +640,575 @@ class AgendaManager {
         }
     }
 
-    loadCalendar() {
-        // Implementar visualização em calendário
-        console.log('Carregando calendário...');
+    async loadCalendar() {
+        console.log('📅 Carregando calendário...');
+        
+        // Inicializar variáveis do calendário - sempre o mês atual
+        this.currentCalendarDate = new Date();
+        this.calendarAppointments = [];
+        
+        // Configurar event listeners dos botões de navegação
+        this.setupCalendarNavigation();
+        
+        // Atualizar exibição do mês atual
+        this.updateCalendarMonth();
+        
+        // Carregar agendamentos para o mês atual
+        await this.loadCalendarAppointments();
+        
+        // Renderizar calendário
+        this.renderCalendar();
+    }
+    
+    setupCalendarNavigation() {
+        // Botão mês anterior
+        const prevBtn = document.getElementById('prev-month');
+        if (prevBtn) {
+            prevBtn.onclick = () => {
+                this.currentCalendarDate.setMonth(this.currentCalendarDate.getMonth() - 1);
+                this.updateCalendarMonth();
+                this.loadCalendarAppointments();
+                this.renderCalendar();
+            };
+        }
+        
+        // Botão próximo mês
+        const nextBtn = document.getElementById('next-month');
+        if (nextBtn) {
+            nextBtn.onclick = () => {
+                this.currentCalendarDate.setMonth(this.currentCalendarDate.getMonth() + 1);
+                this.updateCalendarMonth();
+                this.loadCalendarAppointments();
+                this.renderCalendar();
+            };
+        }
+    }
+    
+    updateCalendarMonth() {
+        const monthNames = [
+            'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+        ];
+        
+        const monthElement = document.getElementById('current-month');
+        if (monthElement) {
+            monthElement.textContent = `${monthNames[this.currentCalendarDate.getMonth()]} ${this.currentCalendarDate.getFullYear()}`;
+        }
+    }
+    
+    async loadCalendarAppointments() {
+        try {
+            const startDate = new Date(this.currentCalendarDate.getFullYear(), this.currentCalendarDate.getMonth(), 1);
+            const endDate = new Date(this.currentCalendarDate.getFullYear(), this.currentCalendarDate.getMonth() + 1, 0);
+            
+            const token = localStorage.getItem('authToken');
+            const response = await fetch(`/api/appointments?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                this.calendarAppointments = data.appointments || [];
+                console.log(`📋 Agendamentos carregados para o calendário: ${this.calendarAppointments.length}`);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar agendamentos para o calendário:', error);
+            this.calendarAppointments = [];
+        }
+    }
+    
+    renderCalendar() {
+        const container = document.getElementById('calendar-container');
+        if (!container) return;
+        
+        const year = this.currentCalendarDate.getFullYear();
+        const month = this.currentCalendarDate.getMonth();
+        
+        // Primeiro dia do mês
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const startDate = new Date(firstDay);
+        startDate.setDate(startDate.getDate() - firstDay.getDay());
+        
+        // Nomes dos dias da semana
+        const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+        
+        // Criar HTML do calendário
+        let calendarHTML = `
+            <div class="calendar-grid">
+                ${dayNames.map(day => `<div class="calendar-header">${day}</div>`).join('')}
+        `;
+        
+        // Gerar dias do calendário (6 semanas)
+        for (let week = 0; week < 6; week++) {
+            for (let day = 0; day < 7; day++) {
+                const currentDate = new Date(startDate);
+                currentDate.setDate(startDate.getDate() + (week * 7) + day);
+                
+                const dayNumber = currentDate.getDate();
+                const isCurrentMonth = currentDate.getMonth() === month;
+                const isToday = this.isToday(currentDate);
+                const appointments = this.getAppointmentsForDate(currentDate);
+                
+                let dayClasses = 'calendar-day';
+                if (!isCurrentMonth) dayClasses += ' other-month';
+                if (isToday) dayClasses += ' today';
+                if (appointments.length > 0) dayClasses += ' has-appointments';
+                
+                const appointmentCount = appointments.length;
+                const appointmentDetails = this.getAppointmentDetailsByProfessional(appointments);
+                
+                calendarHTML += `
+                    <div class="${dayClasses}" 
+                         data-date="${currentDate.toISOString().split('T')[0]}"
+                         data-appointments="${appointmentCount}"
+                         data-appointment-details="${appointmentDetails}">
+                        <div class="calendar-day-number">${dayNumber}</div>
+                        ${appointmentCount > 0 ? `<div class="calendar-appointments">${appointmentCount} agendamento${appointmentCount > 1 ? 's' : ''}</div>` : ''}
+                    </div>
+                `;
+            }
+        }
+        
+        calendarHTML += '</div>';
+        
+        container.innerHTML = calendarHTML;
+        
+        // Adicionar tooltip personalizado
+        this.setupCalendarTooltips();
+        
+        // Adicionar funcionalidade de clique nos dias
+        this.setupCalendarDayClicks();
+    }
+    
+    getAppointmentsForDate(date) {
+        const dateStr = date.toISOString().split('T')[0];
+        return this.calendarAppointments.filter(apt => {
+            const aptDate = new Date(apt.date).toISOString().split('T')[0];
+            return aptDate === dateStr;
+        });
+    }
+    
+    getAppointmentDetailsByProfessional(appointments) {
+        if (appointments.length === 0) return '';
+        
+        const professionalCounts = {};
+        appointments.forEach(apt => {
+            const professionalName = apt.professional ? 
+                `${apt.professional.firstName} ${apt.professional.lastName}` : 
+                'Profissional não encontrado';
+            
+            professionalCounts[professionalName] = (professionalCounts[professionalName] || 0) + 1;
+        });
+        
+        return Object.entries(professionalCounts)
+            .map(([name, count]) => `${name}: ${count} agendamento${count > 1 ? 's' : ''}`)
+            .join('\n');
+    }
+    
+    isToday(date) {
+        const today = new Date();
+        return date.toDateString() === today.toDateString();
+    }
+    
+    setupCalendarTooltips() {
+        const calendarDays = document.querySelectorAll('.calendar-day[data-appointments]');
+        
+        calendarDays.forEach(day => {
+            const appointmentCount = parseInt(day.dataset.appointments);
+            
+            if (appointmentCount > 0) {
+                day.addEventListener('mouseenter', (e) => {
+                    const appointmentDetails = day.dataset.appointmentDetails;
+                    this.showCalendarTooltip(e, appointmentDetails, appointmentCount);
+                });
+                
+                day.addEventListener('mousemove', (e) => {
+                    if (this.currentTooltip) {
+                        this.updateTooltipPosition(e);
+                    }
+                });
+                
+                day.addEventListener('mouseleave', () => {
+                    this.hideCalendarTooltip();
+                });
+            }
+        });
+    }
+    
+    showCalendarTooltip(event, content, appointmentCount) {
+        // Remover tooltip anterior se existir
+        this.hideCalendarTooltip();
+        
+        const tooltip = document.createElement('div');
+        tooltip.className = 'calendar-tooltip';
+        
+        // Criar HTML com o layout correto: total no topo, depois detalhes por profissional
+        const totalText = `${appointmentCount} agendamento${appointmentCount > 1 ? 's' : ''}`;
+        const detailsText = content.replace(/\n/g, '<br>');
+        
+        tooltip.innerHTML = `
+            <div class="tooltip-total">${totalText}</div>
+            <div class="tooltip-details">${detailsText}</div>
+        `;
+        
+        document.body.appendChild(tooltip);
+        
+        // Posicionar tooltip onde o mouse está
+        this.updateTooltipPosition(event);
+        
+        this.currentTooltip = tooltip;
+    }
+    
+    updateTooltipPosition(event) {
+        if (!this.currentTooltip) return;
+        
+        // Posicionar tooltip seguindo o mouse
+        const mouseX = event.clientX;
+        const mouseY = event.clientY;
+        
+        // Offset para que o tooltip não fique exatamente sobre o cursor
+        const offsetX = 10;
+        const offsetY = -10;
+        
+        this.currentTooltip.style.left = `${mouseX + offsetX}px`;
+        this.currentTooltip.style.top = `${mouseY + offsetY}px`;
+        this.currentTooltip.style.transform = 'translateY(-100%)';
+    }
+    
+    hideCalendarTooltip() {
+        if (this.currentTooltip) {
+            document.body.removeChild(this.currentTooltip);
+            this.currentTooltip = null;
+        }
+    }
+    
+    setupCalendarDayClicks() {
+        const calendarDays = document.querySelectorAll('.calendar-day[data-date]');
+        
+        calendarDays.forEach(day => {
+            day.addEventListener('click', (e) => {
+                const date = e.target.closest('.calendar-day').dataset.date;
+                const appointments = this.getAppointmentsForDate(new Date(date));
+                
+                if (appointments.length > 0) {
+                    this.showAppointmentsModal(date, appointments);
+                }
+            });
+        });
+    }
+    
+    showAppointmentsModal(date, appointments) {
+        // Criar modal para mostrar detalhes dos agendamentos
+        const modal = document.createElement('div');
+        modal.className = 'appointments-modal-overlay';
+        modal.innerHTML = `
+            <div class="appointments-modal">
+                <div class="modal-header">
+                    <h3>Agendamentos do dia ${new Date(date).toLocaleDateString('pt-BR')}</h3>
+                    <button class="modal-close" onclick="this.closest('.appointments-modal-overlay').remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ${appointments.map(apt => `
+                        <div class="appointment-item">
+                            <div class="appointment-time">${apt.time}</div>
+                            <div class="appointment-details">
+                                <div class="appointment-client">${apt.clientName} ${apt.clientLastName}</div>
+                                <div class="appointment-service">${apt.service?.name || 'Serviço não encontrado'}</div>
+                                <div class="appointment-professional">${apt.professional?.firstName} ${apt.professional?.lastName}</div>
+                                <div class="appointment-status status-${apt.status}">${this.getStatusText(apt.status)}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Fechar modal ao clicar fora
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }
+    
+    getStatusText(status) {
+        const statusMap = {
+            'pending': 'Pendente',
+            'confirmed': 'Confirmado',
+            'cancelled': 'Cancelado',
+            'completed': 'Concluído'
+        };
+        return statusMap[status] || status;
     }
 
-    loadDailyAgenda() {
-        // Implementar agenda do dia
-        console.log('Carregando agenda do dia...');
+    async loadContacts() {
+        console.log('📞 Carregando contatos...');
+        
+        // Inicializar variáveis dos contatos
+        this.contacts = [];
+        this.currentPage = 1;
+        this.contactsPerPage = 10;
+        this.contactsFilter = '';
+        this.contactsSourceFilter = '';
+        
+        // Configurar event listeners
+        this.setupContactsEventListeners();
+        
+        // Carregar contatos
+        await this.loadContactsData();
+        
+        // Renderizar contatos
+        this.renderContacts();
+    }
+    
+    setupContactsEventListeners() {
+        // Botão sincronizar WhatsApp
+        const syncBtn = document.getElementById('sync-contacts-btn');
+        if (syncBtn) {
+            syncBtn.onclick = () => this.syncWhatsAppContacts();
+        }
+        
+        // Botão adicionar contato
+        const addBtn = document.getElementById('add-contact-btn');
+        if (addBtn) {
+            addBtn.onclick = () => this.showAddContactModal();
+        }
+        
+        // Busca de contatos
+        const searchInput = document.getElementById('contact-search');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.contactsFilter = e.target.value;
+                this.currentPage = 1;
+                this.renderContacts();
+            });
+        }
+        
+        // Filtro por origem
+        const sourceFilter = document.getElementById('contact-source-filter');
+        if (sourceFilter) {
+            sourceFilter.addEventListener('change', (e) => {
+                this.contactsSourceFilter = e.target.value;
+                this.currentPage = 1;
+                this.renderContacts();
+            });
+        }
+    }
+    
+    async loadContactsData() {
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/api/contacts', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                this.contacts = data.contacts || [];
+                console.log(`📞 Contatos carregados: ${this.contacts.length}`);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar contatos:', error);
+            this.contacts = [];
+        }
+    }
+    
+    async syncWhatsAppContacts() {
+        try {
+            const syncBtn = document.getElementById('sync-contacts-btn');
+            const originalText = syncBtn.innerHTML;
+            
+            // Mostrar loading
+            syncBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sincronizando...';
+            syncBtn.disabled = true;
+            
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/api/contacts/sync-whatsapp', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log('✅ Contatos sincronizados:', data.message);
+                
+                // Recarregar contatos
+                await this.loadContactsData();
+                this.renderContacts();
+                
+                // Mostrar sucesso
+                this.showNotification('Contatos sincronizados com sucesso!', 'success');
+            } else {
+                const errorData = await response.json();
+                this.showNotification(errorData.message || 'Erro ao sincronizar contatos', 'error');
+            }
+        } catch (error) {
+            console.error('Erro ao sincronizar contatos:', error);
+            this.showNotification('Erro ao sincronizar contatos', 'error');
+        } finally {
+            // Restaurar botão
+            const syncBtn = document.getElementById('sync-contacts-btn');
+            syncBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizar WhatsApp';
+            syncBtn.disabled = false;
+        }
+    }
+    
+    renderContacts() {
+        const container = document.getElementById('contacts-list');
+        const paginationContainer = document.getElementById('contacts-pagination');
+        
+        if (!container) return;
+        
+        // Filtrar contatos
+        let filteredContacts = this.contacts.filter(contact => {
+            const matchesSearch = !this.contactsFilter || 
+                contact.name.toLowerCase().includes(this.contactsFilter.toLowerCase()) ||
+                contact.phone.includes(this.contactsFilter);
+            
+            const matchesSource = !this.contactsSourceFilter || 
+                contact.source === this.contactsSourceFilter;
+            
+            return matchesSearch && matchesSource;
+        });
+        
+        // Ordenar alfabeticamente
+        filteredContacts.sort((a, b) => a.name.localeCompare(b.name));
+        
+        // Calcular paginação
+        const totalPages = Math.ceil(filteredContacts.length / this.contactsPerPage);
+        const startIndex = (this.currentPage - 1) * this.contactsPerPage;
+        const endIndex = startIndex + this.contactsPerPage;
+        const pageContacts = filteredContacts.slice(startIndex, endIndex);
+        
+        // Renderizar contatos
+        if (pageContacts.length === 0) {
+            container.innerHTML = `
+                <div class="no-contacts">
+                    <i class="fas fa-address-book"></i>
+                    <h3>Nenhum contato encontrado</h3>
+                    <p>${this.contactsFilter ? 'Tente ajustar os filtros de busca.' : 'Adicione contatos manualmente ou sincronize com o WhatsApp.'}</p>
+                </div>
+            `;
+        } else {
+            container.innerHTML = pageContacts.map(contact => this.renderContactItem(contact)).join('');
+        }
+        
+        // Renderizar paginação
+        this.renderPagination(paginationContainer, totalPages);
+    }
+    
+    renderContactItem(contact) {
+        const initials = contact.name.split(' ').map(n => n[0]).join('').toUpperCase();
+        const sourceClass = contact.source === 'whatsapp' ? 'whatsapp' : 'manual';
+        const sourceText = contact.source === 'whatsapp' ? 'WhatsApp' : 'Manual';
+        
+        return `
+            <div class="contact-item">
+                <div class="contact-avatar">${initials}</div>
+                <div class="contact-info">
+                    <div class="contact-name">${contact.name}</div>
+                    <div class="contact-phone">${contact.phone}</div>
+                    <span class="contact-source ${sourceClass}">${sourceText}</span>
+                </div>
+                <div class="contact-actions">
+                    <button class="btn btn-sm btn-outline" onclick="agendaManager.editContact('${contact._id}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-success" onclick="agendaManager.sendWhatsAppMessage('${contact.phone}')">
+                        <i class="fab fa-whatsapp"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="agendaManager.deleteContact('${contact._id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+    
+    renderPagination(container, totalPages) {
+        if (totalPages <= 1) {
+            container.innerHTML = '';
+            return;
+        }
+        
+        let paginationHTML = '';
+        
+        // Botão anterior
+        paginationHTML += `
+            <button ${this.currentPage === 1 ? 'disabled' : ''} onclick="agendaManager.goToPage(${this.currentPage - 1})">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        `;
+        
+        // Páginas
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= this.currentPage - 2 && i <= this.currentPage + 2)) {
+                paginationHTML += `
+                    <button class="${i === this.currentPage ? 'active' : ''}" onclick="agendaManager.goToPage(${i})">
+                        ${i}
+                    </button>
+                `;
+            } else if (i === this.currentPage - 3 || i === this.currentPage + 3) {
+                paginationHTML += '<span>...</span>';
+            }
+        }
+        
+        // Botão próximo
+        paginationHTML += `
+            <button ${this.currentPage === totalPages ? 'disabled' : ''} onclick="agendaManager.goToPage(${this.currentPage + 1})">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        `;
+        
+        container.innerHTML = paginationHTML;
+    }
+    
+    goToPage(page) {
+        this.currentPage = page;
+        this.renderContacts();
+    }
+    
+    showAddContactModal() {
+        // Implementar modal para adicionar contato
+        console.log('Mostrar modal para adicionar contato');
+    }
+    
+    editContact(contactId) {
+        // Implementar edição de contato
+        console.log('Editar contato:', contactId);
+    }
+    
+    deleteContact(contactId) {
+        if (confirm('Tem certeza que deseja excluir este contato?')) {
+            // Implementar exclusão de contato
+            console.log('Excluir contato:', contactId);
+        }
+    }
+    
+    sendWhatsAppMessage(phone) {
+        // Abrir WhatsApp Web com o número
+        const cleanPhone = phone.replace(/\D/g, '');
+        const whatsappUrl = `https://wa.me/55${cleanPhone}`;
+        window.open(whatsappUrl, '_blank');
+    }
+    
+    showNotification(message, type = 'info') {
+        // Implementar sistema de notificações
+        console.log(`${type.toUpperCase()}: ${message}`);
     }
 }
 
@@ -682,7 +1243,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Inicializar quando a página carregar
 let agendaManager;
-// Comentado para inicializar apenas quando a aba for ativada
-// document.addEventListener('DOMContentLoaded', () => {
-//     agendaManager = new AgendaManager();
-// });
+document.addEventListener('DOMContentLoaded', () => {
+    agendaManager = new AgendaManager();
+    
+    // Se a aba de calendário estiver ativa, carregar o calendário
+    const calendarTab = document.getElementById('calendario-tab');
+    if (calendarTab && calendarTab.classList.contains('active')) {
+        agendaManager.loadCalendar();
+    }
+});
