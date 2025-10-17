@@ -122,11 +122,93 @@
             <div class="content-area">
                 <!-- Dashboard -->
                 <div class="page-content active" id="dashboard-page">
-                    <div class="welcome-section">
-                        <h2>Bem-vindo ao CH Studio!</h2>
-                        <p>Gerencie sua empresa de forma eficiente e profissional.</p>
+                    <div class="page-header">
+                        <h2>Dashboard</h2>
+                        <div class="date-filters">
+                            <div class="filter-group">
+                                <label for="dashboard-start-date">Data Início</label>
+                                <input type="date" id="dashboard-start-date" placeholder="dd/mm/aaaa">
+                            </div>
+                            <div class="filter-group">
+                                <label for="dashboard-end-date">Data Fim</label>
+                                <input type="date" id="dashboard-end-date" placeholder="dd/mm/aaaa">
+                            </div>
+                            <button class="btn btn-primary" id="apply-dashboard-filters">
+                                <i class="fas fa-search"></i>
+                                Filtrar
+                            </button>
+                            <button class="btn btn-secondary" id="reset-dashboard-filters">
+                                <i class="fas fa-times"></i>
+                                Limpar
+                            </button>
+                        </div>
                     </div>
-                    
+
+
+                    <!-- Gráfico de Evolução -->
+                    <div class="dashboard-chart">
+                        <div class="chart-header">
+                            <h3>Evolução de Atendimentos - Ano Atual</h3>
+                            <div class="chart-controls">
+                                <button class="btn btn-sm btn-outline" id="chart-year-view">Ano</button>
+                                <button class="btn btn-sm btn-outline active" id="chart-month-view">Mês</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="appointmentsChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Grid de Conteúdo -->
+                    <div class="dashboard-grid">
+                        <!-- Últimos Agendamentos -->
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3>Últimos Agendamentos</h3>
+                                <a href="#agenda" class="btn btn-sm btn-outline">Ver Todos</a>
+                            </div>
+                            <div class="card-content">
+                                <div class="appointments-list" id="recent-appointments">
+                                    <div class="loading-state">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                        <p>Carregando agendamentos...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ranking de Serviços -->
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3>Top 5 Serviços</h3>
+                                <span class="card-subtitle">Mais solicitados</span>
+                            </div>
+                            <div class="card-content">
+                                <div class="ranking-list" id="top-services">
+                                    <div class="loading-state">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                        <p>Carregando serviços...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ranking de Profissionais -->
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3>Top 5 Profissionais</h3>
+                                <span class="card-subtitle">Mais ativos</span>
+                            </div>
+                            <div class="card-content">
+                                <div class="ranking-list" id="top-professionals">
+                                    <div class="loading-state">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                        <p>Carregando profissionais...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Agenda -->

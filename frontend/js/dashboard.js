@@ -1316,3 +1316,578 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// ==================== DASHBOARD FUNCTIONALITY ====================
+
+class DashboardManager {
+    constructor() {
+        this.chart = null;
+        this.currentView = 'month'; // 'month' ou 'year'
+        this.currentFilters = {
+            startDate: null,
+            endDate: null
+        };
+        
+        this.init();
+    }
+
+    init() {
+        this.setupEventListeners();
+        this.setDefaultDates();
+        this.loadDashboardData();
+    }
+
+    setupEventListeners() {
+        // Filtros de data
+        document.getElementById('apply-dashboard-filters')?.addEventListener('click', () => {
+            this.applyFilters();
+        });
+
+        document.getElementById('reset-dashboard-filters')?.addEventListener('click', () => {
+            this.resetFilters();
+        });
+
+        // Controles do gráfico
+        document.getElementById('chart-month-view')?.addEventListener('click', () => {
+            this.switchChartView('month');
+        });
+
+        document.getElementById('chart-year-view')?.addEventListener('click', () => {
+            this.switchChartView('year');
+        });
+    }
+
+    setDefaultDates() {
+        const today = new Date();
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+        document.getElementById('dashboard-start-date').value = this.formatDateForInput(firstDayOfMonth);
+        document.getElementById('dashboard-end-date').value = this.formatDateForInput(lastDayOfMonth);
+
+        this.currentFilters.startDate = firstDayOfMonth;
+        this.currentFilters.endDate = lastDayOfMonth;
+    }
+
+    formatDateForInput(date) {
+        return date.toISOString().split('T')[0];
+    }
+
+    async applyFilters() {
+        const startDate = document.getElementById('dashboard-start-date').value;
+        const endDate = document.getElementById('dashboard-end-date').value;
+
+        if (!startDate || !endDate) {
+            this.showNotification('Por favor, selecione as datas de início e fim', 'error');
+            return;
+        }
+
+        this.currentFilters.startDate = new Date(startDate);
+        this.currentFilters.endDate = new Date(endDate);
+
+        await this.loadDashboardData();
+        this.showNotification('Filtros aplicados com sucesso!', 'success');
+    }
+
+    resetFilters() {
+        this.setDefaultDates();
+        this.loadDashboardData();
+        this.showNotification('Filtros resetados', 'info');
+    }
+
+    async loadDashboardData() {
+        try {
+            await Promise.all([
+                this.loadRecentAppointments(),
+                this.loadTopServices(),
+                this.loadTopProfessionals(),
+                this.loadChartData()
+            ]);
+        } catch (error) {
+            console.error('Erro ao carregar dados do dashboard:', error);
+            this.showNotification('Erro ao carregar dados do dashboard', 'error');
+        }
+    }
+
+
+    async loadRecentAppointments() {
+        try {
+            const token = localStorage.getItem('authToken');
+            const startDate = this.formatDateForInput(this.currentFilters.startDate);
+            const endDate = this.formatDateForInput(this.currentFilters.endDate);
+
+            const response = await fetch(`/api/appointments?startDate=${startDate}&endDate=${endDate}&limit=5&sort=-createdAt`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const appointments = data.appointments || [];
+                this.renderRecentAppointments(appointments);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar agendamentos recentes:', error);
+            this.showErrorState('recent-appointments', 'Erro ao carregar agendamentos');
+        }
+    }
+
+    renderRecentAppointments(appointments) {
+        const container = document.getElementById('recent-appointments');
+        
+        if (appointments.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-calendar-times"></i>
+                    <p>Nenhum agendamento encontrado</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = appointments.map(appointment => `
+            <div class="appointment-item">
+                <div class="appointment-info">
+                    <div class="appointment-client">
+                        <strong>${appointment.clientName}</strong>
+                        <span class="appointment-service">${appointment.service?.name || 'Serviço não definido'}</span>
+                    </div>
+                    <div class="appointment-details">
+                        <span class="appointment-date">${this.formatDate(appointment.date)}</span>
+                        <span class="appointment-time">${appointment.time}</span>
+                    </div>
+                </div>
+                <div class="appointment-status">
+                    <span class="status-badge status-${appointment.status}">
+                        ${this.getStatusText(appointment.status)}
+                    </span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async loadTopServices() {
+        try {
+            const token = localStorage.getItem('authToken');
+            const startDate = this.formatDateForInput(this.currentFilters.startDate);
+            const endDate = this.formatDateForInput(this.currentFilters.endDate);
+
+            const response = await fetch(`/api/services/stats?startDate=${startDate}&endDate=${endDate}&limit=5`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                this.renderTopServices(data.services || []);
+            } else {
+                // Fallback: buscar serviços e contar manualmente
+                await this.loadTopServicesFallback();
+            }
+        } catch (error) {
+            console.error('Erro ao carregar top serviços:', error);
+            await this.loadTopServicesFallback();
+        }
+    }
+
+    async loadTopServicesFallback() {
+        try {
+            const token = localStorage.getItem('authToken');
+            const startDate = this.formatDateForInput(this.currentFilters.startDate);
+            const endDate = this.formatDateForInput(this.currentFilters.endDate);
+
+            const [servicesResponse, appointmentsResponse] = await Promise.all([
+                fetch('/api/services', { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch(`/api/appointments?startDate=${startDate}&endDate=${endDate}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })
+            ]);
+
+            if (servicesResponse.ok && appointmentsResponse.ok) {
+                const servicesData = await servicesResponse.json();
+                const appointmentsData = await appointmentsResponse.json();
+                
+                const services = servicesData.services || [];
+                const appointments = appointmentsData.appointments || [];
+
+                // Contar serviços
+                const serviceCounts = {};
+                appointments.forEach(apt => {
+                    if (apt.service && apt.service._id) {
+                        serviceCounts[apt.service._id] = (serviceCounts[apt.service._id] || 0) + 1;
+                    }
+                });
+
+                // Criar ranking
+                const topServices = services
+                    .map(service => ({
+                        ...service,
+                        count: serviceCounts[service._id] || 0
+                    }))
+                    .sort((a, b) => b.count - a.count)
+                    .slice(0, 5);
+
+                this.renderTopServices(topServices);
+            }
+        } catch (error) {
+            console.error('Erro no fallback de serviços:', error);
+            this.showErrorState('top-services', 'Erro ao carregar serviços');
+        }
+    }
+
+    renderTopServices(services) {
+        const container = document.getElementById('top-services');
+        
+        if (services.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-cogs"></i>
+                    <p>Nenhum serviço encontrado</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = services.map((service, index) => `
+            <div class="ranking-item">
+                <div class="ranking-position">
+                    <span class="position-number">${index + 1}</span>
+                </div>
+                <div class="ranking-info">
+                    <div class="ranking-name">${service.name}</div>
+                    <div class="ranking-details">
+                        <span class="ranking-count">${service.count} agendamentos</span>
+                        <span class="ranking-price">R$ ${service.price?.toFixed(2) || '0,00'}</span>
+                    </div>
+                </div>
+                <div class="ranking-icon">
+                    <i class="fas fa-cog"></i>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async loadTopProfessionals() {
+        try {
+            const token = localStorage.getItem('authToken');
+            const startDate = this.formatDateForInput(this.currentFilters.startDate);
+            const endDate = this.formatDateForInput(this.currentFilters.endDate);
+
+            const response = await fetch(`/api/professionals/stats?startDate=${startDate}&endDate=${endDate}&limit=5`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                this.renderTopProfessionals(data.professionals || []);
+            } else {
+                // Fallback: buscar profissionais e contar manualmente
+                await this.loadTopProfessionalsFallback();
+            }
+        } catch (error) {
+            console.error('Erro ao carregar top profissionais:', error);
+            await this.loadTopProfessionalsFallback();
+        }
+    }
+
+    async loadTopProfessionalsFallback() {
+        try {
+            const token = localStorage.getItem('authToken');
+            const startDate = this.formatDateForInput(this.currentFilters.startDate);
+            const endDate = this.formatDateForInput(this.currentFilters.endDate);
+
+            const [professionalsResponse, appointmentsResponse] = await Promise.all([
+                fetch('/api/professionals', { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch(`/api/appointments?startDate=${startDate}&endDate=${endDate}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })
+            ]);
+
+            if (professionalsResponse.ok && appointmentsResponse.ok) {
+                const professionalsData = await professionalsResponse.json();
+                const appointmentsData = await appointmentsResponse.json();
+                
+                const professionals = professionalsData.professionals || [];
+                const appointments = appointmentsData.appointments || [];
+
+                // Contar profissionais
+                const professionalCounts = {};
+                appointments.forEach(apt => {
+                    if (apt.professional && apt.professional._id) {
+                        professionalCounts[apt.professional._id] = (professionalCounts[apt.professional._id] || 0) + 1;
+                    }
+                });
+
+                // Criar ranking
+                const topProfessionals = professionals
+                    .map(professional => ({
+                        ...professional,
+                        count: professionalCounts[professional._id] || 0
+                    }))
+                    .sort((a, b) => b.count - a.count)
+                    .slice(0, 5);
+
+                this.renderTopProfessionals(topProfessionals);
+            }
+        } catch (error) {
+            console.error('Erro no fallback de profissionais:', error);
+            this.showErrorState('top-professionals', 'Erro ao carregar profissionais');
+        }
+    }
+
+    renderTopProfessionals(professionals) {
+        const container = document.getElementById('top-professionals');
+        
+        if (professionals.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <p>Nenhum profissional encontrado</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = professionals.map((professional, index) => `
+            <div class="ranking-item">
+                <div class="ranking-position">
+                    <span class="position-number">${index + 1}</span>
+                </div>
+                <div class="ranking-info">
+                    <div class="ranking-name">${professional.firstName} ${professional.lastName}</div>
+                    <div class="ranking-details">
+                        <span class="ranking-count">${professional.count} atendimentos</span>
+                        <span class="ranking-specialty">${professional.specialty || 'Geral'}</span>
+                    </div>
+                </div>
+                <div class="ranking-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async loadChartData() {
+        try {
+            const token = localStorage.getItem('authToken');
+            const currentYear = new Date().getFullYear();
+            
+            let startDate, endDate;
+            if (this.currentView === 'year') {
+                startDate = new Date(currentYear, 0, 1);
+                endDate = new Date(currentYear, 11, 31);
+            } else {
+                startDate = new Date(currentYear, 0, 1);
+                endDate = new Date();
+            }
+
+            const response = await fetch(`/api/appointments?startDate=${this.formatDateForInput(startDate)}&endDate=${this.formatDateForInput(endDate)}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const appointments = data.appointments || [];
+                this.renderChart(appointments);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar dados do gráfico:', error);
+        }
+    }
+
+    renderChart(appointments) {
+        const ctx = document.getElementById('appointmentsChart');
+        if (!ctx) return;
+
+        // Destruir gráfico anterior se existir
+        if (this.chart) {
+            this.chart.destroy();
+        }
+
+        const chartData = this.prepareChartData(appointments);
+        
+        this.chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    label: 'Atendimentos',
+                    data: chartData.data,
+                    borderColor: '#975756',
+                    backgroundColor: 'rgba(151, 87, 86, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#975756',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 2000,
+                    easing: 'easeInOutQuart'
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#975756',
+                        borderWidth: 1,
+                        cornerRadius: 8
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        ticks: {
+                            stepSize: 1
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
+    }
+
+    prepareChartData(appointments) {
+        const data = {};
+        const labels = [];
+        
+        if (this.currentView === 'year') {
+            // Dados por mês
+            for (let i = 0; i < 12; i++) {
+                const month = new Date(new Date().getFullYear(), i, 1);
+                const monthKey = month.toISOString().substring(0, 7); // YYYY-MM
+                data[monthKey] = 0;
+                labels.push(month.toLocaleDateString('pt-BR', { month: 'short' }));
+            }
+        } else {
+            // Dados por dia do mês atual
+            const today = new Date();
+            const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+            
+            for (let i = 1; i <= daysInMonth; i++) {
+                const day = new Date(today.getFullYear(), today.getMonth(), i);
+                const dayKey = day.toISOString().substring(0, 10); // YYYY-MM-DD
+                data[dayKey] = 0;
+                labels.push(i.toString());
+            }
+        }
+
+        // Contar agendamentos
+        appointments.forEach(appointment => {
+            const appointmentDate = new Date(appointment.date);
+            let key;
+            
+            if (this.currentView === 'year') {
+                key = appointmentDate.toISOString().substring(0, 7);
+            } else {
+                key = appointmentDate.toISOString().substring(0, 10);
+            }
+            
+            if (data.hasOwnProperty(key)) {
+                data[key]++;
+            }
+        });
+
+        return {
+            labels: labels,
+            data: Object.values(data)
+        };
+    }
+
+    switchChartView(view) {
+        this.currentView = view;
+        
+        // Atualizar botões
+        document.querySelectorAll('.chart-controls .btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.getElementById(`chart-${view}-view`).classList.add('active');
+        
+        // Recarregar dados do gráfico
+        this.loadChartData();
+    }
+
+    formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('pt-BR');
+    }
+
+    getStatusText(status) {
+        const statusMap = {
+            'pending': 'Pendente',
+            'confirmed': 'Confirmado',
+            'cancelled': 'Cancelado',
+            'completed': 'Finalizado'
+        };
+        return statusMap[status] || status;
+    }
+
+    showErrorState(containerId, message) {
+        const container = document.getElementById(containerId);
+        if (container) {
+            container.innerHTML = `
+                <div class="error-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+    }
+
+    showNotification(message, type = 'info') {
+        // Usar a função de notificação existente se disponível
+        if (window.showNotification) {
+            window.showNotification(message, type);
+        } else {
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+    }
+}
+
+// Inicializar Dashboard Manager quando a página carregar
+let dashboardManager = null;
+
+// Função para inicializar o dashboard
+function initDashboard() {
+    if (!dashboardManager) {
+        dashboardManager = new DashboardManager();
+    }
+}
+
+// Inicializar quando a página dashboard for ativada
+document.addEventListener('DOMContentLoaded', () => {
+    // Verificar se estamos na página dashboard
+    const dashboardPage = document.getElementById('dashboard-page');
+    if (dashboardPage && dashboardPage.classList.contains('active')) {
+        initDashboard();
+    }
+});
+
+// Inicializar quando navegar para o dashboard
+document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-page="dashboard"]')) {
+        setTimeout(() => {
+            initDashboard();
+        }, 100);
+    }
+});

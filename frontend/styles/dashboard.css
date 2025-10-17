@@ -5718,3 +5718,388 @@ body {
     }
 }
 
+/* ==================== DASHBOARD SPECIFIC STYLES ==================== */
+
+/* Gráfico do Dashboard */
+.dashboard-chart {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(151, 87, 86, 0.1);
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-chart::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #975756, #7a4443);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.chart-header h3 {
+    color: #1f2937;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.chart-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.chart-controls .btn {
+    padding: 8px 16px;
+    border: 2px solid #e5e7eb;
+    background: white;
+    color: #6b7280;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.chart-controls .btn.active,
+.chart-controls .btn:hover {
+    border-color: #975756;
+    background: #975756;
+    color: white;
+}
+
+.chart-container {
+    height: 400px;
+    position: relative;
+}
+
+/* Grid do Dashboard */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+}
+
+.dashboard-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(151, 87, 86, 0.1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.dashboard-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #975756, #7a4443);
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    padding: 20px 25px 16px;
+    border-bottom: 1px solid rgba(151, 87, 86, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header h3 {
+    color: #2c3e50;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.card-subtitle {
+    color: #6c757d;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.card-content {
+    padding: 20px 25px 25px;
+}
+
+/* Lista de Agendamentos */
+.appointments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.appointment-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: rgba(151, 87, 86, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(151, 87, 86, 0.1);
+    transition: all 0.3s ease;
+}
+
+.appointment-item:hover {
+    background: rgba(151, 87, 86, 0.1);
+    border-color: rgba(151, 87, 86, 0.2);
+}
+
+.appointment-info {
+    flex: 1;
+}
+
+.appointment-client {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.appointment-client strong {
+    color: #2c3e50;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.appointment-service {
+    color: #6c757d;
+    font-size: 12px;
+}
+
+.appointment-details {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.appointment-date,
+.appointment-time {
+    color: #6c757d;
+    font-size: 12px;
+    background: rgba(151, 87, 86, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-confirmed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-completed {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+/* Rankings */
+.ranking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ranking-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: rgba(151, 87, 86, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(151, 87, 86, 0.1);
+    transition: all 0.3s ease;
+}
+
+.ranking-item:hover {
+    background: rgba(151, 87, 86, 0.1);
+    border-color: rgba(151, 87, 86, 0.2);
+}
+
+.ranking-position {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: white;
+    background: linear-gradient(135deg, #975756, #7a4443);
+}
+
+.ranking-info {
+    flex: 1;
+}
+
+.ranking-name {
+    color: #2c3e50;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.ranking-details {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+}
+
+.ranking-count {
+    color: #6c757d;
+    background: rgba(151, 87, 86, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.ranking-price {
+    color: #059669;
+    font-weight: 600;
+}
+
+.ranking-specialty {
+    color: #6c757d;
+    font-style: italic;
+}
+
+.ranking-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(151, 87, 86, 0.1);
+    color: #6c757d;
+    font-size: 14px;
+}
+
+/* Estados de Loading e Vazio */
+.loading-state,
+.empty-state,
+.error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    color: #6c757d;
+}
+
+.loading-state i,
+.empty-state i,
+.error-state i {
+    font-size: 32px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+}
+
+.loading-state i {
+    color: #975756;
+}
+
+.empty-state i {
+    color: #9ca3af;
+}
+
+.error-state i {
+    color: #ef4444;
+}
+
+.loading-state p,
+.empty-state p,
+.error-state p {
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-filters {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+    
+    .filter-group {
+        width: 100%;
+    }
+    
+    .stats-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .chart-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+    
+    .chart-controls {
+        justify-content: center;
+    }
+    
+    .appointment-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    
+    .appointment-details {
+        justify-content: space-between;
+    }
+}
+
