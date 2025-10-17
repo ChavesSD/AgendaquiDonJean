@@ -1622,7 +1622,17 @@ class DashboardManager {
                 // A nova API retorna { professional: {...}, count: number }
                 const professionals = data.professionals || [];
                 console.log('👥 Profissionais encontrados:', professionals.length);
-                this.renderTopProfessionals(professionals);
+                
+                // Filtrar apenas profissionais que têm agendamentos (count > 0)
+                const professionalsWithAppointments = professionals.filter(item => item.count > 0);
+                console.log('👥 Profissionais com agendamentos:', professionalsWithAppointments.length);
+                
+                if (professionalsWithAppointments.length > 0) {
+                    this.renderTopProfessionals(professionalsWithAppointments);
+                } else {
+                    console.log('📭 Nenhum profissional com agendamentos encontrado');
+                    this.showNoProfessionalsState();
+                }
             } else {
                 console.log('⚠️ API principal falhou, usando fallback...');
                 // Fallback: buscar profissionais e contar manualmente
@@ -1674,17 +1684,24 @@ class DashboardManager {
 
                 console.log('📊 Contagem por profissional:', professionalCounts);
 
-                // Criar ranking
+                // Criar ranking - só mostrar profissionais que têm agendamentos
                 const topProfessionals = professionals
                     .map(professional => ({
                         professional,
                         count: professionalCounts[professional._id] || 0
                     }))
+                    .filter(item => item.count > 0) // Só profissionais com agendamentos
                     .sort((a, b) => b.count - a.count)
                     .slice(0, 5);
 
                 console.log('🏆 Top profissionais (fallback):', topProfessionals);
-                this.renderTopProfessionals(topProfessionals);
+                
+                if (topProfessionals.length > 0) {
+                    this.renderTopProfessionals(topProfessionals);
+                } else {
+                    console.log('📭 Nenhum profissional com agendamentos encontrado (fallback)');
+                    this.showNoProfessionalsState();
+                }
             } else {
                 console.error('❌ Falha nas requisições de fallback');
                 this.showErrorState('top-professionals', 'Erro ao carregar profissionais');
@@ -2031,6 +2048,18 @@ class DashboardManager {
                 <div class="error-state">
                     <i class="fas fa-exclamation-triangle"></i>
                     <p>${message}</p>
+                </div>
+            `;
+        }
+    }
+
+    showNoProfessionalsState() {
+        const container = document.getElementById('top-professionals');
+        if (container) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <p>Nenhum profissional encontrado</p>
                 </div>
             `;
         }
