@@ -294,6 +294,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inicializar gerenciamento de usuários
     initUserManagement();
 
+    // Inicializar AgendaManager se não estiver disponível
+    if (typeof AgendaManager !== 'undefined' && !window.agendaManager) {
+        console.log('🆕 Inicializando AgendaManager no dashboard...');
+        window.agendaManager = new AgendaManager();
+    }
+
     // Adicionar efeitos visuais
     addVisualEffects();
 
@@ -434,6 +440,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else {
                         console.error('❌ AgendaManager não está definido');
                     }
+                }
+                
+                // Garantir que o AgendaManager esteja sempre disponível
+                if (!window.agendaManager && typeof AgendaManager !== 'undefined') {
+                    console.log('🆕 Criando AgendaManager global...');
+                    window.agendaManager = new AgendaManager();
                 }
             });
         });

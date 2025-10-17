@@ -37,8 +37,20 @@ class WhatsAppService {
                     '--no-first-run',
                     '--no-zygote',
                     '--single-process',
-                    '--disable-gpu'
-                ]
+                    '--disable-gpu',
+                    '--disable-web-security',
+                    '--disable-features=VizDisplayCompositor',
+                    '--disable-extensions',
+                    '--disable-plugins',
+                    '--disable-images',
+                    '--disable-javascript',
+                    '--disable-default-apps',
+                    '--disable-background-timer-throttling',
+                    '--disable-backgrounding-occluded-windows',
+                    '--disable-renderer-backgrounding'
+                ],
+                timeout: 60000,
+                protocolTimeout: 60000
             }
         });
 
@@ -165,8 +177,20 @@ class WhatsAppService {
                         '--no-first-run',
                         '--no-zygote',
                         '--single-process',
-                        '--disable-gpu'
-                    ]
+                        '--disable-gpu',
+                        '--disable-web-security',
+                        '--disable-features=VizDisplayCompositor',
+                        '--disable-extensions',
+                        '--disable-plugins',
+                        '--disable-images',
+                        '--disable-javascript',
+                        '--disable-default-apps',
+                        '--disable-background-timer-throttling',
+                        '--disable-backgrounding-occluded-windows',
+                        '--disable-renderer-backgrounding'
+                    ],
+                    timeout: 60000,
+                    protocolTimeout: 60000
                 }
             });
 
@@ -266,36 +290,94 @@ class WhatsAppService {
         };
     }
 
-    // Enviar mensagem
-    async sendMessage(number, message) {
+    // Enviar mensagem com retry automático
+    async sendMessage(number, message, retryCount = 0) {
         try {
+            console.log('🚀 Iniciando envio de mensagem...');
+            console.log('📱 Número recebido:', number);
+            console.log('💬 Mensagem recebida:', message);
+            console.log('🔗 Status da conexão:', this.isConnected);
+            console.log('📊 Status geral:', this.status);
+            
             // Aguardar WhatsApp estar pronto
+            console.log('⏳ Aguardando WhatsApp estar pronto...');
             await this.waitForReady();
+            console.log('✅ WhatsApp está pronto!');
 
             if (!this.isConnected) {
+                console.log('❌ WhatsApp não está conectado');
                 return { success: false, message: 'WhatsApp não está conectado' };
             }
+
+            // Verificar se o WhatsApp está realmente funcionando
+            console.log('🔍 Verificando funcionalidade do WhatsApp...');
+            const functionalityCheck = await this.verifyWhatsAppFunctionality();
+            if (!functionalityCheck.success) {
+                console.log('❌ WhatsApp não está funcionando corretamente:', functionalityCheck.message);
+                return { success: false, message: functionalityCheck.message };
+            }
+            console.log('✅ WhatsApp está funcionando corretamente');
 
             // Formatar número corretamente
             const formattedNumber = this.formatPhoneNumber(number);
             const chatId = `${formattedNumber}@c.us`;
             
-            console.log(`Enviando mensagem para: ${chatId}`);
-            console.log(`Mensagem: ${message}`);
+            console.log(`📞 Número formatado: ${formattedNumber}`);
+            console.log(`💬 Chat ID: ${chatId}`);
+            console.log(`📝 Mensagem a ser enviada: ${message}`);
             
             // Aguardar um pouco para garantir que o WhatsApp está estável
+            console.log('⏳ Aguardando estabilidade do WhatsApp...');
             await new Promise(resolve => setTimeout(resolve, 1000));
             
             // Verificar se o chat existe antes de enviar
-            const isRegistered = await this.client.isRegisteredUser(chatId);
+            console.log('🔍 Verificando se o número está registrado no WhatsApp...');
+            let isRegistered = false;
+            try {
+                isRegistered = await this.client.isRegisteredUser(chatId);
+                console.log('📋 Número registrado:', isRegistered);
+            } catch (registrationError) {
+                console.log('⚠️ Erro ao verificar registro, tentando enviar mesmo assim:', registrationError.message);
+                // Se der erro na verificação, tenta enviar mesmo assim
+                isRegistered = true;
+            }
+            
             if (!isRegistered) {
+                console.log('❌ Número não está registrado no WhatsApp');
                 return { 
                     success: false, 
                     message: `Número ${formattedNumber} não está registrado no WhatsApp` 
                 };
             }
             
+            console.log('📤 Enviando mensagem via WhatsApp...');
+            
+            // Aguardar um pouco mais para garantir estabilidade
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
             const result = await this.client.sendMessage(chatId, message);
+            console.log('✅ Mensagem enviada com sucesso!');
+            console.log('🆔 ID da mensagem:', result.id._serialized);
+            
+            // Aguardar um pouco para verificar se a mensagem foi realmente entregue
+            console.log('⏳ Aguardando confirmação de entrega...');
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+            // Tentar verificar se a mensagem foi entregue
+            try {
+                const chat = await this.client.getChatById(chatId);
+                const messages = await chat.fetchMessages({ limit: 1 });
+                if (messages.length > 0) {
+                    const lastMessage = messages[0];
+                    console.log('📨 Última mensagem no chat:', {
+                        id: lastMessage.id._serialized,
+                        body: lastMessage.body?.substring(0, 50) + '...',
+                        fromMe: lastMessage.fromMe
+                    });
+                }
+            } catch (chatError) {
+                console.log('⚠️ Não foi possível verificar entrega:', chatError.message);
+            }
             
             return { 
                 success: true, 
@@ -303,7 +385,38 @@ class WhatsAppService {
                 messageId: result.id._serialized
             };
         } catch (error) {
-            console.error('Erro ao enviar mensagem:', error);
+            console.error('❌ Erro ao enviar mensagem:', error);
+            console.error('📊 Detalhes do erro:', {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            });
+            
+            // Tratamento específico para erro de chat não encontrado
+            if (error.message.includes('findChat: new chat not found')) {
+                console.log('🔍 Erro específico: Chat não encontrado');
+                return { 
+                    success: false, 
+                    message: 'Número não encontrado no WhatsApp. Verifique se o número está correto e se a pessoa tem WhatsApp instalado.' 
+                };
+            }
+            
+            // Tratamento específico para erro de número não registrado
+            if (error.message.includes('not registered')) {
+                console.log('🔍 Erro específico: Número não registrado');
+                return { 
+                    success: false, 
+                    message: 'Número não está registrado no WhatsApp.' 
+                };
+            }
+            
+            // Tentar novamente se ainda não excedeu o limite de tentativas
+            if (retryCount < 2) {
+                console.log(`🔄 Tentativa ${retryCount + 1} falhou, tentando novamente em 5 segundos...`);
+                await new Promise(resolve => setTimeout(resolve, 5000));
+                return await this.sendMessage(number, message, retryCount + 1);
+            }
+            
             return { success: false, message: 'Erro ao enviar mensagem: ' + error.message };
         }
     }
@@ -359,24 +472,55 @@ class WhatsAppService {
 
     // Formatar número de telefone para WhatsApp
     formatPhoneNumber(phoneNumber) {
+        console.log('📞 Número original recebido:', phoneNumber);
+        
         // Remove todos os caracteres não numéricos
         let cleaned = phoneNumber.replace(/\D/g, '');
+        console.log('🧹 Número limpo:', cleaned);
         
-        // Se começar com 55 (Brasil), mantém
-        if (cleaned.startsWith('55')) {
-            return cleaned;
-        }
-        
-        // Se começar com 0, remove o 0 e adiciona 55
+        // Se começar com 0, remove o 0
         if (cleaned.startsWith('0')) {
             cleaned = cleaned.substring(1);
+            console.log('🔧 Removido 0 inicial:', cleaned);
         }
         
-        // Se não começar com 55, adiciona
+        // Se não começar com 55, adiciona código do Brasil
         if (!cleaned.startsWith('55')) {
             cleaned = '55' + cleaned;
+            console.log('🌍 Adicionado código do país:', cleaned);
         }
         
+        // Lógica específica para números brasileiros
+        if (cleaned.startsWith('55')) {
+            // Remove o código do país para análise
+            const withoutCountryCode = cleaned.substring(2);
+            console.log('🇧🇷 Número sem código do país:', withoutCountryCode);
+            
+            // Verifica se é um número de celular brasileiro
+            if (withoutCountryCode.length === 11) {
+                // Número com 11 dígitos - pode ser DDD + 9 + 8 dígitos (formato antigo)
+                // Verifica se o terceiro dígito é 9 (DDD + 9 + número)
+                if (withoutCountryCode.charAt(2) === '9') {
+                    // Remove o 9 adicional (terceiro dígito)
+                    const ddd = withoutCountryCode.substring(0, 2);
+                    const number = withoutCountryCode.substring(3);
+                    cleaned = '55' + ddd + number;
+                    console.log('📱 Removido 9 adicional do celular:', cleaned);
+                } else {
+                    console.log('✅ Número com 11 dígitos já no formato correto:', cleaned);
+                }
+            } else if (withoutCountryCode.length === 10) {
+                // Número com 10 dígitos (formato correto: DDD + 8 dígitos)
+                console.log('✅ Número já no formato correto:', cleaned);
+            } else if (withoutCountryCode.length === 8) {
+                // Número com 8 dígitos (apenas o número local)
+                console.log('✅ Número local (8 dígitos):', cleaned);
+            } else {
+                console.log('⚠️ Número com formato inesperado:', withoutCountryCode);
+            }
+        }
+        
+        console.log('📱 Número final formatado:', cleaned);
         return cleaned;
     }
 
@@ -384,20 +528,29 @@ class WhatsAppService {
     async waitForReady() {
         return new Promise((resolve, reject) => {
             if (this.isConnected) {
+                console.log('✅ WhatsApp já está conectado');
                 resolve(true);
                 return;
             }
 
+            console.log('⏳ Aguardando WhatsApp ficar pronto...');
             const timeout = setTimeout(() => {
+                console.log('⏰ Timeout: WhatsApp não ficou pronto em 30 segundos');
                 reject(new Error('Timeout: WhatsApp não ficou pronto a tempo'));
             }, 30000); // 30 segundos
 
             const checkReady = () => {
+                console.log(`🔍 Verificando status: ${this.status}, conectado: ${this.isConnected}`);
                 if (this.isConnected) {
+                    console.log('✅ WhatsApp está pronto!');
                     clearTimeout(timeout);
                     resolve(true);
+                } else if (this.status === 'disconnected' || this.status === 'error') {
+                    console.log('❌ WhatsApp está desconectado ou com erro');
+                    clearTimeout(timeout);
+                    reject(new Error('WhatsApp está desconectado'));
                 } else {
-                    setTimeout(checkReady, 1000);
+                    setTimeout(checkReady, 2000); // Verificar a cada 2 segundos
                 }
             };
 
@@ -430,6 +583,34 @@ class WhatsAppService {
         } catch (error) {
             console.error('Erro ao testar conexão:', error);
             return { success: false, message: 'Erro ao testar conexão: ' + error.message };
+        }
+    }
+
+    // Verificar se o WhatsApp está realmente funcionando
+    async verifyWhatsAppFunctionality() {
+        try {
+            if (!this.client || !this.isConnected) {
+                return { success: false, message: 'WhatsApp não está conectado' };
+            }
+
+            // Tentar obter informações básicas
+            const info = await this.client.info;
+            if (!info || !info.wid) {
+                return { success: false, message: 'WhatsApp não está respondendo' };
+            }
+
+            // Tentar obter chats para verificar se a API está funcionando
+            const chats = await this.client.getChats();
+            console.log(`📊 WhatsApp funcionando: ${chats.length} chats encontrados`);
+
+            return { 
+                success: true, 
+                message: 'WhatsApp está funcionando corretamente',
+                chatCount: chats.length
+            };
+        } catch (error) {
+            console.error('Erro ao verificar funcionalidade do WhatsApp:', error);
+            return { success: false, message: 'Erro ao verificar funcionalidade: ' + error.message };
         }
     }
 

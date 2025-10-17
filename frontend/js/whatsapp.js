@@ -401,9 +401,13 @@ class WhatsAppManager {
                 const data = await response.json();
                 const welcomeInput = document.getElementById('welcome-message');
                 const outOfHoursInput = document.getElementById('msg-fora-horario');
+                const confirmationInput = document.getElementById('confirmation-message');
+                const cancellationInput = document.getElementById('cancellation-message');
                 
                 if (welcomeInput) welcomeInput.value = data.welcomeMessage || '';
                 if (outOfHoursInput) outOfHoursInput.value = data.outOfHoursMessage || '';
+                if (confirmationInput) confirmationInput.value = data.confirmationMessage || '';
+                if (cancellationInput) cancellationInput.value = data.cancellationMessage || '';
                 
                 console.log('Mensagens carregadas:', data);
             }
@@ -416,13 +420,17 @@ class WhatsAppManager {
     async saveWelcomeMessage() {
         const welcomeInput = document.getElementById('welcome-message');
         const outOfHoursInput = document.getElementById('msg-fora-horario');
+        const confirmationInput = document.getElementById('confirmation-message');
+        const cancellationInput = document.getElementById('cancellation-message');
         
-        if (!welcomeInput || !outOfHoursInput) return;
+        if (!welcomeInput || !outOfHoursInput || !confirmationInput || !cancellationInput) return;
 
         const welcomeMessage = welcomeInput.value.trim();
         const outOfHoursMessage = outOfHoursInput.value.trim();
+        const confirmationMessage = confirmationInput.value.trim();
+        const cancellationMessage = cancellationInput.value.trim();
 
-        if (!welcomeMessage && !outOfHoursMessage) {
+        if (!welcomeMessage && !outOfHoursMessage && !confirmationMessage && !cancellationMessage) {
             this.showNotification('Digite pelo menos uma mensagem', 'error');
             return;
         }
@@ -437,7 +445,9 @@ class WhatsAppManager {
                 },
                 body: JSON.stringify({
                     welcomeMessage: welcomeMessage,
-                    outOfHoursMessage: outOfHoursMessage
+                    outOfHoursMessage: outOfHoursMessage,
+                    confirmationMessage: confirmationMessage,
+                    cancellationMessage: cancellationMessage
                 })
             });
 
@@ -507,6 +517,146 @@ class WhatsAppManager {
         } catch (error) {
             console.error('Erro ao testar conexão:', error);
             this.showNotification('❌ Erro ao testar conexão', 'error');
+        }
+    }
+
+    // Enviar mensagem de confirmação
+    async sendConfirmationMessage(phoneNumber, appointmentDetails) {
+        try {
+            console.log('📤 Tentando enviar mensagem de confirmação...');
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/api/whatsapp/send-confirmation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    number: phoneNumber,
+                    appointmentDetails: appointmentDetails
+                })
+            });
+
+            const result = await response.json();
+            console.log('📨 Resposta da confirmação:', result);
+
+            if (result.success) {
+                this.showNotification('Mensagem de confirmação enviada!', 'success');
+                return true;
+            } else {
+                if (result.needsConnection) {
+                    console.log('⚠️ WhatsApp não conectado, tentando conectar automaticamente...');
+                    const connected = await this.attemptAutoConnect();
+                    if (connected) {
+                        // Tentar novamente após conectar
+                        return await this.sendConfirmationMessage(phoneNumber, appointmentDetails);
+                    } else {
+                        this.showNotification('WhatsApp não está conectado. Acesse Configurações > WhatsApp para conectar primeiro.', 'error');
+                    }
+                } else {
+                    this.showNotification(result.message, 'error');
+                }
+                return false;
+            }
+        } catch (error) {
+            console.error('Erro ao enviar mensagem de confirmação:', error);
+            this.showNotification('Erro ao enviar mensagem de confirmação', 'error');
+            return false;
+        }
+    }
+
+    // Enviar mensagem de cancelamento
+    async sendCancellationMessage(phoneNumber, appointmentDetails) {
+        try {
+            console.log('📤 Tentando enviar mensagem de cancelamento...');
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/api/whatsapp/send-cancellation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    number: phoneNumber,
+                    appointmentDetails: appointmentDetails
+                })
+            });
+
+            const result = await response.json();
+            console.log('📨 Resposta do cancelamento:', result);
+
+            if (result.success) {
+                this.showNotification('Mensagem de cancelamento enviada!', 'success');
+                return true;
+            } else {
+                if (result.needsConnection) {
+                    console.log('⚠️ WhatsApp não conectado, tentando conectar automaticamente...');
+                    const connected = await this.attemptAutoConnect();
+                    if (connected) {
+                        // Tentar novamente após conectar
+                        return await this.sendCancellationMessage(phoneNumber, appointmentDetails);
+                    } else {
+                        this.showNotification('WhatsApp não está conectado. Acesse Configurações > WhatsApp para conectar primeiro.', 'error');
+                    }
+                } else {
+                    this.showNotification(result.message, 'error');
+                }
+                return false;
+            }
+        } catch (error) {
+            console.error('Erro ao enviar mensagem de cancelamento:', error);
+            this.showNotification('Erro ao enviar mensagem de cancelamento', 'error');
+            return false;
+        }
+    }
+
+    // Tentar conectar automaticamente
+    async attemptAutoConnect() {
+        try {
+            console.log('🔄 Tentando conectar WhatsApp automaticamente...');
+            const token = localStorage.getItem('authToken');
+            
+            // Tentar conectar
+            const connectResponse = await fetch('/api/whatsapp/connect', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            const connectResult = await connectResponse.json();
+            console.log('🔌 Resultado da conexão:', connectResult);
+            
+            if (connectResult.success) {
+                // Aguardar um pouco para a conexão ser estabelecida
+                console.log('⏳ Aguardando conexão ser estabelecida...');
+                await new Promise(resolve => setTimeout(resolve, 8000));
+                
+                // Verificar status
+                const statusResponse = await fetch('/api/whatsapp/status', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const statusResult = await statusResponse.json();
+                console.log('📊 Status após conexão:', statusResult);
+                
+                if (statusResult.isReady) {
+                    console.log('✅ WhatsApp conectado com sucesso!');
+                    this.showNotification('WhatsApp conectado automaticamente!', 'success');
+                    return true;
+                } else {
+                    console.log('❌ WhatsApp ainda não está pronto');
+                    return false;
+                }
+            } else {
+                console.log('❌ Falha na conexão automática:', connectResult.message);
+                return false;
+            }
+        } catch (error) {
+            console.error('❌ Erro na conexão automática:', error);
+            return false;
         }
     }
 

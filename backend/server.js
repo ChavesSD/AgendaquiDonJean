@@ -866,11 +866,39 @@ app.get('/api/whatsapp/status', authenticateToken, (req, res) => {
 // Conectar WhatsApp
 app.post('/api/whatsapp/connect', authenticateToken, async (req, res) => {
     try {
+        console.log('🔌 Iniciando conexão manual do WhatsApp...');
         const result = await whatsappService.connect();
-        res.json(result);
+        res.json({
+            ...result,
+            message: 'Tentativa de conexão iniciada',
+            status: 'connecting'
+        });
     } catch (error) {
-        console.error('Erro ao conectar WhatsApp:', error);
-        res.status(500).json({ message: 'Erro interno do servidor' });
+        console.error('❌ Erro ao conectar WhatsApp:', error);
+        res.status(500).json({ 
+            message: 'Erro ao conectar WhatsApp: ' + error.message,
+            status: 'error'
+        });
+    }
+});
+
+// Verificar status do WhatsApp
+app.get('/api/whatsapp/status', authenticateToken, async (req, res) => {
+    try {
+        const status = whatsappService.getStatus();
+        const connectionTest = await whatsappService.testConnection();
+        
+        res.json({
+            status: status,
+            connectionTest: connectionTest,
+            isReady: status.isConnected && connectionTest.success
+        });
+    } catch (error) {
+        console.error('Erro ao verificar status do WhatsApp:', error);
+        res.status(500).json({ 
+            message: 'Erro ao verificar status',
+            status: 'error'
+        });
     }
 });
 
@@ -935,14 +963,18 @@ app.get('/api/whatsapp/messages', authenticateToken, async (req, res) => {
             // Criar mensagens padrão se não existirem
             messages = new WhatsAppMessages({
                 welcomeMessage: 'Olá! Seja bem-vindo ao CH Studio! Como posso ajudá-lo?',
-                outOfHoursMessage: 'Olá! Obrigado por entrar em contato. Estamos fora do horário de funcionamento. Retornaremos em breve!'
+                outOfHoursMessage: 'Olá! Obrigado por entrar em contato. Estamos fora do horário de funcionamento. Retornaremos em breve!',
+                confirmationMessage: 'Olá! Seu agendamento foi confirmado com sucesso! Aguardamos você no horário marcado.',
+                cancellationMessage: 'Olá! Infelizmente seu agendamento foi cancelado. Entre em contato conosco para reagendar em outro horário.'
             });
             await messages.save();
         }
         
         res.json({
             welcomeMessage: messages.welcomeMessage,
-            outOfHoursMessage: messages.outOfHoursMessage
+            outOfHoursMessage: messages.outOfHoursMessage,
+            confirmationMessage: messages.confirmationMessage,
+            cancellationMessage: messages.cancellationMessage
         });
     } catch (error) {
         console.error('Erro ao obter mensagens automáticas:', error);
@@ -953,9 +985,9 @@ app.get('/api/whatsapp/messages', authenticateToken, async (req, res) => {
 // Salvar mensagens automáticas
 app.put('/api/whatsapp/messages', authenticateToken, async (req, res) => {
     try {
-        const { welcomeMessage, outOfHoursMessage } = req.body;
+        const { welcomeMessage, outOfHoursMessage, confirmationMessage, cancellationMessage } = req.body;
         
-        if (!welcomeMessage && !outOfHoursMessage) {
+        if (!welcomeMessage && !outOfHoursMessage && !confirmationMessage && !cancellationMessage) {
             return res.status(400).json({ message: 'Pelo menos uma mensagem deve ser fornecida' });
         }
         
@@ -971,6 +1003,14 @@ app.put('/api/whatsapp/messages', authenticateToken, async (req, res) => {
         
         if (outOfHoursMessage !== undefined) {
             messages.outOfHoursMessage = outOfHoursMessage;
+        }
+        
+        if (confirmationMessage !== undefined) {
+            messages.confirmationMessage = confirmationMessage;
+        }
+        
+        if (cancellationMessage !== undefined) {
+            messages.cancellationMessage = cancellationMessage;
         }
         
         await messages.save();
@@ -1020,6 +1060,164 @@ app.post('/api/whatsapp/send-automatic', authenticateToken, async (req, res) => 
     }
 });
 
+// Enviar mensagem de confirmação de agendamento
+app.post('/api/whatsapp/send-confirmation', authenticateToken, async (req, res) => {
+    try {
+        const { number, appointmentDetails } = req.body;
+        
+        if (!number) {
+            return res.status(400).json({ message: 'Número é obrigatório' });
+        }
+
+        // Verificar se WhatsApp está conectado
+        const status = whatsappService.getStatus();
+        console.log('🔍 Status do WhatsApp (confirmação):', status);
+        
+        if (!status.isConnected) {
+            console.log('⚠️ WhatsApp não conectado, tentando conectar automaticamente...');
+            
+            // Tentar conectar automaticamente
+            try {
+                await whatsappService.connect();
+                console.log('✅ Tentativa de conexão automática iniciada');
+                
+                // Aguardar um pouco para a conexão ser estabelecida
+                await new Promise(resolve => setTimeout(resolve, 5000));
+                
+                // Verificar novamente
+                const newStatus = whatsappService.getStatus();
+                if (!newStatus.isConnected) {
+                    return res.status(400).json({ 
+                        message: 'WhatsApp não está conectado. Acesse Configurações > WhatsApp para conectar primeiro.',
+                        needsConnection: true,
+                        details: 'Tentativa de conexão automática falhou'
+                    });
+                }
+            } catch (connectError) {
+                console.error('❌ Erro na conexão automática:', connectError);
+                return res.status(400).json({ 
+                    message: 'WhatsApp não está conectado. Acesse Configurações > WhatsApp para conectar primeiro.',
+                    needsConnection: true,
+                    details: 'Erro na conexão automática: ' + connectError.message
+                });
+            }
+        }
+
+        // Testar conexão primeiro
+        const connectionTest = await whatsappService.testConnection();
+        if (!connectionTest.success) {
+            return res.status(400).json({ 
+                message: connectionTest.message,
+                needsConnection: true,
+                details: 'Teste de conexão falhou'
+            });
+        }
+
+        // Buscar mensagens automáticas
+        const messages = await WhatsAppMessages.findOne({ isActive: true });
+        if (!messages || !messages.confirmationMessage) {
+            return res.status(404).json({ message: 'Mensagem de confirmação não configurada' });
+        }
+
+        // Personalizar mensagem com detalhes do agendamento se fornecidos
+        let personalizedMessage = messages.confirmationMessage;
+        if (appointmentDetails) {
+            personalizedMessage = personalizedMessage
+                .replace('{clientName}', appointmentDetails.clientName || 'Cliente')
+                .replace('{serviceName}', appointmentDetails.serviceName || 'serviço')
+                .replace('{date}', appointmentDetails.date || 'data')
+                .replace('{time}', appointmentDetails.time || 'horário')
+                .replace('{professionalName}', appointmentDetails.professionalName || 'profissional');
+        }
+
+        const result = await whatsappService.sendMessage(number, personalizedMessage);
+        
+        res.json(result);
+    } catch (error) {
+        console.error('Erro ao enviar mensagem de confirmação:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Enviar mensagem de cancelamento de agendamento
+app.post('/api/whatsapp/send-cancellation', authenticateToken, async (req, res) => {
+    try {
+        const { number, appointmentDetails } = req.body;
+        
+        if (!number) {
+            return res.status(400).json({ message: 'Número é obrigatório' });
+        }
+
+        // Verificar se WhatsApp está conectado
+        const status = whatsappService.getStatus();
+        console.log('🔍 Status do WhatsApp (cancelamento):', status);
+        
+        if (!status.isConnected) {
+            console.log('⚠️ WhatsApp não conectado, tentando conectar automaticamente...');
+            
+            // Tentar conectar automaticamente
+            try {
+                await whatsappService.connect();
+                console.log('✅ Tentativa de conexão automática iniciada');
+                
+                // Aguardar um pouco para a conexão ser estabelecida
+                await new Promise(resolve => setTimeout(resolve, 5000));
+                
+                // Verificar novamente
+                const newStatus = whatsappService.getStatus();
+                if (!newStatus.isConnected) {
+                    return res.status(400).json({ 
+                        message: 'WhatsApp não está conectado. Acesse Configurações > WhatsApp para conectar primeiro.',
+                        needsConnection: true,
+                        details: 'Tentativa de conexão automática falhou'
+                    });
+                }
+            } catch (connectError) {
+                console.error('❌ Erro na conexão automática:', connectError);
+                return res.status(400).json({ 
+                    message: 'WhatsApp não está conectado. Acesse Configurações > WhatsApp para conectar primeiro.',
+                    needsConnection: true,
+                    details: 'Erro na conexão automática: ' + connectError.message
+                });
+            }
+        }
+
+        // Testar conexão primeiro
+        const connectionTest = await whatsappService.testConnection();
+        if (!connectionTest.success) {
+            return res.status(400).json({ 
+                message: connectionTest.message,
+                needsConnection: true,
+                details: 'Teste de conexão falhou'
+            });
+        }
+
+        // Buscar mensagens automáticas
+        const messages = await WhatsAppMessages.findOne({ isActive: true });
+        if (!messages || !messages.cancellationMessage) {
+            return res.status(404).json({ message: 'Mensagem de cancelamento não configurada' });
+        }
+
+        // Personalizar mensagem com detalhes do agendamento se fornecidos
+        let personalizedMessage = messages.cancellationMessage;
+        if (appointmentDetails) {
+            personalizedMessage = personalizedMessage
+                .replace('{clientName}', appointmentDetails.clientName || 'Cliente')
+                .replace('{serviceName}', appointmentDetails.serviceName || 'serviço')
+                .replace('{date}', appointmentDetails.date || 'data')
+                .replace('{time}', appointmentDetails.time || 'horário')
+                .replace('{professionalName}', appointmentDetails.professionalName || 'profissional');
+        }
+
+        const result = await whatsappService.sendMessage(number, personalizedMessage);
+        
+        res.json(result);
+    } catch (error) {
+        console.error('Erro ao enviar mensagem de cancelamento:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
 // Testar conexão do WhatsApp
 app.get('/api/whatsapp/test-connection', authenticateToken, async (req, res) => {
     try {
@@ -1062,6 +1260,10 @@ whatsappService.setCallbacks({
         });
     }
 });
+
+// WhatsApp será conectado manualmente via interface
+console.log('📱 WhatsApp: Aguardando conexão manual via interface');
+console.log('💡 Acesse Configurações > WhatsApp para conectar');
 
 // ==================== ROTAS DE BACKUP ====================
 

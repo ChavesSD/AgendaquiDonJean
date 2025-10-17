@@ -1108,6 +1108,16 @@
                                                 <label for="msg-fora-horario">Mensagem de Fora do Horário</label>
                                                 <textarea id="msg-fora-horario" rows="4" placeholder="Digite a mensagem para fora do horário de funcionamento..."></textarea>
                                             </div>
+                                            <div class="form-group">
+                                                <label for="confirmation-message">Mensagem de Confirmação</label>
+                                                <textarea id="confirmation-message" rows="4" placeholder="Digite a mensagem de confirmação de agendamento..."></textarea>
+                                                <small class="form-text">Use {clientName}, {serviceName}, {date}, {time}, {professionalName} para personalizar a mensagem</small>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="cancellation-message">Mensagem de Cancelamento</label>
+                                                <textarea id="cancellation-message" rows="4" placeholder="Digite a mensagem de cancelamento de agendamento..."></textarea>
+                                                <small class="form-text">Use {clientName}, {serviceName}, {date}, {time}, {professionalName} para personalizar a mensagem</small>
+                                            </div>
                                             <div class="form-actions">
                                                 <button type="button" class="btn btn-primary" id="save-welcome-message">
                                                     <i class="fas fa-save"></i>
@@ -1900,14 +1910,14 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="js/dashboard.js"></script>
+    <script src="js/agenda.js"></script>
     <script src="js/whatsapp.js"></script>
+    <script src="js/dashboard.js"></script>
     <script src="js/backup.js"></script>
     <script src="js/professionals.js"></script>
     <script src="js/services.js"></script>
     <script src="js/stock.js"></script>
     <script src="js/finance.js"></script>
-    <script src="js/agenda.js"></script>
     
 </body>
 </html>

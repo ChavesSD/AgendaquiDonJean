@@ -528,6 +528,13 @@ class AgendaManager {
     async confirmAppointment(appointmentId) {
         if (confirm('Deseja confirmar este agendamento?')) {
             try {
+                // Buscar dados do agendamento antes de confirmar
+                const appointment = this.appointments.find(apt => apt._id === appointmentId);
+                if (!appointment) {
+                    alert('Agendamento não encontrado');
+                    return;
+                }
+
                 const response = await fetch(`/api/appointments/${appointmentId}/confirm`, {
                     method: 'PUT',
                     headers: {
@@ -538,6 +545,10 @@ class AgendaManager {
                 if (response.ok) {
                     const data = await response.json();
                     alert(data.message);
+                    
+                    // Enviar mensagem de confirmação via WhatsApp
+                    await this.sendConfirmationMessage(appointment);
+                    
                     await this.loadAppointments();
                     await this.loadStatistics();
                 } else {
@@ -556,6 +567,13 @@ class AgendaManager {
         
         if (reason !== null) {
             try {
+                // Buscar dados do agendamento antes de cancelar
+                const appointment = this.appointments.find(apt => apt._id === appointmentId);
+                if (!appointment) {
+                    alert('Agendamento não encontrado');
+                    return;
+                }
+
                 const response = await fetch(`/api/appointments/${appointmentId}/cancel`, {
                     method: 'PUT',
                     headers: {
@@ -568,6 +586,10 @@ class AgendaManager {
                 if (response.ok) {
                     const data = await response.json();
                     alert(data.message);
+                    
+                    // Enviar mensagem de cancelamento via WhatsApp
+                    await this.sendCancellationMessage(appointment);
+                    
                     await this.loadAppointments();
                     await this.loadStatistics();
                 } else {
@@ -1206,6 +1228,66 @@ class AgendaManager {
         window.open(whatsappUrl, '_blank');
     }
     
+    // Enviar mensagem de confirmação via WhatsApp
+    async sendConfirmationMessage(appointment) {
+        try {
+            // Verificar se o WhatsApp Manager está disponível
+            if (!window.whatsappManager) {
+                console.log('WhatsApp Manager não disponível');
+                return;
+            }
+
+            // Preparar detalhes do agendamento
+            const appointmentDetails = {
+                clientName: appointment.clientName,
+                serviceName: appointment.service?.name || 'serviço',
+                date: new Date(appointment.date).toLocaleDateString('pt-BR'),
+                time: appointment.time,
+                professionalName: appointment.professional ? 
+                    `${appointment.professional.firstName} ${appointment.professional.lastName}` : 
+                    'profissional'
+            };
+
+            // Enviar mensagem
+            await window.whatsappManager.sendConfirmationMessage(
+                appointment.clientPhone, 
+                appointmentDetails
+            );
+        } catch (error) {
+            console.error('Erro ao enviar mensagem de confirmação:', error);
+        }
+    }
+
+    // Enviar mensagem de cancelamento via WhatsApp
+    async sendCancellationMessage(appointment) {
+        try {
+            // Verificar se o WhatsApp Manager está disponível
+            if (!window.whatsappManager) {
+                console.log('WhatsApp Manager não disponível');
+                return;
+            }
+
+            // Preparar detalhes do agendamento
+            const appointmentDetails = {
+                clientName: appointment.clientName,
+                serviceName: appointment.service?.name || 'serviço',
+                date: new Date(appointment.date).toLocaleDateString('pt-BR'),
+                time: appointment.time,
+                professionalName: appointment.professional ? 
+                    `${appointment.professional.firstName} ${appointment.professional.lastName}` : 
+                    'profissional'
+            };
+
+            // Enviar mensagem
+            await window.whatsappManager.sendCancellationMessage(
+                appointment.clientPhone, 
+                appointmentDetails
+            );
+        } catch (error) {
+            console.error('Erro ao enviar mensagem de cancelamento:', error);
+        }
+    }
+
     showNotification(message, type = 'info') {
         // Implementar sistema de notificações
         console.log(`${type.toUpperCase()}: ${message}`);
@@ -1249,6 +1331,9 @@ document.addEventListener('DOMContentLoaded', () => {
 let agendaManager;
 document.addEventListener('DOMContentLoaded', () => {
     agendaManager = new AgendaManager();
+    
+    // Tornar o agendaManager disponível globalmente
+    window.agendaManager = agendaManager;
     
     // Se a aba de calendário estiver ativa, carregar o calendário
     const calendarTab = document.getElementById('calendario-tab');

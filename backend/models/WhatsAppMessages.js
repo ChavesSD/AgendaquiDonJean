@@ -9,6 +9,14 @@ const whatsappMessagesSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    confirmationMessage: {
+        type: String,
+        default: ''
+    },
+    cancellationMessage: {
+        type: String,
+        default: ''
+    },
     isActive: {
         type: Boolean,
         default: true
