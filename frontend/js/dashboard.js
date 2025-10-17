@@ -1328,13 +1328,16 @@ class DashboardManager {
             endDate: null
         };
         
+        console.log('🎯 DashboardManager criado com currentView:', this.currentView);
         this.init();
     }
 
     init() {
+        console.log('🎯 Inicializando DashboardManager...');
         this.setupEventListeners();
         this.setDefaultDates();
         this.loadDashboardData();
+        console.log('✅ DashboardManager inicializado!');
     }
 
     setupEventListeners() {
@@ -1358,15 +1361,24 @@ class DashboardManager {
     }
 
     setDefaultDates() {
+        console.log('📅 Configurando datas padrão...');
         const today = new Date();
         const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
         const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+        console.log('📅 Datas calculadas:', {
+            today: today.toISOString(),
+            firstDayOfMonth: firstDayOfMonth.toISOString(),
+            lastDayOfMonth: lastDayOfMonth.toISOString()
+        });
 
         document.getElementById('dashboard-start-date').value = this.formatDateForInput(firstDayOfMonth);
         document.getElementById('dashboard-end-date').value = this.formatDateForInput(lastDayOfMonth);
 
         this.currentFilters.startDate = firstDayOfMonth;
         this.currentFilters.endDate = lastDayOfMonth;
+        
+        console.log('📅 Filtros configurados:', this.currentFilters);
     }
 
     formatDateForInput(date) {
@@ -1397,14 +1409,16 @@ class DashboardManager {
 
     async loadDashboardData() {
         try {
+            console.log('🚀 Iniciando carregamento dos dados do dashboard...');
             await Promise.all([
                 this.loadRecentAppointments(),
                 this.loadTopServices(),
                 this.loadTopProfessionals(),
                 this.loadChartData()
             ]);
+            console.log('✅ Dados do dashboard carregados com sucesso!');
         } catch (error) {
-            console.error('Erro ao carregar dados do dashboard:', error);
+            console.error('❌ Erro ao carregar dados do dashboard:', error);
             this.showNotification('Erro ao carregar dados do dashboard', 'error');
         }
     }
@@ -1477,7 +1491,9 @@ class DashboardManager {
 
             if (response.ok) {
                 const data = await response.json();
-                this.renderTopServices(data.services || []);
+                // A nova API retorna { service: {...}, count: number }
+                const services = data.services || [];
+                this.renderTopServices(services);
             } else {
                 // Fallback: buscar serviços e contar manualmente
                 await this.loadTopServicesFallback();
@@ -1516,12 +1532,13 @@ class DashboardManager {
                     }
                 });
 
-                // Criar ranking
+                // Criar ranking - só mostrar serviços que têm agendamentos
                 const topServices = services
                     .map(service => ({
-                        ...service,
+                        service,
                         count: serviceCounts[service._id] || 0
                     }))
+                    .filter(item => item.count > 0) // Só serviços com agendamentos
                     .sort((a, b) => b.count - a.count)
                     .slice(0, 5);
 
@@ -1546,23 +1563,41 @@ class DashboardManager {
             return;
         }
 
-        container.innerHTML = services.map((service, index) => `
-            <div class="ranking-item">
-                <div class="ranking-position">
-                    <span class="position-number">${index + 1}</span>
-                </div>
-                <div class="ranking-info">
-                    <div class="ranking-name">${service.name}</div>
-                    <div class="ranking-details">
-                        <span class="ranking-count">${service.count} agendamentos</span>
-                        <span class="ranking-price">R$ ${service.price?.toFixed(2) || '0,00'}</span>
+        container.innerHTML = services.map((item, index) => {
+            const position = index + 1;
+            let medalClass = '';
+            let medalIcon = '';
+            
+            if (position === 1) {
+                medalClass = 'medal-gold';
+                medalIcon = '🥇';
+            } else if (position === 2) {
+                medalClass = 'medal-silver';
+                medalIcon = '🥈';
+            } else if (position === 3) {
+                medalClass = 'medal-bronze';
+                medalIcon = '🥉';
+            }
+            
+            // A nova estrutura retorna { service: {...}, count: number }
+            const service = item.service || item;
+            const count = item.count || 0;
+            
+            return `
+                <div class="ranking-item">
+                    <div class="ranking-position ${medalClass}">
+                        ${medalIcon ? `<span class="medal-icon">${medalIcon}</span>` : `<span class="position-number">${position}</span>`}
+                    </div>
+                    <div class="ranking-info">
+                        <div class="ranking-name">${service.name}</div>
+                        <div class="ranking-details">
+                            <span class="ranking-count">${count} agendamentos</span>
+                            <span class="ranking-price">R$ ${service.price?.toFixed(2) || '0,00'}</span>
+                        </div>
                     </div>
                 </div>
-                <div class="ranking-icon">
-                    <i class="fas fa-cog"></i>
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     async loadTopProfessionals() {
@@ -1571,29 +1606,42 @@ class DashboardManager {
             const startDate = this.formatDateForInput(this.currentFilters.startDate);
             const endDate = this.formatDateForInput(this.currentFilters.endDate);
 
+            console.log('🔍 Carregando top profissionais...');
+            console.log('📅 Filtros:', { startDate, endDate });
+            console.log('🔑 Token existe:', !!token);
+
             const response = await fetch(`/api/professionals/stats?startDate=${startDate}&endDate=${endDate}&limit=5`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
+            console.log('📡 Resposta da API:', response.status, response.statusText);
+
             if (response.ok) {
                 const data = await response.json();
-                this.renderTopProfessionals(data.professionals || []);
+                console.log('📊 Dados recebidos:', data);
+                // A nova API retorna { professional: {...}, count: number }
+                const professionals = data.professionals || [];
+                console.log('👥 Profissionais encontrados:', professionals.length);
+                this.renderTopProfessionals(professionals);
             } else {
+                console.log('⚠️ API principal falhou, usando fallback...');
                 // Fallback: buscar profissionais e contar manualmente
                 await this.loadTopProfessionalsFallback();
             }
         } catch (error) {
-            console.error('Erro ao carregar top profissionais:', error);
+            console.error('❌ Erro ao carregar top profissionais:', error);
             await this.loadTopProfessionalsFallback();
         }
     }
 
     async loadTopProfessionalsFallback() {
         try {
+            console.log('🔄 Executando fallback para profissionais...');
             const token = localStorage.getItem('authToken');
             const startDate = this.formatDateForInput(this.currentFilters.startDate);
             const endDate = this.formatDateForInput(this.currentFilters.endDate);
 
+            console.log('📡 Fazendo requisições paralelas...');
             const [professionalsResponse, appointmentsResponse] = await Promise.all([
                 fetch('/api/professionals', { headers: { 'Authorization': `Bearer ${token}` } }),
                 fetch(`/api/appointments?startDate=${startDate}&endDate=${endDate}`, {
@@ -1601,12 +1649,20 @@ class DashboardManager {
                 })
             ]);
 
+            console.log('📊 Respostas:', {
+                professionals: professionalsResponse.status,
+                appointments: appointmentsResponse.status
+            });
+
             if (professionalsResponse.ok && appointmentsResponse.ok) {
                 const professionalsData = await professionalsResponse.json();
                 const appointmentsData = await appointmentsResponse.json();
                 
                 const professionals = professionalsData.professionals || [];
                 const appointments = appointmentsData.appointments || [];
+
+                console.log('👥 Profissionais encontrados (fallback):', professionals.length);
+                console.log('📅 Agendamentos encontrados:', appointments.length);
 
                 // Contar profissionais
                 const professionalCounts = {};
@@ -1616,27 +1672,40 @@ class DashboardManager {
                     }
                 });
 
+                console.log('📊 Contagem por profissional:', professionalCounts);
+
                 // Criar ranking
                 const topProfessionals = professionals
                     .map(professional => ({
-                        ...professional,
+                        professional,
                         count: professionalCounts[professional._id] || 0
                     }))
                     .sort((a, b) => b.count - a.count)
                     .slice(0, 5);
 
+                console.log('🏆 Top profissionais (fallback):', topProfessionals);
                 this.renderTopProfessionals(topProfessionals);
+            } else {
+                console.error('❌ Falha nas requisições de fallback');
+                this.showErrorState('top-professionals', 'Erro ao carregar profissionais');
             }
         } catch (error) {
-            console.error('Erro no fallback de profissionais:', error);
+            console.error('❌ Erro no fallback de profissionais:', error);
             this.showErrorState('top-professionals', 'Erro ao carregar profissionais');
         }
     }
 
     renderTopProfessionals(professionals) {
+        console.log('🎨 Renderizando profissionais:', professionals);
         const container = document.getElementById('top-professionals');
         
+        if (!container) {
+            console.error('❌ Container top-professionals não encontrado!');
+            return;
+        }
+        
         if (professionals.length === 0) {
+            console.log('📭 Nenhum profissional para renderizar');
             container.innerHTML = `
                 <div class="empty-state">
                     <i class="fas fa-users"></i>
@@ -1646,50 +1715,129 @@ class DashboardManager {
             return;
         }
 
-        container.innerHTML = professionals.map((professional, index) => `
-            <div class="ranking-item">
-                <div class="ranking-position">
-                    <span class="position-number">${index + 1}</span>
+        // Limpar container
+        container.innerHTML = '';
+        
+        professionals.forEach((item, index) => {
+            const position = index + 1;
+            let medalClass = '';
+            let medalIcon = '';
+            
+            if (position === 1) {
+                medalClass = 'medal-gold';
+                medalIcon = '🥇';
+            } else if (position === 2) {
+                medalClass = 'medal-silver';
+                medalIcon = '🥈';
+            } else if (position === 3) {
+                medalClass = 'medal-bronze';
+                medalIcon = '🥉';
+            }
+            
+            // A nova estrutura retorna { professional: {...}, count: number }
+            const professional = item.professional || item;
+            const count = item.count || 0;
+            
+            console.log(`👤 Profissional ${professional.firstName} ${professional.lastName}:`, {
+                photo: professional.photo ? `${professional.photo.substring(0, 50)}...` : 'null',
+                avatar: professional.avatar ? `${professional.avatar.substring(0, 50)}...` : 'null',
+                hasPhoto: !!(professional.photo || professional.avatar)
+            });
+            
+            // Criar elemento do ranking
+            const rankingItem = document.createElement('div');
+            rankingItem.className = 'ranking-item';
+            
+            // Posição/Medalha
+            const positionDiv = document.createElement('div');
+            positionDiv.className = `ranking-position ${medalClass}`;
+            positionDiv.innerHTML = medalIcon ? `<span class="medal-icon">${medalIcon}</span>` : `<span class="position-number">${position}</span>`;
+            
+            // Informações do profissional
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'ranking-info';
+            infoDiv.innerHTML = `
+                <div class="ranking-name">${professional.firstName} ${professional.lastName}</div>
+                <div class="ranking-details">
+                    <span class="ranking-count">${count} atendimentos</span>
+                    <span class="ranking-specialty">${professional.function || professional.specialty || 'Geral'}</span>
                 </div>
-                <div class="ranking-info">
-                    <div class="ranking-name">${professional.firstName} ${professional.lastName}</div>
-                    <div class="ranking-details">
-                        <span class="ranking-count">${professional.count} atendimentos</span>
-                        <span class="ranking-specialty">${professional.specialty || 'Geral'}</span>
-                    </div>
-                </div>
-                <div class="ranking-icon">
-                    <i class="fas fa-user"></i>
-                </div>
-            </div>
-        `).join('');
+            `;
+            
+            // Foto do profissional (usando a mesma lógica dos usuários)
+            const photoDiv = document.createElement('div');
+            photoDiv.className = 'professional-photo';
+            
+            if (professional.photo || professional.avatar) {
+                const img = document.createElement('img');
+                img.src = professional.photo || professional.avatar;
+                img.alt = `${professional.firstName} ${professional.lastName}`;
+                img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; border-radius: 50%;';
+                img.onerror = function() {
+                    console.error('❌ Erro ao carregar foto do profissional:', this.src);
+                    this.style.display = 'none';
+                    const icon = this.nextElementSibling;
+                    if (icon) icon.style.display = 'block';
+                };
+                
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-user';
+                icon.style.display = 'none';
+                
+                photoDiv.appendChild(img);
+                photoDiv.appendChild(icon);
+                
+                console.log('✅ Avatar do profissional criado com imagem');
+            } else {
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-user';
+                photoDiv.appendChild(icon);
+                console.log('✅ Avatar do profissional criado com ícone padrão');
+            }
+            
+            // Montar o item
+            rankingItem.appendChild(positionDiv);
+            rankingItem.appendChild(infoDiv);
+            rankingItem.appendChild(photoDiv);
+            
+            // Adicionar ao container
+            container.appendChild(rankingItem);
+        });
     }
 
     async loadChartData() {
         try {
+            console.log('📊 Carregando dados do gráfico...');
             const token = localStorage.getItem('authToken');
             const currentYear = new Date().getFullYear();
             
-            let startDate, endDate;
-            if (this.currentView === 'year') {
-                startDate = new Date(currentYear, 0, 1);
-                endDate = new Date(currentYear, 11, 31);
-            } else {
-                startDate = new Date(currentYear, 0, 1);
-                endDate = new Date();
-            }
+            // Sempre buscar dados do ano todo para ter dados completos
+            const startDate = new Date(currentYear, 0, 1);
+            const endDate = new Date(currentYear, 11, 31);
+
+            console.log('📅 Período do gráfico (sempre ano todo):', {
+                view: this.currentView,
+                startDate: this.formatDateForInput(startDate),
+                endDate: this.formatDateForInput(endDate)
+            });
 
             const response = await fetch(`/api/appointments?startDate=${this.formatDateForInput(startDate)}&endDate=${this.formatDateForInput(endDate)}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
+            console.log('📡 Resposta da API do gráfico:', response.status, response.statusText);
+
             if (response.ok) {
                 const data = await response.json();
                 const appointments = data.appointments || [];
+                console.log('📋 Agendamentos para o gráfico:', appointments.length);
+                console.log('📋 Dados dos agendamentos:', appointments);
                 this.renderChart(appointments);
+            } else {
+                console.error('❌ Erro na API do gráfico:', response.status);
             }
         } catch (error) {
-            console.error('Erro ao carregar dados do gráfico:', error);
+            console.error('❌ Erro ao carregar dados do gráfico:', error);
         }
     }
 
@@ -1768,11 +1916,16 @@ class DashboardManager {
     }
 
     prepareChartData(appointments) {
+        console.log('🎨 Preparando dados do gráfico...');
+        console.log('📊 Agendamentos recebidos:', appointments.length);
+        console.log('👁️ Visualização atual:', this.currentView);
+        
         const data = {};
         const labels = [];
         
         if (this.currentView === 'year') {
             // Dados por mês
+            console.log('📅 Preparando dados por mês...');
             for (let i = 0; i < 12; i++) {
                 const month = new Date(new Date().getFullYear(), i, 1);
                 const monthKey = month.toISOString().substring(0, 7); // YYYY-MM
@@ -1781,16 +1934,24 @@ class DashboardManager {
             }
         } else {
             // Dados por dia do mês atual
+            console.log('📅 Preparando dados por dia...');
             const today = new Date();
-            const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+            const currentMonth = today.getMonth();
+            const currentYear = today.getFullYear();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
+            console.log('📅 Mês atual:', currentMonth + 1, 'Ano:', currentYear, 'Dias:', daysInMonth);
             
             for (let i = 1; i <= daysInMonth; i++) {
-                const day = new Date(today.getFullYear(), today.getMonth(), i);
+                const day = new Date(currentYear, currentMonth, i);
                 const dayKey = day.toISOString().substring(0, 10); // YYYY-MM-DD
                 data[dayKey] = 0;
                 labels.push(i.toString());
             }
         }
+
+        console.log('📊 Estrutura inicial dos dados:', data);
+        console.log('🏷️ Labels gerados:', labels);
 
         // Contar agendamentos
         appointments.forEach(appointment => {
@@ -1800,18 +1961,39 @@ class DashboardManager {
             if (this.currentView === 'year') {
                 key = appointmentDate.toISOString().substring(0, 7);
             } else {
-                key = appointmentDate.toISOString().substring(0, 10);
+                // Para visualização mensal, só contar agendamentos do mês atual
+                const today = new Date();
+                const appointmentMonth = appointmentDate.getMonth();
+                const appointmentYear = appointmentDate.getFullYear();
+                const currentMonth = today.getMonth();
+                const currentYear = today.getFullYear();
+                
+                // Só processar se for do mês atual
+                if (appointmentMonth === currentMonth && appointmentYear === currentYear) {
+                    key = appointmentDate.toISOString().substring(0, 10);
+                } else {
+                    console.log(`⏭️ Agendamento ${appointmentDate.toISOString()} ignorado (não é do mês atual)`);
+                    return; // Pular este agendamento
+                }
             }
+            
+            console.log(`📅 Agendamento: ${appointmentDate.toISOString()} -> Chave: ${key}`);
             
             if (data.hasOwnProperty(key)) {
                 data[key]++;
+                console.log(`✅ Incrementado ${key}: ${data[key]}`);
+            } else {
+                console.log(`❌ Chave ${key} não encontrada nos dados`);
             }
         });
 
-        return {
+        const result = {
             labels: labels,
             data: Object.values(data)
         };
+        
+        console.log('📊 Dados finais do gráfico:', result);
+        return result;
     }
 
     switchChartView(view) {
@@ -1869,23 +2051,36 @@ let dashboardManager = null;
 
 // Função para inicializar o dashboard
 function initDashboard() {
+    console.log('🎯 Função initDashboard chamada');
     if (!dashboardManager) {
+        console.log('🆕 Criando novo DashboardManager...');
         dashboardManager = new DashboardManager();
+    } else {
+        console.log('♻️ DashboardManager já existe, recarregando dados...');
+        dashboardManager.loadDashboardData();
     }
 }
 
 // Inicializar quando a página dashboard for ativada
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('📄 DOM carregado, verificando página dashboard...');
     // Verificar se estamos na página dashboard
     const dashboardPage = document.getElementById('dashboard-page');
+    console.log('🔍 Dashboard page encontrada:', !!dashboardPage);
+    console.log('🔍 Dashboard page ativa:', dashboardPage?.classList.contains('active'));
+    
     if (dashboardPage && dashboardPage.classList.contains('active')) {
+        console.log('✅ Inicializando dashboard...');
         initDashboard();
+    } else {
+        console.log('⏳ Dashboard não está ativo, aguardando ativação...');
     }
 });
 
 // Inicializar quando navegar para o dashboard
 document.addEventListener('click', (e) => {
     if (e.target.closest('[data-page="dashboard"]')) {
+        console.log('🖱️ Clique detectado no dashboard, inicializando...');
         setTimeout(() => {
             initDashboard();
         }, 100);

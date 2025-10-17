@@ -1398,6 +1398,66 @@ app.post('/api/backup/maintenance', authenticateToken, requirePermission('canAcc
     }
 });
 
+// ==================== ROTAS DE SERVIÇOS ====================
+
+// Estatísticas dos serviços (para dashboard)
+app.get('/api/services/stats', authenticateToken, async (req, res) => {
+    try {
+        const { startDate, endDate, limit = 5 } = req.query;
+        
+        console.log('📊 API /api/services/stats chamada');
+        console.log('📅 Parâmetros:', { startDate, endDate, limit });
+        
+        let dateFilter = {};
+        if (startDate || endDate) {
+            dateFilter.date = {};
+            if (startDate) dateFilter.date.$gte = new Date(startDate);
+            if (endDate) dateFilter.date.$lte = new Date(endDate);
+        }
+
+        console.log('🔍 Filtro de data:', dateFilter);
+
+        // Buscar agendamentos com filtro de data
+        const appointments = await Appointment.find(dateFilter)
+            .populate('service', 'name price duration')
+            .select('service');
+
+        console.log('📅 Agendamentos encontrados:', appointments.length);
+
+        // Contar agendamentos por serviço
+        const serviceCounts = {};
+        appointments.forEach(apt => {
+            if (apt.service && apt.service._id) {
+                const serviceId = apt.service._id.toString();
+                if (!serviceCounts[serviceId]) {
+                    serviceCounts[serviceId] = {
+                        service: apt.service,
+                        count: 0
+                    };
+                }
+                serviceCounts[serviceId].count++;
+            }
+        });
+
+        console.log('🛍️ Contagem por serviço:', Object.keys(serviceCounts).length);
+
+        // Converter para array e ordenar por count
+        const servicesWithCounts = Object.values(serviceCounts)
+            .sort((a, b) => b.count - a.count)
+            .slice(0, parseInt(limit));
+
+        console.log('🏆 Top serviços retornados:', servicesWithCounts.length);
+
+        res.json({
+            success: true,
+            services: servicesWithCounts
+        });
+    } catch (error) {
+        console.error('❌ Erro ao obter estatísticas dos serviços:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
 // ==================== ROTAS DE PROFISSIONAIS ====================
 
 // Listar profissionais
@@ -1407,6 +1467,79 @@ app.get('/api/professionals', authenticateToken, async (req, res) => {
         res.json({ success: true, professionals });
     } catch (error) {
         console.error('Erro ao listar profissionais:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Estatísticas dos profissionais (para dashboard)
+app.get('/api/professionals/stats', authenticateToken, async (req, res) => {
+    try {
+        const { startDate, endDate, limit = 5 } = req.query;
+        
+        console.log('📊 API /api/professionals/stats chamada');
+        console.log('📅 Parâmetros:', { startDate, endDate, limit });
+        
+        let dateFilter = {};
+        if (startDate || endDate) {
+            dateFilter.date = {};
+            if (startDate) dateFilter.date.$gte = new Date(startDate);
+            if (endDate) dateFilter.date.$lte = new Date(endDate);
+        }
+
+        console.log('🔍 Filtro de data:', dateFilter);
+
+        // Buscar agendamentos com filtro de data
+        const appointments = await Appointment.find(dateFilter)
+            .populate('professional', 'firstName lastName photo function')
+            .select('professional');
+
+        console.log('📅 Agendamentos encontrados:', appointments.length);
+
+        // Contar agendamentos por profissional
+        const professionalCounts = {};
+        appointments.forEach(apt => {
+            if (apt.professional && apt.professional._id) {
+                const profId = apt.professional._id.toString();
+                if (!professionalCounts[profId]) {
+                    professionalCounts[profId] = {
+                        professional: apt.professional,
+                        count: 0
+                    };
+                }
+                professionalCounts[profId].count++;
+            }
+        });
+
+        console.log('👥 Contagem por profissional:', Object.keys(professionalCounts).length);
+
+        // Converter para array e ordenar por count
+        let professionalsWithCounts = Object.values(professionalCounts)
+            .sort((a, b) => b.count - a.count)
+            .slice(0, parseInt(limit));
+
+        // Se não há profissionais com agendamentos, buscar todos os profissionais ativos
+        if (professionalsWithCounts.length === 0) {
+            console.log('📭 Nenhum profissional com agendamentos, buscando todos os profissionais ativos...');
+            const allProfessionals = await Professional.find({ status: 'active' })
+                .select('firstName lastName photo function')
+                .limit(parseInt(limit));
+            
+            professionalsWithCounts = allProfessionals.map(professional => ({
+                professional,
+                count: 0
+            }));
+            
+            console.log('👥 Profissionais ativos encontrados:', professionalsWithCounts.length);
+        }
+
+        console.log('🏆 Top profissionais retornados:', professionalsWithCounts.length);
+
+        res.json({
+            success: true,
+            professionals: professionalsWithCounts
+        });
+    } catch (error) {
+        console.error('❌ Erro ao obter estatísticas dos profissionais:', error);
         res.status(500).json({ message: 'Erro interno do servidor' });
     }
 });
