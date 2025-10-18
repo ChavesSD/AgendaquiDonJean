@@ -2885,15 +2885,20 @@ class ReportsManager {
                 const lowStock = products.filter(p => p.quantity <= p.minimumQuantity).length;
                 const stockValue = products.reduce((sum, p) => sum + (p.quantity * p.price), 0);
                 
-                // Carregar histórico de movimentações
-                const historyResponse = await fetch('/api/stock/history', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                
+                // Carregar histórico de movimentações (opcional)
                 let movements = [];
-                if (historyResponse.ok) {
-                    const historyData = await historyResponse.json();
-                    movements = historyData.movements || [];
+                try {
+                    const historyResponse = await fetch('/api/stock/history', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    
+                    if (historyResponse.ok) {
+                        const historyData = await historyResponse.json();
+                        movements = historyData.movements || [];
+                    }
+                } catch (error) {
+                    console.log('📦 Histórico de movimentações não disponível:', error.message);
+                    // Continuar sem histórico
                 }
                 
                 const estoqueData = {
@@ -2975,9 +2980,11 @@ class ReportsManager {
                 const expenses = data.expenses || [];
                 
                 // Processar dados financeiros
-                const totalRevenue = revenues.reduce((sum, r) => sum + r.amount, 0);
-                const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+                const totalRevenue = revenues.reduce((sum, r) => sum + (r.amount || 0), 0);
+                const totalExpenses = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
                 const totalProfit = totalRevenue - totalExpenses;
+                
+                console.log('💰 Dados processados:', { totalRevenue, totalExpenses, totalProfit });
                 
                 const financeiroData = {
                     totalRevenue,
@@ -3153,10 +3160,15 @@ class ReportsManager {
 
     // Métodos de renderização para Estoque
     renderEstoqueStats(data) {
-        document.getElementById('total-products').textContent = data.totalProducts;
-        document.getElementById('low-stock').textContent = data.lowStock;
-        document.getElementById('stock-value').textContent = this.formatCurrency(data.stockValue);
-        document.getElementById('stock-movements').textContent = data.movements;
+        const totalProductsEl = document.getElementById('total-products');
+        const lowStockEl = document.getElementById('low-stock');
+        const stockValueEl = document.getElementById('stock-value');
+        const stockMovementsEl = document.getElementById('stock-movements');
+        
+        if (totalProductsEl) totalProductsEl.textContent = data.totalProducts || 0;
+        if (lowStockEl) lowStockEl.textContent = data.lowStock || 0;
+        if (stockValueEl) stockValueEl.textContent = this.formatCurrency(data.stockValue || 0);
+        if (stockMovementsEl) stockMovementsEl.textContent = data.movements || 0;
     }
 
     renderEstoqueCharts(data) {
@@ -3277,9 +3289,18 @@ class ReportsManager {
 
     // Métodos de renderização para Financeiro
     renderFinanceiroStats(data) {
-        document.getElementById('total-revenue').textContent = this.formatCurrency(data.totalRevenue);
-        document.getElementById('total-expenses').textContent = this.formatCurrency(data.totalExpenses);
-        document.getElementById('total-profit').textContent = this.formatCurrency(data.totalProfit);
+        const totalRevenueEl = document.getElementById('total-revenue');
+        const totalExpensesEl = document.getElementById('total-expenses');
+        const netProfitEl = document.getElementById('net-profit');
+        const profitMarginEl = document.getElementById('profit-margin');
+        
+        if (totalRevenueEl) totalRevenueEl.textContent = this.formatCurrency(data.totalRevenue || 0);
+        if (totalExpensesEl) totalExpensesEl.textContent = this.formatCurrency(data.totalExpenses || 0);
+        if (netProfitEl) netProfitEl.textContent = this.formatCurrency(data.totalProfit || 0);
+        if (profitMarginEl) {
+            const margin = data.totalRevenue > 0 ? ((data.totalProfit || 0) / data.totalRevenue) * 100 : 0;
+            profitMarginEl.textContent = `${margin.toFixed(1)}%`;
+        }
     }
 
     renderFinanceiroCharts(data) {
@@ -3400,10 +3421,18 @@ class ReportsManager {
 
     // Métodos de renderização para Profissionais
     renderProfissionaisStats(data) {
-        document.getElementById('total-professionals').textContent = data.totalProfessionals;
-        document.getElementById('active-professionals').textContent = data.activeProfessionals;
-        document.getElementById('top-professional').textContent = data.topProfessional;
-        document.getElementById('performance').textContent = data.performance + '%';
+        const totalProfessionalsEl = document.getElementById('total-professionals');
+        const activeProfessionalsEl = document.getElementById('active-professionals');
+        const topProfessionalEl = document.getElementById('top-professional');
+        const avgAppointmentsEl = document.getElementById('avg-appointments');
+        
+        if (totalProfessionalsEl) totalProfessionalsEl.textContent = data.totalProfessionals || 0;
+        if (activeProfessionalsEl) activeProfessionalsEl.textContent = data.activeProfessionals || 0;
+        if (topProfessionalEl) topProfessionalEl.textContent = data.topProfessional || '-';
+        if (avgAppointmentsEl) {
+            const avg = data.totalProfessionals > 0 ? Math.round(data.professionals.reduce((sum, p) => sum + (p.appointments || 0), 0) / data.totalProfessionals) : 0;
+            avgAppointmentsEl.textContent = avg;
+        }
     }
 
     renderProfissionaisCharts(data) {
@@ -3489,10 +3518,18 @@ class ReportsManager {
 
     // Métodos de renderização para Serviços
     renderServicosStats(data) {
-        document.getElementById('total-services').textContent = data.totalServices;
-        document.getElementById('popular-service').textContent = data.popularService;
-        document.getElementById('services-revenue').textContent = this.formatCurrency(data.totalRevenue);
-        document.getElementById('evolution').textContent = data.evolution + '%';
+        const totalServicesEl = document.getElementById('total-services');
+        const mostPopularServiceEl = document.getElementById('most-popular-service');
+        const avgServicePriceEl = document.getElementById('avg-service-price');
+        const serviceRevenueEl = document.getElementById('service-revenue');
+        
+        if (totalServicesEl) totalServicesEl.textContent = data.totalServices || 0;
+        if (mostPopularServiceEl) mostPopularServiceEl.textContent = data.popularService || '-';
+        if (avgServicePriceEl) {
+            const avgPrice = data.totalServices > 0 ? data.totalRevenue / data.totalServices : 0;
+            avgServicePriceEl.textContent = this.formatCurrency(avgPrice);
+        }
+        if (serviceRevenueEl) serviceRevenueEl.textContent = this.formatCurrency(data.totalRevenue || 0);
     }
 
     renderServicosCharts(data) {
@@ -3699,6 +3736,17 @@ class ReportsManager {
             services: data.services,
             revenue: data.revenue
         }));
+    }
+
+    // Método para formatar moeda
+    formatCurrency(value) {
+        if (isNaN(value) || value === null || value === undefined) {
+            return 'R$ 0,00';
+        }
+        return new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        }).format(value);
     }
 
     showLoadingState() {
