@@ -2522,7 +2522,34 @@ class ReportsManager {
 
     async loadAgendaData() {
         try {
-            console.log('📊 Carregando dados da agenda...');
+            console.log('📊 Carregando dados da agenda (com filtros de data)...');
+            
+            // Usar o AgendaManager existente se disponível
+            if (window.agendaManager) {
+                console.log('📊 Usando AgendaManager existente...');
+                
+                // Aplicar filtros de data ao AgendaManager
+                window.agendaManager.filters.startDate = this.currentFilters.startDate;
+                window.agendaManager.filters.endDate = this.currentFilters.endDate;
+                
+                // Carregar dados com filtros
+                await window.agendaManager.loadAppointments();
+                await window.agendaManager.loadStatistics();
+                
+                // Obter dados do AgendaManager
+                const appointments = window.agendaManager.appointments || [];
+                const stats = window.agendaManager.statistics || {};
+                
+                console.log('📊 Dados da agenda carregados:', { appointments: appointments.length, stats });
+                
+                this.renderAgendaStats(appointments);
+                this.renderAgendaCharts(appointments);
+                this.hideLoadingState();
+                return;
+            }
+            
+            // Fallback: carregar dados diretamente
+            console.log('📊 Carregando dados da agenda diretamente...');
             const token = localStorage.getItem('authToken');
             const startDate = this.formatDateForInput(this.currentFilters.startDate);
             const endDate = this.formatDateForInput(this.currentFilters.endDate);
@@ -2808,12 +2835,10 @@ class ReportsManager {
     // Métodos para outras abas (implementação básica)
     async loadEstoqueData() {
         try {
-            console.log('📦 Carregando dados do estoque...');
+            console.log('📦 Carregando dados do estoque (sem filtros de data)...');
+            
             const token = localStorage.getItem('authToken');
-            const startDate = this.formatDateForInput(this.currentFilters.startDate);
-            const endDate = this.formatDateForInput(this.currentFilters.endDate);
-
-            console.log('📦 Filtros:', { startDate, endDate, token: !!token });
+            console.log('📦 Token:', token ? 'Disponível' : 'Não disponível');
 
             // Simular dados para teste se não houver token
             if (!token) {
@@ -2846,15 +2871,48 @@ class ReportsManager {
                 return;
             }
 
-            const response = await fetch(`/api/stock?startDate=${startDate}&endDate=${endDate}`, {
+            // Carregar dados do estoque (sem filtros de data)
+            const response = await fetch('/api/products', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
             if (response.ok) {
                 const data = await response.json();
-                console.log('📦 Dados recebidos:', data);
-                this.renderEstoqueStats(data);
-                this.renderEstoqueCharts(data);
+                const products = data.products || [];
+                
+                // Processar dados do estoque
+                const totalProducts = products.length;
+                const lowStock = products.filter(p => p.quantity <= p.minimumQuantity).length;
+                const stockValue = products.reduce((sum, p) => sum + (p.quantity * p.price), 0);
+                
+                // Carregar histórico de movimentações
+                const historyResponse = await fetch('/api/stock/history', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                let movements = [];
+                if (historyResponse.ok) {
+                    const historyData = await historyResponse.json();
+                    movements = historyData.movements || [];
+                }
+                
+                const estoqueData = {
+                    totalProducts,
+                    lowStock,
+                    stockValue,
+                    movements: movements.length,
+                    categories: this.processCategories(products),
+                    lowStockItems: products.filter(p => p.quantity <= p.minimumQuantity).map(p => ({
+                        name: p.name,
+                        current: p.quantity,
+                        minimum: p.minimumQuantity
+                    })),
+                    movements: movements.slice(0, 10) // Últimas 10 movimentações
+                };
+                
+                console.log('📦 Dados do estoque carregados:', estoqueData);
+                this.renderEstoqueStats(estoqueData);
+                this.renderEstoqueCharts(estoqueData);
             } else {
                 console.error('📦 Erro na resposta da API:', response.status);
             }
@@ -2867,7 +2925,8 @@ class ReportsManager {
 
     async loadFinanceiroData() {
         try {
-            console.log('💰 Carregando dados financeiros...');
+            console.log('💰 Carregando dados financeiros (com filtros de data)...');
+            
             const token = localStorage.getItem('authToken');
             const startDate = this.formatDateForInput(this.currentFilters.startDate);
             const endDate = this.formatDateForInput(this.currentFilters.endDate);
@@ -2905,15 +2964,33 @@ class ReportsManager {
                 return;
             }
 
+            // Carregar dados financeiros com filtros de data
             const response = await fetch(`/api/finance?startDate=${startDate}&endDate=${endDate}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
             if (response.ok) {
                 const data = await response.json();
-                console.log('💰 Dados recebidos:', data);
-                this.renderFinanceiroStats(data);
-                this.renderFinanceiroCharts(data);
+                const revenues = data.revenues || [];
+                const expenses = data.expenses || [];
+                
+                // Processar dados financeiros
+                const totalRevenue = revenues.reduce((sum, r) => sum + r.amount, 0);
+                const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+                const totalProfit = totalRevenue - totalExpenses;
+                
+                const financeiroData = {
+                    totalRevenue,
+                    totalExpenses,
+                    totalProfit,
+                    monthlyData: this.processMonthlyFinanceData(revenues, expenses),
+                    revenueSources: this.processRevenueSources(revenues),
+                    expenseCategories: this.processExpenseCategories(expenses)
+                };
+                
+                console.log('💰 Dados financeiros carregados:', financeiroData);
+                this.renderFinanceiroStats(financeiroData);
+                this.renderFinanceiroCharts(financeiroData);
             } else {
                 console.error('💰 Erro na resposta da API:', response.status);
             }
@@ -2926,12 +3003,10 @@ class ReportsManager {
 
     async loadProfissionaisData() {
         try {
-            console.log('👥 Carregando dados dos profissionais...');
+            console.log('👥 Carregando dados dos profissionais (sem filtros de data)...');
+            
             const token = localStorage.getItem('authToken');
-            const startDate = this.formatDateForInput(this.currentFilters.startDate);
-            const endDate = this.formatDateForInput(this.currentFilters.endDate);
-
-            console.log('👥 Filtros:', { startDate, endDate, token: !!token });
+            console.log('👥 Token:', token ? 'Disponível' : 'Não disponível');
 
             // Simular dados para teste se não houver token
             if (!token) {
@@ -2959,15 +3034,38 @@ class ReportsManager {
                 return;
             }
 
-            const response = await fetch(`/api/professionals?startDate=${startDate}&endDate=${endDate}`, {
+            // Carregar dados dos profissionais (sem filtros de data)
+            const response = await fetch('/api/professionals', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
             if (response.ok) {
                 const data = await response.json();
-                console.log('👥 Dados recebidos:', data);
-                this.renderProfissionaisStats(data);
-                this.renderProfissionaisCharts(data);
+                const professionals = data.professionals || [];
+                
+                // Processar dados dos profissionais
+                const totalProfessionals = professionals.length;
+                const activeProfessionals = professionals.filter(p => p.status === 'active').length;
+                const topProfessional = professionals.reduce((top, current) => 
+                    (current.appointments || 0) > (top.appointments || 0) ? current : top, professionals[0] || {});
+                
+                const profissionaisData = {
+                    totalProfessionals,
+                    activeProfessionals,
+                    topProfessional: topProfessional.firstName + ' ' + topProfessional.lastName,
+                    performance: 95, // Calcular baseado em dados reais
+                    professionals: professionals.map(p => ({
+                        name: p.firstName + ' ' + p.lastName,
+                        appointments: p.appointments || 0,
+                        revenue: p.revenue || 0,
+                        rating: p.rating || 0
+                    })),
+                    monthlyPerformance: this.processMonthlyPerformance(professionals)
+                };
+                
+                console.log('👥 Dados dos profissionais carregados:', profissionaisData);
+                this.renderProfissionaisStats(profissionaisData);
+                this.renderProfissionaisCharts(profissionaisData);
             } else {
                 console.error('👥 Erro na resposta da API:', response.status);
             }
@@ -2980,12 +3078,10 @@ class ReportsManager {
 
     async loadServicosData() {
         try {
-            console.log('⚙️ Carregando dados dos serviços...');
+            console.log('⚙️ Carregando dados dos serviços (sem filtros de data)...');
+            
             const token = localStorage.getItem('authToken');
-            const startDate = this.formatDateForInput(this.currentFilters.startDate);
-            const endDate = this.formatDateForInput(this.currentFilters.endDate);
-
-            console.log('⚙️ Filtros:', { startDate, endDate, token: !!token });
+            console.log('⚙️ Token:', token ? 'Disponível' : 'Não disponível');
 
             // Simular dados para teste se não houver token
             if (!token) {
@@ -3014,15 +3110,37 @@ class ReportsManager {
                 return;
             }
 
-            const response = await fetch(`/api/services?startDate=${startDate}&endDate=${endDate}`, {
+            // Carregar dados dos serviços (sem filtros de data)
+            const response = await fetch('/api/services', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
             if (response.ok) {
                 const data = await response.json();
-                console.log('⚙️ Dados recebidos:', data);
-                this.renderServicosStats(data);
-                this.renderServicosCharts(data);
+                const services = data.services || [];
+                
+                // Processar dados dos serviços
+                const totalServices = services.length;
+                const popularService = services.reduce((popular, current) => 
+                    (current.appointments || 0) > (popular.appointments || 0) ? current : popular, services[0] || {});
+                
+                const servicosData = {
+                    totalServices,
+                    popularService: popularService.name || 'N/A',
+                    totalRevenue: services.reduce((sum, s) => sum + (s.revenue || 0), 0),
+                    evolution: 12.5, // Calcular baseado em dados reais
+                    services: services.map(s => ({
+                        name: s.name,
+                        appointments: s.appointments || 0,
+                        revenue: s.revenue || 0,
+                        price: s.price || 0
+                    })),
+                    monthlyEvolution: this.processMonthlyServicesEvolution(services)
+                };
+                
+                console.log('⚙️ Dados dos serviços carregados:', servicosData);
+                this.renderServicosStats(servicosData);
+                this.renderServicosCharts(servicosData);
             } else {
                 console.error('⚙️ Erro na resposta da API:', response.status);
             }
@@ -3452,6 +3570,135 @@ class ReportsManager {
                 }
             }
         });
+    }
+
+    // Métodos auxiliares para processar dados
+    processCategories(products) {
+        const categories = {};
+        products.forEach(product => {
+            const category = product.category || 'Outros';
+            if (!categories[category]) {
+                categories[category] = { count: 0, value: 0 };
+            }
+            categories[category].count++;
+            categories[category].value += product.quantity * product.price;
+        });
+        
+        return Object.entries(categories).map(([name, data]) => ({
+            name,
+            count: data.count,
+            value: data.value
+        }));
+    }
+
+    processMonthlyFinanceData(revenues, expenses) {
+        const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        const monthlyData = {};
+        
+        revenues.forEach(revenue => {
+            const month = new Date(revenue.date).getMonth();
+            if (!monthlyData[month]) {
+                monthlyData[month] = { revenue: 0, expenses: 0 };
+            }
+            monthlyData[month].revenue += revenue.amount;
+        });
+        
+        expenses.forEach(expense => {
+            const month = new Date(expense.date).getMonth();
+            if (!monthlyData[month]) {
+                monthlyData[month] = { revenue: 0, expenses: 0 };
+            }
+            monthlyData[month].expenses += expense.amount;
+        });
+        
+        return Object.entries(monthlyData).map(([month, data]) => ({
+            month: months[parseInt(month)],
+            revenue: data.revenue,
+            expenses: data.expenses,
+            profit: data.revenue - data.expenses
+        }));
+    }
+
+    processRevenueSources(revenues) {
+        const sources = {};
+        revenues.forEach(revenue => {
+            const source = revenue.source || 'Outros';
+            if (!sources[source]) {
+                sources[source] = 0;
+            }
+            sources[source] += revenue.amount;
+        });
+        
+        const total = Object.values(sources).reduce((sum, amount) => sum + amount, 0);
+        return Object.entries(sources).map(([source, amount]) => ({
+            source,
+            amount,
+            percentage: total > 0 ? (amount / total) * 100 : 0
+        }));
+    }
+
+    processExpenseCategories(expenses) {
+        const categories = {};
+        expenses.forEach(expense => {
+            const category = expense.category || 'Outros';
+            if (!categories[category]) {
+                categories[category] = 0;
+            }
+            categories[category] += expense.amount;
+        });
+        
+        return Object.entries(categories).map(([category, amount]) => ({
+            category,
+            amount
+        }));
+    }
+
+    processMonthlyPerformance(professionals) {
+        const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        const monthlyData = {};
+        
+        professionals.forEach(professional => {
+            if (professional.monthlyData) {
+                professional.monthlyData.forEach(data => {
+                    const month = new Date(data.date).getMonth();
+                    if (!monthlyData[month]) {
+                        monthlyData[month] = { appointments: 0, revenue: 0 };
+                    }
+                    monthlyData[month].appointments += data.appointments || 0;
+                    monthlyData[month].revenue += data.revenue || 0;
+                });
+            }
+        });
+        
+        return Object.entries(monthlyData).map(([month, data]) => ({
+            month: months[parseInt(month)],
+            appointments: data.appointments,
+            revenue: data.revenue
+        }));
+    }
+
+    processMonthlyServicesEvolution(services) {
+        const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        const monthlyData = {};
+        
+        services.forEach(service => {
+            if (service.monthlyData) {
+                service.monthlyData.forEach(data => {
+                    const month = new Date(data.date).getMonth();
+                    if (!monthlyData[month]) {
+                        monthlyData[month] = { services: 0, revenue: 0 };
+                    }
+                    monthlyData[month].services += data.appointments || 0;
+                    monthlyData[month].revenue += data.revenue || 0;
+                });
+            }
+        });
+        
+        return Object.entries(monthlyData).map(([month, data]) => ({
+            month: months[parseInt(month)],
+            services: data.services,
+            revenue: data.revenue
+        }));
     }
 
     showLoadingState() {
