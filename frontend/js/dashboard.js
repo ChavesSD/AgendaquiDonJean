@@ -3761,35 +3761,259 @@ class ReportsManager {
 
     // Métodos de renderização para Financeiro
     renderFinanceiroStats(data) {
-        const totalRevenueEl = document.getElementById('total-revenue');
-        const totalExpensesEl = document.getElementById('total-expenses');
-        const netProfitEl = document.getElementById('net-profit');
-        const profitMarginEl = document.getElementById('profit-margin');
+        console.log('💰 Renderizando estatísticas financeiras:', data);
         
-        if (totalRevenueEl) totalRevenueEl.textContent = this.formatCurrency(data.totalRevenue || 0);
-        if (totalExpensesEl) totalExpensesEl.textContent = this.formatCurrency(data.totalExpenses || 0);
-        if (netProfitEl) netProfitEl.textContent = this.formatCurrency(data.totalProfit || 0);
+        const totalRevenueEl = document.getElementById('reports-total-revenue');
+        const totalExpensesEl = document.getElementById('reports-total-expenses');
+        const netProfitEl = document.getElementById('reports-net-profit');
+        const profitMarginEl = document.getElementById('reports-profit-margin');
+        
+        console.log('💰 Elementos encontrados:', {
+            totalRevenueEl: !!totalRevenueEl,
+            totalExpensesEl: !!totalExpensesEl,
+            netProfitEl: !!netProfitEl,
+            profitMarginEl: !!profitMarginEl
+        });
+        
+        if (totalRevenueEl) {
+            totalRevenueEl.textContent = this.formatCurrency(data.totalRevenue || 0);
+            console.log('💰 Receita total atualizada:', this.formatCurrency(data.totalRevenue || 0));
+        }
+        if (totalExpensesEl) {
+            totalExpensesEl.textContent = this.formatCurrency(data.totalExpenses || 0);
+            console.log('💰 Despesas totais atualizadas:', this.formatCurrency(data.totalExpenses || 0));
+        }
+        if (netProfitEl) {
+            netProfitEl.textContent = this.formatCurrency(data.totalProfit || 0);
+            console.log('💰 Lucro líquido atualizado:', this.formatCurrency(data.totalProfit || 0));
+        }
         if (profitMarginEl) {
             const margin = data.totalRevenue > 0 ? ((data.totalProfit || 0) / data.totalRevenue) * 100 : 0;
             profitMarginEl.textContent = `${margin.toFixed(1)}%`;
+            console.log('💰 Margem de lucro atualizada:', `${margin.toFixed(1)}%`);
         }
     }
 
     renderFinanceiroCharts(data) {
-        this.renderMonthlyFinanceChart(data.monthlyData);
-        this.renderRevenueSourcesChart(data.revenueSources);
+        console.log('💰 Renderizando gráficos financeiros:', data);
+        this.renderRevenueExpensesChart(data.monthlyData);
+        this.renderCashflowChart(data.monthlyData);
         this.renderExpenseCategoriesChart(data.expenseCategories);
+        this.renderMonthlyEvolutionChart(data.monthlyData);
     }
 
-    renderMonthlyFinanceChart(monthlyData) {
-        const ctx = document.getElementById('monthlyFinanceChart');
-        if (!ctx) return;
-
-        if (this.charts.monthlyFinance) {
-            this.charts.monthlyFinance.destroy();
+    renderRevenueExpensesChart(monthlyData) {
+        console.log('💰 Renderizando gráfico Receita vs Despesas:', monthlyData);
+        const ctx = document.getElementById('revenueExpensesChart');
+        if (!ctx) {
+            console.error('💰 Elemento revenueExpensesChart não encontrado');
+            return;
         }
 
-        this.charts.monthlyFinance = new Chart(ctx, {
+        if (this.charts.revenueExpenses) {
+            this.charts.revenueExpenses.destroy();
+        }
+
+        if (!monthlyData || monthlyData.length === 0) {
+            console.log('💰 Nenhum dado mensal encontrado, usando dados de exemplo');
+            this.charts.revenueExpenses = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Sem dados'],
+                    datasets: [{
+                        label: 'Receitas',
+                        data: [0],
+                        backgroundColor: '#27ae60'
+                    }, {
+                        label: 'Despesas',
+                        data: [0],
+                        backgroundColor: '#e74c3c'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Valor (R$)' } },
+                        x: { title: { display: true, text: 'Período' } }
+                    },
+                    plugins: { legend: { display: true, position: 'top' } }
+                }
+            });
+            return;
+        }
+
+        this.charts.revenueExpenses = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: monthlyData.map(item => item.month),
+                datasets: [{
+                    label: 'Receitas',
+                    data: monthlyData.map(item => item.revenue),
+                    backgroundColor: '#27ae60',
+                    borderColor: '#229954',
+                    borderWidth: 1
+                }, {
+                    label: 'Despesas',
+                    data: monthlyData.map(item => item.expenses),
+                    backgroundColor: '#e74c3c',
+                    borderColor: '#c0392b',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Valor (R$)' },
+                        ticks: { callback: function(value) { return 'R$ ' + value.toLocaleString('pt-BR'); } }
+                    },
+                    x: { title: { display: true, text: 'Mês' } }
+                },
+                plugins: {
+                    legend: { display: true, position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': R$ ' + context.parsed.y.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    renderCashflowChart(monthlyData) {
+        console.log('💰 Renderizando gráfico Fluxo de Caixa:', monthlyData);
+        const ctx = document.getElementById('cashflowChart');
+        if (!ctx) {
+            console.error('💰 Elemento cashflowChart não encontrado');
+            return;
+        }
+
+        if (this.charts.cashflow) {
+            this.charts.cashflow.destroy();
+        }
+
+        if (!monthlyData || monthlyData.length === 0) {
+            console.log('💰 Nenhum dado mensal encontrado, usando dados de exemplo');
+            this.charts.cashflow = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Sem dados'],
+                    datasets: [{
+                        label: 'Fluxo de Caixa',
+                        data: [0],
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+            return;
+        }
+
+        // Calcular fluxo de caixa acumulado
+        let cumulativeCashflow = 0;
+        const cashflowData = monthlyData.map(item => {
+            cumulativeCashflow += (item.revenue - item.expenses);
+            return cumulativeCashflow;
+        });
+
+        this.charts.cashflow = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: monthlyData.map(item => item.month),
+                datasets: [{
+                    label: 'Fluxo de Caixa Acumulado',
+                    data: cashflowData,
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Valor Acumulado (R$)' },
+                        ticks: { callback: function(value) { return 'R$ ' + value.toLocaleString('pt-BR'); } }
+                    },
+                    x: { title: { display: true, text: 'Mês' } }
+                },
+                plugins: {
+                    legend: { display: true, position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Fluxo: R$ ' + context.parsed.y.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    renderMonthlyEvolutionChart(monthlyData) {
+        console.log('💰 Renderizando gráfico Evolução Mensal:', monthlyData);
+        const ctx = document.getElementById('monthlyEvolutionChart');
+        if (!ctx) {
+            console.error('💰 Elemento monthlyEvolutionChart não encontrado');
+            return;
+        }
+
+        if (this.charts.monthlyEvolution) {
+            this.charts.monthlyEvolution.destroy();
+        }
+
+        if (!monthlyData || monthlyData.length === 0) {
+            console.log('💰 Nenhum dado mensal encontrado, usando dados de exemplo');
+            this.charts.monthlyEvolution = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Sem dados'],
+                    datasets: [{
+                        label: 'Receitas',
+                        data: [0],
+                        borderColor: '#27ae60',
+                        backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Despesas',
+                        data: [0],
+                        borderColor: '#e74c3c',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Lucro',
+                        data: [0],
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+            return;
+        }
+
+        this.charts.monthlyEvolution = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: monthlyData.map(item => item.month),
@@ -3800,7 +4024,7 @@ class ReportsManager {
                     backgroundColor: 'rgba(39, 174, 96, 0.1)',
                     tension: 0.4
                 }, {
-                    label: 'Gastos',
+                    label: 'Despesas',
                     data: monthlyData.map(item => item.expenses),
                     borderColor: '#e74c3c',
                     backgroundColor: 'rgba(231, 76, 60, 0.1)',
@@ -3818,40 +4042,19 @@ class ReportsManager {
                 maintainAspectRatio: false,
                 scales: {
                     y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    }
-
-    renderRevenueSourcesChart(revenueSources) {
-        const ctx = document.getElementById('revenueSourcesChart');
-        if (!ctx) return;
-
-        if (this.charts.revenueSources) {
-            this.charts.revenueSources.destroy();
-        }
-
-        this.charts.revenueSources = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: revenueSources.map(source => source.source),
-                datasets: [{
-                    data: revenueSources.map(source => source.amount),
-                    backgroundColor: ['#27ae60', '#f39c12', '#3498db'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                        beginAtZero: true,
+                        title: { display: true, text: 'Valor (R$)' },
+                        ticks: { callback: function(value) { return 'R$ ' + value.toLocaleString('pt-BR'); } }
+                    },
+                    x: { title: { display: true, text: 'Mês' } }
+                },
                 plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 20,
-                            usePointStyle: true
+                    legend: { display: true, position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': R$ ' + context.parsed.y.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                            }
                         }
                     }
                 }
@@ -3860,31 +4063,80 @@ class ReportsManager {
     }
 
     renderExpenseCategoriesChart(expenseCategories) {
-        const ctx = document.getElementById('expenseCategoriesChart');
-        if (!ctx) return;
+        console.log('💰 Renderizando gráfico Despesas por Categoria:', expenseCategories);
+        const ctx = document.getElementById('expensesCategoryChart');
+        if (!ctx) {
+            console.error('💰 Elemento expensesCategoryChart não encontrado');
+            return;
+        }
 
         if (this.charts.expenseCategories) {
             this.charts.expenseCategories.destroy();
         }
 
+        if (!expenseCategories || expenseCategories.length === 0) {
+            console.log('💰 Nenhuma categoria de despesa encontrada, usando dados de exemplo');
+            this.charts.expenseCategories = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Sem dados'],
+                    datasets: [{
+                        data: [1],
+                        backgroundColor: ['#e74c3c']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true, position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Sem dados disponíveis';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            return;
+        }
+
         this.charts.expenseCategories = new Chart(ctx, {
-            type: 'bar',
+            type: 'doughnut',
             data: {
-                labels: expenseCategories.map(cat => cat.category),
+                labels: expenseCategories.map(item => item.category),
                 datasets: [{
-                    label: 'Valor',
-                    data: expenseCategories.map(cat => cat.amount),
-                    backgroundColor: '#e74c3c',
-                    borderColor: '#c0392b',
+                    data: expenseCategories.map(item => item.amount),
+                    backgroundColor: [
+                        '#e74c3c', '#f39c12', '#e67e22', '#d35400', '#c0392b',
+                        '#8e44ad', '#9b59b6', '#3498db', '#2980b9', '#1abc9c'
+                    ],
+                    borderColor: '#fff',
                     borderWidth: 2
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
+                plugins: {
+                    legend: { 
+                        display: true, 
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                return context.label + ': R$ ' + context.parsed.toLocaleString('pt-BR', {minimumFractionDigits: 2}) + ' (' + percentage + '%)';
+                            }
+                        }
                     }
                 }
             }
