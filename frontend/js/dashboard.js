@@ -2881,6 +2881,8 @@ class ReportsManager {
                     lowStock: 8,
                     stockValue: 12500.50,
                     movementsCount: 23,
+                    movementsEntries: 15,
+                    movementsExits: 8,
                     categories: [
                         { name: 'Cabelo', count: 15, value: 4500.00 },
                         { name: 'Unhas', count: 12, value: 3200.00 },
@@ -2974,11 +2976,23 @@ class ReportsManager {
                 
                 console.log('📦 Total de movimentações encontradas:', movements.length);
                 
+                // Calcular entradas e saídas
+                const entries = movements.filter(m => m.type === 'entrada').length;
+                const exits = movements.filter(m => m.type === 'saida').length;
+                
+                console.log('📦 Movimentações por tipo:', {
+                    total: movements.length,
+                    entries,
+                    exits
+                });
+                
                 const estoqueData = {
                     totalProducts,
                     lowStock,
                     stockValue,
                     movementsCount: movements.length,
+                    movementsEntries: entries,
+                    movementsExits: exits,
                     categories: this.processCategories(products),
                     lowStockItems: products.filter(p => {
                         const quantity = p.quantity || p.stock || 0;
@@ -3273,6 +3287,19 @@ class ReportsManager {
         if (stockMovementsEl) {
             stockMovementsEl.textContent = data.movementsCount || 0;
             console.log('📦 Movimentações definidas:', data.movementsCount || 0);
+        }
+        
+        // Atualizar detalhes das movimentações
+        const entriesEl = document.getElementById('reports-stock-entries');
+        const exitsEl = document.getElementById('reports-stock-exits');
+        
+        if (entriesEl) {
+            entriesEl.textContent = data.movementsEntries || 0;
+            console.log('📦 Entradas definidas:', data.movementsEntries || 0);
+        }
+        if (exitsEl) {
+            exitsEl.textContent = data.movementsExits || 0;
+            console.log('📦 Saídas definidas:', data.movementsExits || 0);
         }
     }
 

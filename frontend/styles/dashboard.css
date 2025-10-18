@@ -6831,6 +6831,42 @@ body {
     }
 }
 
+/* Detalhes das Movimentações */
+.movements-details {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(151, 87, 86, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.movement-entry,
+.movement-exit {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+}
+
+.movement-label {
+    color: #666;
+    font-weight: 500;
+}
+
+.movement-value {
+    font-weight: 600;
+    color: #333;
+}
+
+.movement-entry .movement-value {
+    color: #27ae60;
+}
+
+.movement-exit .movement-value {
+    color: #e74c3c;
+}
+
 /* Botões de Exportação dos Relatórios */
 .reports-export-actions {
     display: flex;
