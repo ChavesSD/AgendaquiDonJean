@@ -2144,22 +2144,13 @@ class FloatingAIIcon {
         this.icon.className = 'floating-ai-icon';
         this.icon.setAttribute('title', 'Assistente IA');
         
-        // Criar imagem do ícone
-        const img = document.createElement('img');
-        img.src = '../assets/AI.png';
-        img.alt = 'Assistente IA';
-        img.onerror = () => {
-            console.error('❌ Erro ao carregar imagem AI.png');
-            // Fallback: usar ícone FontAwesome
-            this.icon.innerHTML = '<i class="fas fa-robot" style="color: white; font-size: 24px;"></i>';
-        };
-        
-        this.icon.appendChild(img);
+        // Usar texto "AI" em vez de imagem para estilo futurista
+        this.icon.textContent = 'AI';
         
         // Adicionar ao DOM
         document.body.appendChild(this.icon);
         
-        console.log('✅ Ícone flutuante AI criado e adicionado ao DOM');
+        console.log('✅ Ícone flutuante AI futurista criado e adicionado ao DOM');
     }
 
     setupEventListeners() {

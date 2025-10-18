@@ -6256,107 +6256,119 @@ body {
     }
 }
 
-/* Ícone Flutuante AI */
+/* Ícone Flutuante AI - Estilo Futurista */
 .floating-ai-icon {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #975756 0%, #7a4443 100%);
+    bottom: 20px;
+    right: 20px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
+    background: radial-gradient(circle at top left, rgba(200, 100, 255, 0.8), rgba(120, 80, 200, 0.4));
+    box-shadow: inset -10px -10px 20px rgba(255,255,255,0.5), 
+                0 5px 15px rgba(100,0,200,0.4),
+                0 0 20px rgba(150,0,255,0.5);
+    animation: wobble 4s infinite ease-in-out;
+    cursor: pointer;
+    backdrop-filter: blur(2px);
+    z-index: 1000;
+    
+    /* Texto AI futurista */
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    z-index: 1000;
-    box-shadow: 0 8px 25px rgba(151, 87, 86, 0.3);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 3px solid rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    animation: float 3s ease-in-out infinite;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    font-size: 20px;
+    color: #fff;
+    text-shadow:
+        0 0 5px rgba(255,255,255,0.8),
+        0 0 10px rgba(200,0,255,0.6),
+        0 0 20px rgba(200,0,255,0.6);
+    transition: all 0.3s ease;
 }
 
 .floating-ai-icon:hover {
-    transform: scale(1.1) translateY(-5px);
-    box-shadow: 0 15px 35px rgba(151, 87, 86, 0.4);
-    border-color: rgba(255, 255, 255, 0.4);
+    transform: scale(1.1);
+    box-shadow: inset -10px -10px 20px rgba(255,255,255,0.6), 
+                0 8px 20px rgba(100,0,200,0.6),
+                0 0 30px rgba(150,0,255,0.7);
+    text-shadow:
+        0 0 8px rgba(255,255,255,1),
+        0 0 15px rgba(200,0,255,0.8),
+        0 0 25px rgba(200,0,255,0.8);
 }
 
 .floating-ai-icon:active {
     transform: scale(0.95);
-}
-
-.floating-ai-icon img {
-    width: 35px;
-    height: 35px;
-    object-fit: contain;
-    filter: brightness(1.2);
-    transition: all 0.3s ease;
-}
-
-.floating-ai-icon:hover img {
-    transform: rotate(10deg) scale(1.1);
-    filter: brightness(1.4);
-}
-
-/* Animação de flutuação */
-@keyframes float {
-    0%, 100% {
-        transform: translateY(0px);
-    }
-    50% {
-        transform: translateY(-10px);
-    }
-}
-
-/* Animação de pulsação */
-@keyframes pulse {
-    0% {
-        box-shadow: 0 8px 25px rgba(151, 87, 86, 0.3);
-    }
-    50% {
-        box-shadow: 0 8px 25px rgba(151, 87, 86, 0.3), 0 0 0 10px rgba(151, 87, 86, 0.1);
-    }
-    100% {
-        box-shadow: 0 8px 25px rgba(151, 87, 86, 0.3);
-    }
-}
-
-/* Efeito de ondas quando clicado */
-.floating-ai-icon.clicked {
     animation: pulse 0.6s ease-out;
 }
 
-/* Tooltip do ícone */
+/* Esconder a imagem e mostrar texto AI */
+.floating-ai-icon img {
+    display: none;
+}
+
+/* Animação de deformação / movimento orgânico */
+@keyframes wobble {
+    0% { transform: scale(1) translate(0,0); }
+    25% { transform: scale(1.05, 0.95) translate(2px, -2px); }
+    50% { transform: scale(0.95, 1.05) translate(-2px, 2px); }
+    75% { transform: scale(1.03, 0.97) translate(1px, -1px); }
+    100% { transform: scale(1) translate(0,0); }
+}
+
+/* Animação de pulsação futurista */
+@keyframes pulse {
+    0% {
+        box-shadow: inset -10px -10px 20px rgba(255,255,255,0.5), 
+                    0 5px 15px rgba(100,0,200,0.4),
+                    0 0 20px rgba(150,0,255,0.5);
+    }
+    50% {
+        box-shadow: inset -10px -10px 20px rgba(255,255,255,0.7), 
+                    0 8px 25px rgba(100,0,200,0.6),
+                    0 0 30px rgba(150,0,255,0.8);
+    }
+    100% {
+        box-shadow: inset -10px -10px 20px rgba(255,255,255,0.5), 
+                    0 5px 15px rgba(100,0,200,0.4),
+                    0 0 20px rgba(150,0,255,0.5);
+    }
+}
+
+/* Tooltip futurista */
 .floating-ai-icon::before {
     content: 'Assistente IA';
     position: absolute;
-    right: 70px;
+    right: 80px;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.8);
+    background: linear-gradient(135deg, rgba(200, 100, 255, 0.9), rgba(120, 80, 200, 0.9));
     color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
+    padding: 10px 15px;
+    border-radius: 10px;
     font-size: 12px;
     font-weight: 500;
+    font-family: 'Orbitron', sans-serif;
     white-space: nowrap;
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
     pointer-events: none;
     backdrop-filter: blur(10px);
+    box-shadow: 0 5px 15px rgba(100,0,200,0.3);
+    text-shadow: 0 0 5px rgba(255,255,255,0.5);
 }
 
 .floating-ai-icon::after {
     content: '';
     position: absolute;
-    right: 60px;
+    right: 70px;
     top: 50%;
     transform: translateY(-50%);
-    border: 5px solid transparent;
-    border-left-color: rgba(0, 0, 0, 0.8);
+    border: 6px solid transparent;
+    border-left-color: rgba(200, 100, 255, 0.9);
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
@@ -6904,4 +6916,5 @@ body {
         justify-content: center;
     }
 }
+
 
