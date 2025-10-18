@@ -2807,23 +2807,651 @@ class ReportsManager {
 
     // Métodos para outras abas (implementação básica)
     async loadEstoqueData() {
-        console.log('📦 Carregando dados do estoque...');
-        // Implementar carregamento de dados do estoque
+        try {
+            console.log('📦 Carregando dados do estoque...');
+            const token = localStorage.getItem('authToken');
+            const startDate = this.formatDateForInput(this.currentFilters.startDate);
+            const endDate = this.formatDateForInput(this.currentFilters.endDate);
+
+            console.log('📦 Filtros:', { startDate, endDate, token: !!token });
+
+            // Simular dados para teste se não houver token
+            if (!token) {
+                console.log('📦 Simulando dados do estoque...');
+                const mockData = {
+                    totalProducts: 45,
+                    lowStock: 8,
+                    stockValue: 12500.50,
+                    movements: 23,
+                    categories: [
+                        { name: 'Cabelo', count: 15, value: 4500.00 },
+                        { name: 'Unhas', count: 12, value: 3200.00 },
+                        { name: 'Estética', count: 18, value: 4800.50 }
+                    ],
+                    lowStockItems: [
+                        { name: 'Shampoo', current: 2, minimum: 5 },
+                        { name: 'Esmalte', current: 1, minimum: 10 },
+                        { name: 'Creme', current: 3, minimum: 8 }
+                    ],
+                    movements: [
+                        { date: '2025-10-15', type: 'entrada', product: 'Shampoo', quantity: 20 },
+                        { date: '2025-10-16', type: 'saida', product: 'Esmalte', quantity: 5 },
+                        { date: '2025-10-17', type: 'entrada', product: 'Creme', quantity: 15 }
+                    ]
+                };
+                
+                this.renderEstoqueStats(mockData);
+                this.renderEstoqueCharts(mockData);
+                this.hideLoadingState();
+                return;
+            }
+
+            const response = await fetch(`/api/stock?startDate=${startDate}&endDate=${endDate}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('📦 Dados recebidos:', data);
+                this.renderEstoqueStats(data);
+                this.renderEstoqueCharts(data);
+            } else {
+                console.error('📦 Erro na resposta da API:', response.status);
+            }
+        } catch (error) {
+            console.error('📦 Erro ao carregar dados do estoque:', error);
+        } finally {
+            this.hideLoadingState();
+        }
     }
 
     async loadFinanceiroData() {
-        console.log('💰 Carregando dados financeiros...');
-        // Implementar carregamento de dados financeiros
+        try {
+            console.log('💰 Carregando dados financeiros...');
+            const token = localStorage.getItem('authToken');
+            const startDate = this.formatDateForInput(this.currentFilters.startDate);
+            const endDate = this.formatDateForInput(this.currentFilters.endDate);
+
+            console.log('💰 Filtros:', { startDate, endDate, token: !!token });
+
+            // Simular dados para teste se não houver token
+            if (!token) {
+                console.log('💰 Simulando dados financeiros...');
+                const mockData = {
+                    totalRevenue: 25000.00,
+                    totalExpenses: 15000.00,
+                    totalProfit: 10000.00,
+                    monthlyData: [
+                        { month: 'Jan', revenue: 20000, expenses: 12000, profit: 8000 },
+                        { month: 'Fev', revenue: 22000, expenses: 13000, profit: 9000 },
+                        { month: 'Mar', revenue: 25000, expenses: 15000, profit: 10000 }
+                    ],
+                    revenueSources: [
+                        { source: 'Serviços', amount: 18000, percentage: 72 },
+                        { source: 'Produtos', amount: 5000, percentage: 20 },
+                        { source: 'Outros', amount: 2000, percentage: 8 }
+                    ],
+                    expenseCategories: [
+                        { category: 'Salários', amount: 8000, percentage: 53 },
+                        { category: 'Aluguel', amount: 3000, percentage: 20 },
+                        { category: 'Equipamentos', amount: 2000, percentage: 13 },
+                        { category: 'Outros', amount: 2000, percentage: 14 }
+                    ]
+                };
+                
+                this.renderFinanceiroStats(mockData);
+                this.renderFinanceiroCharts(mockData);
+                this.hideLoadingState();
+                return;
+            }
+
+            const response = await fetch(`/api/finance?startDate=${startDate}&endDate=${endDate}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('💰 Dados recebidos:', data);
+                this.renderFinanceiroStats(data);
+                this.renderFinanceiroCharts(data);
+            } else {
+                console.error('💰 Erro na resposta da API:', response.status);
+            }
+        } catch (error) {
+            console.error('💰 Erro ao carregar dados financeiros:', error);
+        } finally {
+            this.hideLoadingState();
+        }
     }
 
     async loadProfissionaisData() {
-        console.log('👥 Carregando dados dos profissionais...');
-        // Implementar carregamento de dados dos profissionais
+        try {
+            console.log('👥 Carregando dados dos profissionais...');
+            const token = localStorage.getItem('authToken');
+            const startDate = this.formatDateForInput(this.currentFilters.startDate);
+            const endDate = this.formatDateForInput(this.currentFilters.endDate);
+
+            console.log('👥 Filtros:', { startDate, endDate, token: !!token });
+
+            // Simular dados para teste se não houver token
+            if (!token) {
+                console.log('👥 Simulando dados dos profissionais...');
+                const mockData = {
+                    totalProfessionals: 8,
+                    activeProfessionals: 6,
+                    topProfessional: 'Maria Silva',
+                    performance: 95,
+                    professionals: [
+                        { name: 'Maria Silva', appointments: 45, revenue: 4500, rating: 4.8 },
+                        { name: 'João Santos', appointments: 38, revenue: 3800, rating: 4.6 },
+                        { name: 'Ana Costa', appointments: 32, revenue: 3200, rating: 4.7 }
+                    ],
+                    monthlyPerformance: [
+                        { month: 'Jan', appointments: 120, revenue: 12000 },
+                        { month: 'Fev', appointments: 135, revenue: 13500 },
+                        { month: 'Mar', appointments: 150, revenue: 15000 }
+                    ]
+                };
+                
+                this.renderProfissionaisStats(mockData);
+                this.renderProfissionaisCharts(mockData);
+                this.hideLoadingState();
+                return;
+            }
+
+            const response = await fetch(`/api/professionals?startDate=${startDate}&endDate=${endDate}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('👥 Dados recebidos:', data);
+                this.renderProfissionaisStats(data);
+                this.renderProfissionaisCharts(data);
+            } else {
+                console.error('👥 Erro na resposta da API:', response.status);
+            }
+        } catch (error) {
+            console.error('👥 Erro ao carregar dados dos profissionais:', error);
+        } finally {
+            this.hideLoadingState();
+        }
     }
 
     async loadServicosData() {
-        console.log('⚙️ Carregando dados dos serviços...');
-        // Implementar carregamento de dados dos serviços
+        try {
+            console.log('⚙️ Carregando dados dos serviços...');
+            const token = localStorage.getItem('authToken');
+            const startDate = this.formatDateForInput(this.currentFilters.startDate);
+            const endDate = this.formatDateForInput(this.currentFilters.endDate);
+
+            console.log('⚙️ Filtros:', { startDate, endDate, token: !!token });
+
+            // Simular dados para teste se não houver token
+            if (!token) {
+                console.log('⚙️ Simulando dados dos serviços...');
+                const mockData = {
+                    totalServices: 15,
+                    popularService: 'Corte Feminino',
+                    totalRevenue: 18000.00,
+                    evolution: 12.5,
+                    services: [
+                        { name: 'Corte Feminino', appointments: 60, revenue: 6000, price: 100 },
+                        { name: 'Coloração', appointments: 45, revenue: 4500, price: 100 },
+                        { name: 'Manicure', appointments: 80, revenue: 4000, price: 50 },
+                        { name: 'Pedicure', appointments: 70, revenue: 3500, price: 50 }
+                    ],
+                    monthlyEvolution: [
+                        { month: 'Jan', services: 120, revenue: 12000 },
+                        { month: 'Fev', services: 135, revenue: 13500 },
+                        { month: 'Mar', services: 150, revenue: 15000 }
+                    ]
+                };
+                
+                this.renderServicosStats(mockData);
+                this.renderServicosCharts(mockData);
+                this.hideLoadingState();
+                return;
+            }
+
+            const response = await fetch(`/api/services?startDate=${startDate}&endDate=${endDate}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('⚙️ Dados recebidos:', data);
+                this.renderServicosStats(data);
+                this.renderServicosCharts(data);
+            } else {
+                console.error('⚙️ Erro na resposta da API:', response.status);
+            }
+        } catch (error) {
+            console.error('⚙️ Erro ao carregar dados dos serviços:', error);
+        } finally {
+            this.hideLoadingState();
+        }
+    }
+
+    // Métodos de renderização para Estoque
+    renderEstoqueStats(data) {
+        document.getElementById('total-products').textContent = data.totalProducts;
+        document.getElementById('low-stock').textContent = data.lowStock;
+        document.getElementById('stock-value').textContent = this.formatCurrency(data.stockValue);
+        document.getElementById('stock-movements').textContent = data.movements;
+    }
+
+    renderEstoqueCharts(data) {
+        this.renderCategoryChart(data.categories);
+        this.renderLowStockChart(data.lowStockItems);
+        this.renderMovementsChart(data.movements);
+    }
+
+    renderCategoryChart(categories) {
+        const ctx = document.getElementById('categoryChart');
+        if (!ctx) return;
+
+        if (this.charts.category) {
+            this.charts.category.destroy();
+        }
+
+        this.charts.category = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: categories.map(cat => cat.name),
+                datasets: [{
+                    data: categories.map(cat => cat.count),
+                    backgroundColor: ['#f39c12', '#e74c3c', '#27ae60'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    renderLowStockChart(lowStockItems) {
+        const ctx = document.getElementById('lowStockChart');
+        if (!ctx) return;
+
+        if (this.charts.lowStock) {
+            this.charts.lowStock.destroy();
+        }
+
+        this.charts.lowStock = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: lowStockItems.map(item => item.name),
+                datasets: [{
+                    label: 'Estoque Atual',
+                    data: lowStockItems.map(item => item.current),
+                    backgroundColor: '#e74c3c',
+                    borderColor: '#c0392b',
+                    borderWidth: 2
+                }, {
+                    label: 'Estoque Mínimo',
+                    data: lowStockItems.map(item => item.minimum),
+                    backgroundColor: '#f39c12',
+                    borderColor: '#e67e22',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    renderMovementsChart(movements) {
+        const ctx = document.getElementById('movementsChart');
+        if (!ctx) return;
+
+        if (this.charts.movements) {
+            this.charts.movements.destroy();
+        }
+
+        this.charts.movements = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: movements.map(mov => mov.date),
+                datasets: [{
+                    label: 'Entradas',
+                    data: movements.filter(mov => mov.type === 'entrada').map(mov => mov.quantity),
+                    borderColor: '#27ae60',
+                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'Saídas',
+                    data: movements.filter(mov => mov.type === 'saida').map(mov => mov.quantity),
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Métodos de renderização para Financeiro
+    renderFinanceiroStats(data) {
+        document.getElementById('total-revenue').textContent = this.formatCurrency(data.totalRevenue);
+        document.getElementById('total-expenses').textContent = this.formatCurrency(data.totalExpenses);
+        document.getElementById('total-profit').textContent = this.formatCurrency(data.totalProfit);
+    }
+
+    renderFinanceiroCharts(data) {
+        this.renderMonthlyFinanceChart(data.monthlyData);
+        this.renderRevenueSourcesChart(data.revenueSources);
+        this.renderExpenseCategoriesChart(data.expenseCategories);
+    }
+
+    renderMonthlyFinanceChart(monthlyData) {
+        const ctx = document.getElementById('monthlyFinanceChart');
+        if (!ctx) return;
+
+        if (this.charts.monthlyFinance) {
+            this.charts.monthlyFinance.destroy();
+        }
+
+        this.charts.monthlyFinance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: monthlyData.map(item => item.month),
+                datasets: [{
+                    label: 'Receitas',
+                    data: monthlyData.map(item => item.revenue),
+                    borderColor: '#27ae60',
+                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'Gastos',
+                    data: monthlyData.map(item => item.expenses),
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'Lucro',
+                    data: monthlyData.map(item => item.profit),
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    renderRevenueSourcesChart(revenueSources) {
+        const ctx = document.getElementById('revenueSourcesChart');
+        if (!ctx) return;
+
+        if (this.charts.revenueSources) {
+            this.charts.revenueSources.destroy();
+        }
+
+        this.charts.revenueSources = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: revenueSources.map(source => source.source),
+                datasets: [{
+                    data: revenueSources.map(source => source.amount),
+                    backgroundColor: ['#27ae60', '#f39c12', '#3498db'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    renderExpenseCategoriesChart(expenseCategories) {
+        const ctx = document.getElementById('expenseCategoriesChart');
+        if (!ctx) return;
+
+        if (this.charts.expenseCategories) {
+            this.charts.expenseCategories.destroy();
+        }
+
+        this.charts.expenseCategories = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: expenseCategories.map(cat => cat.category),
+                datasets: [{
+                    label: 'Valor',
+                    data: expenseCategories.map(cat => cat.amount),
+                    backgroundColor: '#e74c3c',
+                    borderColor: '#c0392b',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Métodos de renderização para Profissionais
+    renderProfissionaisStats(data) {
+        document.getElementById('total-professionals').textContent = data.totalProfessionals;
+        document.getElementById('active-professionals').textContent = data.activeProfessionals;
+        document.getElementById('top-professional').textContent = data.topProfessional;
+        document.getElementById('performance').textContent = data.performance + '%';
+    }
+
+    renderProfissionaisCharts(data) {
+        this.renderProfessionalsChart(data.professionals);
+        this.renderMonthlyPerformanceChart(data.monthlyPerformance);
+    }
+
+    renderProfessionalsChart(professionals) {
+        const ctx = document.getElementById('professionalsChart');
+        if (!ctx) return;
+
+        if (this.charts.professionals) {
+            this.charts.professionals.destroy();
+        }
+
+        this.charts.professionals = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: professionals.map(prof => prof.name),
+                datasets: [{
+                    label: 'Agendamentos',
+                    data: professionals.map(prof => prof.appointments),
+                    backgroundColor: '#9b59b6',
+                    borderColor: '#8e44ad',
+                    borderWidth: 2
+                }, {
+                    label: 'Receita',
+                    data: professionals.map(prof => prof.revenue),
+                    backgroundColor: '#27ae60',
+                    borderColor: '#2ecc71',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    renderMonthlyPerformanceChart(monthlyPerformance) {
+        const ctx = document.getElementById('monthlyPerformanceChart');
+        if (!ctx) return;
+
+        if (this.charts.monthlyPerformance) {
+            this.charts.monthlyPerformance.destroy();
+        }
+
+        this.charts.monthlyPerformance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: monthlyPerformance.map(item => item.month),
+                datasets: [{
+                    label: 'Agendamentos',
+                    data: monthlyPerformance.map(item => item.appointments),
+                    borderColor: '#9b59b6',
+                    backgroundColor: 'rgba(155, 89, 182, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'Receita',
+                    data: monthlyPerformance.map(item => item.revenue),
+                    borderColor: '#27ae60',
+                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Métodos de renderização para Serviços
+    renderServicosStats(data) {
+        document.getElementById('total-services').textContent = data.totalServices;
+        document.getElementById('popular-service').textContent = data.popularService;
+        document.getElementById('services-revenue').textContent = this.formatCurrency(data.totalRevenue);
+        document.getElementById('evolution').textContent = data.evolution + '%';
+    }
+
+    renderServicosCharts(data) {
+        this.renderServicesChart(data.services);
+        this.renderMonthlyEvolutionChart(data.monthlyEvolution);
+    }
+
+    renderServicesChart(services) {
+        const ctx = document.getElementById('servicesChart');
+        if (!ctx) return;
+
+        if (this.charts.services) {
+            this.charts.services.destroy();
+        }
+
+        this.charts.services = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: services.map(service => service.name),
+                datasets: [{
+                    data: services.map(service => service.appointments),
+                    backgroundColor: ['#e74c3c', '#f39c12', '#27ae60', '#3498db'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    renderMonthlyEvolutionChart(monthlyEvolution) {
+        const ctx = document.getElementById('evolutionChart');
+        if (!ctx) return;
+
+        if (this.charts.evolution) {
+            this.charts.evolution.destroy();
+        }
+
+        this.charts.evolution = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: monthlyEvolution.map(item => item.month),
+                datasets: [{
+                    label: 'Serviços',
+                    data: monthlyEvolution.map(item => item.services),
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'Receita',
+                    data: monthlyEvolution.map(item => item.revenue),
+                    borderColor: '#27ae60',
+                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
     }
 
     showLoadingState() {
