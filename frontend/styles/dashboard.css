@@ -6256,7 +6256,7 @@ body {
     }
 }
 
-/* Ícone Flutuante AI - Padrão do Sistema */
+/* Ícone Flutuante AI - Com Transparência e Vida */
 .floating-ai-icon {
     position: fixed;
     bottom: 30px;
@@ -6264,31 +6264,42 @@ body {
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #975756 0%, #7a4443 100%);
-    box-shadow: 0 8px 25px rgba(151, 87, 86, 0.3);
-    animation: float 3s ease-in-out infinite;
+    background: linear-gradient(135deg, rgba(151, 87, 86, 0.8) 0%, rgba(122, 68, 67, 0.8) 100%);
+    box-shadow: 
+        0 8px 25px rgba(151, 87, 86, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        0 0 20px rgba(151, 87, 86, 0.2);
+    animation: organicFloat 4s ease-in-out infinite;
     cursor: pointer;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(15px);
     z-index: 1000;
-    border: 3px solid rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
-    /* Texto AI padronizado */
+    /* Texto AI com transparência */
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-weight: 700;
     font-size: 18px;
-    color: #fff;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.4),
+        0 0 8px rgba(255, 255, 255, 0.3);
 }
 
 .floating-ai-icon:hover {
     transform: scale(1.1) translateY(-5px);
-    box-shadow: 0 15px 35px rgba(151, 87, 86, 0.4);
-    border-color: rgba(255, 255, 255, 0.4);
-    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(135deg, rgba(151, 87, 86, 0.9) 0%, rgba(122, 68, 67, 0.9) 100%);
+    box-shadow: 
+        0 15px 35px rgba(151, 87, 86, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        0 0 30px rgba(151, 87, 86, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    text-shadow: 
+        0 2px 6px rgba(0, 0, 0, 0.5),
+        0 0 12px rgba(255, 255, 255, 0.4);
 }
 
 .floating-ai-icon:active {
@@ -6301,26 +6312,62 @@ body {
     display: none;
 }
 
-/* Animação de flutuação padrão */
-@keyframes float {
-    0%, 100% {
-        transform: translateY(0px);
+/* Animação orgânica que simula vida */
+@keyframes organicFloat {
+    0% { 
+        transform: translateY(0px) scale(1) rotate(0deg);
+        border-radius: 50%;
     }
-    50% {
-        transform: translateY(-10px);
+    15% { 
+        transform: translateY(-8px) scale(1.02, 0.98) rotate(1deg);
+        border-radius: 48% 52% 51% 49%;
+    }
+    30% { 
+        transform: translateY(-12px) scale(0.98, 1.02) rotate(-1deg);
+        border-radius: 52% 48% 49% 51%;
+    }
+    45% { 
+        transform: translateY(-6px) scale(1.01, 0.99) rotate(0.5deg);
+        border-radius: 49% 51% 52% 48%;
+    }
+    60% { 
+        transform: translateY(-10px) scale(0.99, 1.01) rotate(-0.5deg);
+        border-radius: 51% 49% 48% 52%;
+    }
+    75% { 
+        transform: translateY(-4px) scale(1.005, 0.995) rotate(0.2deg);
+        border-radius: 50% 50% 51% 49%;
+    }
+    90% { 
+        transform: translateY(-2px) scale(0.995, 1.005) rotate(-0.2deg);
+        border-radius: 49% 51% 50% 50%;
+    }
+    100% { 
+        transform: translateY(0px) scale(1) rotate(0deg);
+        border-radius: 50%;
     }
 }
 
-/* Animação de pulsação padrão */
+/* Animação de pulsação com transparência */
 @keyframes pulse {
     0% {
-        box-shadow: 0 8px 25px rgba(151, 87, 86, 0.3);
+        box-shadow: 
+            0 8px 25px rgba(151, 87, 86, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2),
+            0 0 20px rgba(151, 87, 86, 0.2);
     }
     50% {
-        box-shadow: 0 8px 25px rgba(151, 87, 86, 0.3), 0 0 0 10px rgba(151, 87, 86, 0.1);
+        box-shadow: 
+            0 8px 25px rgba(151, 87, 86, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3),
+            0 0 30px rgba(151, 87, 86, 0.4),
+            0 0 0 10px rgba(151, 87, 86, 0.1);
     }
     100% {
-        box-shadow: 0 8px 25px rgba(151, 87, 86, 0.3);
+        box-shadow: 
+            0 8px 25px rgba(151, 87, 86, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2),
+            0 0 20px rgba(151, 87, 86, 0.2);
     }
 }
 
