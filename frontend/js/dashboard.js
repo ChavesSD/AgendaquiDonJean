@@ -2115,3 +2115,169 @@ document.addEventListener('click', (e) => {
         }, 100);
     }
 });
+
+// ==================== FLOATING AI ICON ====================
+
+class FloatingAIIcon {
+    constructor() {
+        this.icon = null;
+        this.isVisible = true;
+        this.init();
+    }
+
+    init() {
+        console.log('🤖 Inicializando ícone flutuante AI...');
+        this.createIcon();
+        this.setupEventListeners();
+        console.log('✅ Ícone flutuante AI inicializado!');
+    }
+
+    createIcon() {
+        // Verificar se o ícone já existe
+        if (document.querySelector('.floating-ai-icon')) {
+            console.log('⚠️ Ícone flutuante já existe, removendo...');
+            document.querySelector('.floating-ai-icon').remove();
+        }
+
+        // Criar elemento do ícone
+        this.icon = document.createElement('div');
+        this.icon.className = 'floating-ai-icon';
+        this.icon.setAttribute('title', 'Assistente IA');
+        
+        // Criar imagem do ícone
+        const img = document.createElement('img');
+        img.src = '../assets/AI.png';
+        img.alt = 'Assistente IA';
+        img.onerror = () => {
+            console.error('❌ Erro ao carregar imagem AI.png');
+            // Fallback: usar ícone FontAwesome
+            this.icon.innerHTML = '<i class="fas fa-robot" style="color: white; font-size: 24px;"></i>';
+        };
+        
+        this.icon.appendChild(img);
+        
+        // Adicionar ao DOM
+        document.body.appendChild(this.icon);
+        
+        console.log('✅ Ícone flutuante AI criado e adicionado ao DOM');
+    }
+
+    setupEventListeners() {
+        if (!this.icon) return;
+
+        // Clique no ícone
+        this.icon.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.handleClick();
+        });
+
+        // Efeito de hover
+        this.icon.addEventListener('mouseenter', () => {
+            this.icon.style.transform = 'scale(1.1) translateY(-5px)';
+        });
+
+        this.icon.addEventListener('mouseleave', () => {
+            this.icon.style.transform = 'scale(1) translateY(0)';
+        });
+
+        // Efeito de clique
+        this.icon.addEventListener('mousedown', () => {
+            this.icon.style.transform = 'scale(0.95)';
+        });
+
+        this.icon.addEventListener('mouseup', () => {
+            this.icon.style.transform = 'scale(1.1) translateY(-5px)';
+        });
+
+        console.log('✅ Event listeners do ícone flutuante configurados');
+    }
+
+    handleClick() {
+        console.log('🤖 Clique no ícone AI detectado');
+        
+        // Adicionar efeito visual de clique
+        this.icon.classList.add('clicked');
+        
+        // Remover classe após animação
+        setTimeout(() => {
+            this.icon.classList.remove('clicked');
+        }, 600);
+
+        // Mostrar notificação
+        if (window.showNotification) {
+            window.showNotification('Assistente IA ativado! Em breve você terá acesso a recursos de inteligência artificial.', 'success');
+        } else {
+            alert('Assistente IA ativado! Em breve você terá acesso a recursos de inteligência artificial.');
+        }
+
+        // Aqui você pode adicionar a lógica específica do assistente IA
+        this.openAIAssistant();
+    }
+
+    openAIAssistant() {
+        console.log('🤖 Abrindo assistente IA...');
+        
+        // Por enquanto, apenas uma notificação
+        // Futuramente, aqui pode ser implementado um modal ou sidebar com o assistente
+        console.log('🚀 Funcionalidade do assistente IA será implementada em breve');
+        
+        // Exemplo de funcionalidade futura:
+        // - Abrir modal com chat
+        // - Conectar com API de IA
+        // - Mostrar sugestões inteligentes
+        // - Análise de dados do dashboard
+    }
+
+    show() {
+        if (this.icon) {
+            this.icon.style.display = 'flex';
+            this.isVisible = true;
+            console.log('👁️ Ícone flutuante AI mostrado');
+        }
+    }
+
+    hide() {
+        if (this.icon) {
+            this.icon.style.display = 'none';
+            this.isVisible = false;
+            console.log('🙈 Ícone flutuante AI ocultado');
+        }
+    }
+
+    toggle() {
+        if (this.isVisible) {
+            this.hide();
+        } else {
+            this.show();
+        }
+    }
+
+    destroy() {
+        if (this.icon) {
+            this.icon.remove();
+            this.icon = null;
+            console.log('🗑️ Ícone flutuante AI removido');
+        }
+    }
+}
+
+// Inicializar ícone flutuante AI
+let floatingAIIcon = null;
+
+function initFloatingAIIcon() {
+    console.log('🤖 Inicializando ícone flutuante AI...');
+    if (!floatingAIIcon) {
+        floatingAIIcon = new FloatingAIIcon();
+    }
+    console.log('✅ Ícone flutuante AI inicializado!');
+}
+
+// Inicializar quando o DOM estiver carregado
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('📄 DOM carregado, inicializando ícone flutuante AI...');
+    initFloatingAIIcon();
+});
+
+// Expor funções globalmente
+window.floatingAIIcon = floatingAIIcon;
+window.initFloatingAIIcon = initFloatingAIIcon;
