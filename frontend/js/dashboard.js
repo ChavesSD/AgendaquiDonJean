@@ -2913,6 +2913,22 @@ class ReportsManager {
                     exits: mockExits
                 });
                 
+                // Criar produtos simulados para o gráfico de valor
+                const mockProducts = [
+                    { name: 'Shampoo Premium', quantity: 25, price: 45.90, category: 'Cabelo' },
+                    { name: 'Esmalte Vermelho', quantity: 50, price: 12.50, category: 'Unhas' },
+                    { name: 'Creme Hidratante', quantity: 30, price: 28.90, category: 'Estética' },
+                    { name: 'Condicionador', quantity: 20, price: 35.00, category: 'Cabelo' },
+                    { name: 'Base para Unhas', quantity: 15, price: 18.90, category: 'Unhas' },
+                    { name: 'Máscara Capilar', quantity: 12, price: 65.00, category: 'Cabelo' },
+                    { name: 'Top Coat', quantity: 40, price: 15.50, category: 'Unhas' },
+                    { name: 'Óleo Corporal', quantity: 18, price: 42.90, category: 'Estética' },
+                    { name: 'Removedor de Esmalte', quantity: 35, price: 8.90, category: 'Unhas' },
+                    { name: 'Secador de Cabelo', quantity: 5, price: 120.00, category: 'Cabelo' },
+                    { name: 'Pincel para Unhas', quantity: 25, price: 22.50, category: 'Unhas' },
+                    { name: 'Algodão', quantity: 100, price: 3.50, category: 'Estética' }
+                ];
+                
                 const mockData = {
                     totalProducts: 45,
                     lowStock: 8,
@@ -2920,6 +2936,7 @@ class ReportsManager {
                     movementsCount: mockMovements.length,
                     movementsEntries: mockEntries,
                     movementsExits: mockExits,
+                    products: mockProducts, // Adicionar produtos para o gráfico de valor
                     categories: [
                         { name: 'Cabelo', count: 15, value: 4500.00 },
                         { name: 'Unhas', count: 12, value: 3200.00 },
@@ -3063,6 +3080,7 @@ class ReportsManager {
                     movementsCount: movements.length,
                     movementsEntries: entries,
                     movementsExits: exits,
+                    products: products, // Adicionar produtos para o gráfico de valor
                     categories: this.processCategories(products),
                     lowStockItems: products.filter(p => {
                         const quantity = p.quantity || p.stock || 0;
@@ -3377,6 +3395,7 @@ class ReportsManager {
         this.renderCategoryChart(data.categories);
         this.renderLowStockChart(data.lowStockItems);
         this.renderMovementsChart(data.movements);
+        this.renderStockValueChart(data.products || []);
     }
 
     renderCategoryChart(categories) {
@@ -3591,6 +3610,158 @@ class ReportsManager {
                     legend: {
                         display: true,
                         position: 'top'
+                    }
+                }
+            }
+        });
+    }
+
+    renderStockValueChart(products) {
+        console.log('📦 Renderizando gráfico de valor do estoque por produto:', products);
+        const ctx = document.getElementById('valueChart');
+        if (!ctx) {
+            console.error('📦 Elemento valueChart não encontrado');
+            return;
+        }
+
+        if (this.charts.stockValue) {
+            this.charts.stockValue.destroy();
+        }
+
+        // Fallback para quando não há dados
+        if (!products || products.length === 0) {
+            console.log('📦 Nenhum produto encontrado, usando dados de exemplo');
+            this.charts.stockValue = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Sem dados'],
+                    datasets: [{
+                        label: 'Valor do Estoque',
+                        data: [0],
+                        backgroundColor: '#f39c12',
+                        borderColor: '#e67e22',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Valor (R$)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Produtos'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+            return;
+        }
+
+        // Processar dados para o gráfico
+        console.log('📦 Processando dados para gráfico de valor:', products.length, 'produtos');
+        
+        // Calcular valor do estoque por produto
+        const productValues = products.map(product => {
+            const quantity = product.quantity || product.stock || 0;
+            const price = product.price || product.cost || 0;
+            const totalValue = quantity * price;
+            
+            return {
+                name: product.name || 'Produto sem nome',
+                value: totalValue,
+                quantity: quantity,
+                price: price
+            };
+        });
+
+        // Ordenar por valor (maior para menor) e pegar os top 10
+        const sortedProducts = productValues
+            .sort((a, b) => b.value - a.value)
+            .slice(0, 10);
+
+        console.log('📦 Dados processados para gráfico de valor:', {
+            totalProducts: productValues.length,
+            topProducts: sortedProducts.length,
+            products: sortedProducts.map(p => ({ name: p.name, value: p.value }))
+        });
+
+        this.charts.stockValue = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: sortedProducts.map(p => p.name.length > 15 ? p.name.substring(0, 15) + '...' : p.name),
+                datasets: [{
+                    label: 'Valor do Estoque (R$)',
+                    data: sortedProducts.map(p => p.value),
+                    backgroundColor: sortedProducts.map((_, index) => {
+                        const colors = ['#f39c12', '#e74c3c', '#27ae60', '#3498db', '#9b59b6', '#1abc9c', '#34495e', '#e67e22', '#8e44ad', '#16a085'];
+                        return colors[index % colors.length];
+                    }),
+                    borderColor: sortedProducts.map((_, index) => {
+                        const colors = ['#e67e22', '#c0392b', '#229954', '#2980b9', '#8e44ad', '#17a2b8', '#2c3e50', '#d35400', '#7d3c98', '#138d75'];
+                        return colors[index % colors.length];
+                    }),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Valor (R$)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return 'R$ ' + value.toLocaleString('pt-BR');
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Produtos'
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const product = sortedProducts[context.dataIndex];
+                                return [
+                                    `Produto: ${product.name}`,
+                                    `Quantidade: ${product.quantity}`,
+                                    `Preço Unitário: R$ ${product.price.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`,
+                                    `Valor Total: R$ ${product.value.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`
+                                ];
+                            }
+                        }
                     }
                 }
             }
