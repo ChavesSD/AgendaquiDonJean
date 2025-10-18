@@ -3172,10 +3172,19 @@ class ReportsManager {
 
     // Métodos de renderização para Estoque
     renderEstoqueStats(data) {
-        const totalProductsEl = document.getElementById('total-products');
-        const lowStockEl = document.getElementById('low-stock');
-        const stockValueEl = document.getElementById('stock-value');
-        const stockMovementsEl = document.getElementById('stock-movements');
+        console.log('📦 Renderizando estatísticas do estoque:', data);
+        
+        const totalProductsEl = document.getElementById('reports-total-products');
+        const lowStockEl = document.getElementById('reports-low-stock');
+        const stockValueEl = document.getElementById('reports-stock-value');
+        const stockMovementsEl = document.getElementById('reports-stock-movements');
+        
+        console.log('📦 Elementos encontrados:', {
+            totalProducts: !!totalProductsEl,
+            lowStock: !!lowStockEl,
+            stockValue: !!stockValueEl,
+            stockMovements: !!stockMovementsEl
+        });
         
         if (totalProductsEl) totalProductsEl.textContent = data.totalProducts || 0;
         if (lowStockEl) lowStockEl.textContent = data.lowStock || 0;
@@ -3190,11 +3199,23 @@ class ReportsManager {
     }
 
     renderCategoryChart(categories) {
+        console.log('📦 Renderizando gráfico de categorias:', categories);
         const ctx = document.getElementById('categoryChart');
-        if (!ctx) return;
+        if (!ctx) {
+            console.error('📦 Elemento categoryChart não encontrado');
+            return;
+        }
 
         if (this.charts.category) {
             this.charts.category.destroy();
+        }
+
+        // Fallback para quando não há dados
+        if (!categories || categories.length === 0) {
+            console.log('📦 Nenhuma categoria encontrada, usando dados de exemplo');
+            categories = [
+                { name: 'Sem dados', count: 1, value: 0 }
+            ];
         }
 
         this.charts.category = new Chart(ctx, {
@@ -3203,7 +3224,7 @@ class ReportsManager {
                 labels: categories.map(cat => cat.name),
                 datasets: [{
                     data: categories.map(cat => cat.count),
-                    backgroundColor: ['#f39c12', '#e74c3c', '#27ae60'],
+                    backgroundColor: ['#f39c12', '#e74c3c', '#27ae60', '#3498db', '#9b59b6'],
                     borderWidth: 0
                 }]
             },
@@ -3224,11 +3245,23 @@ class ReportsManager {
     }
 
     renderLowStockChart(lowStockItems) {
+        console.log('📦 Renderizando gráfico de estoque baixo:', lowStockItems);
         const ctx = document.getElementById('lowStockChart');
-        if (!ctx) return;
+        if (!ctx) {
+            console.error('📦 Elemento lowStockChart não encontrado');
+            return;
+        }
 
         if (this.charts.lowStock) {
             this.charts.lowStock.destroy();
+        }
+
+        // Fallback para quando não há dados
+        if (!lowStockItems || lowStockItems.length === 0) {
+            console.log('📦 Nenhum item com estoque baixo encontrado');
+            lowStockItems = [
+                { name: 'Nenhum item', current: 0, minimum: 0 }
+            ];
         }
 
         this.charts.lowStock = new Chart(ctx, {
@@ -3262,11 +3295,23 @@ class ReportsManager {
     }
 
     renderMovementsChart(movements) {
+        console.log('📦 Renderizando gráfico de movimentações:', movements);
         const ctx = document.getElementById('movementsChart');
-        if (!ctx) return;
+        if (!ctx) {
+            console.error('📦 Elemento movementsChart não encontrado');
+            return;
+        }
 
         if (this.charts.movements) {
             this.charts.movements.destroy();
+        }
+
+        // Fallback para quando não há dados
+        if (!movements || movements.length === 0) {
+            console.log('📦 Nenhuma movimentação encontrada');
+            movements = [
+                { date: 'Sem dados', type: 'entrada', product: 'N/A', quantity: 0 }
+            ];
         }
 
         this.charts.movements = new Chart(ctx, {
