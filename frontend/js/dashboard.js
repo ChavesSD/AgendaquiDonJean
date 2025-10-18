@@ -2859,7 +2859,7 @@ class ReportsManager {
                     totalProducts: 45,
                     lowStock: 8,
                     stockValue: 12500.50,
-                    movements: 23,
+                    movementsCount: 23,
                     categories: [
                         { name: 'Cabelo', count: 15, value: 4500.00 },
                         { name: 'Unhas', count: 12, value: 3200.00 },
@@ -2897,6 +2897,18 @@ class ReportsManager {
                 const lowStock = products.filter(p => p.quantity <= p.minimumQuantity).length;
                 const stockValue = products.reduce((sum, p) => sum + (p.quantity * p.price), 0);
                 
+                console.log('📦 Produtos processados:', {
+                    totalProducts,
+                    lowStock,
+                    stockValue,
+                    products: products.map(p => ({
+                        name: p.name,
+                        quantity: p.quantity,
+                        minimumQuantity: p.minimumQuantity,
+                        isLowStock: p.quantity <= p.minimumQuantity
+                    }))
+                });
+                
                 // Carregar histórico de movimentações (opcional)
                 let movements = [];
                 try {
@@ -2917,7 +2929,7 @@ class ReportsManager {
                     totalProducts,
                     lowStock,
                     stockValue,
-                    movements: movements.length,
+                    movementsCount: movements.length,
                     categories: this.processCategories(products),
                     lowStockItems: products.filter(p => p.quantity <= p.minimumQuantity).map(p => ({
                         name: p.name,
@@ -3186,10 +3198,22 @@ class ReportsManager {
             stockMovements: !!stockMovementsEl
         });
         
-        if (totalProductsEl) totalProductsEl.textContent = data.totalProducts || 0;
-        if (lowStockEl) lowStockEl.textContent = data.lowStock || 0;
-        if (stockValueEl) stockValueEl.textContent = this.formatCurrency(data.stockValue || 0);
-        if (stockMovementsEl) stockMovementsEl.textContent = data.movements || 0;
+        if (totalProductsEl) {
+            totalProductsEl.textContent = data.totalProducts || 0;
+            console.log('📦 Total produtos definido:', data.totalProducts || 0);
+        }
+        if (lowStockEl) {
+            lowStockEl.textContent = data.lowStock || 0;
+            console.log('📦 Estoque baixo definido:', data.lowStock || 0);
+        }
+        if (stockValueEl) {
+            stockValueEl.textContent = this.formatCurrency(data.stockValue || 0);
+            console.log('📦 Valor do estoque definido:', this.formatCurrency(data.stockValue || 0));
+        }
+        if (stockMovementsEl) {
+            stockMovementsEl.textContent = data.movementsCount || 0;
+            console.log('📦 Movimentações definidas:', data.movementsCount || 0);
+        }
     }
 
     renderEstoqueCharts(data) {
