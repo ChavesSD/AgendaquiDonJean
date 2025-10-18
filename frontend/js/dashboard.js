@@ -2501,22 +2501,31 @@ class ReportsManager {
     async loadTabData(tabName) {
         console.log(`📊 Carregando dados da aba: ${tabName}`);
         
-        switch (tabName) {
-            case 'agenda':
-                await this.loadAgendaData();
-                break;
-            case 'estoque':
-                await this.loadEstoqueData();
-                break;
-            case 'financeiro':
-                await this.loadFinanceiroData();
-                break;
-            case 'profissionais':
-                await this.loadProfissionaisData();
-                break;
-            case 'servicos':
-                await this.loadServicosData();
-                break;
+        // Mostrar loading state
+        this.showLoadingState();
+        
+        try {
+            switch (tabName) {
+                case 'agenda':
+                    await this.loadAgendaData();
+                    break;
+                case 'estoque':
+                    await this.loadEstoqueData();
+                    break;
+                case 'financeiro':
+                    await this.loadFinanceiroData();
+                    break;
+                case 'profissionais':
+                    await this.loadProfissionaisData();
+                    break;
+                case 'servicos':
+                    await this.loadServicosData();
+                    break;
+            }
+        } catch (error) {
+            console.error(`📊 Erro ao carregar dados da aba ${tabName}:`, error);
+        } finally {
+            this.hideLoadingState();
         }
     }
 
@@ -2544,7 +2553,6 @@ class ReportsManager {
                 
                 this.renderAgendaStats(appointments);
                 this.renderAgendaCharts(appointments);
-                this.hideLoadingState();
                 return;
             }
             
@@ -2568,7 +2576,6 @@ class ReportsManager {
                 
                 this.renderAgendaStats(mockAppointments);
                 this.renderAgendaCharts(mockAppointments);
-                this.hideLoadingState();
                 return;
             }
 
@@ -2587,8 +2594,6 @@ class ReportsManager {
             }
         } catch (error) {
             console.error('📊 Erro ao carregar dados da agenda:', error);
-        } finally {
-            this.hideLoadingState();
         }
     }
 
@@ -2598,10 +2603,17 @@ class ReportsManager {
         const cancelled = appointments.filter(apt => apt.status === 'cancelled').length;
         const pending = appointments.filter(apt => apt.status === 'pending').length;
 
-        document.getElementById('total-appointments').textContent = total;
-        document.getElementById('confirmed-appointments').textContent = confirmed;
-        document.getElementById('cancelled-appointments').textContent = cancelled;
-        document.getElementById('pending-appointments').textContent = pending;
+        console.log('📊 Renderizando estatísticas da agenda:', { total, confirmed, cancelled, pending });
+
+        const totalEl = document.getElementById('total-appointments');
+        const confirmedEl = document.getElementById('confirmed-appointments');
+        const cancelledEl = document.getElementById('cancelled-appointments');
+        const pendingEl = document.getElementById('pending-appointments');
+
+        if (totalEl) totalEl.textContent = total;
+        if (confirmedEl) confirmedEl.textContent = confirmed;
+        if (cancelledEl) cancelledEl.textContent = cancelled;
+        if (pendingEl) pendingEl.textContent = pending;
     }
 
     renderAgendaCharts(appointments) {
@@ -3752,18 +3764,30 @@ class ReportsManager {
     showLoadingState() {
         const tabContent = document.querySelector(`#${this.currentTab}-tab`);
         if (tabContent) {
-            tabContent.innerHTML = `
-                <div class="reports-loading">
+            // Verificar se já existe um loading state
+            const existingLoading = tabContent.querySelector('.reports-loading');
+            if (!existingLoading) {
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'reports-loading';
+                loadingDiv.innerHTML = `
                     <i class="fas fa-spinner"></i>
                     <h3>Carregando dados...</h3>
                     <p>Por favor, aguarde enquanto os relatórios são gerados.</p>
-                </div>
-            `;
+                `;
+                tabContent.appendChild(loadingDiv);
+            }
         }
     }
 
     hideLoadingState() {
-        // O conteúdo será recarregado pelos métodos específicos
+        const tabContent = document.querySelector(`#${this.currentTab}-tab`);
+        if (tabContent) {
+            // Remover o estado de loading se existir
+            const loadingElement = tabContent.querySelector('.reports-loading');
+            if (loadingElement) {
+                loadingElement.remove();
+            }
+        }
     }
 
     exportChart(chartId) {
