@@ -3236,8 +3236,9 @@ app.get('/api/appointments/by-date', authenticateToken, async (req, res) => {
 });
 
 // Iniciar servidor
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Servidor rodando na porta ${PORT}`);
-    console.log(`📱 Acesse: http://localhost:${PORT}`);
+    console.log(`📱 Acesse localmente: http://localhost:${PORT}`);
+    console.log(`🌐 Acesse de outros dispositivos: http://192.168.0.8:${PORT}`);
     console.log(`🔌 WebSocket ativo para atualizações em tempo real`);
 });
