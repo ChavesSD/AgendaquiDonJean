@@ -2532,6 +2532,8 @@ class ReportsManager {
     async loadAgendaData() {
         try {
             console.log('📊 Carregando dados da agenda (com filtros de data)...');
+            console.log('📊 AgendaManager disponível:', !!window.agendaManager);
+            console.log('📊 Filtros atuais:', this.currentFilters);
             
             // Usar o AgendaManager existente se disponível
             if (window.agendaManager) {
@@ -2605,15 +2607,34 @@ class ReportsManager {
 
         console.log('📊 Renderizando estatísticas da agenda:', { total, confirmed, cancelled, pending });
 
-        const totalEl = document.getElementById('total-appointments');
-        const confirmedEl = document.getElementById('confirmed-appointments');
-        const cancelledEl = document.getElementById('cancelled-appointments');
-        const pendingEl = document.getElementById('pending-appointments');
+        const totalEl = document.getElementById('reports-total-appointments');
+        const confirmedEl = document.getElementById('reports-confirmed-appointments');
+        const cancelledEl = document.getElementById('reports-cancelled-appointments');
+        const pendingEl = document.getElementById('reports-pending-appointments');
 
-        if (totalEl) totalEl.textContent = total;
-        if (confirmedEl) confirmedEl.textContent = confirmed;
-        if (cancelledEl) cancelledEl.textContent = cancelled;
-        if (pendingEl) pendingEl.textContent = pending;
+        console.log('📊 Elementos encontrados:', {
+            total: !!totalEl,
+            confirmed: !!confirmedEl,
+            cancelled: !!cancelledEl,
+            pending: !!pendingEl
+        });
+
+        if (totalEl) {
+            totalEl.textContent = total;
+            console.log('📊 Total agendamentos definido:', total);
+        }
+        if (confirmedEl) {
+            confirmedEl.textContent = confirmed;
+            console.log('📊 Confirmados definido:', confirmed);
+        }
+        if (cancelledEl) {
+            cancelledEl.textContent = cancelled;
+            console.log('📊 Cancelados definido:', cancelled);
+        }
+        if (pendingEl) {
+            pendingEl.textContent = pending;
+            console.log('📊 Pendentes definido:', pending);
+        }
     }
 
     renderAgendaCharts(appointments) {
