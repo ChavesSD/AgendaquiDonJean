@@ -6476,20 +6476,24 @@ body {
     gap: 30px;
 }
 
-/* Cards de Estatísticas dos Relatórios */
+/* Cards de Estatísticas dos Relatórios - Seguindo padrão da Agenda */
 .reports-grid .stats-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     margin-bottom: 30px;
 }
 
 .reports-grid .stat-card {
-    background: linear-gradient(135deg, #975756 0%, #7a4443 100%);
-    color: white;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
     padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 8px 25px rgba(151, 87, 86, 0.3);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(151, 87, 86, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 20px;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
@@ -6501,39 +6505,38 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-    pointer-events: none;
+    height: 4px;
+    background: linear-gradient(90deg, #975756, #7a4443);
 }
 
 .reports-grid .stat-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(151, 87, 86, 0.4);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
 }
 
 .reports-grid .stat-card .stat-icon {
-    width: 50px;
-    height: 50px;
-    background: rgba(255, 255, 255, 0.2);
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 15px;
-    font-size: 20px;
+    font-size: 24px;
+    color: white;
+    background: linear-gradient(135deg, #975756, #7a4443);
 }
 
 .reports-grid .stat-card .stat-content h3 {
+    margin: 0 0 5px 0;
     font-size: 28px;
     font-weight: 700;
-    margin-bottom: 5px;
-    color: white;
+    color: #2c3e50;
 }
 
 .reports-grid .stat-card .stat-content p {
-    font-size: 14px;
-    opacity: 0.9;
     margin: 0;
+    color: #6c757d;
+    font-size: 14px;
     font-weight: 500;
 }
 
@@ -6702,7 +6705,7 @@ body {
     }
     
     .reports-grid .stats-cards {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
         gap: 15px;
     }
     
@@ -6748,6 +6751,11 @@ body {
     
     .chart-container canvas {
         height: 250px !important;
+    }
+    
+    .reports-grid .stats-cards {
+        grid-template-columns: 1fr;
+        gap: 15px;
     }
     
     .reports-grid .stat-card {
