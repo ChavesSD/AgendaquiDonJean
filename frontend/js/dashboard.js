@@ -2876,13 +2876,50 @@ class ReportsManager {
             // Simular dados para teste se não houver token
             if (!token) {
                 console.log('📦 Simulando dados do estoque...');
+                // Criar dados simulados mais realistas
+                const mockMovements = [
+                    { date: '2025-10-15', type: 'entrada', product: 'Shampoo', quantity: 20 },
+                    { date: '2025-10-16', type: 'saida', product: 'Esmalte', quantity: 5 },
+                    { date: '2025-10-17', type: 'entrada', product: 'Creme', quantity: 15 },
+                    { date: '2025-10-18', type: 'entrada', product: 'Condicionador', quantity: 12 },
+                    { date: '2025-10-19', type: 'saida', product: 'Shampoo', quantity: 8 },
+                    { date: '2025-10-20', type: 'entrada', product: 'Esmalte', quantity: 25 },
+                    { date: '2025-10-21', type: 'saida', product: 'Creme', quantity: 3 },
+                    { date: '2025-10-22', type: 'entrada', product: 'Máscara', quantity: 10 },
+                    { date: '2025-10-23', type: 'saida', product: 'Condicionador', quantity: 6 },
+                    { date: '2025-10-24', type: 'entrada', product: 'Óleo', quantity: 8 },
+                    { date: '2025-10-25', type: 'saida', product: 'Esmalte', quantity: 12 },
+                    { date: '2025-10-26', type: 'entrada', product: 'Base', quantity: 15 },
+                    { date: '2025-10-27', type: 'saida', product: 'Máscara', quantity: 4 },
+                    { date: '2025-10-28', type: 'entrada', product: 'Top Coat', quantity: 20 },
+                    { date: '2025-10-29', type: 'saida', product: 'Óleo', quantity: 2 },
+                    { date: '2025-10-30', type: 'entrada', product: 'Removedor', quantity: 18 },
+                    { date: '2025-10-31', type: 'saida', product: 'Base', quantity: 7 },
+                    { date: '2025-11-01', type: 'entrada', product: 'Secador', quantity: 5 },
+                    { date: '2025-11-02', type: 'saida', product: 'Top Coat', quantity: 9 },
+                    { date: '2025-11-03', type: 'entrada', product: 'Pincel', quantity: 12 },
+                    { date: '2025-11-04', type: 'saida', product: 'Removedor', quantity: 5 },
+                    { date: '2025-11-05', type: 'entrada', product: 'Algodão', quantity: 50 },
+                    { date: '2025-11-06', type: 'saida', product: 'Secador', quantity: 1 }
+                ];
+                
+                // Calcular entradas e saídas dos dados simulados
+                const mockEntries = mockMovements.filter(m => m.type === 'entrada').length;
+                const mockExits = mockMovements.filter(m => m.type === 'saida').length;
+                
+                console.log('📦 Dados simulados calculados:', {
+                    total: mockMovements.length,
+                    entries: mockEntries,
+                    exits: mockExits
+                });
+                
                 const mockData = {
                     totalProducts: 45,
                     lowStock: 8,
                     stockValue: 12500.50,
-                    movementsCount: 23,
-                    movementsEntries: 15,
-                    movementsExits: 8,
+                    movementsCount: mockMovements.length,
+                    movementsEntries: mockEntries,
+                    movementsExits: mockExits,
                     categories: [
                         { name: 'Cabelo', count: 15, value: 4500.00 },
                         { name: 'Unhas', count: 12, value: 3200.00 },
@@ -2893,11 +2930,7 @@ class ReportsManager {
                         { name: 'Esmalte', current: 1, minimum: 10 },
                         { name: 'Creme', current: 3, minimum: 8 }
                     ],
-                    movements: [
-                        { date: '2025-10-15', type: 'entrada', product: 'Shampoo', quantity: 20 },
-                        { date: '2025-10-16', type: 'saida', product: 'Esmalte', quantity: 5 },
-                        { date: '2025-10-17', type: 'entrada', product: 'Creme', quantity: 15 }
-                    ]
+                    movements: mockMovements
                 };
                 
                 this.renderEstoqueStats(mockData);
@@ -2975,6 +3008,8 @@ class ReportsManager {
                 }
                 
                 console.log('📦 Total de movimentações encontradas:', movements.length);
+                console.log('📦 Array de movimentações completo:', movements);
+                console.log('📦 Estrutura do primeiro movimento:', movements[0]);
                 
                 // Calcular entradas e saídas
                 const entries = movements.filter(m => m.type === 'entrada').length;
@@ -2985,6 +3020,15 @@ class ReportsManager {
                     entries,
                     exits
                 });
+                
+                // Verificar se há movimentações e seus tipos
+                if (movements.length > 0) {
+                    console.log('📦 Tipos de movimentações encontrados:', movements.map(m => m.type));
+                    console.log('📦 Filtro de entradas:', movements.filter(m => m.type === 'entrada'));
+                    console.log('📦 Filtro de saídas:', movements.filter(m => m.type === 'saida'));
+                } else {
+                    console.log('📦 ⚠️ ARRAY DE MOVIMENTAÇÕES VAZIO!');
+                }
                 
                 const estoqueData = {
                     totalProducts,
@@ -3419,28 +3463,84 @@ class ReportsManager {
 
         // Fallback para quando não há dados
         if (!movements || movements.length === 0) {
-            console.log('📦 Nenhuma movimentação encontrada');
-            movements = [
-                { date: 'Sem dados', type: 'entrada', product: 'N/A', quantity: 0 }
-            ];
+            console.log('📦 Nenhuma movimentação encontrada, usando dados de exemplo');
+            this.charts.movements = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Sem dados'],
+                    datasets: [{
+                        label: 'Entradas',
+                        data: [0],
+                        borderColor: '#27ae60',
+                        backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Saídas',
+                        data: [0],
+                        borderColor: '#e74c3c',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            return;
         }
+
+        // Processar dados para o gráfico
+        console.log('📦 Processando dados para gráfico:', movements.length, 'movimentações');
+        
+        // Agrupar por data e calcular totais
+        const dailyData = {};
+        movements.forEach(mov => {
+            const date = mov.date;
+            if (!dailyData[date]) {
+                dailyData[date] = { entries: 0, exits: 0 };
+            }
+            if (mov.type === 'entrada') {
+                dailyData[date].entries += mov.quantity || 0;
+            } else if (mov.type === 'saida') {
+                dailyData[date].exits += mov.quantity || 0;
+            }
+        });
+
+        // Converter para arrays ordenados por data
+        const sortedDates = Object.keys(dailyData).sort();
+        const entriesData = sortedDates.map(date => dailyData[date].entries);
+        const exitsData = sortedDates.map(date => dailyData[date].exits);
+
+        console.log('📦 Dados processados para gráfico:', {
+            dates: sortedDates,
+            entries: entriesData,
+            exits: exitsData
+        });
 
         this.charts.movements = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: movements.map(mov => mov.date),
+                labels: sortedDates,
                 datasets: [{
                     label: 'Entradas',
-                    data: movements.filter(mov => mov.type === 'entrada').map(mov => mov.quantity),
+                    data: entriesData,
                     borderColor: '#27ae60',
                     backgroundColor: 'rgba(39, 174, 96, 0.1)',
-                    tension: 0.4
+                    tension: 0.4,
+                    fill: false
                 }, {
                     label: 'Saídas',
-                    data: movements.filter(mov => mov.type === 'saida').map(mov => mov.quantity),
+                    data: exitsData,
                     borderColor: '#e74c3c',
                     backgroundColor: 'rgba(231, 76, 60, 0.1)',
-                    tension: 0.4
+                    tension: 0.4,
+                    fill: false
                 }]
             },
             options: {
@@ -3448,7 +3548,23 @@ class ReportsManager {
                 maintainAspectRatio: false,
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Quantidade'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Data'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
                     }
                 }
             }
