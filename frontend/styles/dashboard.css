@@ -6395,9 +6395,10 @@ body {
     border: none;
     padding: 20px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 12px;
     color: #666;
     font-size: 16px;
     font-weight: 500;
@@ -6427,7 +6428,46 @@ body {
 }
 
 .reports-tabs .tab-btn i {
-    font-size: 16px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: white;
+    background: linear-gradient(135deg, #975756, #7a4443);
+    transition: all 0.3s ease;
+}
+
+.reports-tabs .tab-btn[data-tab="agenda"] i {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.reports-tabs .tab-btn[data-tab="estoque"] i {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+.reports-tabs .tab-btn[data-tab="financeiro"] i {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
+.reports-tabs .tab-btn[data-tab="profissionais"] i {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+}
+
+.reports-tabs .tab-btn[data-tab="servicos"] i {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.reports-tabs .tab-btn:hover i {
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.reports-tabs .tab-btn.active i {
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .reports-tabs .tab-btn span {
@@ -6667,6 +6707,12 @@ body {
         flex: 1 1 50%;
         min-width: 120px;
         padding: 15px 10px;
+    }
+    
+    .reports-tabs .tab-btn i {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
     }
     
     .reports-tabs .tab-btn span {
