@@ -183,6 +183,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 const result = await response.json();
                 historyData = result.history || [];
                 filteredHistory = [...historyData];
+                
+                // Expor dados de histórico globalmente para uso em relatórios
+                window.historyData = historyData;
+                console.log('📦 Dados de histórico expostos globalmente:', historyData.length, 'movimentações');
+                
                 renderHistory();
                 populateProductFilter();
             } else {

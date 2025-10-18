@@ -2985,26 +2985,39 @@ class ReportsManager {
                     }))
                 });
                 
-                // Carregar histórico de movimentações (opcional)
+                // Carregar histórico de movimentações da mesma fonte da tela de estoque
                 let movements = [];
-                try {
-                    console.log('📦 Tentando carregar histórico de movimentações...');
-                    const historyResponse = await fetch('/api/stock/history', {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    
-                    console.log('📦 Status da resposta do histórico:', historyResponse.status);
-                    
-                    if (historyResponse.ok) {
-                        const historyData = await historyResponse.json();
-                        movements = historyData.movements || [];
-                        console.log('📦 Movimentações carregadas:', movements);
-                    } else {
-                        console.log('📦 Erro ao carregar histórico:', historyResponse.status, historyResponse.statusText);
+                
+                // Primeiro, tentar acessar dados já carregados na tela de estoque
+                if (window.historyData && window.historyData.length > 0) {
+                    console.log('📦 Usando dados de histórico já carregados na tela de estoque');
+                    movements = window.historyData;
+                } else {
+                    console.log('📦 Dados de histórico não encontrados globalmente, buscando da API...');
+                    // Se não houver dados carregados, buscar da API
+                    try {
+                        console.log('📦 Tentando carregar histórico de movimentações da API...');
+                        const historyResponse = await fetch('/api/products/history', {
+                            method: 'GET',
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        
+                        console.log('📦 Status da resposta do histórico:', historyResponse.status);
+                        
+                        if (historyResponse.ok) {
+                            const result = await historyResponse.json();
+                            movements = result.history || [];
+                            console.log('📦 Movimentações carregadas da API:', movements);
+                            
+                            // Armazenar globalmente para uso futuro
+                            window.historyData = movements;
+                        } else {
+                            console.log('📦 Erro ao carregar histórico:', historyResponse.status, historyResponse.statusText);
+                        }
+                    } catch (error) {
+                        console.log('📦 Histórico de movimentações não disponível:', error.message);
+                        // Continuar sem histórico
                     }
-                } catch (error) {
-                    console.log('📦 Histórico de movimentações não disponível:', error.message);
-                    // Continuar sem histórico
                 }
                 
                 console.log('📦 Total de movimentações encontradas:', movements.length);
@@ -3026,8 +3039,21 @@ class ReportsManager {
                     console.log('📦 Tipos de movimentações encontrados:', movements.map(m => m.type));
                     console.log('📦 Filtro de entradas:', movements.filter(m => m.type === 'entrada'));
                     console.log('📦 Filtro de saídas:', movements.filter(m => m.type === 'saida'));
+                    
+                    // Verificar estrutura dos dados
+                    console.log('📦 Estrutura dos dados de movimentação:', {
+                        primeiro: movements[0],
+                        campos: movements[0] ? Object.keys(movements[0]) : 'N/A',
+                        tipos: [...new Set(movements.map(m => m.type))],
+                        produtos: [...new Set(movements.map(m => m.productName || m.product))],
+                        quantidades: movements.map(m => m.quantity)
+                    });
                 } else {
                     console.log('📦 ⚠️ ARRAY DE MOVIMENTAÇÕES VAZIO!');
+                    console.log('📦 Verificando se há dados globais disponíveis:', {
+                        windowHistoryData: window.historyData ? window.historyData.length : 'N/A',
+                        windowHistoryDataContent: window.historyData
+                    });
                 }
                 
                 const estoqueData = {
