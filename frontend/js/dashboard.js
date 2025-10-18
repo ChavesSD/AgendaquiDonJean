@@ -2864,85 +2864,9 @@ class ReportsManager {
             const token = localStorage.getItem('authToken');
             console.log('📦 Token:', token ? 'Disponível' : 'Não disponível');
 
-            // Simular dados para teste se não houver token
+            // Se não há token, não carregar dados
             if (!token) {
-                console.log('📦 Simulando dados do estoque...');
-                // Criar dados simulados mais realistas
-                const mockMovements = [
-                    { date: '2025-10-15', type: 'entrada', product: 'Shampoo', quantity: 20 },
-                    { date: '2025-10-16', type: 'saida', product: 'Esmalte', quantity: 5 },
-                    { date: '2025-10-17', type: 'entrada', product: 'Creme', quantity: 15 },
-                    { date: '2025-10-18', type: 'entrada', product: 'Condicionador', quantity: 12 },
-                    { date: '2025-10-19', type: 'saida', product: 'Shampoo', quantity: 8 },
-                    { date: '2025-10-20', type: 'entrada', product: 'Esmalte', quantity: 25 },
-                    { date: '2025-10-21', type: 'saida', product: 'Creme', quantity: 3 },
-                    { date: '2025-10-22', type: 'entrada', product: 'Máscara', quantity: 10 },
-                    { date: '2025-10-23', type: 'saida', product: 'Condicionador', quantity: 6 },
-                    { date: '2025-10-24', type: 'entrada', product: 'Óleo', quantity: 8 },
-                    { date: '2025-10-25', type: 'saida', product: 'Esmalte', quantity: 12 },
-                    { date: '2025-10-26', type: 'entrada', product: 'Base', quantity: 15 },
-                    { date: '2025-10-27', type: 'saida', product: 'Máscara', quantity: 4 },
-                    { date: '2025-10-28', type: 'entrada', product: 'Top Coat', quantity: 20 },
-                    { date: '2025-10-29', type: 'saida', product: 'Óleo', quantity: 2 },
-                    { date: '2025-10-30', type: 'entrada', product: 'Removedor', quantity: 18 },
-                    { date: '2025-10-31', type: 'saida', product: 'Base', quantity: 7 },
-                    { date: '2025-11-01', type: 'entrada', product: 'Secador', quantity: 5 },
-                    { date: '2025-11-02', type: 'saida', product: 'Top Coat', quantity: 9 },
-                    { date: '2025-11-03', type: 'entrada', product: 'Pincel', quantity: 12 },
-                    { date: '2025-11-04', type: 'saida', product: 'Removedor', quantity: 5 },
-                    { date: '2025-11-05', type: 'entrada', product: 'Algodão', quantity: 50 },
-                    { date: '2025-11-06', type: 'saida', product: 'Secador', quantity: 1 }
-                ];
-                
-                // Calcular entradas e saídas dos dados simulados
-                const mockEntries = mockMovements.filter(m => m.type === 'entrada').length;
-                const mockExits = mockMovements.filter(m => m.type === 'saida').length;
-                
-                console.log('📦 Dados simulados calculados:', {
-                    total: mockMovements.length,
-                    entries: mockEntries,
-                    exits: mockExits
-                });
-                
-                // Criar produtos simulados para o gráfico de valor
-                const mockProducts = [
-                    { name: 'Shampoo Premium', quantity: 25, price: 45.90, category: 'Cabelo' },
-                    { name: 'Esmalte Vermelho', quantity: 50, price: 12.50, category: 'Unhas' },
-                    { name: 'Creme Hidratante', quantity: 30, price: 28.90, category: 'Estética' },
-                    { name: 'Condicionador', quantity: 20, price: 35.00, category: 'Cabelo' },
-                    { name: 'Base para Unhas', quantity: 15, price: 18.90, category: 'Unhas' },
-                    { name: 'Máscara Capilar', quantity: 12, price: 65.00, category: 'Cabelo' },
-                    { name: 'Top Coat', quantity: 40, price: 15.50, category: 'Unhas' },
-                    { name: 'Óleo Corporal', quantity: 18, price: 42.90, category: 'Estética' },
-                    { name: 'Removedor de Esmalte', quantity: 35, price: 8.90, category: 'Unhas' },
-                    { name: 'Secador de Cabelo', quantity: 5, price: 120.00, category: 'Cabelo' },
-                    { name: 'Pincel para Unhas', quantity: 25, price: 22.50, category: 'Unhas' },
-                    { name: 'Algodão', quantity: 100, price: 3.50, category: 'Estética' }
-                ];
-                
-                const mockData = {
-                    totalProducts: 45,
-                    lowStock: 8,
-                    stockValue: 12500.50,
-                    movementsCount: mockMovements.length,
-                    movementsEntries: mockEntries,
-                    movementsExits: mockExits,
-                    products: mockProducts, // Adicionar produtos para o gráfico de valor
-                    categories: [
-                        { name: 'Cabelo', count: 15, value: 4500.00 },
-                        { name: 'Unhas', count: 12, value: 3200.00 },
-                        { name: 'Estética', count: 18, value: 4800.50 }
-                    ],
-                    lowStockItems: [
-                        { name: 'Shampoo', current: 2, minimum: 5 },
-                        { name: 'Esmalte', current: 1, minimum: 10 },
-                        { name: 'Creme', current: 3, minimum: 8 }
-                    ],
-                    movements: mockMovements
-                };
-                
-                this.renderEstoqueStats(mockData);
-                this.renderEstoqueCharts(mockData);
+                console.log('📦 Token não encontrado, não carregando dados do estoque');
                 this.hideLoadingState();
                 return;
             }
@@ -3115,33 +3039,9 @@ class ReportsManager {
 
             console.log('💰 Filtros:', { startDate, endDate, token: !!token });
 
-            // Simular dados para teste se não houver token
+            // Se não há token, não carregar dados
             if (!token) {
-                console.log('💰 Simulando dados financeiros...');
-                const mockData = {
-                    totalRevenue: 25000.00,
-                    totalExpenses: 15000.00,
-                    totalProfit: 10000.00,
-                    monthlyData: [
-                        { month: 'Jan', revenue: 20000, expenses: 12000, profit: 8000 },
-                        { month: 'Fev', revenue: 22000, expenses: 13000, profit: 9000 },
-                        { month: 'Mar', revenue: 25000, expenses: 15000, profit: 10000 }
-                    ],
-                    revenueSources: [
-                        { source: 'Serviços', amount: 18000, percentage: 72 },
-                        { source: 'Produtos', amount: 5000, percentage: 20 },
-                        { source: 'Outros', amount: 2000, percentage: 8 }
-                    ],
-                    expenseCategories: [
-                        { category: 'Salários', amount: 8000, percentage: 53 },
-                        { category: 'Aluguel', amount: 3000, percentage: 20 },
-                        { category: 'Equipamentos', amount: 2000, percentage: 13 },
-                        { category: 'Outros', amount: 2000, percentage: 14 }
-                    ]
-                };
-                
-                this.renderFinanceiroStats(mockData);
-                this.renderFinanceiroCharts(mockData);
+                console.log('💰 Token não encontrado, não carregando dados financeiros');
                 this.hideLoadingState();
                 return;
             }
@@ -3157,8 +3057,8 @@ class ReportsManager {
                 const expenses = data.expenses || [];
                 
                 // Processar dados financeiros
-                const totalRevenue = revenues.reduce((sum, r) => sum + (r.amount || 0), 0);
-                const totalExpenses = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+                const totalRevenue = revenues.reduce((sum, r) => sum + (r.value || r.amount || 0), 0);
+                const totalExpenses = expenses.reduce((sum, e) => sum + (e.value || e.amount || 0), 0);
                 const totalProfit = totalRevenue - totalExpenses;
                 
                 console.log('💰 Dados processados:', { totalRevenue, totalExpenses, totalProfit });
@@ -3173,6 +3073,7 @@ class ReportsManager {
                 };
                 
                 console.log('💰 Dados financeiros carregados:', financeiroData);
+                console.log('💰 Dados mensais processados:', financeiroData.monthlyData);
                 this.renderFinanceiroStats(financeiroData);
                 this.renderFinanceiroCharts(financeiroData);
             } else {
@@ -3192,28 +3093,9 @@ class ReportsManager {
             const token = localStorage.getItem('authToken');
             console.log('👥 Token:', token ? 'Disponível' : 'Não disponível');
 
-            // Simular dados para teste se não houver token
+            // Se não há token, não carregar dados
             if (!token) {
-                console.log('👥 Simulando dados dos profissionais...');
-                const mockData = {
-                    totalProfessionals: 8,
-                    activeProfessionals: 6,
-                    topProfessional: 'Maria Silva',
-                    performance: 95,
-                    professionals: [
-                        { name: 'Maria Silva', appointments: 45, revenue: 4500, rating: 4.8 },
-                        { name: 'João Santos', appointments: 38, revenue: 3800, rating: 4.6 },
-                        { name: 'Ana Costa', appointments: 32, revenue: 3200, rating: 4.7 }
-                    ],
-                    monthlyPerformance: [
-                        { month: 'Jan', appointments: 120, revenue: 12000 },
-                        { month: 'Fev', appointments: 135, revenue: 13500 },
-                        { month: 'Mar', appointments: 150, revenue: 15000 }
-                    ]
-                };
-                
-                this.renderProfissionaisStats(mockData);
-                this.renderProfissionaisCharts(mockData);
+                console.log('👥 Token não encontrado, não carregando dados dos profissionais');
                 this.hideLoadingState();
                 return;
             }
@@ -3267,29 +3149,9 @@ class ReportsManager {
             const token = localStorage.getItem('authToken');
             console.log('⚙️ Token:', token ? 'Disponível' : 'Não disponível');
 
-            // Simular dados para teste se não houver token
+            // Se não há token, não carregar dados
             if (!token) {
-                console.log('⚙️ Simulando dados dos serviços...');
-                const mockData = {
-                    totalServices: 15,
-                    popularService: 'Corte Feminino',
-                    totalRevenue: 18000.00,
-                    evolution: 12.5,
-                    services: [
-                        { name: 'Corte Feminino', appointments: 60, revenue: 6000, price: 100 },
-                        { name: 'Coloração', appointments: 45, revenue: 4500, price: 100 },
-                        { name: 'Manicure', appointments: 80, revenue: 4000, price: 50 },
-                        { name: 'Pedicure', appointments: 70, revenue: 3500, price: 50 }
-                    ],
-                    monthlyEvolution: [
-                        { month: 'Jan', services: 120, revenue: 12000 },
-                        { month: 'Fev', services: 135, revenue: 13500 },
-                        { month: 'Mar', services: 150, revenue: 15000 }
-                    ]
-                };
-                
-                this.renderServicosStats(mockData);
-                this.renderServicosCharts(mockData);
+                console.log('⚙️ Token não encontrado, não carregando dados dos serviços');
                 this.hideLoadingState();
                 return;
             }
@@ -3403,10 +3265,8 @@ class ReportsManager {
 
         // Fallback para quando não há dados
         if (!categories || categories.length === 0) {
-            console.log('📦 Nenhuma categoria encontrada, usando dados de exemplo');
-            categories = [
-                { name: 'Sem dados', count: 1, value: 0 }
-            ];
+            console.log('📦 Nenhuma categoria encontrada');
+            return;
         }
 
         this.charts.category = new Chart(ctx, {
@@ -3499,35 +3359,7 @@ class ReportsManager {
 
         // Fallback para quando não há dados
         if (!movements || movements.length === 0) {
-            console.log('📦 Nenhuma movimentação encontrada, usando dados de exemplo');
-            this.charts.movements = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Sem dados'],
-                    datasets: [{
-                        label: 'Entradas',
-                        data: [0],
-                        borderColor: '#27ae60',
-                        backgroundColor: 'rgba(39, 174, 96, 0.1)',
-                        tension: 0.4
-                    }, {
-                        label: 'Saídas',
-                        data: [0],
-                        borderColor: '#e74c3c',
-                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
+            console.log('📦 Nenhuma movimentação encontrada');
             return;
         }
 
@@ -3621,45 +3453,7 @@ class ReportsManager {
 
         // Fallback para quando não há dados
         if (!products || products.length === 0) {
-            console.log('📦 Nenhum produto encontrado, usando dados de exemplo');
-            this.charts.stockValue = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Sem dados'],
-                    datasets: [{
-                        label: 'Valor do Estoque',
-                        data: [0],
-                        backgroundColor: '#f39c12',
-                        borderColor: '#e67e22',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Valor (R$)'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Produtos'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top'
-                        }
-                    }
-                }
-            });
+            console.log('📦 Nenhum produto encontrado');
             return;
         }
 
@@ -3796,10 +3590,16 @@ class ReportsManager {
 
     renderFinanceiroCharts(data) {
         console.log('💰 Renderizando gráficos financeiros:', data);
+        console.log('💰 Dados mensais recebidos:', data.monthlyData);
+        console.log('💰 Quantidade de dados mensais:', data.monthlyData ? data.monthlyData.length : 0);
+        
+        // Sempre renderizar os gráficos, mesmo sem dados
         this.renderRevenueExpensesChart(data.monthlyData);
         this.renderCashflowChart(data.monthlyData);
         this.renderExpenseCategoriesChart(data.expenseCategories);
         this.renderMonthlyEvolutionChart(data.monthlyData);
+        
+        console.log('💰 Todos os gráficos financeiros renderizados');
     }
 
     renderRevenueExpensesChart(monthlyData) {
@@ -3815,31 +3615,8 @@ class ReportsManager {
         }
 
         if (!monthlyData || monthlyData.length === 0) {
-            console.log('💰 Nenhum dado mensal encontrado, usando dados de exemplo');
-            this.charts.revenueExpenses = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Sem dados'],
-                    datasets: [{
-                        label: 'Receitas',
-                        data: [0],
-                        backgroundColor: '#27ae60'
-                    }, {
-                        label: 'Despesas',
-                        data: [0],
-                        backgroundColor: '#e74c3c'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Valor (R$)' } },
-                        x: { title: { display: true, text: 'Período' } }
-                    },
-                    plugins: { legend: { display: true, position: 'top' } }
-                }
-            });
+            console.log('💰 Nenhum dado mensal encontrado para receita vs despesas');
+            // Não exibir gráfico se não há dados
             return;
         }
 
@@ -3899,25 +3676,8 @@ class ReportsManager {
         }
 
         if (!monthlyData || monthlyData.length === 0) {
-            console.log('💰 Nenhum dado mensal encontrado, usando dados de exemplo');
-            this.charts.cashflow = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Sem dados'],
-                    datasets: [{
-                        label: 'Fluxo de Caixa',
-                        data: [0],
-                        borderColor: '#3498db',
-                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true } }
-                }
-            });
+            console.log('💰 Nenhum dado mensal encontrado para fluxo de caixa');
+            // Não exibir gráfico se não há dados
             return;
         }
 
@@ -3927,7 +3687,9 @@ class ReportsManager {
             cumulativeCashflow += (item.revenue - item.expenses);
             return cumulativeCashflow;
         });
-
+        
+        console.log('💰 Dados do fluxo de caixa:', { monthlyData, cashflowData });
+        
         this.charts.cashflow = new Chart(ctx, {
             type: 'line',
             data: {
@@ -3938,22 +3700,40 @@ class ReportsManager {
                     borderColor: '#3498db',
                     backgroundColor: 'rgba(52, 152, 219, 0.1)',
                     tension: 0.4,
-                    fill: true
+                    fill: true,
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: {
-                    y: {
+                scales: { 
+                    y: { 
                         beginAtZero: true,
-                        title: { display: true, text: 'Valor Acumulado (R$)' },
-                        ticks: { callback: function(value) { return 'R$ ' + value.toLocaleString('pt-BR'); } }
+                        title: {
+                            display: true,
+                            text: 'Valor Acumulado (R$)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return 'R$ ' + value.toLocaleString('pt-BR');
+                            }
+                        }
                     },
-                    x: { title: { display: true, text: 'Mês' } }
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Mês'
+                        }
+                    }
                 },
                 plugins: {
-                    legend: { display: true, position: 'top' },
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
@@ -3964,22 +3744,34 @@ class ReportsManager {
                 }
             }
         });
+        
+        console.log('💰 Gráfico de fluxo de caixa criado com sucesso');
     }
 
     renderMonthlyEvolutionChart(monthlyData) {
         console.log('💰 Renderizando gráfico Evolução Mensal:', monthlyData);
+        console.log('💰 Tipo dos dados:', typeof monthlyData);
+        console.log('💰 É array?', Array.isArray(monthlyData));
+        console.log('💰 Tamanho:', monthlyData ? monthlyData.length : 'undefined');
+        
         const ctx = document.getElementById('monthlyEvolutionChart');
         if (!ctx) {
             console.error('💰 Elemento monthlyEvolutionChart não encontrado');
             return;
         }
+        
+        console.log('💰 Canvas encontrado:', ctx);
+        console.log('💰 Chart.js disponível:', typeof Chart !== 'undefined');
+        console.log('💰 Canvas dimensions:', ctx.width, 'x', ctx.height);
+        console.log('💰 Canvas style:', ctx.style.display, ctx.style.visibility);
 
         if (this.charts.monthlyEvolution) {
             this.charts.monthlyEvolution.destroy();
         }
 
         if (!monthlyData || monthlyData.length === 0) {
-            console.log('💰 Nenhum dado mensal encontrado, usando dados de exemplo');
+            console.log('💰 Nenhum dado mensal encontrado para evolução mensal');
+            // Exibir gráfico vazio com mensagem
             this.charts.monthlyEvolution = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -4007,13 +3799,35 @@ class ReportsManager {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true } }
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Valor (R$)' },
+                            ticks: { callback: function(value) { return 'R$ ' + value.toLocaleString('pt-BR'); } }
+                        },
+                        x: { title: { display: true, text: 'Mês' } }
+                    },
+                    plugins: {
+                        legend: { display: true, position: 'top' },
+                        title: {
+                            display: true,
+                            text: 'Nenhum dado disponível'
+                        }
+                    }
                 }
             });
+            console.log('💰 Gráfico de evolução mensal (sem dados) criado com sucesso');
             return;
         }
 
-        this.charts.monthlyEvolution = new Chart(ctx, {
+        console.log('💰 Criando gráfico de evolução mensal com dados reais');
+        console.log('💰 Labels:', monthlyData.map(item => item.month));
+        console.log('💰 Receitas:', monthlyData.map(item => item.revenue));
+        console.log('💰 Despesas:', monthlyData.map(item => item.expenses));
+        console.log('💰 Lucros:', monthlyData.map(item => item.profit));
+        
+        try {
+            this.charts.monthlyEvolution = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: monthlyData.map(item => item.month),
@@ -4022,19 +3836,25 @@ class ReportsManager {
                     data: monthlyData.map(item => item.revenue),
                     borderColor: '#27ae60',
                     backgroundColor: 'rgba(39, 174, 96, 0.1)',
-                    tension: 0.4
+                    tension: 0.4,
+                    fill: true
                 }, {
                     label: 'Despesas',
                     data: monthlyData.map(item => item.expenses),
                     borderColor: '#e74c3c',
                     backgroundColor: 'rgba(231, 76, 60, 0.1)',
-                    tension: 0.4
+                    tension: 0.4,
+                    fill: true
                 }, {
                     label: 'Lucro',
                     data: monthlyData.map(item => item.profit),
                     borderColor: '#3498db',
                     backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                    tension: 0.4
+                    tension: 0.4,
+                    fill: false,
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
                 }]
             },
             options: {
@@ -4060,6 +3880,11 @@ class ReportsManager {
                 }
             }
         });
+        
+        console.log('💰 Gráfico de evolução mensal (com dados) criado com sucesso');
+        } catch (error) {
+            console.error('💰 Erro ao criar gráfico de evolução mensal:', error);
+        }
     }
 
     renderExpenseCategoriesChart(expenseCategories) {
@@ -4359,21 +4184,39 @@ class ReportsManager {
         const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
         const monthlyData = {};
         
-        revenues.forEach(revenue => {
-            const month = new Date(revenue.date).getMonth();
-            if (!monthlyData[month]) {
-                monthlyData[month] = { revenue: 0, expenses: 0 };
-            }
-            monthlyData[month].revenue += revenue.amount;
-        });
+        // Processar receitas
+        if (revenues && revenues.length > 0) {
+            revenues.forEach(revenue => {
+                if (revenue.date) {
+                    const month = new Date(revenue.date).getMonth();
+                    if (!monthlyData[month]) {
+                        monthlyData[month] = { revenue: 0, expenses: 0 };
+                    }
+                    monthlyData[month].revenue += (revenue.value || revenue.amount || 0);
+                }
+            });
+        }
         
-        expenses.forEach(expense => {
-            const month = new Date(expense.date).getMonth();
-            if (!monthlyData[month]) {
-                monthlyData[month] = { revenue: 0, expenses: 0 };
-            }
-            monthlyData[month].expenses += expense.amount;
-        });
+        // Processar despesas
+        if (expenses && expenses.length > 0) {
+            expenses.forEach(expense => {
+                if (expense.date) {
+                    const month = new Date(expense.date).getMonth();
+                    if (!monthlyData[month]) {
+                        monthlyData[month] = { revenue: 0, expenses: 0 };
+                    }
+                    monthlyData[month].expenses += (expense.value || expense.amount || 0);
+                }
+            });
+        }
+        
+        // Se não há dados, retornar array vazio
+        if (Object.keys(monthlyData).length === 0) {
+            console.log('💰 Nenhum dado mensal encontrado');
+            return [];
+        }
+        
+        console.log('💰 Dados mensais processados:', Object.keys(monthlyData).length, 'meses');
         
         return Object.entries(monthlyData).map(([month, data]) => ({
             month: months[parseInt(month)],
@@ -4390,7 +4233,7 @@ class ReportsManager {
             if (!sources[source]) {
                 sources[source] = 0;
             }
-            sources[source] += revenue.amount;
+            sources[source] += (revenue.value || revenue.amount || 0);
         });
         
         const total = Object.values(sources).reduce((sum, amount) => sum + amount, 0);
@@ -4408,7 +4251,7 @@ class ReportsManager {
             if (!categories[category]) {
                 categories[category] = 0;
             }
-            categories[category] += expense.amount;
+            categories[category] += (expense.value || expense.amount || 0);
         });
         
         return Object.entries(categories).map(([category, amount]) => ({
