@@ -2913,10 +2913,30 @@ class ReportsManager {
                 const data = await response.json();
                 const products = data.products || [];
                 
+                console.log('📦 Dados brutos da API:', data);
+                console.log('📦 Produtos recebidos:', products);
+                console.log('📦 Estrutura do primeiro produto:', products[0]);
+                
                 // Processar dados do estoque
                 const totalProducts = products.length;
-                const lowStock = products.filter(p => p.quantity <= p.minimumQuantity).length;
-                const stockValue = products.reduce((sum, p) => sum + (p.quantity * p.price), 0);
+                
+                // Verificar propriedades disponíveis nos produtos
+                if (products.length > 0) {
+                    console.log('📦 Propriedades do primeiro produto:', Object.keys(products[0]));
+                }
+                
+                // Calcular estoque baixo com verificação robusta
+                const lowStock = products.filter(p => {
+                    const quantity = p.quantity || p.stock || 0;
+                    const minimum = p.minimumQuantity || p.minimum_stock || p.minStock || 5; // fallback para 5
+                    return quantity <= minimum;
+                }).length;
+                
+                const stockValue = products.reduce((sum, p) => {
+                    const quantity = p.quantity || p.stock || 0;
+                    const price = p.price || p.cost || 0;
+                    return sum + (quantity * price);
+                }, 0);
                 
                 console.log('📦 Produtos processados:', {
                     totalProducts,
@@ -2933,18 +2953,26 @@ class ReportsManager {
                 // Carregar histórico de movimentações (opcional)
                 let movements = [];
                 try {
+                    console.log('📦 Tentando carregar histórico de movimentações...');
                     const historyResponse = await fetch('/api/stock/history', {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     
+                    console.log('📦 Status da resposta do histórico:', historyResponse.status);
+                    
                     if (historyResponse.ok) {
                         const historyData = await historyResponse.json();
                         movements = historyData.movements || [];
+                        console.log('📦 Movimentações carregadas:', movements);
+                    } else {
+                        console.log('📦 Erro ao carregar histórico:', historyResponse.status, historyResponse.statusText);
                     }
                 } catch (error) {
                     console.log('📦 Histórico de movimentações não disponível:', error.message);
                     // Continuar sem histórico
                 }
+                
+                console.log('📦 Total de movimentações encontradas:', movements.length);
                 
                 const estoqueData = {
                     totalProducts,
@@ -2952,15 +2980,26 @@ class ReportsManager {
                     stockValue,
                     movementsCount: movements.length,
                     categories: this.processCategories(products),
-                    lowStockItems: products.filter(p => p.quantity <= p.minimumQuantity).map(p => ({
+                    lowStockItems: products.filter(p => {
+                        const quantity = p.quantity || p.stock || 0;
+                        const minimum = p.minimumQuantity || p.minimum_stock || p.minStock || 5;
+                        return quantity <= minimum;
+                    }).map(p => ({
                         name: p.name,
-                        current: p.quantity,
-                        minimum: p.minimumQuantity
+                        current: p.quantity || p.stock || 0,
+                        minimum: p.minimumQuantity || p.minimum_stock || p.minStock || 5
                     })),
                     movements: movements.slice(0, 10) // Últimas 10 movimentações
                 };
                 
                 console.log('📦 Dados do estoque carregados:', estoqueData);
+                console.log('📦 Valores específicos:', {
+                    totalProducts: estoqueData.totalProducts,
+                    lowStock: estoqueData.lowStock,
+                    stockValue: estoqueData.stockValue,
+                    movementsCount: estoqueData.movementsCount
+                });
+                
                 this.renderEstoqueStats(estoqueData);
                 this.renderEstoqueCharts(estoqueData);
             } else {
@@ -3715,12 +3754,15 @@ class ReportsManager {
     processCategories(products) {
         const categories = {};
         products.forEach(product => {
-            const category = product.category || 'Outros';
+            const category = product.category || product.categoria || 'Outros';
             if (!categories[category]) {
                 categories[category] = { count: 0, value: 0 };
             }
             categories[category].count++;
-            categories[category].value += product.quantity * product.price;
+            
+            const quantity = product.quantity || product.stock || 0;
+            const price = product.price || product.cost || 0;
+            categories[category].value += quantity * price;
         });
         
         return Object.entries(categories).map(([name, data]) => ({
