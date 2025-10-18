@@ -6741,8 +6741,8 @@ body {
     display: flex;
     justify-content: flex-end;
     gap: 15px;
-    margin-top: 30px;
-    padding: 20px 0;
+    margin: 20px 0;
+    padding: 15px 0;
 }
 
 .reports-export-actions .btn {
