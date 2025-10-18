@@ -910,18 +910,18 @@
                     </div>
 
                     <!-- Filtros de Data -->
-                    <div class="reports-filters">
+                    <div class="date-filters">
                         <div class="filter-group">
                             <label for="reports-start-date">Data Início</label>
-                            <input type="date" id="reports-start-date" class="form-control">
+                            <input type="date" id="reports-start-date" placeholder="dd/mm/aaaa">
                         </div>
                         <div class="filter-group">
                             <label for="reports-end-date">Data Fim</label>
-                            <input type="date" id="reports-end-date" class="form-control">
+                            <input type="date" id="reports-end-date" placeholder="dd/mm/aaaa">
                         </div>
                         <div class="filter-group">
                             <label for="reports-period">Período</label>
-                            <select id="reports-period" class="form-control">
+                            <select id="reports-period">
                                 <option value="custom">Personalizado</option>
                                 <option value="today">Hoje</option>
                                 <option value="week">Esta Semana</option>
@@ -930,16 +930,14 @@
                                 <option value="year">Este Ano</option>
                             </select>
                         </div>
-                        <div class="filter-actions">
-                            <button class="btn btn-primary" id="apply-reports-filters">
-                                <i class="fas fa-filter"></i>
-                                Aplicar Filtros
-                            </button>
-                            <button class="btn btn-secondary" id="reset-reports-filters">
-                                <i class="fas fa-undo"></i>
-                                Resetar
-                            </button>
-                        </div>
+                        <button class="btn btn-primary" id="apply-reports-filters">
+                            <i class="fas fa-search"></i>
+                            Filtrar
+                        </button>
+                        <button class="btn btn-secondary" id="reset-reports-filters">
+                            <i class="fas fa-times"></i>
+                            Limpar
+                        </button>
                     </div>
 
                     <!-- Abas de Relatórios -->

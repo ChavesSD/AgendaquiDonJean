@@ -4055,6 +4055,22 @@ body {
     color: #7a4443;
 }
 
+.date-filters select {
+    padding: 10px 15px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    transition: all 0.3s ease;
+    min-width: 150px;
+}
+
+.date-filters select:focus {
+    outline: none;
+    border-color: #975756;
+    box-shadow: 0 0 0 3px rgba(151, 87, 86, 0.1);
+}
+
 /* Cards de Estatísticas Financeiras */
 .finance-stats {
     display: grid;
@@ -6354,39 +6370,6 @@ body {
 
 /* ==================== RELATÓRIOS ==================== */
 
-/* Filtros de Relatórios */
-.reports-filters {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 12px;
-    padding: 25px;
-    margin-bottom: 30px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    align-items: end;
-}
-
-.reports-filters .filter-group {
-    flex: 1;
-    min-width: 200px;
-}
-
-.reports-filters .filter-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #2c3e50;
-    font-size: 14px;
-}
-
-.reports-filters .filter-actions {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
 
 /* Abas de Relatórios */
 .reports-tabs {
@@ -6666,20 +6649,6 @@ body {
 }
 
 @media (max-width: 768px) {
-    .reports-filters {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 15px;
-    }
-    
-    .reports-filters .filter-group {
-        min-width: 100%;
-    }
-    
-    .reports-filters .filter-actions {
-        justify-content: center;
-        flex-wrap: wrap;
-    }
     
     .reports-tabs .tab-buttons {
         flex-wrap: wrap;
