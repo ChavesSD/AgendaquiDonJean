@@ -4098,15 +4098,15 @@ body {
 }
 
 .finance-stats .stat-card.revenue {
-    border-left: 4px solid #27ae60;
+    /* Removida borda lateral - apenas linha superior */
 }
 
 .finance-stats .stat-card.expenses {
-    border-left: 4px solid #e74c3c;
+    /* Removida borda lateral - apenas linha superior */
 }
 
 .finance-stats .stat-card.profit {
-    border-left: 4px solid #3498db;
+    /* Removida borda lateral - apenas linha superior */
 }
 
 .finance-stats .stat-icon {
