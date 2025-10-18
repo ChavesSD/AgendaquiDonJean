@@ -6395,10 +6395,9 @@ body {
     border: none;
     padding: 20px;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
     color: #666;
     font-size: 16px;
     font-weight: 500;
@@ -6428,46 +6427,7 @@ body {
 }
 
 .reports-tabs .tab-btn i {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    color: white;
-    background: linear-gradient(135deg, #975756, #7a4443);
-    transition: all 0.3s ease;
-}
-
-.reports-tabs .tab-btn[data-tab="agenda"] i {
-    background: linear-gradient(135deg, #3498db, #2980b9);
-}
-
-.reports-tabs .tab-btn[data-tab="estoque"] i {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
-}
-
-.reports-tabs .tab-btn[data-tab="financeiro"] i {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
-}
-
-.reports-tabs .tab-btn[data-tab="profissionais"] i {
-    background: linear-gradient(135deg, #9b59b6, #8e44ad);
-}
-
-.reports-tabs .tab-btn[data-tab="servicos"] i {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
-}
-
-.reports-tabs .tab-btn:hover i {
-    transform: scale(1.1);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.reports-tabs .tab-btn.active i {
-    transform: scale(1.1);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    font-size: 16px;
 }
 
 .reports-tabs .tab-btn span {
@@ -6556,6 +6516,91 @@ body {
     font-size: 24px;
     color: white;
     background: linear-gradient(135deg, #975756, #7a4443);
+}
+
+/* Ícones coloridos para cards de Agenda */
+#agenda-tab .reports-grid .stat-card .stat-icon {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+#agenda-tab .reports-grid .stat-card .stat-icon.pending {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+#agenda-tab .reports-grid .stat-card .stat-icon.confirmed {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
+#agenda-tab .reports-grid .stat-card .stat-icon.cancelled {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+/* Ícones coloridos para cards de Estoque */
+#estoque-tab .reports-grid .stat-card .stat-icon {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+#estoque-tab .reports-grid .stat-card .stat-icon.low-stock {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+#estoque-tab .reports-grid .stat-card .stat-icon.value {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
+#estoque-tab .reports-grid .stat-card .stat-icon.movements {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+}
+
+/* Ícones coloridos para cards de Financeiro */
+#financeiro-tab .reports-grid .stat-card .stat-icon {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
+#financeiro-tab .reports-grid .stat-card .stat-icon.revenue {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
+#financeiro-tab .reports-grid .stat-card .stat-icon.expenses {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+#financeiro-tab .reports-grid .stat-card .stat-icon.profit {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+/* Ícones coloridos para cards de Profissionais */
+#profissionais-tab .reports-grid .stat-card .stat-icon {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+}
+
+#profissionais-tab .reports-grid .stat-card .stat-icon.active {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
+#profissionais-tab .reports-grid .stat-card .stat-icon.top {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+#profissionais-tab .reports-grid .stat-card .stat-icon.performance {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+/* Ícones coloridos para cards de Serviços */
+#servicos-tab .reports-grid .stat-card .stat-icon {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+#servicos-tab .reports-grid .stat-card .stat-icon.popular {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+#servicos-tab .reports-grid .stat-card .stat-icon.revenue {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
+#servicos-tab .reports-grid .stat-card .stat-icon.evolution {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
 }
 
 .reports-grid .stat-card .stat-content h3 {
@@ -6709,11 +6754,6 @@ body {
         padding: 15px 10px;
     }
     
-    .reports-tabs .tab-btn i {
-        width: 35px;
-        height: 35px;
-        font-size: 16px;
-    }
     
     .reports-tabs .tab-btn span {
         font-size: 10px;
