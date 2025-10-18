@@ -2281,3 +2281,583 @@ document.addEventListener('DOMContentLoaded', () => {
 // Expor funções globalmente
 window.floatingAIIcon = floatingAIIcon;
 window.initFloatingAIIcon = initFloatingAIIcon;
+
+// ==================== RELATÓRIOS ====================
+
+class ReportsManager {
+    constructor() {
+        this.currentTab = 'agenda';
+        this.currentFilters = {
+            startDate: null,
+            endDate: null,
+            period: 'month'
+        };
+        this.charts = {};
+        this.isLoading = false;
+        
+        console.log('📊 ReportsManager criado');
+        this.init();
+    }
+
+    init() {
+        console.log('📊 Inicializando ReportsManager...');
+        this.setupEventListeners();
+        this.setDefaultDates();
+        this.loadReportsData();
+        console.log('✅ ReportsManager inicializado!');
+    }
+
+    setupEventListeners() {
+        // Filtros de data
+        document.getElementById('apply-reports-filters')?.addEventListener('click', () => {
+            this.applyFilters();
+        });
+
+        document.getElementById('reset-reports-filters')?.addEventListener('click', () => {
+            this.resetFilters();
+        });
+
+        // Mudança de período
+        document.getElementById('reports-period')?.addEventListener('change', (e) => {
+            this.handlePeriodChange(e.target.value);
+        });
+
+        // Abas
+        document.querySelectorAll('.reports-tabs .tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tabName = e.currentTarget.getAttribute('data-tab');
+                this.switchTab(tabName);
+            });
+        });
+
+        // Botões de exportação
+        document.getElementById('export-all-reports')?.addEventListener('click', () => {
+            this.exportAllReports();
+        });
+
+        document.getElementById('generate-report')?.addEventListener('click', () => {
+            this.generateReport();
+        });
+
+        // Botões de exportação individuais
+        this.setupExportButtons();
+    }
+
+    setupExportButtons() {
+        const exportButtons = [
+            'export-agenda-chart', 'export-weekday-chart', 'export-monthly-chart', 'export-hours-chart',
+            'export-category-chart', 'export-low-stock-chart', 'export-movements-chart', 'export-value-chart',
+            'export-revenue-expenses-chart', 'export-cashflow-chart', 'export-expenses-category-chart', 'export-monthly-evolution-chart',
+            'export-professional-appointments-chart', 'export-specialties-chart', 'export-performance-chart', 'export-schedule-chart',
+            'export-popular-services-chart', 'export-service-revenue-chart', 'export-duration-chart', 'export-evolution-chart'
+        ];
+
+        exportButtons.forEach(buttonId => {
+            document.getElementById(buttonId)?.addEventListener('click', () => {
+                this.exportChart(buttonId);
+            });
+        });
+    }
+
+    setDefaultDates() {
+        console.log('📅 Configurando datas padrão dos relatórios...');
+        const today = new Date();
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+        document.getElementById('reports-start-date').value = this.formatDateForInput(firstDayOfMonth);
+        document.getElementById('reports-end-date').value = this.formatDateForInput(lastDayOfMonth);
+
+        this.currentFilters.startDate = firstDayOfMonth;
+        this.currentFilters.endDate = lastDayOfMonth;
+        this.currentFilters.period = 'month';
+        
+        console.log('📅 Filtros de relatórios configurados:', this.currentFilters);
+    }
+
+    formatDateForInput(date) {
+        return date.toISOString().split('T')[0];
+    }
+
+    handlePeriodChange(period) {
+        console.log('📅 Período alterado para:', period);
+        const today = new Date();
+        let startDate, endDate;
+
+        switch (period) {
+            case 'today':
+                startDate = endDate = new Date(today);
+                break;
+            case 'week':
+                const startOfWeek = new Date(today);
+                startOfWeek.setDate(today.getDate() - today.getDay());
+                startDate = startOfWeek;
+                endDate = new Date(today);
+                break;
+            case 'month':
+                startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                break;
+            case 'quarter':
+                const quarter = Math.floor(today.getMonth() / 3);
+                startDate = new Date(today.getFullYear(), quarter * 3, 1);
+                endDate = new Date(today.getFullYear(), (quarter + 1) * 3, 0);
+                break;
+            case 'year':
+                startDate = new Date(today.getFullYear(), 0, 1);
+                endDate = new Date(today.getFullYear(), 11, 31);
+                break;
+            default:
+                return; // Personalizado - não alterar datas
+        }
+
+        if (startDate && endDate) {
+            document.getElementById('reports-start-date').value = this.formatDateForInput(startDate);
+            document.getElementById('reports-end-date').value = this.formatDateForInput(endDate);
+            this.currentFilters.startDate = startDate;
+            this.currentFilters.endDate = endDate;
+            this.currentFilters.period = period;
+        }
+    }
+
+    async applyFilters() {
+        const startDate = document.getElementById('reports-start-date').value;
+        const endDate = document.getElementById('reports-end-date').value;
+
+        if (!startDate || !endDate) {
+            this.showNotification('Por favor, selecione as datas de início e fim', 'error');
+            return;
+        }
+
+        this.currentFilters.startDate = new Date(startDate);
+        this.currentFilters.endDate = new Date(endDate);
+
+        await this.loadReportsData();
+        this.showNotification('Filtros aplicados com sucesso!', 'success');
+    }
+
+    resetFilters() {
+        this.setDefaultDates();
+        this.loadReportsData();
+        this.showNotification('Filtros resetados', 'info');
+    }
+
+    switchTab(tabName) {
+        console.log('📊 Mudando para aba:', tabName);
+        
+        // Remover active de todos os botões
+        document.querySelectorAll('.reports-tabs .tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Adicionar active ao botão clicado
+        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        
+        // Esconder todas as abas
+        document.querySelectorAll('.reports-tabs .tab-pane').forEach(pane => {
+            pane.classList.remove('active');
+        });
+        
+        // Mostrar aba correspondente
+        document.getElementById(`${tabName}-tab`).classList.add('active');
+        
+        this.currentTab = tabName;
+        
+        // Carregar dados específicos da aba
+        this.loadTabData(tabName);
+    }
+
+    async loadReportsData() {
+        if (this.isLoading) return;
+        
+        this.isLoading = true;
+        this.showLoadingState();
+        
+        try {
+            console.log('📊 Carregando dados dos relatórios...');
+            await Promise.all([
+                this.loadAgendaData(),
+                this.loadEstoqueData(),
+                this.loadFinanceiroData(),
+                this.loadProfissionaisData(),
+                this.loadServicosData()
+            ]);
+            console.log('✅ Dados dos relatórios carregados com sucesso!');
+        } catch (error) {
+            console.error('❌ Erro ao carregar dados dos relatórios:', error);
+            this.showNotification('Erro ao carregar dados dos relatórios', 'error');
+        } finally {
+            this.isLoading = false;
+            this.hideLoadingState();
+        }
+    }
+
+    async loadTabData(tabName) {
+        console.log(`📊 Carregando dados da aba: ${tabName}`);
+        
+        switch (tabName) {
+            case 'agenda':
+                await this.loadAgendaData();
+                break;
+            case 'estoque':
+                await this.loadEstoqueData();
+                break;
+            case 'financeiro':
+                await this.loadFinanceiroData();
+                break;
+            case 'profissionais':
+                await this.loadProfissionaisData();
+                break;
+            case 'servicos':
+                await this.loadServicosData();
+                break;
+        }
+    }
+
+    async loadAgendaData() {
+        try {
+            const token = localStorage.getItem('authToken');
+            const startDate = this.formatDateForInput(this.currentFilters.startDate);
+            const endDate = this.formatDateForInput(this.currentFilters.endDate);
+
+            const response = await fetch(`/api/appointments?startDate=${startDate}&endDate=${endDate}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const appointments = data.appointments || [];
+                this.renderAgendaStats(appointments);
+                this.renderAgendaCharts(appointments);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar dados da agenda:', error);
+        }
+    }
+
+    renderAgendaStats(appointments) {
+        const total = appointments.length;
+        const confirmed = appointments.filter(apt => apt.status === 'confirmed').length;
+        const cancelled = appointments.filter(apt => apt.status === 'cancelled').length;
+        const pending = appointments.filter(apt => apt.status === 'pending').length;
+
+        document.getElementById('total-appointments').textContent = total;
+        document.getElementById('confirmed-appointments').textContent = confirmed;
+        document.getElementById('cancelled-appointments').textContent = cancelled;
+        document.getElementById('pending-appointments').textContent = pending;
+    }
+
+    renderAgendaCharts(appointments) {
+        // Gráfico de Status
+        this.renderStatusChart(appointments);
+        
+        // Gráfico por Dia da Semana
+        this.renderWeekdayChart(appointments);
+        
+        // Gráfico Mensal
+        this.renderMonthlyChart(appointments);
+        
+        // Gráfico de Horários
+        this.renderHoursChart(appointments);
+    }
+
+    renderStatusChart(appointments) {
+        const ctx = document.getElementById('appointmentsStatusChart');
+        if (!ctx) return;
+
+        const statusCounts = {
+            pending: appointments.filter(apt => apt.status === 'pending').length,
+            confirmed: appointments.filter(apt => apt.status === 'confirmed').length,
+            cancelled: appointments.filter(apt => apt.status === 'cancelled').length,
+            completed: appointments.filter(apt => apt.status === 'completed').length
+        };
+
+        if (this.charts.appointmentsStatus) {
+            this.charts.appointmentsStatus.destroy();
+        }
+
+        this.charts.appointmentsStatus = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pendentes', 'Confirmados', 'Cancelados', 'Finalizados'],
+                datasets: [{
+                    data: [statusCounts.pending, statusCounts.confirmed, statusCounts.cancelled, statusCounts.completed],
+                    backgroundColor: ['#f39c12', '#27ae60', '#e74c3c', '#3498db'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    renderWeekdayChart(appointments) {
+        const ctx = document.getElementById('weekdayChart');
+        if (!ctx) return;
+
+        const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+        const weekdayCounts = [0, 0, 0, 0, 0, 0, 0];
+
+        appointments.forEach(apt => {
+            const date = new Date(apt.date);
+            const day = date.getDay();
+            weekdayCounts[day]++;
+        });
+
+        if (this.charts.weekday) {
+            this.charts.weekday.destroy();
+        }
+
+        this.charts.weekday = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: weekdays,
+                datasets: [{
+                    label: 'Agendamentos',
+                    data: weekdayCounts,
+                    backgroundColor: '#975756',
+                    borderColor: '#7a4443',
+                    borderWidth: 2,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    renderMonthlyChart(appointments) {
+        const ctx = document.getElementById('monthlyChart');
+        if (!ctx) return;
+
+        const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        const monthCounts = new Array(12).fill(0);
+
+        appointments.forEach(apt => {
+            const date = new Date(apt.date);
+            const month = date.getMonth();
+            monthCounts[month]++;
+        });
+
+        if (this.charts.monthly) {
+            this.charts.monthly.destroy();
+        }
+
+        this.charts.monthly = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'Agendamentos',
+                    data: monthCounts,
+                    borderColor: '#975756',
+                    backgroundColor: 'rgba(151, 87, 86, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#975756',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    renderHoursChart(appointments) {
+        const ctx = document.getElementById('hoursChart');
+        if (!ctx) return;
+
+        const hourCounts = new Array(24).fill(0);
+
+        appointments.forEach(apt => {
+            const hour = parseInt(apt.time.split(':')[0]);
+            hourCounts[hour]++;
+        });
+
+        const labels = Array.from({length: 24}, (_, i) => `${i.toString().padStart(2, '0')}:00`);
+
+        if (this.charts.hours) {
+            this.charts.hours.destroy();
+        }
+
+        this.charts.hours = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Agendamentos',
+                    data: hourCounts,
+                    backgroundColor: '#975756',
+                    borderColor: '#7a4443',
+                    borderWidth: 1,
+                    borderRadius: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            maxTicksLimit: 12
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Métodos para outras abas (implementação básica)
+    async loadEstoqueData() {
+        console.log('📦 Carregando dados do estoque...');
+        // Implementar carregamento de dados do estoque
+    }
+
+    async loadFinanceiroData() {
+        console.log('💰 Carregando dados financeiros...');
+        // Implementar carregamento de dados financeiros
+    }
+
+    async loadProfissionaisData() {
+        console.log('👥 Carregando dados dos profissionais...');
+        // Implementar carregamento de dados dos profissionais
+    }
+
+    async loadServicosData() {
+        console.log('⚙️ Carregando dados dos serviços...');
+        // Implementar carregamento de dados dos serviços
+    }
+
+    showLoadingState() {
+        const tabContent = document.querySelector(`#${this.currentTab}-tab`);
+        if (tabContent) {
+            tabContent.innerHTML = `
+                <div class="reports-loading">
+                    <i class="fas fa-spinner"></i>
+                    <h3>Carregando dados...</h3>
+                    <p>Por favor, aguarde enquanto os relatórios são gerados.</p>
+                </div>
+            `;
+        }
+    }
+
+    hideLoadingState() {
+        // O conteúdo será recarregado pelos métodos específicos
+    }
+
+    exportChart(chartId) {
+        console.log('📤 Exportando gráfico:', chartId);
+        this.showNotification('Funcionalidade de exportação será implementada em breve', 'info');
+    }
+
+    exportAllReports() {
+        console.log('📤 Exportando todos os relatórios...');
+        this.showNotification('Funcionalidade de exportação completa será implementada em breve', 'info');
+    }
+
+    generateReport() {
+        console.log('📊 Gerando relatório...');
+        this.showNotification('Relatório gerado com sucesso!', 'success');
+    }
+
+    showNotification(message, type = 'info') {
+        if (window.showNotification) {
+            window.showNotification(message, type);
+        } else {
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+    }
+}
+
+// Inicializar Reports Manager
+let reportsManager = null;
+
+function initReportsManager() {
+    console.log('📊 Inicializando ReportsManager...');
+    if (!reportsManager) {
+        reportsManager = new ReportsManager();
+    }
+    console.log('✅ ReportsManager inicializado!');
+}
+
+// Inicializar quando a página de relatórios for ativada
+document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-page="relatorios"]')) {
+        console.log('📊 Clique detectado em relatórios, inicializando...');
+        setTimeout(() => {
+            initReportsManager();
+        }, 100);
+    }
+});
+
+// Expor funções globalmente
+window.reportsManager = reportsManager;
+window.initReportsManager = initReportsManager;

@@ -897,15 +897,515 @@
                 <div class="page-content" id="relatorios-page">
                     <div class="page-header">
                         <h2>Relatórios</h2>
-                        <button class="btn btn-primary">
-                            <i class="fas fa-download"></i>
-                            Gerar Relatório
-                        </button>
+                        <div class="header-actions">
+                            <button class="btn btn-secondary" id="export-all-reports">
+                                <i class="fas fa-file-pdf"></i>
+                                Exportar Todos
+                            </button>
+                            <button class="btn btn-primary" id="generate-report">
+                                <i class="fas fa-chart-line"></i>
+                                Gerar Relatório
+                            </button>
+                        </div>
                     </div>
-                    <div class="empty-state">
-                        <i class="fas fa-chart-bar"></i>
-                        <h3>Relatórios em desenvolvimento</h3>
-                        <p>Esta funcionalidade será implementada em breve.</p>
+
+                    <!-- Filtros de Data -->
+                    <div class="reports-filters">
+                        <div class="filter-group">
+                            <label for="reports-start-date">Data Início</label>
+                            <input type="date" id="reports-start-date" class="form-control">
+                        </div>
+                        <div class="filter-group">
+                            <label for="reports-end-date">Data Fim</label>
+                            <input type="date" id="reports-end-date" class="form-control">
+                        </div>
+                        <div class="filter-group">
+                            <label for="reports-period">Período</label>
+                            <select id="reports-period" class="form-control">
+                                <option value="custom">Personalizado</option>
+                                <option value="today">Hoje</option>
+                                <option value="week">Esta Semana</option>
+                                <option value="month">Este Mês</option>
+                                <option value="quarter">Este Trimestre</option>
+                                <option value="year">Este Ano</option>
+                            </select>
+                        </div>
+                        <div class="filter-actions">
+                            <button class="btn btn-primary" id="apply-reports-filters">
+                                <i class="fas fa-filter"></i>
+                                Aplicar Filtros
+                            </button>
+                            <button class="btn btn-secondary" id="reset-reports-filters">
+                                <i class="fas fa-undo"></i>
+                                Resetar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Abas de Relatórios -->
+                    <div class="reports-tabs">
+                        <div class="tab-buttons">
+                            <button class="tab-btn active" data-tab="agenda">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Agenda</span>
+                            </button>
+                            <button class="tab-btn" data-tab="estoque">
+                                <i class="fas fa-boxes"></i>
+                                <span>Estoque</span>
+                            </button>
+                            <button class="tab-btn" data-tab="financeiro">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Financeiro</span>
+                            </button>
+                            <button class="tab-btn" data-tab="profissionais">
+                                <i class="fas fa-users"></i>
+                                <span>Profissionais</span>
+                            </button>
+                            <button class="tab-btn" data-tab="servicos">
+                                <i class="fas fa-cogs"></i>
+                                <span>Serviços</span>
+                            </button>
+                        </div>
+
+                        <!-- Conteúdo das Abas -->
+                        <div class="tab-content">
+                            <!-- Aba Agenda -->
+                            <div class="tab-pane active" id="agenda-tab">
+                                <div class="reports-grid">
+                                    <!-- Cards de Estatísticas -->
+                                    <div class="stats-cards">
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-calendar-check"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="total-appointments">0</h3>
+                                                <p>Total de Agendamentos</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-check-circle"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="confirmed-appointments">0</h3>
+                                                <p>Confirmados</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-times-circle"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="cancelled-appointments">0</h3>
+                                                <p>Cancelados</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-clock"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="pending-appointments">0</h3>
+                                                <p>Pendentes</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Gráficos -->
+                                    <div class="charts-grid">
+                                        <div class="chart-container">
+                                            <div class="chart-header">
+                                                <h3>Agendamentos por Status</h3>
+                                                <button class="btn btn-sm btn-secondary" id="export-agenda-chart">
+                                                    <i class="fas fa-download"></i>
+                                                    Exportar
+                                                </button>
+                                            </div>
+                                            <canvas id="appointmentsStatusChart"></canvas>
+                                        </div>
+                                        <div class="chart-container">
+                                            <div class="chart-header">
+                                                <h3>Agendamentos por Dia da Semana</h3>
+                                                <button class="btn btn-sm btn-secondary" id="export-weekday-chart">
+                                                    <i class="fas fa-download"></i>
+                                                    Exportar
+                                                </button>
+                                            </div>
+                                            <canvas id="weekdayChart"></canvas>
+                                        </div>
+                                        <div class="chart-container">
+                                            <div class="chart-header">
+                                                <h3>Agendamentos por Mês</h3>
+                                                <button class="btn btn-sm btn-secondary" id="export-monthly-chart">
+                                                    <i class="fas fa-download"></i>
+                                                    Exportar
+                                                </button>
+                                            </div>
+                                            <canvas id="monthlyChart"></canvas>
+                                        </div>
+                                        <div class="chart-container">
+                                            <div class="chart-header">
+                                                <h3>Horários Mais Movimentados</h3>
+                                                <button class="btn btn-sm btn-secondary" id="export-hours-chart">
+                                                    <i class="fas fa-download"></i>
+                                                    Exportar
+                                                </button>
+                                            </div>
+                                            <canvas id="hoursChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Aba Estoque -->
+                            <div class="tab-pane" id="estoque-tab">
+                                <div class="reports-grid">
+                                    <div class="stats-cards">
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-boxes"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="total-products">0</h3>
+                                                <p>Total de Produtos</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="low-stock">0</h3>
+                                                <p>Estoque Baixo</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-dollar-sign"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="stock-value">R$ 0,00</h3>
+                                                <p>Valor do Estoque</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-chart-line"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="stock-movements">0</h3>
+                                                <p>Movimentações</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="charts-grid">
+                                        <div class="chart-container">
+                                            <div class="chart-header">
+                                                <h3>Produtos por Categoria</h3>
+                                                <button class="btn btn-sm btn-secondary" id="export-category-chart">
+                                                    <i class="fas fa-download"></i>
+                                                    Exportar
+                                                </button>
+                                            </div>
+                                            <canvas id="categoryChart"></canvas>
+                                        </div>
+                                        <div class="chart-container">
+                                            <div class="chart-header">
+                                                <h3>Estoque Baixo</h3>
+                                                <button class="btn btn-sm btn-secondary" id="export-low-stock-chart">
+                                                    <i class="fas fa-download"></i>
+                                                    Exportar
+                                                </button>
+                                            </div>
+                                            <canvas id="lowStockChart"></canvas>
+                                        </div>
+                                        <div class="chart-container">
+                                            <div class="chart-header">
+                                                <h3>Movimentações de Estoque</h3>
+                                                <button class="btn btn-sm btn-secondary" id="export-movements-chart">
+                                                    <i class="fas fa-download"></i>
+                                                    Exportar
+                                                </button>
+                                            </div>
+                                            <canvas id="movementsChart"></canvas>
+                                        </div>
+                                        <div class="chart-container">
+                                            <div class="chart-header">
+                                                <h3>Valor do Estoque por Produto</h3>
+                                                <button class="btn btn-sm btn-secondary" id="export-value-chart">
+                                                    <i class="fas fa-download"></i>
+                                                    Exportar
+                                                </button>
+                                            </div>
+                                            <canvas id="valueChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Aba Financeiro -->
+                            <div class="tab-pane" id="financeiro-tab">
+                                <div class="reports-grid">
+                                    <div class="stats-cards">
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-dollar-sign"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="total-revenue">R$ 0,00</h3>
+                                                <p>Receita Total</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-credit-card"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="total-expenses">R$ 0,00</h3>
+                                                <p>Despesas Total</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-chart-line"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="net-profit">R$ 0,00</h3>
+                                                <p>Lucro Líquido</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-percentage"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="profit-margin">0%</h3>
+                                                <p>Margem de Lucro</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="charts-grid">
+                                        <div class="chart-container">
+                                            <div class="chart-header">
+                                                <h3>Receita vs Despesas</h3>
+                                                <button class="btn btn-sm btn-secondary" id="export-revenue-expenses-chart">
+                                                    <i class="fas fa-download"></i>
+                                                    Exportar
+                                                </button>
+                                            </div>
+                                            <canvas id="revenueExpensesChart"></canvas>
+                                        </div>
+                                        <div class="chart-container">
+                                            <div class="chart-header">
+                                                <h3>Fluxo de Caixa</h3>
+                                                <button class="btn btn-sm btn-secondary" id="export-cashflow-chart">
+                                                    <i class="fas fa-download"></i>
+                                                    Exportar
+                                                </button>
+                                            </div>
+                                            <canvas id="cashflowChart"></canvas>
+                                        </div>
+                                        <div class="chart-container">
+                                            <div class="chart-header">
+                                                <h3>Despesas por Categoria</h3>
+                                                <button class="btn btn-sm btn-secondary" id="export-expenses-category-chart">
+                                                    <i class="fas fa-download"></i>
+                                                    Exportar
+                                                </button>
+                                            </div>
+                                            <canvas id="expensesCategoryChart"></canvas>
+                                        </div>
+                                        <div class="chart-container">
+                                            <div class="chart-header">
+                                                <h3>Evolução Mensal</h3>
+                                                <button class="btn btn-sm btn-secondary" id="export-monthly-evolution-chart">
+                                                    <i class="fas fa-download"></i>
+                                                    Exportar
+                                                </button>
+                                            </div>
+                                            <canvas id="monthlyEvolutionChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Aba Profissionais -->
+                            <div class="tab-pane" id="profissionais-tab">
+                                <div class="reports-grid">
+                                    <div class="stats-cards">
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-users"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="total-professionals">0</h3>
+                                                <p>Total de Profissionais</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-user-check"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="active-professionals">0</h3>
+                                                <p>Ativos</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-star"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="top-professional">-</h3>
+                                                <p>Mais Atendimentos</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-clock"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="avg-appointments">0</h3>
+                                                <p>Média por Profissional</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="charts-grid">
+                                        <div class="chart-container">
+                                            <div class="chart-header">
+                                                <h3>Atendimentos por Profissional</h3>
+                                                <button class="btn btn-sm btn-secondary" id="export-professional-appointments-chart">
+                                                    <i class="fas fa-download"></i>
+                                                    Exportar
+                                                </button>
+                                            </div>
+                                            <canvas id="professionalAppointmentsChart"></canvas>
+                                        </div>
+                                        <div class="chart-container">
+                                            <div class="chart-header">
+                                                <h3>Especialidades</h3>
+                                                <button class="btn btn-sm btn-secondary" id="export-specialties-chart">
+                                                    <i class="fas fa-download"></i>
+                                                    Exportar
+                                                </button>
+                                            </div>
+                                            <canvas id="specialtiesChart"></canvas>
+                                        </div>
+                                        <div class="chart-container">
+                                            <div class="chart-header">
+                                                <h3>Performance Mensal</h3>
+                                                <button class="btn btn-sm btn-secondary" id="export-performance-chart">
+                                                    <i class="fas fa-download"></i>
+                                                    Exportar
+                                                </button>
+                                            </div>
+                                            <canvas id="performanceChart"></canvas>
+                                        </div>
+                                        <div class="chart-container">
+                                            <div class="chart-header">
+                                                <h3>Horários de Trabalho</h3>
+                                                <button class="btn btn-sm btn-secondary" id="export-schedule-chart">
+                                                    <i class="fas fa-download"></i>
+                                                    Exportar
+                                                </button>
+                                            </div>
+                                            <canvas id="scheduleChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Aba Serviços -->
+                            <div class="tab-pane" id="servicos-tab">
+                                <div class="reports-grid">
+                                    <div class="stats-cards">
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-cogs"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="total-services">0</h3>
+                                                <p>Total de Serviços</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-star"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="most-popular-service">-</h3>
+                                                <p>Mais Popular</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-dollar-sign"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="avg-service-price">R$ 0,00</h3>
+                                                <p>Preço Médio</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-chart-line"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="service-revenue">R$ 0,00</h3>
+                                                <p>Receita dos Serviços</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="charts-grid">
+                                        <div class="chart-container">
+                                            <div class="chart-header">
+                                                <h3>Serviços Mais Populares</h3>
+                                                <button class="btn btn-sm btn-secondary" id="export-popular-services-chart">
+                                                    <i class="fas fa-download"></i>
+                                                    Exportar
+                                                </button>
+                                            </div>
+                                            <canvas id="popularServicesChart"></canvas>
+                                        </div>
+                                        <div class="chart-container">
+                                            <div class="chart-header">
+                                                <h3>Receita por Serviço</h3>
+                                                <button class="btn btn-sm btn-secondary" id="export-service-revenue-chart">
+                                                    <i class="fas fa-download"></i>
+                                                    Exportar
+                                                </button>
+                                            </div>
+                                            <canvas id="serviceRevenueChart"></canvas>
+                                        </div>
+                                        <div class="chart-container">
+                                            <div class="chart-header">
+                                                <h3>Duração dos Serviços</h3>
+                                                <button class="btn btn-sm btn-secondary" id="export-duration-chart">
+                                                    <i class="fas fa-download"></i>
+                                                    Exportar
+                                                </button>
+                                            </div>
+                                            <canvas id="durationChart"></canvas>
+                                        </div>
+                                        <div class="chart-container">
+                                            <div class="chart-header">
+                                                <h3>Evolução dos Serviços</h3>
+                                                <button class="btn btn-sm btn-secondary" id="export-evolution-chart">
+                                                    <i class="fas fa-download"></i>
+                                                    Exportar
+                                                </button>
+                                            </div>
+                                            <canvas id="evolutionChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
