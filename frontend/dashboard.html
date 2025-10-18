@@ -897,47 +897,35 @@
                 <div class="page-content" id="relatorios-page">
                     <div class="page-header">
                         <h2>Relatórios</h2>
-                        <div class="header-actions">
-                            <button class="btn btn-secondary" id="export-all-reports">
-                                <i class="fas fa-file-pdf"></i>
-                                Exportar Todos
+                        <div class="date-filters">
+                            <div class="filter-group">
+                                <label for="reports-start-date">Data Início</label>
+                                <input type="date" id="reports-start-date" placeholder="dd/mm/aaaa">
+                            </div>
+                            <div class="filter-group">
+                                <label for="reports-end-date">Data Fim</label>
+                                <input type="date" id="reports-end-date" placeholder="dd/mm/aaaa">
+                            </div>
+                            <div class="filter-group">
+                                <label for="reports-period">Período</label>
+                                <select id="reports-period">
+                                    <option value="custom">Personalizado</option>
+                                    <option value="today">Hoje</option>
+                                    <option value="week">Esta Semana</option>
+                                    <option value="month">Este Mês</option>
+                                    <option value="quarter">Este Trimestre</option>
+                                    <option value="year">Este Ano</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" id="apply-reports-filters">
+                                <i class="fas fa-search"></i>
+                                Filtrar
                             </button>
-                            <button class="btn btn-primary" id="generate-report">
-                                <i class="fas fa-chart-line"></i>
-                                Gerar Relatório
+                            <button class="btn btn-secondary" id="reset-reports-filters">
+                                <i class="fas fa-times"></i>
+                                Limpar
                             </button>
                         </div>
-                    </div>
-
-                    <!-- Filtros de Data -->
-                    <div class="date-filters">
-                        <div class="filter-group">
-                            <label for="reports-start-date">Data Início</label>
-                            <input type="date" id="reports-start-date" placeholder="dd/mm/aaaa">
-                        </div>
-                        <div class="filter-group">
-                            <label for="reports-end-date">Data Fim</label>
-                            <input type="date" id="reports-end-date" placeholder="dd/mm/aaaa">
-                        </div>
-                        <div class="filter-group">
-                            <label for="reports-period">Período</label>
-                            <select id="reports-period">
-                                <option value="custom">Personalizado</option>
-                                <option value="today">Hoje</option>
-                                <option value="week">Esta Semana</option>
-                                <option value="month">Este Mês</option>
-                                <option value="quarter">Este Trimestre</option>
-                                <option value="year">Este Ano</option>
-                            </select>
-                        </div>
-                        <button class="btn btn-primary" id="apply-reports-filters">
-                            <i class="fas fa-search"></i>
-                            Filtrar
-                        </button>
-                        <button class="btn btn-secondary" id="reset-reports-filters">
-                            <i class="fas fa-times"></i>
-                            Limpar
-                        </button>
                     </div>
 
                     <!-- Abas de Relatórios -->
@@ -1404,6 +1392,18 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Botões de Exportação -->
+                    <div class="reports-export-actions">
+                        <button class="btn btn-secondary" id="export-all-reports">
+                            <i class="fas fa-file-pdf"></i>
+                            Exportar Todos
+                        </button>
+                        <button class="btn btn-primary" id="generate-report">
+                            <i class="fas fa-chart-line"></i>
+                            Gerar Relatório
+                        </button>
                     </div>
                 </div>
 

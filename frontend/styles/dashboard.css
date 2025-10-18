@@ -6736,3 +6736,41 @@ body {
     }
 }
 
+/* Botões de Exportação dos Relatórios */
+.reports-export-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 30px;
+    padding: 20px 0;
+}
+
+.reports-export-actions .btn {
+    padding: 12px 24px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.reports-export-actions .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsividade para botões de exportação */
+@media (max-width: 768px) {
+    .reports-export-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .reports-export-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
