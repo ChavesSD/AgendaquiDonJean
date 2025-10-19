@@ -6279,12 +6279,13 @@ body {
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #975756 0%, #7a4443 100%);
+    background: linear-gradient(135deg, #2A2A2A 0%, #3D3D3D 100%);
     box-shadow: 
-        0 8px 25px rgba(151, 87, 86, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2),
-        0 0 20px rgba(151, 87, 86, 0.2);
-    animation: organicFloat 6s ease-in-out infinite;
+        0 8px 25px rgba(42, 42, 42, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        0 0 20px rgba(61, 61, 61, 0.3),
+        0 0 40px rgba(42, 42, 42, 0.2);
+    animation: organicFloat 30s ease-in-out infinite;
     cursor: pointer;
     backdrop-filter: blur(15px);
     z-index: 1000;
@@ -6306,16 +6307,18 @@ body {
 
 .floating-ai-icon:hover {
     transform: scale(1.1) translateY(-5px);
-    background: linear-gradient(135deg, #975756 0%, #7a4443 100%);
+    background: linear-gradient(135deg, #2A2A2A 0%, #3D3D3D 100%);
     box-shadow: 
-        0 15px 35px rgba(151, 87, 86, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3),
-        0 0 30px rgba(151, 87, 86, 0.3);
+        0 15px 35px rgba(42, 42, 42, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4),
+        0 0 30px rgba(61, 61, 61, 0.4),
+        0 0 50px rgba(42, 42, 42, 0.3);
     border-color: rgba(255, 255, 255, 0.7);
     text-shadow: 
         0 2px 6px rgba(0, 0, 0, 0.5),
         0 0 12px rgba(255, 255, 255, 0.4);
 }
+
 
 .floating-ai-icon:active {
     transform: scale(0.95);
@@ -6327,39 +6330,47 @@ body {
     display: none;
 }
 
-/* Animação orgânica que simula vida - Deformação intensa e lenta */
+/* Animação orgânica que simula vida - Movimento suave e lento */
 @keyframes organicFloat {
     0% { 
         transform: translateY(0px) scale(1) rotate(0deg);
         border-radius: 50%;
     }
-    12% { 
-        transform: translateY(-6px) scale(1.05, 0.92) rotate(2deg);
-        border-radius: 42% 58% 45% 55%;
+    10% { 
+        transform: translateY(-4px) scale(1.02, 0.98) rotate(1deg);
+        border-radius: 48% 52% 49% 51%;
     }
-    25% { 
-        transform: translateY(-10px) scale(0.92, 1.08) rotate(-2deg);
-        border-radius: 58% 42% 55% 45%;
+    20% { 
+        transform: translateY(-6px) scale(0.98, 1.02) rotate(-1deg);
+        border-radius: 52% 48% 51% 49%;
     }
-    37% { 
-        transform: translateY(-4px) scale(1.08, 0.95) rotate(1.5deg);
-        border-radius: 45% 55% 42% 58%;
+    30% { 
+        transform: translateY(-3px) scale(1.01, 0.99) rotate(0.5deg);
+        border-radius: 49% 51% 48% 52%;
+    }
+    40% { 
+        transform: translateY(-5px) scale(0.99, 1.01) rotate(-0.5deg);
+        border-radius: 51% 49% 52% 48%;
     }
     50% { 
-        transform: translateY(-8px) scale(0.95, 1.05) rotate(-1.5deg);
-        border-radius: 55% 45% 58% 42%;
+        transform: translateY(-7px) scale(1.03, 0.97) rotate(1.5deg);
+        border-radius: 47% 53% 50% 50%;
     }
-    62% { 
-        transform: translateY(-3px) scale(1.03, 0.97) rotate(1deg);
-        border-radius: 48% 52% 45% 55%;
+    60% { 
+        transform: translateY(-4px) scale(0.97, 1.03) rotate(-1.5deg);
+        border-radius: 53% 47% 50% 50%;
     }
-    75% { 
-        transform: translateY(-7px) scale(0.97, 1.03) rotate(-1deg);
-        border-radius: 52% 48% 55% 45%;
+    70% { 
+        transform: translateY(-6px) scale(1.01, 0.99) rotate(1deg);
+        border-radius: 49% 51% 49% 51%;
     }
-    87% { 
-        transform: translateY(-2px) scale(1.01, 0.99) rotate(0.5deg);
-        border-radius: 49% 51% 48% 52%;
+    80% { 
+        transform: translateY(-2px) scale(0.99, 1.01) rotate(-1deg);
+        border-radius: 51% 49% 51% 49%;
+    }
+    90% { 
+        transform: translateY(-3px) scale(1.005, 0.995) rotate(0.5deg);
+        border-radius: 49.5% 50.5% 49.5% 50.5%;
     }
     100% { 
         transform: translateY(0px) scale(1) rotate(0deg);
