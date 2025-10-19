@@ -1400,6 +1400,67 @@ app.post('/api/backup/maintenance', authenticateToken, requirePermission('canAcc
 
 // ==================== ROTAS DE SERVIÇOS ====================
 
+// Estatísticas dos serviços para Dashboard (dados gerais - sem filtro de usuário)
+app.get('/api/dashboard/services/stats', authenticateToken, async (req, res) => {
+    try {
+        const { startDate, endDate, limit = 5 } = req.query;
+        
+        console.log('📊 Dashboard: API /api/dashboard/services/stats chamada');
+        console.log('📅 Parâmetros:', { startDate, endDate, limit });
+        
+        let dateFilter = {};
+        if (startDate || endDate) {
+            dateFilter.date = {};
+            if (startDate) dateFilter.date.$gte = new Date(startDate);
+            if (endDate) dateFilter.date.$lte = new Date(endDate);
+        }
+
+        console.log('🔍 Filtro de data:', dateFilter);
+
+        // DASHBOARD: SEM FILTRO DE USUÁRIO - sempre dados gerais
+        console.log('📊 Dashboard: Exibindo dados gerais de serviços (sem filtro de usuário)');
+
+        // Buscar agendamentos com filtro de data (todos os status para Dashboard)
+        const appointments = await Appointment.find({
+            ...dateFilter
+            // Removido filtro de status para mostrar todos os agendamentos no Dashboard
+        })
+            .populate('service', 'name price duration')
+            .select('service');
+
+        console.log('📅 Agendamentos encontrados:', appointments.length);
+
+        // Contar agendamentos por serviço
+        const serviceCounts = {};
+        appointments.forEach(apt => {
+            if (apt.service && apt.service._id) {
+                const serviceId = apt.service._id.toString();
+                if (!serviceCounts[serviceId]) {
+                    serviceCounts[serviceId] = {
+                        service: apt.service,
+                        count: 0
+                    };
+                }
+                serviceCounts[serviceId].count++;
+            }
+        });
+
+        console.log('🛍️ Contagem por serviço:', Object.keys(serviceCounts).length);
+
+        // Converter para array e ordenar por count
+        const servicesWithCounts = Object.values(serviceCounts)
+            .sort((a, b) => b.count - a.count)
+            .slice(0, parseInt(limit));
+
+        console.log('🏆 Top serviços retornados:', servicesWithCounts.length);
+
+        res.json({ success: true, services: servicesWithCounts });
+    } catch (error) {
+        console.error('💥 Erro ao buscar estatísticas de serviços do dashboard:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
 // Estatísticas dos serviços (para dashboard)
 app.get('/api/services/stats', authenticateToken, async (req, res) => {
     try {
@@ -1470,6 +1531,80 @@ app.get('/api/professionals', authenticateToken, async (req, res) => {
         res.json({ success: true, professionals });
     } catch (error) {
         console.error('Erro ao listar profissionais:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Estatísticas dos profissionais para Dashboard (dados gerais - sem filtro de usuário)
+app.get('/api/dashboard/professionals/stats', authenticateToken, async (req, res) => {
+    try {
+        const { startDate, endDate, limit = 5 } = req.query;
+        
+        console.log('📊 Dashboard: API /api/dashboard/professionals/stats chamada');
+        console.log('📅 Parâmetros:', { startDate, endDate, limit });
+        
+        let dateFilter = {};
+        if (startDate || endDate) {
+            dateFilter.date = {};
+            if (startDate) dateFilter.date.$gte = new Date(startDate);
+            if (endDate) dateFilter.date.$lte = new Date(endDate);
+        }
+
+        console.log('🔍 Filtro de data:', dateFilter);
+
+        // DASHBOARD: SEM FILTRO DE USUÁRIO - sempre dados gerais
+        console.log('📊 Dashboard: Exibindo dados gerais de profissionais (sem filtro de usuário)');
+
+        // Buscar agendamentos com filtro de data (todos os status para Dashboard)
+        const appointments = await Appointment.find({
+            ...dateFilter
+            // Removido filtro de status para mostrar todos os agendamentos no Dashboard
+        })
+            .populate('professional', 'firstName lastName photo function')
+            .select('professional');
+
+        console.log('📅 Agendamentos finalizados encontrados:', appointments.length);
+
+        // Contar agendamentos por profissional
+        const professionalCounts = {};
+        appointments.forEach(apt => {
+            if (apt.professional && apt.professional._id) {
+                const profId = apt.professional._id.toString();
+                if (!professionalCounts[profId]) {
+                    professionalCounts[profId] = {
+                        professional: apt.professional,
+                        count: 0
+                    };
+                }
+                professionalCounts[profId].count++;
+            }
+        });
+
+        console.log('👥 Contagem por profissional (apenas finalizados):', Object.keys(professionalCounts).length);
+
+        // Converter para array e ordenar por count
+        let professionalsWithCounts = Object.values(professionalCounts)
+            .sort((a, b) => b.count - a.count)
+            .slice(0, parseInt(limit));
+
+        // Se não há profissionais com agendamentos, buscar todos os profissionais ativos
+        if (professionalsWithCounts.length === 0) {
+            console.log('📋 Nenhum profissional com agendamentos encontrado, buscando todos os profissionais ativos...');
+            const allProfessionals = await Professional.find({ status: 'active' })
+                .select('firstName lastName photo function')
+                .limit(parseInt(limit));
+            
+            professionalsWithCounts = allProfessionals.map(prof => ({
+                professional: prof,
+                count: 0
+            }));
+        }
+
+        console.log('🏆 Top profissionais retornados:', professionalsWithCounts.length);
+
+        res.json({ success: true, professionals: professionalsWithCounts });
+    } catch (error) {
+        console.error('💥 Erro ao buscar estatísticas de profissionais do dashboard:', error);
         res.status(500).json({ message: 'Erro interno do servidor' });
     }
 });
@@ -2350,8 +2485,12 @@ app.get('/api/finance', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.userId;
         
-        // Buscar receitas
-        const revenues = await Revenue.find({ user: userId, isActive: true })
+        // Buscar receitas (apenas do tipo 'agendamento' para a tela de Finanças)
+        const revenues = await Revenue.find({ 
+            user: userId, 
+            isActive: true,
+            type: 'agendamento' // Apenas receitas de agendamentos, não comissões
+        })
             .sort({ date: -1 });
         
         // Buscar gastos
@@ -2693,13 +2832,320 @@ app.post('/api/sales', authenticateToken, async (req, res) => {
     }
 });
 
+// ==================== ROTAS DE COMISSÕES ====================
+
+// Buscar comissões do usuário logado
+app.get('/api/commissions', authenticateToken, async (req, res) => {
+    try {
+        console.log('💰 Buscando comissões do usuário:', req.user.userId);
+        
+        const { startDate, endDate } = req.query;
+        
+        let dateFilter = {};
+        if (startDate || endDate) {
+            dateFilter.date = {};
+            if (startDate) dateFilter.date.$gte = new Date(startDate);
+            if (endDate) {
+                // Adicionar 23:59:59 ao final do dia para incluir todo o dia
+                const endDateObj = new Date(endDate);
+                endDateObj.setHours(23, 59, 59, 999);
+                dateFilter.date.$lte = endDateObj;
+            }
+        }
+
+        // Buscar receitas do tipo 'comissao' do usuário logado
+        // Para usuários comuns, filtrar apenas suas próprias comissões
+        let commissionFilter = {
+            type: 'comissao',
+            ...dateFilter
+        };
+        
+        // Se for usuário comum, buscar comissões do profissional associado
+        if (req.user.role === 'user') {
+            console.log('🔒 Aplicando filtro de usuário comum - buscando profissional associado');
+            const professional = await Professional.findOne({ userId: req.user.userId });
+            if (professional) {
+                commissionFilter.professionalId = professional._id;
+                console.log('🔒 Profissional encontrado:', professional._id);
+            } else {
+                console.log('❌ Nenhum profissional associado ao usuário');
+                commissionFilter.professionalId = null; // Nenhum profissional encontrado
+            }
+        } else {
+            // Para admin/manager, buscar comissões do usuário logado
+            // Como as comissões são criadas com professionalId, precisamos buscar pelo profissional associado
+            const professional = await Professional.findOne({ userId: req.user.userId });
+            if (professional) {
+                commissionFilter.professionalId = professional._id;
+                console.log('🔒 Profissional encontrado para admin/manager:', professional._id);
+            } else {
+                console.log('❌ Nenhum profissional associado ao usuário admin/manager');
+                commissionFilter.professionalId = null; // Nenhum profissional encontrado
+            }
+        }
+        
+        const commissions = await Revenue.find(commissionFilter)
+        .populate('appointmentId', 'clientName clientLastName date time service')
+        .populate('professionalId', 'firstName lastName')
+        .sort({ date: -1 });
+
+        console.log('💰 Comissões encontradas:', commissions.length);
+        console.log('💰 Comissões detalhadas:', commissions.map(c => ({ value: c.value, date: c.date, type: c.type })));
+
+        // Calcular estatísticas
+        const totalCommissions = commissions.reduce((sum, comm) => sum + (comm.value || 0), 0);
+        
+        console.log('💰 Total de comissões:', totalCommissions);
+        console.log('💰 Total de comissões encontradas:', commissions.length);
+
+        // Buscar agendamentos concluídos do usuário para calcular percentual
+        let appointmentFilter = {
+            status: 'completed',
+            ...dateFilter
+        };
+        
+        // Se for usuário comum, buscar pelo profissional associado
+        if (req.user.role === 'user') {
+            const professional = await Professional.findOne({ userId: req.user.userId });
+            if (professional) {
+                appointmentFilter.professional = professional._id;
+            } else {
+                appointmentFilter.professional = null; // Nenhum profissional encontrado
+            }
+        }
+        
+        const appointments = await Appointment.find(appointmentFilter)
+        .populate('service', 'name price commission');
+
+        console.log('📅 Agendamentos concluídos:', appointments.length);
+        console.log('📅 Filtro aplicado:', appointmentFilter);
+        console.log('📅 Agendamentos detalhados:', appointments.map(a => ({ 
+            client: `${a.clientName} ${a.clientLastName}`, 
+            date: a.date, 
+            service: a.service?.name, 
+            commission: a.service?.commission 
+        })));
+
+        // Calcular percentual médio de comissão
+        let averageCommission = 0;
+        if (appointments.length > 0) {
+            const totalCommissionPercent = appointments.reduce((sum, apt) => {
+                const commission = apt.service?.commission || 0;
+                console.log(`📊 Serviço: ${apt.service?.name}, Comissão: ${commission}%`);
+                return sum + commission;
+            }, 0);
+            averageCommission = totalCommissionPercent / appointments.length;
+            console.log('📊 Total de percentuais:', totalCommissionPercent);
+            console.log('📊 Percentual médio calculado:', averageCommission);
+        } else {
+            console.log('📊 Nenhum agendamento concluído encontrado para calcular percentual médio');
+        }
+
+        res.json({
+            success: true,
+            commissions,
+            stats: {
+                totalCommissions,
+                totalAppointments: appointments.length, // Usar agendamentos concluídos como base
+                averageCommission: Math.round(averageCommission * 100) / 100
+            }
+        });
+
+    } catch (error) {
+        console.error('💥 Erro ao buscar comissões:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Buscar evolução mensal das comissões
+app.get('/api/commissions/evolution', authenticateToken, async (req, res) => {
+    try {
+        console.log('📊 Buscando evolução das comissões...');
+        
+        const { startDate, endDate } = req.query;
+        
+        // Definir período padrão (últimos 6 meses se não especificado)
+        let start, end;
+        if (startDate && endDate) {
+            start = new Date(startDate);
+            end = new Date(endDate);
+            // Adicionar 23:59:59 ao final do dia para incluir todo o dia
+            end.setHours(23, 59, 59, 999);
+        } else {
+            end = new Date();
+            start = new Date();
+            start.setMonth(start.getMonth() - 6);
+        }
+
+        // Buscar comissões por mês
+        let commissionMatchFilter = {
+            type: 'comissao',
+            date: { $gte: start, $lte: end }
+        };
+        
+        // Se for usuário comum, buscar comissões do profissional associado
+        if (req.user.role === 'user') {
+            console.log('🔒 Aplicando filtro de usuário comum - buscando profissional associado para evolução');
+            const professional = await Professional.findOne({ userId: req.user.userId });
+            if (professional) {
+                commissionMatchFilter.professionalId = professional._id;
+                console.log('🔒 Profissional encontrado para evolução:', professional._id);
+            } else {
+                console.log('❌ Nenhum profissional associado ao usuário para evolução');
+                commissionMatchFilter.professionalId = null; // Nenhum profissional encontrado
+            }
+        } else {
+            // Para admin/manager, buscar comissões do usuário logado
+            // Como as comissões são criadas com professionalId, precisamos buscar pelo profissional associado
+            const professional = await Professional.findOne({ userId: req.user.userId });
+            if (professional) {
+                commissionMatchFilter.professionalId = professional._id;
+                console.log('🔒 Profissional encontrado para admin/manager na evolução:', professional._id);
+            } else {
+                console.log('❌ Nenhum profissional associado ao usuário admin/manager para evolução');
+                commissionMatchFilter.professionalId = null; // Nenhum profissional encontrado
+            }
+        }
+        
+        const monthlyCommissions = await Revenue.aggregate([
+            {
+                $match: commissionMatchFilter
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: '$date' },
+                        month: { $month: '$date' }
+                    },
+                    totalCommissions: { $sum: '$value' },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $sort: { '_id.year': 1, '_id.month': 1 }
+            }
+        ]);
+
+        // Buscar agendamentos concluídos por mês
+        let appointmentMatchFilter = {
+            status: 'completed',
+            date: { $gte: start, $lte: end }
+        };
+        
+        // Se for usuário comum, só pode ver seus próprios agendamentos
+        if (req.user.role === 'user') {
+            console.log('🔒 Aplicando filtro de usuário comum - apenas agendamentos próprios na evolução');
+            
+            // Buscar o profissional associado ao usuário
+            const professional = await Professional.findOne({ userId: req.user.userId });
+            if (professional) {
+                console.log('🔒 Profissional encontrado para evolução:', professional._id);
+                appointmentMatchFilter.professional = professional._id;
+            } else {
+                console.log('⚠️ Nenhum profissional encontrado para o usuário na evolução');
+                // Se não encontrar profissional, retornar array vazio
+                appointmentMatchFilter.professional = null;
+            }
+        } else {
+            // Para admin/manager, pode ver todos os agendamentos ou filtrar por usuário específico
+            appointmentMatchFilter.professional = req.user.userId; // Por enquanto, manter apenas do usuário logado
+        }
+        
+        const monthlyAppointments = await Appointment.aggregate([
+            {
+                $match: appointmentMatchFilter
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: '$date' },
+                        month: { $month: '$date' }
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $sort: { '_id.year': 1, '_id.month': 1 }
+            }
+        ]);
+
+        // Buscar percentual de comissão por mês
+        let commissionPercentMatchFilter = {
+            status: 'completed',
+            date: { $gte: start, $lte: end }
+        };
+        
+        // Se for usuário comum, só pode ver seus próprios agendamentos
+        if (req.user.role === 'user') {
+            console.log('🔒 Aplicando filtro de usuário comum - apenas percentual de comissões próprias');
+            
+            // Buscar o profissional associado ao usuário
+            const professional = await Professional.findOne({ userId: req.user.userId });
+            if (professional) {
+                console.log('🔒 Profissional encontrado para percentual:', professional._id);
+                commissionPercentMatchFilter.professional = professional._id;
+            } else {
+                console.log('⚠️ Nenhum profissional encontrado para o usuário no percentual');
+                // Se não encontrar profissional, retornar array vazio
+                commissionPercentMatchFilter.professional = null;
+            }
+        } else {
+            // Para admin/manager, pode ver todos os agendamentos ou filtrar por usuário específico
+            commissionPercentMatchFilter.professional = req.user.userId; // Por enquanto, manter apenas do usuário logado
+        }
+        
+        const monthlyCommissionPercent = await Appointment.aggregate([
+            {
+                $match: commissionPercentMatchFilter
+            },
+            {
+                $lookup: {
+                    from: 'services',
+                    localField: 'service',
+                    foreignField: '_id',
+                    as: 'serviceData'
+                }
+            },
+            {
+                $unwind: '$serviceData'
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: '$date' },
+                        month: { $month: '$date' }
+                    },
+                    avgCommission: { $avg: '$serviceData.commission' }
+                }
+            },
+            {
+                $sort: { '_id.year': 1, '_id.month': 1 }
+            }
+        ]);
+
+        console.log('📊 Dados de evolução processados');
+
+        res.json({
+            success: true,
+            monthlyCommissions,
+            monthlyAppointments,
+            monthlyCommissionPercent
+        });
+
+    } catch (error) {
+        console.error('💥 Erro ao buscar evolução das comissões:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
 // ==================== ROTAS DE AGENDAMENTOS ====================
 
-// Listar agendamentos
-app.get('/api/appointments', authenticateToken, async (req, res) => {
+// Listar agendamentos para Dashboard (dados gerais - sem filtro de usuário)
+app.get('/api/dashboard/appointments', authenticateToken, async (req, res) => {
     try {
-        console.log('📋 Buscando agendamentos...');
+        console.log('📊 Dashboard: Buscando agendamentos gerais...');
         console.log('🔍 Query params:', req.query);
+        console.log('👤 Usuário logado:', req.user.userId, 'Role:', req.user.role);
         
         const { startDate, endDate, professionalId, status } = req.query;
         
@@ -2720,6 +3166,79 @@ app.get('/api/appointments', authenticateToken, async (req, res) => {
         // Filtro por status
         if (status) {
             filter.status = status;
+        }
+        
+        // DASHBOARD: SEM FILTRO DE USUÁRIO - sempre dados gerais
+        console.log('📊 Dashboard: Exibindo dados gerais (sem filtro de usuário)');
+        
+        console.log('🔍 Filtro aplicado:', filter);
+        
+        const appointments = await Appointment.find(filter)
+            .populate('professional', 'firstName lastName function photo')
+            .populate('service', 'name price duration')
+            .sort({ date: 1, time: 1 });
+        
+        console.log('📋 Agendamentos encontrados:', appointments.length);
+        appointments.forEach(apt => {
+            console.log('📅', apt.date.toLocaleDateString('pt-BR'), apt.time, '-', apt.clientName, apt.clientLastName, '-', apt.status, '- Source:', apt.source || 'dashboard');
+        });
+        
+        res.json({ success: true, appointments });
+    } catch (error) {
+        console.error('💥 Erro ao listar agendamentos do dashboard:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Listar agendamentos
+app.get('/api/appointments', authenticateToken, async (req, res) => {
+    try {
+        console.log('📋 Buscando agendamentos...');
+        console.log('🔍 Query params:', req.query);
+        console.log('👤 Usuário logado:', req.user.userId, 'Role:', req.user.role);
+        
+        const { startDate, endDate, professionalId, status } = req.query;
+        
+        let filter = {};
+        
+        // Filtro por data
+        if (startDate || endDate) {
+            filter.date = {};
+            if (startDate) filter.date.$gte = new Date(startDate);
+            if (endDate) filter.date.$lte = new Date(endDate);
+        }
+        
+        // Filtro por profissional
+        if (professionalId) {
+            filter.professional = professionalId;
+        }
+        
+        // Filtro por status
+        if (status) {
+            filter.status = status;
+        }
+        
+        // FILTRO POR USUÁRIO: Se for usuário comum, só pode ver seus próprios agendamentos
+        console.log('🔍 Verificando role do usuário:', req.user.role);
+        console.log('🔍 Tipo do role:', typeof req.user.role);
+        console.log('🔍 Comparação com "user":', req.user.role === 'user');
+        
+        if (req.user.role === 'user') {
+            console.log('🔒 Aplicando filtro de usuário comum - apenas agendamentos próprios');
+            console.log('🔒 ID do usuário para filtro:', req.user.userId);
+            
+            // Buscar o profissional associado ao usuário
+            const professional = await Professional.findOne({ userId: req.user.userId });
+            if (professional) {
+                console.log('🔒 Profissional encontrado:', professional._id);
+                filter.professional = professional._id;
+            } else {
+                console.log('⚠️ Nenhum profissional encontrado para o usuário');
+                // Se não encontrar profissional, retornar array vazio
+                filter.professional = null;
+            }
+        } else {
+            console.log('👑 Usuário admin/manager - sem filtro de usuário aplicado');
         }
         
         console.log('🔍 Filtro aplicado:', filter);
@@ -2744,6 +3263,9 @@ app.get('/api/appointments', authenticateToken, async (req, res) => {
 // Obter estatísticas de agendamentos
 app.get('/api/appointments/statistics', authenticateToken, async (req, res) => {
     try {
+        console.log('📊 Buscando estatísticas de agendamentos...');
+        console.log('👤 Usuário logado:', req.user.userId, 'Role:', req.user.role);
+        
         const { startDate, endDate } = req.query;
         
         let filter = {};
@@ -2753,21 +3275,43 @@ app.get('/api/appointments/statistics', authenticateToken, async (req, res) => {
             if (endDate) filter.date.$lte = new Date(endDate);
         }
         
+        // FILTRO POR USUÁRIO: Se for usuário comum, só pode ver suas próprias estatísticas
+        if (req.user.role === 'user') {
+            console.log('🔒 Aplicando filtro de usuário comum - apenas estatísticas próprias');
+            
+            // Buscar o profissional associado ao usuário
+            const professional = await Professional.findOne({ userId: req.user.userId });
+            if (professional) {
+                console.log('🔒 Profissional encontrado para estatísticas:', professional._id);
+                filter.professional = professional._id;
+            } else {
+                console.log('⚠️ Nenhum profissional encontrado para o usuário nas estatísticas');
+                // Se não encontrar profissional, retornar array vazio
+                filter.professional = null;
+            }
+        }
+        
+        console.log('🔍 Filtro de estatísticas aplicado:', filter);
+        
         const total = await Appointment.countDocuments(filter);
         const pending = await Appointment.countDocuments({ ...filter, status: 'pending' });
         const confirmed = await Appointment.countDocuments({ ...filter, status: 'confirmed' });
         const cancelled = await Appointment.countDocuments({ ...filter, status: 'cancelled' });
         const completed = await Appointment.countDocuments({ ...filter, status: 'completed' });
         
+        const statistics = {
+            total,
+            pending,
+            confirmed,
+            cancelled,
+            completed
+        };
+        
+        console.log('📊 Estatísticas calculadas:', statistics);
+        
         res.json({
             success: true,
-            statistics: {
-                total,
-                pending,
-                confirmed,
-                cancelled,
-                completed
-            }
+            statistics
         });
     } catch (error) {
         console.error('Erro ao obter estatísticas:', error);
@@ -3010,24 +3554,62 @@ app.put('/api/appointments/:id/complete', authenticateToken, async (req, res) =>
         console.log('✅ Agendamento atualizado');
         
         console.log('💰 Criando receita do agendamento...');
-        // Criar receita automaticamente
+        // Criar receita automaticamente (sempre do tipo 'agendamento' para aparecer no financeiro)
         const revenue = new Revenue({
             name: `Agendamento - ${appointment.service.name}`,
             type: 'agendamento',
             value: appointment.service.price,
             description: `Agendamento finalizado - Cliente: ${appointment.clientName}, Profissional: ${appointment.professional.firstName} ${appointment.professional.lastName}`,
             user: req.user.userId,
-            appointmentId: appointment._id
+            appointmentId: appointment._id,
+            professionalId: appointment.professional._id,
+            date: appointment.date // Usar a data do agendamento, não a data atual
         });
         
         await revenue.save();
         console.log('✅ Receita do agendamento criada:', revenue._id);
+        console.log('💰 Valor da receita:', revenue.value);
         
         console.log('💸 Calculando comissão do profissional...');
-        // Calcular e criar comissão do profissional
+        // Calcular comissão do profissional
         const commissionValue = appointment.service.price * (appointment.service.commission / 100);
         console.log('📊 Comissão calculada:', commissionValue);
+        console.log('📊 Percentual de comissão do serviço:', appointment.service.commission + '%');
         
+        // 1. Criar gasto (comissão) na tela de Finanças
+        console.log('💸 Criando gasto de comissão...');
+        console.log('💸 Dados do gasto:', {
+            name: `Comissão - ${appointment.service.name}`,
+            type: 'unique',
+            value: commissionValue,
+            user: req.user.userId,
+            date: new Date()
+        });
+        
+        try {
+            const commissionExpense = new Expense({
+                name: `Comissão - ${appointment.service.name}`,
+                type: 'unique',
+                value: commissionValue,
+                description: `Comissão do agendamento - Cliente: ${appointment.clientName}, Profissional: ${appointment.professional.firstName} ${appointment.professional.lastName}`,
+                user: req.user.userId,
+                date: new Date()
+            });
+            
+            console.log('💸 Tentando salvar gasto...');
+            await commissionExpense.save();
+            console.log('✅ Gasto de comissão criado:', commissionExpense._id);
+            console.log('💰 Valor do gasto:', commissionExpense.value);
+            console.log('🔍 isActive do gasto:', commissionExpense.isActive);
+        } catch (expenseError) {
+            console.error('❌ ERRO ao criar gasto de comissão:', expenseError);
+            console.error('❌ Detalhes do erro:', expenseError.message);
+            console.error('❌ Stack trace:', expenseError.stack);
+            // Continuar mesmo com erro no gasto
+        }
+        
+        // 2. Criar comissão para Minhas Comissões
+        console.log('💸 Criando comissão para Minhas Comissões...');
         const professionalRevenue = new Revenue({
             name: `Comissão - ${appointment.service.name}`,
             type: 'comissao',
@@ -3035,11 +3617,13 @@ app.put('/api/appointments/:id/complete', authenticateToken, async (req, res) =>
             description: `Comissão do agendamento - Cliente: ${appointment.clientName}, Profissional: ${appointment.professional.firstName} ${appointment.professional.lastName}`,
             user: req.user.userId,
             appointmentId: appointment._id,
-            professionalId: appointment.professional._id
+            professionalId: appointment.professional._id,
+            date: appointment.date // Usar a data do agendamento, não a data atual
         });
         
         await professionalRevenue.save();
         console.log('✅ Comissão do profissional criada:', professionalRevenue._id);
+        console.log('💰 Valor da comissão:', professionalRevenue.value);
         
         console.log('🎉 Agendamento finalizado com sucesso');
         res.json({ 
@@ -3148,12 +3732,27 @@ app.delete('/api/appointments/:id', authenticateToken, async (req, res) => {
             return res.status(404).json({ success: false, message: 'Agendamento não encontrado' });
         }
         
-        // Não permitir exclusão de agendamentos finalizados
+        // Se for agendamento finalizado, também excluir receitas, comissões e gastos associados
         if (appointment.status === 'completed') {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Não é possível excluir um agendamento finalizado' 
+            console.log('🗑️ Excluindo agendamento finalizado e suas receitas/comissões/gastos...');
+            
+            // Excluir receitas do agendamento
+            await Revenue.deleteMany({ appointmentId: id });
+            console.log('✅ Receitas do agendamento excluídas');
+            
+            // Excluir comissões do agendamento
+            await Revenue.deleteMany({ 
+                appointmentId: id,
+                type: 'comissao'
             });
+            console.log('✅ Comissões do agendamento excluídas');
+            
+            // Excluir gastos de comissão do agendamento
+            await Expense.deleteMany({ 
+                name: { $regex: /Comissão.*/i },
+                description: { $regex: appointment.clientName }
+            });
+            console.log('✅ Gastos de comissão do agendamento excluídos');
         }
         
         await Appointment.findByIdAndDelete(id);
@@ -3245,6 +3844,9 @@ app.get('/api/appointments/available-times', authenticateToken, async (req, res)
 // Obter agendamentos por data (para calendário)
 app.get('/api/appointments/by-date', authenticateToken, async (req, res) => {
     try {
+        console.log('📅 Buscando agendamentos por data...');
+        console.log('👤 Usuário logado:', req.user.userId, 'Role:', req.user.role);
+        
         const { date } = req.query;
         
         if (!date) {
@@ -3254,12 +3856,34 @@ app.get('/api/appointments/by-date', authenticateToken, async (req, res) => {
             });
         }
         
-        const appointments = await Appointment.find({
+        let filter = {
             date: new Date(date)
-        })
+        };
+        
+        // FILTRO POR USUÁRIO: Se for usuário comum, só pode ver seus próprios agendamentos
+        if (req.user.role === 'user') {
+            console.log('🔒 Aplicando filtro de usuário comum - apenas agendamentos próprios por data');
+            
+            // Buscar o profissional associado ao usuário
+            const professional = await Professional.findOne({ userId: req.user.userId });
+            if (professional) {
+                console.log('🔒 Profissional encontrado para data:', professional._id);
+                filter.professional = professional._id;
+            } else {
+                console.log('⚠️ Nenhum profissional encontrado para o usuário por data');
+                // Se não encontrar profissional, retornar array vazio
+                filter.professional = null;
+            }
+        }
+        
+        console.log('🔍 Filtro por data aplicado:', filter);
+        
+        const appointments = await Appointment.find(filter)
         .populate('professional', 'firstName lastName function photo')
         .populate('service', 'name price duration')
         .sort({ time: 1 });
+        
+        console.log('📅 Agendamentos encontrados para a data:', appointments.length);
         
         res.json({ 
             success: true, 

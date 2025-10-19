@@ -5,10 +5,41 @@ class BackupManager {
 
     init() {
         this.setupEventListeners();
+        this.setDefaultDateFilters();
         // Só carregar backups se o usuário tiver permissão
         if (this.hasBackupPermission()) {
             this.loadBackups();
         }
+    }
+
+    // Configurar filtros padrão
+    setDefaultDateFilters() {
+        console.log('📅 Configurando datas padrão do backup...');
+        const today = new Date();
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+        console.log('📅 Datas calculadas:', {
+            today: today.toISOString(),
+            firstDayOfMonth: firstDayOfMonth.toISOString(),
+            lastDayOfMonth: lastDayOfMonth.toISOString()
+        });
+
+        const startDateInput = document.getElementById('start-date');
+        const endDateInput = document.getElementById('end-date');
+        
+        if (startDateInput) {
+            startDateInput.value = this.formatDateForInput(firstDayOfMonth);
+        }
+        if (endDateInput) {
+            endDateInput.value = this.formatDateForInput(lastDayOfMonth);
+        }
+        
+        console.log('📅 Filtros do backup configurados');
+    }
+
+    formatDateForInput(date) {
+        return date.toISOString().split('T')[0];
     }
 
     // Verificar se o usuário tem permissão para acessar backup

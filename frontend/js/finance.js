@@ -52,6 +52,36 @@ document.addEventListener('DOMContentLoaded', function() {
     let filteredExpenses = [];
     let filteredFinanceHistory = [];
 
+    // Configurar filtros padrão
+    function setDefaultDateFilters() {
+        console.log('📅 Configurando datas padrão do financeiro...');
+        const today = new Date();
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+        console.log('📅 Datas calculadas:', {
+            today: today.toISOString(),
+            firstDayOfMonth: firstDayOfMonth.toISOString(),
+            lastDayOfMonth: lastDayOfMonth.toISOString()
+        });
+
+        if (financeDateFrom) {
+            financeDateFrom.value = formatDateForInput(firstDayOfMonth);
+        }
+        if (financeDateTo) {
+            financeDateTo.value = formatDateForInput(lastDayOfMonth);
+        }
+
+        currentDateFrom = formatDateForInput(firstDayOfMonth);
+        currentDateTo = formatDateForInput(lastDayOfMonth);
+        
+        console.log('📅 Filtros do financeiro configurados:', { currentDateFrom, currentDateTo });
+    }
+
+    function formatDateForInput(date) {
+        return date.toISOString().split('T')[0];
+    }
+
     // Inicializar
     init();
 
@@ -122,6 +152,9 @@ document.addEventListener('DOMContentLoaded', function() {
             clearFinanceHistoryFilters.addEventListener('click', clearFinanceHistoryFiltersFunc);
         }
         
+        // Configurar filtros padrão
+        setDefaultDateFilters();
+        
         // Carregar dados iniciais
         loadFinanceData();
         updateFinanceChart();
@@ -146,9 +179,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 sales = result.sales || [];
                 financeHistory = result.history || [];
                 
+                console.log('💰 Dados carregados da API:');
+                console.log('💰 Receitas:', revenues.length);
+                console.log('💰 Gastos:', expenses.length);
+                console.log('💰 Detalhes dos gastos:', expenses);
+                
                 filteredRevenues = [...revenues];
                 filteredExpenses = [...expenses];
                 filteredFinanceHistory = [...financeHistory];
+                
+                console.log('💰 Gastos filtrados:', filteredExpenses.length);
+                console.log('💰 Detalhes dos gastos filtrados:', filteredExpenses);
                 
                 updateStatistics();
                 renderRevenues();
@@ -304,9 +345,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Renderizar gastos
     function renderExpenses() {
-        if (!expensesList) return;
+        console.log('💸 Renderizando gastos...');
+        console.log('💸 Elemento expensesList:', expensesList);
+        console.log('💸 filteredExpenses.length:', filteredExpenses.length);
+        console.log('💸 filteredExpenses:', filteredExpenses);
+        
+        if (!expensesList) {
+            console.log('💸 Elemento expensesList não encontrado');
+            return;
+        }
 
         if (filteredExpenses.length === 0) {
+            console.log('💸 Nenhum gasto encontrado, exibindo estado vazio');
             expensesList.innerHTML = `
                 <div class="empty-state">
                     <i class="fas fa-minus-circle"></i>
@@ -316,6 +366,8 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             return;
         }
+        
+        console.log('💸 Renderizando', filteredExpenses.length, 'gastos');
 
         expensesList.innerHTML = filteredExpenses.map(expense => `
             <div class="expense-item">

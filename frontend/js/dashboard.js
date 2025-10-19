@@ -180,6 +180,22 @@ document.addEventListener('DOMContentLoaded', function() {
         const userRole = user.role || 'user';
         const permissions = PERMISSIONS[userRole] || PERMISSIONS.user;
 
+        // Adicionar classe CSS baseada no role do usuário
+        document.body.className = document.body.className.replace(/user-role-\w+/g, '');
+        document.body.classList.add(`user-role-${userRole}`);
+
+        // Ocultar aba de Contatos para usuários comuns
+        const contatosTab = document.querySelector('[data-tab="contatos"]');
+        if (contatosTab) {
+            if (userRole === 'user') {
+                contatosTab.style.display = 'none';
+                console.log('❌ Aba Contatos oculta para usuário comum');
+            } else {
+                contatosTab.style.display = 'flex';
+                console.log('✅ Aba Contatos visível para admin/manager');
+            }
+        }
+
         // Ocultar/mostrar itens do menu baseado nas permissões
         const menuItems = document.querySelectorAll('.nav-item');
         menuItems.forEach(item => {
@@ -801,8 +817,16 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        // Carregar lista de usuários
+        // Carregar lista de usuários apenas se tiver permissão
+        const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
+        const userRole = currentUser.role || 'user';
+        
+        if (userRole === 'admin' || userRole === 'manager') {
+            console.log('✅ Usuário tem permissão para carregar lista de usuários');
         loadUsers();
+        } else {
+            console.log('❌ Usuário comum - não carregando lista de usuários');
+        }
     }
 
     // Abrir modal de usuário
@@ -993,6 +1017,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Carregar lista de usuários
     async function loadUsers() {
         try {
+            // Verificar permissão antes de fazer a chamada
+            const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
+            const userRole = currentUser.role || 'user';
+            
+            if (userRole !== 'admin' && userRole !== 'manager') {
+                console.log('❌ Usuário comum - sem permissão para carregar usuários');
+                return;
+            }
+            
             const token = localStorage.getItem('authToken');
             const response = await fetch('/api/users', {
                 headers: {
@@ -1139,6 +1172,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Carregar usuários para verificação de exclusão
     async function loadUsersForDeletion() {
         try {
+            // Verificar permissão antes de fazer a chamada
+            const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
+            const userRole = currentUser.role || 'user';
+            
+            if (userRole !== 'admin' && userRole !== 'manager') {
+                console.log('❌ Usuário comum - sem permissão para carregar usuários para exclusão');
+                return [];
+            }
+            
             const token = localStorage.getItem('authToken');
             const response = await fetch('/api/users', {
                 headers: {
@@ -1430,7 +1472,7 @@ class DashboardManager {
             const startDate = this.formatDateForInput(this.currentFilters.startDate);
             const endDate = this.formatDateForInput(this.currentFilters.endDate);
 
-            const response = await fetch(`/api/appointments?startDate=${startDate}&endDate=${endDate}&limit=5&sort=-createdAt`, {
+            const response = await fetch(`/api/dashboard/appointments?startDate=${startDate}&endDate=${endDate}&limit=5&sort=-createdAt`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -1485,14 +1527,16 @@ class DashboardManager {
             const startDate = this.formatDateForInput(this.currentFilters.startDate);
             const endDate = this.formatDateForInput(this.currentFilters.endDate);
 
-            const response = await fetch(`/api/services/stats?startDate=${startDate}&endDate=${endDate}&limit=5`, {
+            const response = await fetch(`/api/dashboard/services/stats?startDate=${startDate}&endDate=${endDate}&limit=5`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
             if (response.ok) {
                 const data = await response.json();
+                console.log('📊 Dashboard Services API Response:', data);
                 // A nova API retorna { service: {...}, count: number }
                 const services = data.services || [];
+                console.log('📊 Services to render:', services);
                 this.renderTopServices(services);
             } else {
                 // Fallback: buscar serviços e contar manualmente
@@ -1512,7 +1556,7 @@ class DashboardManager {
 
             const [servicesResponse, appointmentsResponse] = await Promise.all([
                 fetch('/api/services', { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch(`/api/appointments?startDate=${startDate}&endDate=${endDate}`, {
+                fetch(`/api/dashboard/appointments?startDate=${startDate}&endDate=${endDate}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 })
             ]);
@@ -1610,7 +1654,7 @@ class DashboardManager {
             console.log('📅 Filtros:', { startDate, endDate });
             console.log('🔑 Token existe:', !!token);
 
-            const response = await fetch(`/api/professionals/stats?startDate=${startDate}&endDate=${endDate}&limit=5`, {
+            const response = await fetch(`/api/dashboard/professionals/stats?startDate=${startDate}&endDate=${endDate}&limit=5`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -1618,7 +1662,7 @@ class DashboardManager {
 
             if (response.ok) {
                 const data = await response.json();
-                console.log('📊 Dados recebidos:', data);
+                console.log('📊 Dashboard Professionals API Response:', data);
                 // A nova API retorna { professional: {...}, count: number }
                 const professionals = data.professionals || [];
                 console.log('👥 Profissionais encontrados:', professionals.length);
@@ -1654,7 +1698,7 @@ class DashboardManager {
             console.log('📡 Fazendo requisições paralelas...');
             const [professionalsResponse, appointmentsResponse] = await Promise.all([
                 fetch('/api/professionals', { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch(`/api/appointments?startDate=${startDate}&endDate=${endDate}`, {
+                fetch(`/api/dashboard/appointments?startDate=${startDate}&endDate=${endDate}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 })
             ]);
@@ -1838,7 +1882,7 @@ class DashboardManager {
                 endDate: this.formatDateForInput(endDate)
             });
 
-            const response = await fetch(`/api/appointments?startDate=${this.formatDateForInput(startDate)}&endDate=${this.formatDateForInput(endDate)}`, {
+            const response = await fetch(`/api/dashboard/appointments?startDate=${this.formatDateForInput(startDate)}&endDate=${this.formatDateForInput(endDate)}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -2267,13 +2311,481 @@ function initFloatingAIIcon() {
 
 // Inicializar quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('📄 DOM carregado, inicializando ícone flutuante AI...');
+    console.log('📄 DOM carregado, verificando permissões para ícone flutuante AI...');
+    
+    // Verificar se o usuário tem permissão para ver o ícone AI
+    const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
+    const userRole = currentUser.role || 'user';
+    
+    // Apenas admin e manager podem ver o ícone AI
+    if (userRole === 'admin' || userRole === 'manager') {
+        console.log('✅ Usuário tem permissão para ícone AI, inicializando...');
     initFloatingAIIcon();
+    } else {
+        console.log('❌ Usuário comum - ícone AI oculto');
+    }
 });
 
 // Expor funções globalmente
 window.floatingAIIcon = floatingAIIcon;
 window.initFloatingAIIcon = initFloatingAIIcon;
+
+// ==================== COMISSÕES ====================
+
+class ComissoesManager {
+    constructor() {
+        this.currentFilters = {
+            startDate: null,
+            endDate: null
+        };
+        this.charts = {};
+        this.isLoading = false;
+        
+        console.log('💰 ComissoesManager criado');
+        this.init();
+    }
+
+    init() {
+        console.log('💰 Inicializando ComissoesManager...');
+        this.setupEventListeners();
+        this.setDefaultDateRange();
+        console.log('💰 Filtros configurados:', this.currentFilters);
+        this.loadComissoesData();
+    }
+
+    setupEventListeners() {
+        // Filtro de data
+        const applyFilterBtn = document.getElementById('apply-comissoes-filter');
+        if (applyFilterBtn) {
+            applyFilterBtn.addEventListener('click', () => {
+                this.applyDateFilter();
+            });
+        }
+
+        // Botão limpar filtros
+        const clearFiltersBtn = document.getElementById('clear-comissoes-filters');
+        if (clearFiltersBtn) {
+            clearFiltersBtn.addEventListener('click', () => {
+                this.clearDateFilters();
+            });
+        }
+
+        // Enter nos campos de data
+        const startDateInput = document.getElementById('comissoes-start-date');
+        const endDateInput = document.getElementById('comissoes-end-date');
+        
+        if (startDateInput) {
+            startDateInput.addEventListener('change', () => this.applyDateFilter());
+        }
+        if (endDateInput) {
+            endDateInput.addEventListener('change', () => this.applyDateFilter());
+        }
+    }
+
+    setDefaultDateRange() {
+        console.log('📅 Configurando datas padrão das comissões...');
+        const today = new Date();
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+        console.log('📅 Datas calculadas:', {
+            today: today.toISOString(),
+            firstDayOfMonth: firstDayOfMonth.toISOString(),
+            lastDayOfMonth: lastDayOfMonth.toISOString()
+        });
+
+        const startDateInput = document.getElementById('comissoes-start-date');
+        const endDateInput = document.getElementById('comissoes-end-date');
+        
+        if (startDateInput) {
+            startDateInput.value = this.formatDateForInput(firstDayOfMonth);
+        }
+        if (endDateInput) {
+            endDateInput.value = this.formatDateForInput(lastDayOfMonth);
+        }
+
+        this.currentFilters.startDate = this.formatDateForInput(firstDayOfMonth);
+        this.currentFilters.endDate = this.formatDateForInput(lastDayOfMonth);
+        
+        console.log('📅 Filtros de comissões configurados:', this.currentFilters);
+    }
+
+    formatDateForInput(date) {
+        return date.toISOString().split('T')[0];
+    }
+
+    applyDateFilter() {
+        const startDateInput = document.getElementById('comissoes-start-date');
+        const endDateInput = document.getElementById('comissoes-end-date');
+        
+        this.currentFilters.startDate = startDateInput?.value || null;
+        this.currentFilters.endDate = endDateInput?.value || null;
+        
+        console.log('💰 Filtros aplicados:', this.currentFilters);
+        this.loadComissoesData();
+    }
+
+    clearDateFilters() {
+        // Limpar campos de data
+        const startDateInput = document.getElementById('comissoes-start-date');
+        const endDateInput = document.getElementById('comissoes-end-date');
+        
+        if (startDateInput) startDateInput.value = '';
+        if (endDateInput) endDateInput.value = '';
+        
+        // Resetar filtros
+        this.currentFilters.startDate = null;
+        this.currentFilters.endDate = null;
+        
+        console.log('💰 Filtros limpos');
+        this.loadComissoesData();
+    }
+
+    async loadComissoesData() {
+        try {
+            console.log('💰 Carregando dados de comissões...');
+            this.showLoadingState();
+            
+            const token = localStorage.getItem('authToken');
+            console.log('💰 Token encontrado:', token ? 'SIM' : 'NÃO');
+            if (!token) {
+                console.error('💰 Token não encontrado');
+                return;
+            }
+
+            // Buscar dados de comissões
+            const urlParams = new URLSearchParams({
+                startDate: this.currentFilters.startDate || '',
+                endDate: this.currentFilters.endDate || ''
+            });
+            const url = '/api/commissions?' + urlParams;
+            console.log('💰 URL da requisição:', url);
+            console.log('💰 Parâmetros:', {
+                startDate: this.currentFilters.startDate || '',
+                endDate: this.currentFilters.endDate || ''
+            });
+            
+            const commissionsResponse = await fetch(url, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            console.log('💰 Status da resposta de comissões:', commissionsResponse.status);
+            if (!commissionsResponse.ok) {
+                console.error('❌ Erro na resposta de comissões:', commissionsResponse.status, commissionsResponse.statusText);
+                throw new Error('Erro ao buscar comissões');
+            }
+
+            const commissionsData = await commissionsResponse.json();
+            console.log('💰 Dados de comissões:', commissionsData);
+            console.log('💰 Status da resposta:', commissionsResponse.status);
+            console.log('💰 Comissões encontradas:', commissionsData.commissions?.length || 0);
+            console.log('💰 Estatísticas:', commissionsData.stats);
+            console.log('💰 Success:', commissionsData.success);
+
+            // Buscar evolução mensal
+            const evolutionResponse = await fetch('/api/commissions/evolution?' + new URLSearchParams({
+                startDate: this.currentFilters.startDate || '',
+                endDate: this.currentFilters.endDate || ''
+            }), {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!evolutionResponse.ok) {
+                throw new Error('Erro ao buscar evolução das comissões');
+            }
+
+            const evolutionData = await evolutionResponse.json();
+            console.log('📊 Dados de evolução:', evolutionData);
+
+            // Renderizar dados
+            console.log('💰 Renderizando dados de comissões...');
+            console.log('💰 Stats recebidos:', commissionsData.stats);
+            console.log('💰 Evolution data recebida:', evolutionData);
+            this.renderComissoesStats(commissionsData.stats);
+            this.renderComissoesCharts(evolutionData);
+
+        } catch (error) {
+            console.error('💰 Erro ao carregar dados de comissões:', error);
+            console.error('💰 Stack trace:', error.stack);
+            this.showErrorState();
+        } finally {
+            this.hideLoadingState();
+        }
+    }
+
+    renderComissoesStats(stats) {
+        console.log('💰 Renderizando estatísticas:', stats);
+        console.log('💰 totalAppointments:', stats.totalAppointments);
+        console.log('💰 averageCommission:', stats.averageCommission);
+        console.log('💰 totalCommissions:', stats.totalCommissions);
+        console.log('💰 Tipo de stats:', typeof stats);
+        console.log('💰 Stats é null/undefined:', stats == null);
+        
+        // Serviços Concluídos
+        const servicosConcluidosEl = document.getElementById('comissoes-servicos-concluidos');
+        console.log('💰 Elemento servicosConcluidosEl:', servicosConcluidosEl);
+        if (servicosConcluidosEl) {
+            const value = stats.totalAppointments || 0;
+            servicosConcluidosEl.textContent = value;
+            console.log('💰 Serviços concluídos atualizado para:', value);
+        } else {
+            console.error('❌ Elemento comissoes-servicos-concluidos não encontrado!');
+        }
+
+        // Percentual de Comissão
+        const percentualEl = document.getElementById('comissoes-percentual');
+        console.log('💰 Elemento percentualEl:', percentualEl);
+        if (percentualEl) {
+            percentualEl.textContent = `${stats.averageCommission || 0}%`;
+            console.log('💰 Percentual atualizado para:', `${stats.averageCommission || 0}%`);
+        } else {
+            console.error('❌ Elemento comissoes-percentual não encontrado!');
+        }
+
+        // Comissão Atual
+        const valorAtualEl = document.getElementById('comissoes-valor-atual');
+        console.log('💰 Elemento valorAtualEl:', valorAtualEl);
+        if (valorAtualEl) {
+            valorAtualEl.textContent = this.formatCurrency(stats.totalCommissions || 0);
+            console.log('💰 Valor atual atualizado para:', this.formatCurrency(stats.totalCommissions || 0));
+        } else {
+            console.error('❌ Elemento comissoes-valor-atual não encontrado!');
+        }
+    }
+
+    renderComissoesCharts(evolutionData) {
+        console.log('📊 Renderizando gráficos de evolução:', evolutionData);
+        
+        // Processar dados para os gráficos
+        const monthlyData = this.processMonthlyData(evolutionData);
+        
+        // Renderizar gráficos
+        this.renderServicosChart(monthlyData);
+        this.renderPercentualChart(monthlyData);
+        this.renderValorChart(monthlyData);
+    }
+
+    processMonthlyData(evolutionData) {
+        const months = [];
+        const servicosData = [];
+        const percentualData = [];
+        const valorData = [];
+
+        // Criar array de meses (últimos 6 meses)
+        const endDate = new Date();
+        for (let i = 5; i >= 0; i--) {
+            const date = new Date();
+            date.setMonth(date.getMonth() - i);
+            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            const monthName = date.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
+            
+            months.push(monthName);
+            
+            // Buscar dados do mês
+            const servicosMonth = evolutionData.monthlyAppointments.find(m => 
+                `${m._id.year}-${String(m._id.month).padStart(2, '0')}` === monthKey
+            );
+            const percentualMonth = evolutionData.monthlyCommissionPercent.find(m => 
+                `${m._id.year}-${String(m._id.month).padStart(2, '0')}` === monthKey
+            );
+            const valorMonth = evolutionData.monthlyCommissions.find(m => 
+                `${m._id.year}-${String(m._id.month).padStart(2, '0')}` === monthKey
+            );
+
+            servicosData.push(servicosMonth?.count || 0);
+            percentualData.push(percentualMonth?.avgCommission || 0);
+            valorData.push(valorMonth?.totalCommissions || 0);
+        }
+
+        return {
+            months,
+            servicos: servicosData,
+            percentual: percentualData,
+            valor: valorData
+        };
+    }
+
+    renderServicosChart(monthlyData) {
+        const ctx = document.getElementById('comissoes-servicos-chart');
+        if (!ctx) return;
+
+        // Destruir gráfico existente
+        if (this.charts.servicos) {
+            this.charts.servicos.destroy();
+        }
+
+        this.charts.servicos = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: monthlyData.months,
+                datasets: [{
+                    label: 'Serviços Concluídos',
+                    data: monthlyData.servicos,
+                    borderColor: '#27ae60',
+                    backgroundColor: 'rgba(39, 174, 96, 0.2)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#27ae60',
+                    pointBorderColor: '#229954',
+                    pointBorderWidth: 3,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    renderPercentualChart(monthlyData) {
+        const ctx = document.getElementById('comissoes-percentual-chart');
+        if (!ctx) return;
+
+        // Destruir gráfico existente
+        if (this.charts.percentual) {
+            this.charts.percentual.destroy();
+        }
+
+        this.charts.percentual = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: monthlyData.months,
+                datasets: [{
+                    label: 'Percentual de Comissão (%)',
+                    data: monthlyData.percentual,
+                    borderColor: '#f39c12',
+                    backgroundColor: 'rgba(243, 156, 18, 0.2)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#f39c12',
+                    pointBorderColor: '#e67e22',
+                    pointBorderWidth: 3,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    renderValorChart(monthlyData) {
+        const ctx = document.getElementById('comissoes-valor-chart');
+        if (!ctx) return;
+
+        // Destruir gráfico existente
+        if (this.charts.valor) {
+            this.charts.valor.destroy();
+        }
+
+        this.charts.valor = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: monthlyData.months,
+                datasets: [{
+                    label: 'Comissão em Reais (R$)',
+                    data: monthlyData.valor,
+                    borderColor: '#9b59b6',
+                    backgroundColor: 'rgba(155, 89, 182, 0.2)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#9b59b6',
+                    pointBorderColor: '#8e44ad',
+                    pointBorderWidth: 3,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'R$ ' + value.toFixed(2);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    showLoadingState() {
+        // Implementar loading state se necessário
+        console.log('💰 Mostrando loading...');
+    }
+
+    hideLoadingState() {
+        // Implementar hide loading state se necessário
+        console.log('💰 Escondendo loading...');
+    }
+
+    showErrorState() {
+        console.error('💰 Mostrando estado de erro...');
+    }
+
+    formatCurrency(value) {
+        if (isNaN(value) || value === null || value === undefined) {
+            return 'R$ 0,00';
+        }
+        return new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        }).format(value);
+    }
+}
 
 // ==================== RELATÓRIOS ====================
 
@@ -2574,7 +3086,7 @@ class ReportsManager {
                 return;
             }
 
-            const response = await fetch(`/api/appointments?startDate=${startDate}&endDate=${endDate}`, {
+            const response = await fetch(`/api/dashboard/appointments?startDate=${startDate}&endDate=${endDate}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -3123,7 +3635,7 @@ class ReportsManager {
                 fetch('/api/professionals', {
                 headers: { 'Authorization': `Bearer ${token}` }
                 }),
-                fetch('/api/professionals/stats', {
+                fetch('/api/dashboard/professionals/stats', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 })
             ]);
@@ -3227,7 +3739,7 @@ class ReportsManager {
                 fetch('/api/services', {
                 headers: { 'Authorization': `Bearer ${token}` }
                 }),
-                fetch('/api/services/stats', {
+                fetch('/api/dashboard/services/stats', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 })
             ]);
@@ -4498,7 +5010,7 @@ class ReportsManager {
             
             console.log('📅 Buscando agendamentos de:', startDate, 'até:', endDate);
             
-            const response = await fetch(`/api/appointments?startDate=${startDate}&endDate=${endDate}`, {
+            const response = await fetch(`/api/dashboard/appointments?startDate=${startDate}&endDate=${endDate}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             
@@ -4734,6 +5246,7 @@ class ReportsManager {
 
 // Inicializar Reports Manager
 let reportsManager = null;
+let comissoesManager = null;
 
 function initReportsManager() {
     console.log('📊 Inicializando ReportsManager...');
@@ -4743,12 +5256,36 @@ function initReportsManager() {
     console.log('✅ ReportsManager inicializado!');
 }
 
+function initComissoesManager() {
+    console.log('💰 Inicializando ComissoesManager...');
+    if (!comissoesManager) {
+        console.log('💰 Criando nova instância do ComissoesManager...');
+        comissoesManager = new ComissoesManager();
+    } else {
+        console.log('💰 ComissoesManager já existe, recarregando dados...');
+        comissoesManager.loadComissoesData();
+    }
+    console.log('✅ ComissoesManager inicializado!');
+}
+
 // Inicializar quando a página de relatórios for ativada
 document.addEventListener('click', (e) => {
+    console.log('🔍 Clique detectado em:', e.target);
+    console.log('🔍 Elemento com data-page:', e.target.closest('[data-page]'));
+    
     if (e.target.closest('[data-page="relatorios"]')) {
         console.log('📊 Clique detectado em relatórios, inicializando...');
         setTimeout(() => {
             initReportsManager();
+        }, 100);
+    }
+    if (e.target.closest('[data-page="comissoes"]')) {
+        console.log('💰 Clique detectado em comissões, inicializando...');
+        console.log('💰 Elemento clicado:', e.target);
+        console.log('💰 Página atual:', e.target.closest('[data-page="comissoes"]'));
+        setTimeout(() => {
+            console.log('💰 Chamando initComissoesManager...');
+            initComissoesManager();
         }, 100);
     }
 });
@@ -4756,3 +5293,20 @@ document.addEventListener('click', (e) => {
 // Expor funções globalmente
 window.reportsManager = reportsManager;
 window.initReportsManager = initReportsManager;
+window.comissoesManager = comissoesManager;
+window.initComissoesManager = initComissoesManager;
+
+// Função para forçar inicialização das comissões
+window.forceInitComissoes = function() {
+    console.log('💰 Forçando inicialização das comissões...');
+    initComissoesManager();
+};
+
+// Inicializar automaticamente quando a página for carregada
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('💰 DOM carregado, inicializando ComissoesManager...');
+    // Aguardar um pouco para garantir que todos os elementos estejam prontos
+    setTimeout(() => {
+        initComissoesManager();
+    }, 500);
+});

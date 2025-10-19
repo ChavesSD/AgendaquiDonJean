@@ -432,15 +432,75 @@
                 <div class="page-content" id="comissoes-page">
                     <div class="page-header">
                         <h2>Minhas Comissões</h2>
-                        <button class="btn btn-primary">
-                            <i class="fas fa-plus"></i>
-                            Nova Comissão
-                        </button>
+                        <div class="date-filters">
+                            <div class="filter-group">
+                                <label for="comissoes-start-date">Data Início</label>
+                                <input type="date" id="comissoes-start-date" placeholder="dd/mm/aaaa">
+                            </div>
+                            <div class="filter-group">
+                                <label for="comissoes-end-date">Data Fim</label>
+                                <input type="date" id="comissoes-end-date" placeholder="dd/mm/aaaa">
+                            </div>
+                            <button class="btn btn-primary" id="apply-comissoes-filter">
+                                <i class="fas fa-search"></i>
+                                Filtrar
+                            </button>
+                            <button class="btn btn-secondary" id="clear-comissoes-filters">
+                                <i class="fas fa-times"></i>
+                                Limpar
+                            </button>
+                        </div>
                     </div>
-                    <div class="empty-state">
-                        <i class="fas fa-money-bill-wave"></i>
-                        <h3>Minhas Comissões em desenvolvimento</h3>
-                        <p>Esta funcionalidade será implementada em breve.</p>
+
+                    <!-- Cards de Estatísticas -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="comissoes-servicos-concluidos">0</h3>
+                                <p>Serviços Concluídos</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="comissoes-percentual">0%</h3>
+                                <p>MÉDIA PERCENTUAL DE COMISSÃO</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="comissoes-valor-atual">R$ 0,00</h3>
+                                <p>Comissão Atual</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráficos -->
+                    <div class="charts-grid">
+                        <div class="chart-container">
+                            <h3>Evolução dos Serviços Concluídos</h3>
+                            <canvas id="comissoes-servicos-chart"></canvas>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <h3>Evolução do Percentual de Comissão</h3>
+                            <canvas id="comissoes-percentual-chart"></canvas>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <h3>Evolução da Comissão em Reais</h3>
+                            <canvas id="comissoes-valor-chart"></canvas>
+                        </div>
                     </div>
                 </div>
 

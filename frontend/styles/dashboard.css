@@ -6166,6 +6166,47 @@ body {
     margin: 0 !important;
 }
 
+/* ==================== COMISSÕES ==================== */
+
+/* Cards de comissões com cores específicas */
+#comissoes-page .stats-grid .stat-card:nth-child(1) .stat-icon {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
+#comissoes-page .stats-grid .stat-card:nth-child(2) .stat-icon {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+#comissoes-page .stats-grid .stat-card:nth-child(3) .stat-icon {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+}
+
+/* Gráficos de comissões */
+#comissoes-page .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+#comissoes-page .chart-container {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#comissoes-page .chart-container h3 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+#comissoes-page .chart-container canvas {
+    max-height: 300px;
+}
+
 /* Estilo específico para o card de mais atendimentos */
 #reports-top-professional {
     font-size: 1.1rem !important;
@@ -6269,6 +6310,15 @@ body {
         font-size: 11px;
         padding: 6px 10px;
     }
+}
+
+/* Restrições para usuários comuns */
+.user-role-user [data-tab="contatos"] {
+    display: none !important;
+}
+
+.user-role-user .floating-ai-icon {
+    display: none !important;
 }
 
 /* Ícone Flutuante AI - Com Transparência e Vida */
