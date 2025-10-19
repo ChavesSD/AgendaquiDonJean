@@ -1876,16 +1876,18 @@ class DashboardManager {
                 datasets: [{
                     label: 'Atendimentos',
                     data: chartData.data,
-                    borderColor: '#975756',
-                    backgroundColor: 'rgba(151, 87, 86, 0.1)',
-                    borderWidth: 3,
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                    borderWidth: 4,
                     fill: true,
                     tension: 0.4,
-                    pointBackgroundColor: '#975756',
-                    pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2,
-                    pointRadius: 6,
-                    pointHoverRadius: 8
+                    pointBackgroundColor: '#3498db',
+                    pointBorderColor: '#2980b9',
+                    pointBorderWidth: 3,
+                    pointRadius: 8,
+                    pointHoverRadius: 10,
+                    pointHoverBackgroundColor: '#2980b9',
+                    pointHoverBorderColor: '#ffffff'
                 }]
             },
             options: {
