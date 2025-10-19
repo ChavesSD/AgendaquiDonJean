@@ -50,17 +50,6 @@ class WhatsAppManager {
             saveWelcomeBtn.addEventListener('click', () => this.saveWelcomeMessage());
         }
 
-        // Botão testar mensagem automática
-        const testAutomaticBtn = document.getElementById('send-automatic-message');
-        if (testAutomaticBtn) {
-            testAutomaticBtn.addEventListener('click', () => this.testAutomaticMessage());
-        }
-
-        // Botão testar conexão
-        const testConnectionBtn = document.getElementById('test-connection');
-        if (testConnectionBtn) {
-            testConnectionBtn.addEventListener('click', () => this.testConnection());
-        }
     }
 
     // Conectar WebSocket
@@ -264,8 +253,6 @@ class WhatsAppManager {
         
         // Atualizar botões
         const sendTestBtn = document.getElementById('send-test-message');
-        const sendAutomaticBtn = document.getElementById('send-automatic-message');
-        const testConnectionBtn = document.getElementById('test-connection');
         const generateQrBtn = document.getElementById('generate-qr');
         
         if (connectBtn && disconnectBtn) {
@@ -273,22 +260,16 @@ class WhatsAppManager {
                 connectBtn.style.display = 'none';
                 disconnectBtn.style.display = 'inline-block';
                 if (sendTestBtn) sendTestBtn.style.display = 'inline-block';
-                if (sendAutomaticBtn) sendAutomaticBtn.style.display = 'inline-block';
-                if (testConnectionBtn) testConnectionBtn.style.display = 'inline-block';
                 if (generateQrBtn) generateQrBtn.style.display = 'none';
             } else if (status === 'qr_ready') {
                 connectBtn.style.display = 'none';
                 disconnectBtn.style.display = 'none';
                 if (sendTestBtn) sendTestBtn.style.display = 'none';
-                if (sendAutomaticBtn) sendAutomaticBtn.style.display = 'none';
-                if (testConnectionBtn) testConnectionBtn.style.display = 'none';
                 if (generateQrBtn) generateQrBtn.style.display = 'none';
             } else {
                 connectBtn.style.display = 'inline-block';
                 disconnectBtn.style.display = 'none';
                 if (sendTestBtn) sendTestBtn.style.display = 'none';
-                if (sendAutomaticBtn) sendAutomaticBtn.style.display = 'none';
-                if (testConnectionBtn) testConnectionBtn.style.display = 'none';
                 if (generateQrBtn) generateQrBtn.style.display = 'inline-block';
             }
         }
@@ -465,60 +446,6 @@ class WhatsAppManager {
         }
     }
 
-    // Testar mensagem automática
-    async testAutomaticMessage() {
-        const number = prompt('Digite o número para testar a mensagem automática (com DDD, apenas números):');
-        if (!number) return;
-
-        try {
-            const token = localStorage.getItem('authToken');
-            const response = await fetch('/api/whatsapp/send-automatic', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ number })
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                this.showNotification(`Mensagem automática enviada! Tipo: ${result.messageType}`, 'success');
-            } else {
-                const error = await response.json();
-                this.showNotification(error.message, 'error');
-            }
-        } catch (error) {
-            console.error('Erro ao testar mensagem automática:', error);
-            this.showNotification('Erro ao testar mensagem automática', 'error');
-        }
-    }
-
-    // Testar conexão do WhatsApp
-    async testConnection() {
-        try {
-            const token = localStorage.getItem('authToken');
-            const response = await fetch('/api/whatsapp/test-connection', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                if (result.success) {
-                    this.showNotification(`✅ ${result.message}`, 'success');
-                    console.log('Informações do cliente:', result.clientInfo);
-                } else {
-                    this.showNotification(`❌ ${result.message}`, 'error');
-                }
-            } else {
-                const error = await response.json();
-                this.showNotification(`❌ ${error.message}`, 'error');
-            }
-        } catch (error) {
-            console.error('Erro ao testar conexão:', error);
-            this.showNotification('❌ Erro ao testar conexão', 'error');
-        }
-    }
 
     // Enviar mensagem de confirmação
     async sendConfirmationMessage(phoneNumber, appointmentDetails) {
