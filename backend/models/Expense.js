@@ -45,6 +45,14 @@ const expenseSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    appointmentId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Appointment'
+    },
+    professionalId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Professional'
+    },
     isActive: {
         type: Boolean,
         default: true

@@ -3593,7 +3593,9 @@ app.put('/api/appointments/:id/complete', authenticateToken, async (req, res) =>
                 value: commissionValue,
                 description: `Comissão do agendamento - Cliente: ${appointment.clientName}, Profissional: ${appointment.professional.firstName} ${appointment.professional.lastName}`,
                 user: req.user.userId,
-                date: new Date()
+                appointmentId: appointment._id,
+                professionalId: appointment.professional._id,
+                date: appointment.date // Usar a data do agendamento, não a data atual
             });
             
             console.log('💸 Tentando salvar gasto...');
