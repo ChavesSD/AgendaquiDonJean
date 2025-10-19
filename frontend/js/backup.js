@@ -606,7 +606,24 @@ class BackupManager {
     }
 }
 
-// Inicializar quando a página carregar
+// Inicializar apenas quando a aba de backup for acessada
 document.addEventListener('DOMContentLoaded', () => {
-    window.backupManager = new BackupManager();
+    // Verificar se estamos na aba de backup
+    const backupTab = document.getElementById('backup-tab');
+    if (backupTab) {
+        console.log('📦 BackupManager será inicializado quando a aba de backup for acessada');
+        
+        // Inicializar apenas quando a aba for clicada
+        const backupTabButton = document.querySelector('[data-tab="backup"]');
+        if (backupTabButton) {
+            backupTabButton.addEventListener('click', () => {
+                if (!window.backupManager) {
+                    console.log('📦 Inicializando BackupManager...');
+                    window.backupManager = new BackupManager();
+                }
+            });
+        }
+    } else {
+        console.log('📦 Aba de backup não encontrada, BackupManager não será inicializado');
+    }
 });

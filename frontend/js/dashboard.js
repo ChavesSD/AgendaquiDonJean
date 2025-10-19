@@ -307,8 +307,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Carregar configurações da empresa
     loadCompanySettings();
 
-    // Inicializar gerenciamento de usuários
-    initUserManagement();
+    // Inicializar gerenciamento de usuários apenas para admins/managers
+    const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
+    const currentUserRole = currentUser.role || 'user';
+    
+    if (currentUserRole === 'admin' || currentUserRole === 'manager') {
+        console.log('✅ Usuário tem permissão, inicializando gerenciamento de usuários');
+        initUserManagement();
+    } else {
+        console.log('❌ Usuário comum - não inicializando gerenciamento de usuários');
+    }
 
     // Inicializar AgendaManager se não estiver disponível
     if (typeof AgendaManager !== 'undefined' && !window.agendaManager) {
