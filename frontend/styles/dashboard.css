@@ -6166,6 +6166,21 @@ body {
     margin: 0 !important;
 }
 
+/* Estilo específico para o card de mais atendimentos */
+#reports-top-professional {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+    text-transform: none !important;
+}
+
+#most-popular-service {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+    text-transform: none !important;
+}
+
 /* Responsive */
 @media (max-width: 1200px) {
     .dashboard-grid {
@@ -6519,7 +6534,7 @@ body {
 /* Cards de Estatísticas dos Relatórios - Seguindo padrão da Agenda */
 .reports-grid .stats-cards {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
     margin-bottom: 30px;
 }
@@ -6528,15 +6543,16 @@ body {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 15px;
-    padding: 25px;
+    padding: 20px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(151, 87, 86, 0.1);
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    min-height: 100px;
 }
 
 .reports-grid .stat-card::before {
@@ -6555,15 +6571,16 @@ body {
 }
 
 .reports-grid .stat-card .stat-icon {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: 20px;
     color: white;
     background: linear-gradient(135deg, #975756, #7a4443);
+    flex-shrink: 0;
 }
 
 /* Ícones coloridos para cards de Agenda */
@@ -6626,43 +6643,98 @@ body {
     background: linear-gradient(135deg, #27ae60, #2ecc71);
 }
 
+#profissionais-tab .reports-grid .stat-card .stat-icon.total {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+#profissionais-tab .reports-grid .stat-card .stat-icon.inactive {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
 #profissionais-tab .reports-grid .stat-card .stat-icon.top {
     background: linear-gradient(135deg, #f39c12, #e67e22);
 }
 
-#profissionais-tab .reports-grid .stat-card .stat-icon.performance {
-    background: linear-gradient(135deg, #3498db, #2980b9);
-}
-
 /* Ícones coloridos para cards de Serviços */
-#servicos-tab .reports-grid .stat-card .stat-icon {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+#servicos-tab .reports-grid .stat-card .stat-icon.total {
+    background: linear-gradient(135deg, #3498db, #2980b9);
 }
 
 #servicos-tab .reports-grid .stat-card .stat-icon.popular {
     background: linear-gradient(135deg, #f39c12, #e67e22);
 }
 
-#servicos-tab .reports-grid .stat-card .stat-icon.revenue {
+#servicos-tab .reports-grid .stat-card .stat-icon.price {
     background: linear-gradient(135deg, #27ae60, #2ecc71);
 }
 
-#servicos-tab .reports-grid .stat-card .stat-icon.evolution {
-    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+/* Ícones coloridos para cards de Financeiro */
+#financeiro-tab .reports-grid .stat-card .stat-icon.revenue {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
+#financeiro-tab .reports-grid .stat-card .stat-icon.expenses {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+#financeiro-tab .reports-grid .stat-card .stat-icon.profit {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+#financeiro-tab .reports-grid .stat-card .stat-icon.margin {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+/* Ícones coloridos para cards de Estoque */
+#estoque-tab .reports-grid .stat-card .stat-icon.products {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+#estoque-tab .reports-grid .stat-card .stat-icon.low-stock {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+#estoque-tab .reports-grid .stat-card .stat-icon.value {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
+#estoque-tab .reports-grid .stat-card .stat-icon.movements {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+/* Ícones coloridos para cards de Agenda */
+#agenda-tab .reports-grid .stat-card .stat-icon.total {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+#agenda-tab .reports-grid .stat-card .stat-icon.confirmed {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
+#agenda-tab .reports-grid .stat-card .stat-icon.cancelled {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+#agenda-tab .reports-grid .stat-card .stat-icon.pending {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
 }
 
 .reports-grid .stat-card .stat-content h3 {
     margin: 0 0 5px 0;
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 700;
     color: #2c3e50;
+    line-height: 1.2;
 }
 
 .reports-grid .stat-card .stat-content p {
     margin: 0;
     color: #6c757d;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.3;
 }
 
 /* Grid de Gráficos */

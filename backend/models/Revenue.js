@@ -8,7 +8,7 @@ const revenueSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['unique', 'fixed'],
+        enum: ['unique', 'fixed', 'agendamento', 'comissao'],
         required: true
     },
     value: {
@@ -33,6 +33,14 @@ const revenueSchema = new mongoose.Schema({
     isActive: {
         type: Boolean,
         default: true
+    },
+    appointmentId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Appointment'
+    },
+    professionalId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Professional'
     }
 }, {
     timestamps: true

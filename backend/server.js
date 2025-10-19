@@ -1417,8 +1417,11 @@ app.get('/api/services/stats', authenticateToken, async (req, res) => {
 
         console.log('🔍 Filtro de data:', dateFilter);
 
-        // Buscar agendamentos com filtro de data
-        const appointments = await Appointment.find(dateFilter)
+        // Buscar agendamentos com filtro de data e status concluído
+        const appointments = await Appointment.find({
+            ...dateFilter,
+            status: 'completed' // Apenas agendamentos concluídos
+        })
             .populate('service', 'name price duration')
             .select('service');
 
@@ -1488,12 +1491,15 @@ app.get('/api/professionals/stats', authenticateToken, async (req, res) => {
 
         console.log('🔍 Filtro de data:', dateFilter);
 
-        // Buscar agendamentos com filtro de data
-        const appointments = await Appointment.find(dateFilter)
+        // Buscar agendamentos com filtro de data e apenas os finalizados
+        const appointments = await Appointment.find({
+            ...dateFilter,
+            status: 'completed'
+        })
             .populate('professional', 'firstName lastName photo function')
             .select('professional');
 
-        console.log('📅 Agendamentos encontrados:', appointments.length);
+        console.log('📅 Agendamentos finalizados encontrados:', appointments.length);
 
         // Contar agendamentos por profissional
         const professionalCounts = {};
@@ -1510,7 +1516,7 @@ app.get('/api/professionals/stats', authenticateToken, async (req, res) => {
             }
         });
 
-        console.log('👥 Contagem por profissional:', Object.keys(professionalCounts).length);
+        console.log('👥 Contagem por profissional (apenas finalizados):', Object.keys(professionalCounts).length);
 
         // Converter para array e ordenar por count
         let professionalsWithCounts = Object.values(professionalCounts)
@@ -2968,27 +2974,42 @@ app.put('/api/appointments/:id', authenticateToken, async (req, res) => {
 // Marcar agendamento como finalizado
 app.put('/api/appointments/:id/complete', authenticateToken, async (req, res) => {
     try {
+        console.log('🔄 Iniciando finalização do agendamento:', req.params.id);
         const { id } = req.params;
         
+        console.log('🔍 Buscando agendamento...');
         const appointment = await Appointment.findById(id)
             .populate('professional', 'firstName lastName function')
             .populate('service', 'name price commission');
         
         if (!appointment) {
+            console.log('❌ Agendamento não encontrado');
             return res.status(404).json({ success: false, message: 'Agendamento não encontrado' });
         }
         
+        console.log('📋 Agendamento encontrado:', {
+            id: appointment._id,
+            status: appointment.status,
+            service: appointment.service?.name,
+            price: appointment.service?.price,
+            commission: appointment.service?.commission
+        });
+        
         if (appointment.status === 'completed') {
+            console.log('⚠️ Agendamento já foi finalizado');
             return res.status(400).json({ success: false, message: 'Agendamento já foi finalizado' });
         }
         
+        console.log('💾 Atualizando status do agendamento...');
         // Atualizar status
         appointment.status = 'completed';
         appointment.completedAt = new Date();
         appointment.completedBy = req.user.userId;
         
         await appointment.save();
+        console.log('✅ Agendamento atualizado');
         
+        console.log('💰 Criando receita do agendamento...');
         // Criar receita automaticamente
         const revenue = new Revenue({
             name: `Agendamento - ${appointment.service.name}`,
@@ -3000,9 +3021,13 @@ app.put('/api/appointments/:id/complete', authenticateToken, async (req, res) =>
         });
         
         await revenue.save();
+        console.log('✅ Receita do agendamento criada:', revenue._id);
         
+        console.log('💸 Calculando comissão do profissional...');
         // Calcular e criar comissão do profissional
         const commissionValue = appointment.service.price * (appointment.service.commission / 100);
+        console.log('📊 Comissão calculada:', commissionValue);
+        
         const professionalRevenue = new Revenue({
             name: `Comissão - ${appointment.service.name}`,
             type: 'comissao',
@@ -3014,7 +3039,9 @@ app.put('/api/appointments/:id/complete', authenticateToken, async (req, res) =>
         });
         
         await professionalRevenue.save();
+        console.log('✅ Comissão do profissional criada:', professionalRevenue._id);
         
+        console.log('🎉 Agendamento finalizado com sucesso');
         res.json({ 
             success: true, 
             message: 'Agendamento finalizado com sucesso',
@@ -3025,8 +3052,17 @@ app.put('/api/appointments/:id/complete', authenticateToken, async (req, res) =>
             }
         });
     } catch (error) {
-        console.error('Erro ao finalizar agendamento:', error);
-        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+        console.error('💥 Erro ao finalizar agendamento:', error);
+        console.error('📊 Stack trace:', error.stack);
+        console.error('📋 Error details:', {
+            name: error.name,
+            message: error.message,
+            code: error.code
+        });
+        res.status(500).json({ 
+            success: false, 
+            message: 'Erro interno do servidor: ' + error.message 
+        });
     }
 });
 

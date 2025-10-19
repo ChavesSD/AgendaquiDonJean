@@ -973,7 +973,7 @@
                                     <!-- Cards de Estatísticas -->
                                     <div class="stats-cards">
                                         <div class="stat-card">
-                                            <div class="stat-icon">
+                                            <div class="stat-icon total">
                                                 <i class="fas fa-calendar-check"></i>
                                             </div>
                                             <div class="stat-content">
@@ -982,7 +982,7 @@
                                             </div>
                                         </div>
                                         <div class="stat-card">
-                                            <div class="stat-icon">
+                                            <div class="stat-icon confirmed">
                                                 <i class="fas fa-check-circle"></i>
                                             </div>
                                             <div class="stat-content">
@@ -991,7 +991,7 @@
                                             </div>
                                         </div>
                                         <div class="stat-card">
-                                            <div class="stat-icon">
+                                            <div class="stat-icon cancelled">
                                                 <i class="fas fa-times-circle"></i>
                                             </div>
                                             <div class="stat-content">
@@ -1000,7 +1000,7 @@
                                             </div>
                                         </div>
                                         <div class="stat-card">
-                                            <div class="stat-icon">
+                                            <div class="stat-icon pending">
                                                 <i class="fas fa-clock"></i>
                                             </div>
                                             <div class="stat-content">
@@ -1061,7 +1061,7 @@
                                 <div class="reports-grid">
                                     <div class="stats-cards">
                                         <div class="stat-card">
-                                            <div class="stat-icon">
+                                            <div class="stat-icon products">
                                                 <i class="fas fa-boxes"></i>
                                             </div>
                                             <div class="stat-content">
@@ -1070,7 +1070,7 @@
                                             </div>
                                         </div>
                                         <div class="stat-card">
-                                            <div class="stat-icon">
+                                            <div class="stat-icon low-stock">
                                                 <i class="fas fa-exclamation-triangle"></i>
                                             </div>
                                             <div class="stat-content">
@@ -1079,7 +1079,7 @@
                                             </div>
                                         </div>
                                         <div class="stat-card">
-                                            <div class="stat-icon">
+                                            <div class="stat-icon value">
                                                 <i class="fas fa-dollar-sign"></i>
                                             </div>
                                             <div class="stat-content">
@@ -1088,22 +1088,12 @@
                                             </div>
                                         </div>
                                         <div class="stat-card">
-                                            <div class="stat-icon">
+                                            <div class="stat-icon movements">
                                                 <i class="fas fa-chart-line"></i>
                                             </div>
                                             <div class="stat-content">
                                                 <h3 id="reports-stock-movements">0</h3>
                                                 <p>Total de Movimentações</p>
-                                                <div class="movements-details">
-                                                    <div class="movement-entry">
-                                                        <span class="movement-label">Entradas:</span>
-                                                        <span class="movement-value" id="reports-stock-entries">0</span>
-                                                    </div>
-                                                    <div class="movement-exit">
-                                                        <span class="movement-label">Saídas:</span>
-                                                        <span class="movement-value" id="reports-stock-exits">0</span>
-                                                    </div>
-                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1158,7 +1148,7 @@
                                 <div class="reports-grid">
                                     <div class="stats-cards">
                                         <div class="stat-card">
-                                            <div class="stat-icon">
+                                            <div class="stat-icon revenue">
                                                 <i class="fas fa-dollar-sign"></i>
                                             </div>
                                             <div class="stat-content">
@@ -1167,7 +1157,7 @@
                                             </div>
                                         </div>
                                         <div class="stat-card">
-                                            <div class="stat-icon">
+                                            <div class="stat-icon expenses">
                                                 <i class="fas fa-credit-card"></i>
                                             </div>
                                             <div class="stat-content">
@@ -1176,7 +1166,7 @@
                                             </div>
                                         </div>
                                         <div class="stat-card">
-                                            <div class="stat-icon">
+                                            <div class="stat-icon profit">
                                                 <i class="fas fa-chart-line"></i>
                                             </div>
                                             <div class="stat-content">
@@ -1185,7 +1175,7 @@
                                             </div>
                                         </div>
                                         <div class="stat-card">
-                                            <div class="stat-icon">
+                                            <div class="stat-icon margin">
                                                 <i class="fas fa-percentage"></i>
                                             </div>
                                             <div class="stat-content">
@@ -1226,16 +1216,7 @@
                                             </div>
                                             <canvas id="expensesCategoryChart"></canvas>
                                         </div>
-                                        <div class="chart-container">
-                                            <div class="chart-header">
-                                                <h3>Evolução Mensal</h3>
-                                                <button class="btn btn-sm btn-secondary" id="export-monthly-evolution-chart">
-                                                    <i class="fas fa-download"></i>
-                                                    Exportar
-                                                </button>
-                                            </div>
-                                            <canvas id="monthlyEvolutionChart"></canvas>
-                                        </div>
+                                        <!-- Gráfico de Evolução Mensal removido -->
                                     </div>
                                 </div>
                             </div>
@@ -1245,39 +1226,30 @@
                                 <div class="reports-grid">
                                     <div class="stats-cards">
                                         <div class="stat-card">
-                                            <div class="stat-icon">
+                                            <div class="stat-icon total">
                                                 <i class="fas fa-users"></i>
                                             </div>
                                             <div class="stat-content">
-                                                <h3 id="total-professionals">0</h3>
+                                                <h3 id="reports-total-professionals">0</h3>
                                                 <p>Total de Profissionais</p>
                                             </div>
                                         </div>
                                         <div class="stat-card">
-                                            <div class="stat-icon">
-                                                <i class="fas fa-user-check"></i>
+                                            <div class="stat-icon inactive">
+                                                <i class="fas fa-user-times"></i>
                                             </div>
                                             <div class="stat-content">
-                                                <h3 id="active-professionals">0</h3>
-                                                <p>Ativos</p>
+                                                <h3 id="reports-inactive-professionals">0</h3>
+                                                <p>Inativos</p>
                                             </div>
                                         </div>
                                         <div class="stat-card">
-                                            <div class="stat-icon">
+                                            <div class="stat-icon top">
                                                 <i class="fas fa-star"></i>
                                             </div>
                                             <div class="stat-content">
-                                                <h3 id="top-professional">-</h3>
+                                                <h3 id="reports-top-professional">-</h3>
                                                 <p>Mais Atendimentos</p>
-                                            </div>
-                                        </div>
-                                        <div class="stat-card">
-                                            <div class="stat-icon">
-                                                <i class="fas fa-clock"></i>
-                                            </div>
-                                            <div class="stat-content">
-                                                <h3 id="avg-appointments">0</h3>
-                                                <p>Média por Profissional</p>
                                             </div>
                                         </div>
                                     </div>
@@ -1292,16 +1264,6 @@
                                                 </button>
                                             </div>
                                             <canvas id="professionalAppointmentsChart"></canvas>
-                                        </div>
-                                        <div class="chart-container">
-                                            <div class="chart-header">
-                                                <h3>Especialidades</h3>
-                                                <button class="btn btn-sm btn-secondary" id="export-specialties-chart">
-                                                    <i class="fas fa-download"></i>
-                                                    Exportar
-                                                </button>
-                                            </div>
-                                            <canvas id="specialtiesChart"></canvas>
                                         </div>
                                         <div class="chart-container">
                                             <div class="chart-header">
@@ -1332,16 +1294,16 @@
                                 <div class="reports-grid">
                                     <div class="stats-cards">
                                         <div class="stat-card">
-                                            <div class="stat-icon">
+                                            <div class="stat-icon total">
                                                 <i class="fas fa-cogs"></i>
                                             </div>
                                             <div class="stat-content">
-                                                <h3 id="total-services">0</h3>
+                                                <h3 id="reports-total-services">0</h3>
                                                 <p>Total de Serviços</p>
                                             </div>
                                         </div>
                                         <div class="stat-card">
-                                            <div class="stat-icon">
+                                            <div class="stat-icon popular">
                                                 <i class="fas fa-star"></i>
                                             </div>
                                             <div class="stat-content">
@@ -1350,21 +1312,12 @@
                                             </div>
                                         </div>
                                         <div class="stat-card">
-                                            <div class="stat-icon">
+                                            <div class="stat-icon price">
                                                 <i class="fas fa-dollar-sign"></i>
                                             </div>
                                             <div class="stat-content">
                                                 <h3 id="avg-service-price">R$ 0,00</h3>
                                                 <p>Preço Médio</p>
-                                            </div>
-                                        </div>
-                                        <div class="stat-card">
-                                            <div class="stat-icon">
-                                                <i class="fas fa-chart-line"></i>
-                                            </div>
-                                            <div class="stat-content">
-                                                <h3 id="service-revenue">R$ 0,00</h3>
-                                                <p>Receita dos Serviços</p>
                                             </div>
                                         </div>
                                     </div>
@@ -1380,36 +1333,16 @@
                                             </div>
                                             <canvas id="popularServicesChart"></canvas>
                                         </div>
-                                        <div class="chart-container">
-                                            <div class="chart-header">
-                                                <h3>Receita por Serviço</h3>
-                                                <button class="btn btn-sm btn-secondary" id="export-service-revenue-chart">
-                                                    <i class="fas fa-download"></i>
-                                                    Exportar
-                                                </button>
-                                            </div>
-                                            <canvas id="serviceRevenueChart"></canvas>
+                                    <div class="chart-container">
+                                        <div class="chart-header">
+                                            <h3>Serviços Menos Solicitados</h3>
+                                            <button class="btn btn-sm btn-secondary" id="export-less-requested-chart">
+                                                <i class="fas fa-download"></i>
+                                                Exportar
+                                            </button>
                                         </div>
-                                        <div class="chart-container">
-                                            <div class="chart-header">
-                                                <h3>Duração dos Serviços</h3>
-                                                <button class="btn btn-sm btn-secondary" id="export-duration-chart">
-                                                    <i class="fas fa-download"></i>
-                                                    Exportar
-                                                </button>
-                                            </div>
-                                            <canvas id="durationChart"></canvas>
-                                        </div>
-                                        <div class="chart-container">
-                                            <div class="chart-header">
-                                                <h3>Evolução dos Serviços</h3>
-                                                <button class="btn btn-sm btn-secondary" id="export-evolution-chart">
-                                                    <i class="fas fa-download"></i>
-                                                    Exportar
-                                                </button>
-                                            </div>
-                                            <canvas id="evolutionChart"></canvas>
-                                        </div>
+                                        <canvas id="lessRequestedChart"></canvas>
+                                    </div>
                                     </div>
                                 </div>
                             </div>
