@@ -2767,15 +2767,16 @@ class ReportsManager {
                 datasets: [{
                     label: 'Agendamentos',
                     data: monthCounts,
-                    borderColor: '#975756',
-                    backgroundColor: 'rgba(151, 87, 86, 0.1)',
+                    borderColor: '#9b59b6',
+                    backgroundColor: 'rgba(155, 89, 182, 0.2)',
                     borderWidth: 3,
                     fill: true,
                     tension: 0.4,
-                    pointBackgroundColor: '#975756',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 6
+                    pointBackgroundColor: '#9b59b6',
+                    pointBorderColor: '#8e44ad',
+                    pointBorderWidth: 3,
+                    pointRadius: 7,
+                    pointHoverRadius: 9
                 }]
             },
             options: {
@@ -2827,10 +2828,20 @@ class ReportsManager {
                 datasets: [{
                     label: 'Agendamentos',
                     data: hourCounts,
-                    backgroundColor: '#975756',
-                    borderColor: '#7a4443',
-                    borderWidth: 1,
-                    borderRadius: 2
+                    backgroundColor: [
+                        '#e74c3c', '#f39c12', '#27ae60', '#3498db', '#9b59b6', '#e67e22', '#1abc9c',
+                        '#e74c3c', '#f39c12', '#27ae60', '#3498db', '#9b59b6', '#e67e22', '#1abc9c',
+                        '#e74c3c', '#f39c12', '#27ae60', '#3498db', '#9b59b6', '#e67e22', '#1abc9c',
+                        '#e74c3c', '#f39c12', '#27ae60', '#3498db'
+                    ],
+                    borderColor: [
+                        '#c0392b', '#d35400', '#229954', '#2980b9', '#8e44ad', '#d35400', '#16a085',
+                        '#c0392b', '#d35400', '#229954', '#2980b9', '#8e44ad', '#d35400', '#16a085',
+                        '#c0392b', '#d35400', '#229954', '#2980b9', '#8e44ad', '#d35400', '#16a085',
+                        '#c0392b', '#d35400', '#229954', '#2980b9'
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 4
                 }]
             },
             options: {
