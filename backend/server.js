@@ -3566,6 +3566,9 @@ app.put('/api/appointments/:id/complete', authenticateToken, async (req, res) =>
         
         console.log('💰 Criando receita do agendamento...');
         console.log('👤 Usuário que está finalizando:', req.user.userId, 'Role:', req.user.role);
+        console.log('👤 Tipo do userId:', typeof req.user.userId);
+        console.log('👤 userId como string:', req.user.userId.toString());
+        
         // Criar receita automaticamente (sempre do tipo 'agendamento' para aparecer no financeiro)
         const revenue = new Revenue({
             name: `Agendamento - ${appointment.service.name}`,
@@ -3578,10 +3581,19 @@ app.put('/api/appointments/:id/complete', authenticateToken, async (req, res) =>
             date: appointment.date // Usar a data do agendamento, não a data atual
         });
         
+        console.log('💰 Dados da receita antes de salvar:', {
+            name: revenue.name,
+            type: revenue.type,
+            value: revenue.value,
+            user: revenue.user,
+            userType: typeof revenue.user
+        });
+        
         await revenue.save();
         console.log('✅ Receita do agendamento criada:', revenue._id);
         console.log('💰 Valor da receita:', revenue.value);
         console.log('👤 Receita criada para usuário:', revenue.user);
+        console.log('👤 Tipo do user na receita salva:', typeof revenue.user);
         
         console.log('💸 Calculando comissão do profissional...');
         // Calcular comissão do profissional
