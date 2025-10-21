@@ -43,8 +43,6 @@ class AgendaManager {
             btn.addEventListener('click', (e) => this.switchTab(e.target.closest('.tab-btn').dataset.tab));
         });
         
-        // Botão novo agendamento
-        document.getElementById('new-appointment-btn').addEventListener('click', () => this.openAppointmentModal());
         
         // Modal de agendamento
         document.getElementById('closeAppointmentModal').addEventListener('click', () => this.closeAppointmentModal());
@@ -315,9 +313,6 @@ class AgendaManager {
         
         if (appointment.status !== 'completed') {
             buttons += `
-                <button class="btn btn-info btn-sm" onclick="window.agendaManager.editAppointment('${appointment._id}')">
-                    <i class="fas fa-edit"></i> Editar
-                </button>
                 <button class="btn btn-danger btn-sm" onclick="window.agendaManager.deleteAppointment('${appointment._id}')">
                     <i class="fas fa-trash"></i> Excluir
                 </button>
