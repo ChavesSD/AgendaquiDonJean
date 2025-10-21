@@ -2484,6 +2484,9 @@ app.delete('/api/services/:id', authenticateToken, async (req, res) => {
 app.get('/api/finance', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.userId;
+        console.log('💰 Consultando dados financeiros para usuário:', userId, 'Role:', req.user.role);
+        console.log('💰 Tipo do userId:', typeof userId);
+        console.log('💰 userId como string:', userId.toString());
         
         // Buscar receitas (apenas do tipo 'agendamento' para a tela de Finanças)
         const revenues = await Revenue.find({ 
@@ -2492,6 +2495,14 @@ app.get('/api/finance', authenticateToken, async (req, res) => {
             type: 'agendamento' // Apenas receitas de agendamentos, não comissões
         })
             .sort({ date: -1 });
+        
+        console.log('💰 Receitas encontradas:', revenues.length);
+        console.log('💰 Detalhes das receitas:', revenues.map(r => ({ id: r._id, name: r.name, value: r.value, user: r.user })));
+        
+        // Buscar todas as receitas do usuário para debug
+        const allRevenues = await Revenue.find({ user: userId });
+        console.log('💰 Todas as receitas do usuário:', allRevenues.length);
+        console.log('💰 Tipos de receitas encontradas:', allRevenues.map(r => ({ type: r.type, name: r.name })));
         
         // Buscar gastos
         const expenses = await Expense.find({ user: userId, isActive: true })
@@ -3554,6 +3565,7 @@ app.put('/api/appointments/:id/complete', authenticateToken, async (req, res) =>
         console.log('✅ Agendamento atualizado');
         
         console.log('💰 Criando receita do agendamento...');
+        console.log('👤 Usuário que está finalizando:', req.user.userId, 'Role:', req.user.role);
         // Criar receita automaticamente (sempre do tipo 'agendamento' para aparecer no financeiro)
         const revenue = new Revenue({
             name: `Agendamento - ${appointment.service.name}`,
@@ -3569,6 +3581,7 @@ app.put('/api/appointments/:id/complete', authenticateToken, async (req, res) =>
         await revenue.save();
         console.log('✅ Receita do agendamento criada:', revenue._id);
         console.log('💰 Valor da receita:', revenue.value);
+        console.log('👤 Receita criada para usuário:', revenue.user);
         
         console.log('💸 Calculando comissão do profissional...');
         // Calcular comissão do profissional
