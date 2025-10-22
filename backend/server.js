@@ -2489,16 +2489,34 @@ app.get('/api/finance', authenticateToken, async (req, res) => {
         console.log('💰 userId como string:', userId.toString());
         
         // Buscar receitas (apenas do tipo 'agendamento' para a tela de Finanças)
-        // Usar ObjectId para garantir compatibilidade
+        // Tentar ambas as formas para garantir compatibilidade
         const mongoose = require('mongoose');
         const userObjectId = new mongoose.Types.ObjectId(userId);
         
-        const revenues = await Revenue.find({ 
+        console.log('💰 Tentando consulta com ObjectId:', userObjectId);
+        console.log('💰 Tentando consulta com string:', userId);
+        
+        // Primeiro tentar com ObjectId
+        let revenues = await Revenue.find({ 
             user: userObjectId, 
             isActive: true,
             type: 'agendamento' // Apenas receitas de agendamentos, não comissões
         })
             .sort({ date: -1 });
+        
+        console.log('💰 Receitas encontradas com ObjectId:', revenues.length);
+        
+        // Se não encontrar nada, tentar com string
+        if (revenues.length === 0) {
+            console.log('💰 Tentando consulta com string userId...');
+            revenues = await Revenue.find({ 
+                user: userId, 
+                isActive: true,
+                type: 'agendamento'
+            })
+                .sort({ date: -1 });
+            console.log('💰 Receitas encontradas com string:', revenues.length);
+        }
         
         console.log('💰 Receitas encontradas:', revenues.length);
         console.log('💰 Detalhes das receitas:', revenues.map(r => ({ id: r._id, name: r.name, value: r.value, user: r.user })));
@@ -2513,9 +2531,19 @@ app.get('/api/finance', authenticateToken, async (req, res) => {
         console.log('💰 Receitas sem filtro de tipo:', allRevenuesNoTypeFilter.length);
         console.log('💰 Detalhes sem filtro:', allRevenuesNoTypeFilter.map(r => ({ type: r.type, name: r.name, user: r.user })));
         
-        // Buscar gastos
-        const expenses = await Expense.find({ user: userObjectId, isActive: true })
+        // Buscar gastos - tentar ambas as formas
+        let expenses = await Expense.find({ user: userObjectId, isActive: true })
             .sort({ date: -1 });
+        
+        console.log('💸 Gastos encontrados com ObjectId:', expenses.length);
+        
+        // Se não encontrar nada, tentar com string
+        if (expenses.length === 0) {
+            console.log('💸 Tentando consulta de gastos com string userId...');
+            expenses = await Expense.find({ user: userId, isActive: true })
+                .sort({ date: -1 });
+            console.log('💸 Gastos encontrados com string:', expenses.length);
+        }
         
         // Buscar maquininhas
         const posMachines = await PosMachine.find({ user: userObjectId, isActive: true })
