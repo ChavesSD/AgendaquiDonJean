@@ -2502,7 +2502,12 @@ app.get('/api/finance', authenticateToken, async (req, res) => {
         // Buscar todas as receitas do usuário para debug
         const allRevenues = await Revenue.find({ user: userId });
         console.log('💰 Todas as receitas do usuário:', allRevenues.length);
-        console.log('💰 Tipos de receitas encontradas:', allRevenues.map(r => ({ type: r.type, name: r.name })));
+        console.log('💰 Tipos de receitas encontradas:', allRevenues.map(r => ({ type: r.type, name: r.name, user: r.user, userType: typeof r.user })));
+        
+        // Buscar receitas sem filtro de tipo para debug
+        const allRevenuesNoTypeFilter = await Revenue.find({ user: userId, isActive: true });
+        console.log('💰 Receitas sem filtro de tipo:', allRevenuesNoTypeFilter.length);
+        console.log('💰 Detalhes sem filtro:', allRevenuesNoTypeFilter.map(r => ({ type: r.type, name: r.name, user: r.user })));
         
         // Buscar gastos
         const expenses = await Expense.find({ user: userId, isActive: true })
