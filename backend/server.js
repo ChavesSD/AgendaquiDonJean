@@ -2489,8 +2489,12 @@ app.get('/api/finance', authenticateToken, async (req, res) => {
         console.log('💰 userId como string:', userId.toString());
         
         // Buscar receitas (apenas do tipo 'agendamento' para a tela de Finanças)
+        // Usar ObjectId para garantir compatibilidade
+        const mongoose = require('mongoose');
+        const userObjectId = new mongoose.Types.ObjectId(userId);
+        
         const revenues = await Revenue.find({ 
-            user: userId, 
+            user: userObjectId, 
             isActive: true,
             type: 'agendamento' // Apenas receitas de agendamentos, não comissões
         })
@@ -2500,25 +2504,25 @@ app.get('/api/finance', authenticateToken, async (req, res) => {
         console.log('💰 Detalhes das receitas:', revenues.map(r => ({ id: r._id, name: r.name, value: r.value, user: r.user })));
         
         // Buscar todas as receitas do usuário para debug
-        const allRevenues = await Revenue.find({ user: userId });
+        const allRevenues = await Revenue.find({ user: userObjectId });
         console.log('💰 Todas as receitas do usuário:', allRevenues.length);
         console.log('💰 Tipos de receitas encontradas:', allRevenues.map(r => ({ type: r.type, name: r.name, user: r.user, userType: typeof r.user })));
         
         // Buscar receitas sem filtro de tipo para debug
-        const allRevenuesNoTypeFilter = await Revenue.find({ user: userId, isActive: true });
+        const allRevenuesNoTypeFilter = await Revenue.find({ user: userObjectId, isActive: true });
         console.log('💰 Receitas sem filtro de tipo:', allRevenuesNoTypeFilter.length);
         console.log('💰 Detalhes sem filtro:', allRevenuesNoTypeFilter.map(r => ({ type: r.type, name: r.name, user: r.user })));
         
         // Buscar gastos
-        const expenses = await Expense.find({ user: userId, isActive: true })
+        const expenses = await Expense.find({ user: userObjectId, isActive: true })
             .sort({ date: -1 });
         
         // Buscar maquininhas
-        const posMachines = await PosMachine.find({ user: userId, isActive: true })
+        const posMachines = await PosMachine.find({ user: userObjectId, isActive: true })
             .sort({ createdAt: -1 });
         
         // Buscar vendas
-        const sales = await Sale.find({ user: userId })
+        const sales = await Sale.find({ user: userObjectId })
             .populate('posMachine', 'name rate')
             .populate('professional', 'name')
             .sort({ date: -1 });
