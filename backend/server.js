@@ -3623,7 +3623,10 @@ app.put('/api/appointments/:id/complete', authenticateToken, async (req, res) =>
             type: revenue.type,
             value: revenue.value,
             user: revenue.user,
-            userType: typeof revenue.user
+            userType: typeof revenue.user,
+            userRole: req.user.role,
+            userIdFromToken: req.user.userId,
+            userIdType: typeof req.user.userId
         });
         
         await revenue.save();
@@ -3645,6 +3648,17 @@ app.put('/api/appointments/:id/complete', authenticateToken, async (req, res) =>
             type: 'unique',
             value: commissionValue,
             user: req.user.userId,
+            date: new Date()
+        });
+        
+        console.log('💸 Dados do gasto antes de salvar:', {
+            name: `Comissão - ${appointment.service.name}`,
+            type: 'unique',
+            value: commissionValue,
+            user: req.user.userId,
+            userRole: req.user.role,
+            userIdFromToken: req.user.userId,
+            userIdType: typeof req.user.userId,
             date: new Date()
         });
         
