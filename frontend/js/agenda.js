@@ -599,8 +599,12 @@ class AgendaManager {
     }
 
     async completeAppointment(appointmentId) {
+        console.log('🔄 Iniciando finalização do agendamento no frontend:', appointmentId);
+        console.log('🔑 Token disponível:', localStorage.getItem('authToken') ? 'Sim' : 'Não');
+        
         if (confirm('Deseja finalizar este agendamento? Isso criará uma receita automaticamente.')) {
             try {
+                console.log('🌐 Fazendo requisição para:', `/api/appointments/${appointmentId}/complete`);
                 const response = await fetch(`/api/appointments/${appointmentId}/complete`, {
                     method: 'PUT',
                     headers: {
@@ -608,19 +612,26 @@ class AgendaManager {
                     }
                 });
                 
+                console.log('📊 Status da resposta:', response.status);
+                console.log('📊 Response ok:', response.ok);
+                
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('✅ Dados da resposta:', data);
                     alert(data.message);
                     await this.loadAppointments();
                     await this.loadStatistics();
                 } else {
                     const error = await response.json();
+                    console.error('❌ Erro na resposta:', error);
                     alert(error.message);
                 }
             } catch (error) {
-                console.error('Erro ao finalizar agendamento:', error);
+                console.error('💥 Erro ao finalizar agendamento:', error);
                 alert('Erro ao finalizar agendamento');
             }
+        } else {
+            console.log('❌ Usuário cancelou a finalização');
         }
     }
 
