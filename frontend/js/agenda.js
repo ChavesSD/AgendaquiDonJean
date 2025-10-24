@@ -132,8 +132,7 @@ class AgendaManager {
     async loadAppointments() {
         try {
             const token = localStorage.getItem('authToken');
-            console.log('🔑 Token encontrado:', token ? 'Sim' : 'Não');
-            console.log('🔑 Token (primeiros 20 chars):', token ? token.substring(0, 20) + '...' : 'N/A');
+            // Token verificado
             
             let url = '/api/appointments?';
             const params = new URLSearchParams();
@@ -143,7 +142,7 @@ class AgendaManager {
             if (this.filters.professionalId) params.append('professionalId', this.filters.professionalId);
             
             url += params.toString();
-            console.log('🌐 URL da requisição:', url);
+            // URL construída
             
             const response = await fetch(url, {
                 headers: {
@@ -289,6 +288,10 @@ class AgendaManager {
     getActionButtons(appointment) {
         let buttons = '';
         
+        // Verificar se o usuário é admin
+        const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+        const isAdmin = userData.role === 'admin';
+        
         if (appointment.status === 'pending') {
             buttons += `
                 <button class="btn btn-success btn-sm" onclick="window.agendaManager.confirmAppointment('${appointment._id}')">
@@ -301,10 +304,15 @@ class AgendaManager {
         }
         
         if (appointment.status === 'confirmed') {
+            // Só admins podem finalizar agendamentos
+            if (isAdmin) {
+                buttons += `
+                    <button class="btn btn-primary btn-sm" onclick="window.agendaManager.completeAppointment('${appointment._id}')">
+                        <i class="fas fa-check-circle"></i> Finalizar
+                    </button>
+                `;
+            }
             buttons += `
-                <button class="btn btn-primary btn-sm" onclick="window.agendaManager.completeAppointment('${appointment._id}')">
-                    <i class="fas fa-check-circle"></i> Finalizar
-                </button>
                 <button class="btn btn-warning btn-sm" onclick="window.agendaManager.cancelAppointment('${appointment._id}')">
                     <i class="fas fa-times"></i> Cancelar
                 </button>
@@ -621,6 +629,10 @@ class AgendaManager {
                     alert(data.message);
                     await this.loadAppointments();
                     await this.loadStatistics();
+                    
+                    // Mostrar feedback de sucesso
+                    console.log('✅ Agendamento finalizado com sucesso!');
+                    this.showNotification('✅ Agendamento finalizado com sucesso! Receitas e gastos computados automaticamente.', 'success');
                 } else {
                     const error = await response.json();
                     console.error('❌ Erro na resposta:', error);
@@ -1262,6 +1274,29 @@ class AgendaManager {
         } catch (error) {
             console.error('Erro ao enviar mensagem de confirmação:', error);
         }
+    }
+
+    // Mostrar notificação
+    showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            <span>${message}</span>
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 100);
+
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
     }
 
     // Enviar mensagem de cancelamento via WhatsApp

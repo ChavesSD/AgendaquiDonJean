@@ -1,4 +1,6 @@
+// Finance.js loaded
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('📄 DOMContentLoaded disparado no finance.js!');
     // Elementos do DOM
     const financeDateFrom = document.getElementById('finance-date-from');
     const financeDateTo = document.getElementById('finance-date-to');
@@ -24,6 +26,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const expensesList = document.getElementById('expenses-list');
     const posList = document.getElementById('pos-list');
     const financeHistoryList = document.getElementById('finance-history-list');
+    
+    console.log('🔍 Elementos encontrados:');
+    console.log('🔍 revenueList:', revenueList);
+    console.log('🔍 expensesList:', expensesList);
+    console.log('🔍 posList:', posList);
+    console.log('🔍 financeHistoryList:', financeHistoryList);
     
     // Filtros de busca
     const revenueSearch = document.getElementById('revenue-search');
@@ -86,6 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
     init();
 
     function init() {
+        console.log('🚀 INÍCIO init() do finance.js - Função chamada!');
         // Event listeners
         if (filterFinanceDates) {
             filterFinanceDates.addEventListener('click', handleDateFilter);
@@ -164,6 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function loadFinanceData() {
         try {
             const token = localStorage.getItem('authToken');
+            
             const response = await fetch('/api/finance', {
                 method: 'GET',
                 headers: {
@@ -173,6 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (response.ok) {
                 const result = await response.json();
+                
                 revenues = result.revenues || [];
                 expenses = result.expenses || [];
                 posMachines = result.posMachines || [];
@@ -198,17 +209,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderFinanceHistory();
                 updateFinanceChart();
             } else {
-                console.error('Erro ao carregar dados financeiros:', response.statusText);
+                console.error('💰 Erro na resposta da API:', response.status, response.statusText);
+                const errorText = await response.text();
+                console.error('💰 Texto do erro:', errorText);
                 showNotification('Erro ao carregar dados financeiros', 'error');
             }
         } catch (error) {
-            console.error('Erro ao carregar dados financeiros:', error);
+            console.error('💰 ERRO CAPTURADO ao carregar dados financeiros:', error);
+            console.error('💰 Stack trace:', error.stack);
+            console.error('💰 Mensagem:', error.message);
             showNotification('Erro ao carregar dados financeiros', 'error');
+        } finally {
+            console.log('💰 FIM loadFinanceData() - Finalizando...');
         }
     }
 
     // Atualizar estatísticas
     function updateStatistics() {
+        console.log('📊 INÍCIO updateStatistics() - Função chamada!');
+        console.log('📊 revenues.length:', revenues.length);
+        console.log('📊 expenses.length:', expenses.length);
+        
         let filteredRevenues = revenues;
         let filteredExpenses = expenses;
         
@@ -296,7 +317,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Renderizar receitas
     function renderRevenues() {
-        if (!revenueList) return;
+        console.log('🎨 INÍCIO renderRevenues() - Função chamada!');
+        console.log('🎨 revenueList existe:', !!revenueList);
+        console.log('🎨 filteredRevenues.length:', filteredRevenues.length);
+        console.log('🎨 filteredRevenues:', filteredRevenues);
+        
+        if (!revenueList) {
+            console.log('🎨 revenueList não existe, saindo...');
+            return;
+        }
 
         if (filteredRevenues.length === 0) {
             revenueList.innerHTML = `
@@ -309,7 +338,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        revenueList.innerHTML = filteredRevenues.map(revenue => `
+        const htmlContent = filteredRevenues.map(revenue => `
             <div class="revenue-item">
                 <div class="item-icon">
                     <i class="fas fa-plus-circle"></i>
@@ -341,6 +370,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         `).join('');
+        
+        console.log('🎨 HTML gerado:', htmlContent);
+        console.log('🎨 Definindo innerHTML do revenueList...');
+        revenueList.innerHTML = htmlContent;
+        console.log('🎨 innerHTML definido com sucesso!');
     }
 
     // Renderizar gastos
@@ -1278,4 +1312,19 @@ document.addEventListener('DOMContentLoaded', function() {
     window.saveSale = saveSale;
     window.calculateProfit = calculateProfit;
     window.handlePosPhotoUrlChange = handlePosPhotoUrlChange;
+    window.loadFinanceData = loadFinanceData;
+    
+    // Adicionar listener para detectar quando a página de Financeiro é ativada
+    document.addEventListener('click', (e) => {
+        console.log('🔍 Clique detectado em:', e.target);
+        console.log('🔍 Elemento com data-page:', e.target.closest('[data-page]'));
+        console.log('🔍 Data-page encontrado:', e.target.closest('[data-page]')?.getAttribute('data-page'));
+        
+        if (e.target.closest('[data-page="financeiro"]')) {
+            console.log('💰 Página de Financeiro ativada, recarregando dados...');
+            setTimeout(() => {
+                loadFinanceData();
+            }, 100);
+        }
+    });
 });

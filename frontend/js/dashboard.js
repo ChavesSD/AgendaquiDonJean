@@ -2881,11 +2881,20 @@ class ReportsManager {
     setDefaultDates() {
         console.log('📅 Configurando datas padrão dos relatórios...');
         const today = new Date();
+        // Usar um período mais amplo para capturar agendamentos futuros
         const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-        const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 2, 0); // +2 meses para incluir o próximo mês
 
-        document.getElementById('reports-start-date').value = this.formatDateForInput(firstDayOfMonth);
-        document.getElementById('reports-end-date').value = this.formatDateForInput(lastDayOfMonth);
+        // Verificar se os elementos existem antes de tentar acessá-los
+        const startDateEl = document.getElementById('reports-start-date');
+        const endDateEl = document.getElementById('reports-end-date');
+        
+        if (startDateEl) {
+            startDateEl.value = this.formatDateForInput(firstDayOfMonth);
+        }
+        if (endDateEl) {
+            endDateEl.value = this.formatDateForInput(lastDayOfMonth);
+        }
 
         this.currentFilters.startDate = firstDayOfMonth;
         this.currentFilters.endDate = lastDayOfMonth;
@@ -2994,13 +3003,44 @@ class ReportsManager {
         
         try {
             console.log('📊 Carregando dados dos relatórios...');
-            await Promise.all([
-                this.loadAgendaData(),
-                this.loadEstoqueData(),
-                this.loadFinanceiroData(),
-                this.loadProfissionaisData(),
-                this.loadServicosData()
-            ]);
+            console.log('📊 Iniciando carregamento de dados financeiros...');
+            
+            // Carregar dados individualmente para capturar erros específicos
+            try {
+                await this.loadAgendaData();
+                console.log('✅ Agenda carregada com sucesso');
+            } catch (error) {
+                console.error('❌ Erro ao carregar agenda:', error);
+            }
+            
+            try {
+                await this.loadEstoqueData();
+                console.log('✅ Estoque carregado com sucesso');
+            } catch (error) {
+                console.error('❌ Erro ao carregar estoque:', error);
+            }
+            
+            try {
+                await this.loadFinanceiroData();
+                console.log('✅ Financeiro carregado com sucesso');
+            } catch (error) {
+                console.error('❌ Erro ao carregar financeiro:', error);
+            }
+            
+            try {
+                await this.loadProfissionaisData();
+                console.log('✅ Profissionais carregados com sucesso');
+            } catch (error) {
+                console.error('❌ Erro ao carregar profissionais:', error);
+            }
+            
+            try {
+                await this.loadServicosData();
+                console.log('✅ Serviços carregados com sucesso');
+            } catch (error) {
+                console.error('❌ Erro ao carregar serviços:', error);
+            }
+            
             console.log('✅ Dados dos relatórios carregados com sucesso!');
         } catch (error) {
             console.error('❌ Erro ao carregar dados dos relatórios:', error);
@@ -3568,14 +3608,23 @@ class ReportsManager {
     }
 
     async loadFinanceiroData() {
+        console.log('🚀 INÍCIO loadFinanceiroData() - Função chamada!');
         try {
             console.log('💰 Carregando dados financeiros (com filtros de data)...');
+            console.log('💰 Filtros atuais do ReportsManager:', this.currentFilters);
+            
+            // Garantir que os filtros estejam inicializados
+            if (!this.currentFilters.startDate || !this.currentFilters.endDate) {
+                console.log('💰 Filtros não inicializados, configurando filtros padrão...');
+                this.setDefaultDates();
+            }
             
             const token = localStorage.getItem('authToken');
             const startDate = this.formatDateForInput(this.currentFilters.startDate);
             const endDate = this.formatDateForInput(this.currentFilters.endDate);
 
-            console.log('💰 Filtros:', { startDate, endDate, token: !!token });
+            console.log('💰 Filtros formatados:', { startDate, endDate, token: !!token });
+            console.log('💰 URL da requisição:', `/api/finance?startDate=${startDate}&endDate=${endDate}`);
 
             // Se não há token, não carregar dados
             if (!token) {
@@ -3618,8 +3667,11 @@ class ReportsManager {
                 console.error('💰 Erro na resposta da API:', response.status);
             }
         } catch (error) {
-            console.error('💰 Erro ao carregar dados financeiros:', error);
+            console.error('💰 ERRO CAPTURADO ao carregar dados financeiros:', error);
+            console.error('💰 Stack trace:', error.stack);
+            console.error('💰 Mensagem:', error.message);
         } finally {
+            console.log('💰 FIM loadFinanceiroData() - Finalizando...');
             this.hideLoadingState();
         }
     }
@@ -5280,6 +5332,7 @@ function initComissoesManager() {
 document.addEventListener('click', (e) => {
     console.log('🔍 Clique detectado em:', e.target);
     console.log('🔍 Elemento com data-page:', e.target.closest('[data-page]'));
+    console.log('🔍 Data-page encontrado:', e.target.closest('[data-page]')?.getAttribute('data-page'));
     
     if (e.target.closest('[data-page="relatorios"]')) {
         console.log('📊 Clique detectado em relatórios, inicializando...');
@@ -5294,6 +5347,14 @@ document.addEventListener('click', (e) => {
         setTimeout(() => {
             console.log('💰 Chamando initComissoesManager...');
             initComissoesManager();
+        }, 100);
+    }
+    if (e.target.closest('[data-page="financeiro"]')) {
+        console.log('💰 Clique detectado em financeiro, inicializando...');
+        console.log('💰 Elemento clicado:', e.target);
+        setTimeout(() => {
+            console.log('💰 Chamando initReportsManager para financeiro...');
+            initReportsManager();
         }, 100);
     }
 });

@@ -2484,63 +2484,75 @@ app.delete('/api/services/:id', authenticateToken, async (req, res) => {
 app.get('/api/finance', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.userId;
-        console.log('💰 Consultando dados financeiros para usuário:', userId, 'Role:', req.user.role);
-        console.log('💰 Tipo do userId:', typeof userId);
-        console.log('💰 userId como string:', userId.toString());
+        const { startDate, endDate } = req.query;
+        
+        // Consultando dados financeiros
+        
+        // Configurar filtros de data
+        let dateFilter = {};
+        if (startDate || endDate) {
+            dateFilter.date = {};
+            if (startDate) {
+                dateFilter.date.$gte = new Date(startDate);
+                console.log('💰 Filtro data início:', dateFilter.date.$gte);
+            }
+            if (endDate) {
+                const endDateObj = new Date(endDate);
+                endDateObj.setHours(23, 59, 59, 999);
+                dateFilter.date.$lte = endDateObj;
+                console.log('💰 Filtro data fim:', dateFilter.date.$lte);
+            }
+        }
         
         // Buscar receitas (apenas do tipo 'agendamento' para a tela de Finanças)
         // Tentar ambas as formas para garantir compatibilidade
         const mongoose = require('mongoose');
         const userObjectId = new mongoose.Types.ObjectId(userId);
         
-        console.log('💰 Tentando consulta com ObjectId:', userObjectId);
-        console.log('💰 Tentando consulta com string:', userId);
+        // Buscando receitas
         
         // Primeiro tentar com ObjectId
         let revenues = await Revenue.find({ 
             user: userObjectId, 
             isActive: true,
-            type: 'agendamento' // Apenas receitas de agendamentos, não comissões
+            type: 'agendamento', // Apenas receitas de agendamentos, não comissões
+            ...dateFilter
         })
             .sort({ date: -1 });
         
-        console.log('💰 Receitas encontradas com ObjectId:', revenues.length);
-        
         // Se não encontrar nada, tentar com string
         if (revenues.length === 0) {
-            console.log('💰 Tentando consulta com string userId...');
             revenues = await Revenue.find({ 
                 user: userId, 
                 isActive: true,
-                type: 'agendamento'
+                type: 'agendamento',
+                ...dateFilter
             })
                 .sort({ date: -1 });
-            console.log('💰 Receitas encontradas com string:', revenues.length);
         }
         
-        console.log('💰 Receitas encontradas:', revenues.length);
-        console.log('💰 Detalhes das receitas:', revenues.map(r => ({ id: r._id, name: r.name, value: r.value, user: r.user })));
-        
-        // Buscar todas as receitas do usuário para debug
-        const allRevenues = await Revenue.find({ user: userObjectId });
-        console.log('💰 Todas as receitas do usuário:', allRevenues.length);
-        console.log('💰 Tipos de receitas encontradas:', allRevenues.map(r => ({ type: r.type, name: r.name, user: r.user, userType: typeof r.user })));
-        
-        // Buscar receitas sem filtro de tipo para debug
+        // Buscar receitas sem filtro de tipo (apenas se necessário)
         const allRevenuesNoTypeFilter = await Revenue.find({ user: userObjectId, isActive: true });
-        console.log('💰 Receitas sem filtro de tipo:', allRevenuesNoTypeFilter.length);
-        console.log('💰 Detalhes sem filtro:', allRevenuesNoTypeFilter.map(r => ({ type: r.type, name: r.name, user: r.user })));
         
         // Buscar gastos - tentar ambas as formas
-        let expenses = await Expense.find({ user: userObjectId, isActive: true })
+        let expenses = await Expense.find({ 
+            user: userObjectId, 
+            isActive: true,
+            ...dateFilter
+        })
             .sort({ date: -1 });
         
         console.log('💸 Gastos encontrados com ObjectId:', expenses.length);
+        console.log('💸 Detalhes dos gastos:', expenses.map(e => ({ id: e._id, name: e.name, value: e.value, user: e.user, type: e.type, date: e.date })));
         
         // Se não encontrar nada, tentar com string
         if (expenses.length === 0) {
             console.log('💸 Tentando consulta de gastos com string userId...');
-            expenses = await Expense.find({ user: userId, isActive: true })
+            expenses = await Expense.find({ 
+                user: userId, 
+                isActive: true,
+                ...dateFilter
+            })
                 .sort({ date: -1 });
             console.log('💸 Gastos encontrados com string:', expenses.length);
         }
@@ -2908,29 +2920,10 @@ app.get('/api/commissions', authenticateToken, async (req, res) => {
             ...dateFilter
         };
         
-        // Se for usuário comum, buscar comissões do profissional associado
-        if (req.user.role === 'user') {
-            console.log('🔒 Aplicando filtro de usuário comum - buscando profissional associado');
-            const professional = await Professional.findOne({ userId: req.user.userId });
-            if (professional) {
-                commissionFilter.professionalId = professional._id;
-                console.log('🔒 Profissional encontrado:', professional._id);
-            } else {
-                console.log('❌ Nenhum profissional associado ao usuário');
-                commissionFilter.professionalId = null; // Nenhum profissional encontrado
-            }
-        } else {
-            // Para admin/manager, buscar comissões do usuário logado
-            // Como as comissões são criadas com professionalId, precisamos buscar pelo profissional associado
-            const professional = await Professional.findOne({ userId: req.user.userId });
-            if (professional) {
-                commissionFilter.professionalId = professional._id;
-                console.log('🔒 Profissional encontrado para admin/manager:', professional._id);
-            } else {
-                console.log('❌ Nenhum profissional associado ao usuário admin/manager');
-                commissionFilter.professionalId = null; // Nenhum profissional encontrado
-            }
-        }
+        // Para todos os usuários, buscar comissões pelo user (que é quem finalizou o agendamento)
+        // As comissões são criadas com user: req.user.userId quando o agendamento é finalizado
+        commissionFilter.user = req.user.userId;
+        console.log('🔒 Buscando comissões para usuário:', req.user.userId, 'Role:', req.user.role);
         
         const commissions = await Revenue.find(commissionFilter)
         .populate('appointmentId', 'clientName clientLastName date time service')
@@ -2946,21 +2939,12 @@ app.get('/api/commissions', authenticateToken, async (req, res) => {
         console.log('💰 Total de comissões:', totalCommissions);
         console.log('💰 Total de comissões encontradas:', commissions.length);
 
-        // Buscar agendamentos concluídos do usuário para calcular percentual
+        // Buscar agendamentos concluídos pelo usuário que finalizou
         let appointmentFilter = {
             status: 'completed',
+            completedBy: req.user.userId, // Buscar agendamentos finalizados pelo usuário logado
             ...dateFilter
         };
-        
-        // Se for usuário comum, buscar pelo profissional associado
-        if (req.user.role === 'user') {
-            const professional = await Professional.findOne({ userId: req.user.userId });
-            if (professional) {
-                appointmentFilter.professional = professional._id;
-            } else {
-                appointmentFilter.professional = null; // Nenhum profissional encontrado
-            }
-        }
         
         const appointments = await Appointment.find(appointmentFilter)
         .populate('service', 'name price commission');
