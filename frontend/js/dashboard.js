@@ -5611,6 +5611,67 @@ window.clearOrphanCommissions = async function() {
     }
 };
 
+// Função para forçar limpeza completa de comissões
+window.forceClearCommissions = async function() {
+    try {
+        // Confirmar ação com aviso severo
+        const confirmed = confirm(
+            '🚨 FORÇA BRUTA - LIMPEZA COMPLETA 🚨\n\n' +
+            'Esta operação irá apagar TODAS as comissões do sistema!\n\n' +
+            '⚠️ ATENÇÃO: Esta ação é IRREVERSÍVEL!\n\n' +
+            'Tem certeza absoluta que deseja continuar?'
+        );
+        
+        if (!confirmed) {
+            return;
+        }
+        
+        // Segunda confirmação
+        const doubleConfirmed = confirm(
+            '🔥 ÚLTIMA CONFIRMAÇÃO - FORÇA BRUTA 🔥\n\n' +
+            'Você está prestes a apagar TODAS as comissões do sistema.\n\n' +
+            'Esta ação NÃO pode ser desfeita!\n\n' +
+            'Digite "FORÇA BRUTA" para continuar:'
+        );
+        
+        if (!doubleConfirmed) {
+            return;
+        }
+        
+        // Mostrar loading
+        window.showLoading('FORÇA BRUTA: Apagando todas as comissões...');
+        
+        const token = localStorage.getItem('authToken');
+        const response = await fetch('/api/force-clear-commissions', {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const result = await response.json();
+        
+        window.hideLoading();
+        
+        if (result.success) {
+            showNotification(`🔥 ${result.message}`, 'success');
+            
+            // Recarregar dados de comissões se estiver na página
+            if (window.comissoesManager) {
+                await window.comissoesManager.loadCommissions();
+            }
+        } else {
+            showNotification(`❌ Erro: ${result.message}`, 'error');
+        }
+        
+    } catch (error) {
+        window.hideLoading();
+        console.error('Erro ao forçar limpeza de comissões:', error);
+        showNotification('❌ Erro ao forçar limpeza de comissões', 'error');
+    }
+};
+
 // Mostrar seção administrativa apenas para admins
 function checkAdminPermissions() {
     try {

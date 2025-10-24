@@ -3515,6 +3515,50 @@ app.delete('/api/clear-orphan-commissions', authenticateToken, async (req, res) 
     }
 });
 
+// Endpoint para forçar limpeza completa de comissões (admin only)
+app.delete('/api/force-clear-commissions', authenticateToken, async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({
+                success: false,
+                message: 'Apenas administradores podem executar esta operação'
+            });
+        }
+
+        console.log('🚨 FORÇANDO limpeza completa de comissões...');
+        
+        // Contar comissões antes
+        const countBefore = await Revenue.countDocuments({ type: 'comissao' });
+        console.log(`📊 Comissões encontradas antes da limpeza: ${countBefore}`);
+        
+        if (countBefore === 0) {
+            return res.json({
+                success: true,
+                message: 'Nenhuma comissão encontrada para apagar',
+                deletedCount: 0
+            });
+        }
+
+        // Excluir TODAS as comissões sem verificação
+        const result = await Revenue.deleteMany({ type: 'comissao' });
+        
+        console.log(`✅ TODAS as comissões foram excluídas: ${result.deletedCount}`);
+        
+        res.json({
+            success: true,
+            message: `FORÇA BRUTA: ${result.deletedCount} comissões foram apagadas com sucesso`,
+            deletedCount: result.deletedCount
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao forçar limpeza de comissões:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro interno do servidor: ' + error.message
+        });
+    }
+});
+
 // Rota para apagar todos os agendamentos (APENAS PARA DESENVOLVIMENTO)
 app.delete('/api/appointments/clear-all', authenticateToken, async (req, res) => {
     try {
