@@ -13,7 +13,29 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors());
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Permitir requests sem origin (mobile apps, Postman, etc.)
+        if (!origin) return callback(null, true);
+        
+        const allowedOrigins = [
+            'http://localhost:3000',
+            'http://localhost:3001',
+            process.env.CORS_ORIGIN,
+            process.env.RAILWAY_STATIC_URL
+        ].filter(Boolean);
+        
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -51,10 +73,23 @@ const apiLimiter = rateLimit({
     legacyHeaders: false,
 });
 
-// Aplicar rate limiting (TEMPORARIAMENTE DESABILITADO PARA DESENVOLVIMENTO)
-// app.use(generalLimiter);
-// app.use('/api/auth', authLimiter);
-// app.use('/api', apiLimiter);
+// Aplicar rate limiting baseado no ambiente
+if (process.env.NODE_ENV === 'production') {
+    app.use(generalLimiter);
+    app.use('/api/auth', authLimiter);
+    app.use('/api', apiLimiter);
+}
+
+// Health check endpoint para Railway
+app.get('/api/health', (req, res) => {
+    res.status(200).json({
+        status: 'OK',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        environment: process.env.NODE_ENV || 'development',
+        version: '1.0.0'
+    });
+});
 
 // Configurar multer para upload de arquivos
 const storage = multer.memoryStorage();
