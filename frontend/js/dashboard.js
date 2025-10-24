@@ -2170,41 +2170,78 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// ==================== FLOATING AI ICON ====================
+// ==================== ÍCONE FLUTUANTE GESTOR INTELIGENTE ====================
 
-class FloatingAIIcon {
+class GestorInteligenteIcon {
     constructor() {
         this.icon = null;
         this.isVisible = true;
+        this.animationInterval = null;
         this.init();
     }
 
     init() {
-        console.log('🤖 Inicializando ícone flutuante AI...');
+        console.log('🧠 Inicializando ícone flutuante Gestor Inteligente...');
         this.createIcon();
         this.setupEventListeners();
-        console.log('✅ Ícone flutuante AI inicializado!');
+        this.startEnergyAnimation();
+        console.log('✅ Ícone flutuante Gestor Inteligente inicializado!');
     }
 
     createIcon() {
         // Verificar se o ícone já existe
-        if (document.querySelector('.floating-ai-icon')) {
+        if (document.querySelector('.gestor-inteligente-icon')) {
             console.log('⚠️ Ícone flutuante já existe, removendo...');
-            document.querySelector('.floating-ai-icon').remove();
+            document.querySelector('.gestor-inteligente-icon').remove();
         }
 
         // Criar elemento do ícone
         this.icon = document.createElement('div');
-        this.icon.className = 'floating-ai-icon';
-        this.icon.setAttribute('title', 'Assistente IA');
+        this.icon.className = 'gestor-inteligente-icon';
+        this.icon.setAttribute('title', 'Gestor Inteligente');
         
-        // Usar texto "AI" em vez de imagem para estilo futurista
-        this.icon.textContent = 'AI';
+        // Criar SVG simplificado - apenas chip com energia na borda
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', '0 0 200 200');
+        svg.setAttribute('class', 'gestor-svg');
+        
+        // Núcleo central (base preta)
+        const core = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        core.setAttribute('x', '60');
+        core.setAttribute('y', '60');
+        core.setAttribute('width', '80');
+        core.setAttribute('height', '80');
+        core.setAttribute('rx', '15');
+        core.setAttribute('class', 'ai-core');
+        
+        // Texto AI
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', '100');
+        text.setAttribute('y', '100');
+        text.setAttribute('class', 'ai-text');
+        text.textContent = 'AI';
+        
+        // Energia correndo na borda do chip
+        const chipEnergy = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        chipEnergy.setAttribute('x', '60');
+        chipEnergy.setAttribute('y', '60');
+        chipEnergy.setAttribute('width', '80');
+        chipEnergy.setAttribute('height', '80');
+        chipEnergy.setAttribute('rx', '15');
+        chipEnergy.setAttribute('class', 'chip-energy');
+        
+        // Adicionar elementos ao SVG
+        svg.appendChild(core);
+        svg.appendChild(text);
+        svg.appendChild(chipEnergy);
+        
+        // Adicionar SVG ao ícone
+        this.icon.appendChild(svg);
         
         // Adicionar ao DOM
         document.body.appendChild(this.icon);
         
-        console.log('✅ Ícone flutuante AI futurista criado e adicionado ao DOM');
+        console.log('✅ Ícone flutuante Gestor Inteligente SVG criado e adicionado ao DOM');
     }
 
     setupEventListeners() {
@@ -2218,27 +2255,56 @@ class FloatingAIIcon {
 
         // Efeito de hover
         this.icon.addEventListener('mouseenter', () => {
-            this.icon.style.transform = 'scale(1.1) translateY(-5px)';
+            this.icon.classList.add('hovered');
+            this.intensifyEnergyAnimation();
         });
 
         this.icon.addEventListener('mouseleave', () => {
-            this.icon.style.transform = 'scale(1) translateY(0)';
+            this.icon.classList.remove('hovered');
+            this.normalizeEnergyAnimation();
         });
 
         // Efeito de clique
         this.icon.addEventListener('mousedown', () => {
-            this.icon.style.transform = 'scale(0.95)';
+            this.icon.classList.add('clicked');
         });
 
         this.icon.addEventListener('mouseup', () => {
-            this.icon.style.transform = 'scale(1.1) translateY(-5px)';
+            this.icon.classList.remove('clicked');
         });
 
         console.log('✅ Event listeners do ícone flutuante configurados');
     }
 
+    startEnergyAnimation() {
+        if (!this.icon) return;
+        
+        const chipEnergy = this.icon.querySelector('.chip-energy');
+        if (chipEnergy) {
+            chipEnergy.style.animationDuration = '6s'; // Velocidade mais lenta
+        }
+    }
+
+    intensifyEnergyAnimation() {
+        if (!this.icon) return;
+        
+        const chipEnergy = this.icon.querySelector('.chip-energy');
+        if (chipEnergy) {
+            chipEnergy.style.animationDuration = '3s'; // Mais rápido no hover
+        }
+    }
+
+    normalizeEnergyAnimation() {
+        if (!this.icon) return;
+        
+        const chipEnergy = this.icon.querySelector('.chip-energy');
+        if (chipEnergy) {
+            chipEnergy.style.animationDuration = '6s'; // Volta ao normal
+        }
+    }
+
     handleClick() {
-        console.log('🤖 Clique no ícone AI detectado');
+        console.log('🧠 Clique no Gestor Inteligente detectado');
         
         // Adicionar efeito visual de clique
         this.icon.classList.add('clicked');
@@ -2250,34 +2316,34 @@ class FloatingAIIcon {
 
         // Mostrar notificação
         if (window.showNotification) {
-            window.showNotification('Assistente IA ativado! Em breve você terá acesso a recursos de inteligência artificial.', 'success');
+            window.showNotification('Gestor Inteligente ativado! Acessando recursos avançados de gestão.', 'success');
         } else {
-            alert('Assistente IA ativado! Em breve você terá acesso a recursos de inteligência artificial.');
+            alert('Gestor Inteligente ativado! Acessando recursos avançados de gestão.');
         }
 
-        // Aqui você pode adicionar a lógica específica do assistente IA
-        this.openAIAssistant();
+        // Aqui você pode adicionar a lógica específica do gestor inteligente
+        this.openGestorInteligente();
     }
 
-    openAIAssistant() {
-        console.log('🤖 Abrindo assistente IA...');
+    openGestorInteligente() {
+        console.log('🧠 Abrindo Gestor Inteligente...');
         
         // Por enquanto, apenas uma notificação
-        // Futuramente, aqui pode ser implementado um modal ou sidebar com o assistente
-        console.log('🚀 Funcionalidade do assistente IA será implementada em breve');
+        // Futuramente, aqui pode ser implementado um modal ou sidebar com o gestor
+        console.log('🚀 Funcionalidade do Gestor Inteligente será implementada em breve');
         
         // Exemplo de funcionalidade futura:
-        // - Abrir modal com chat
-        // - Conectar com API de IA
-        // - Mostrar sugestões inteligentes
-        // - Análise de dados do dashboard
+        // - Análise inteligente de dados
+        // - Sugestões de otimização
+        // - Relatórios automáticos
+        // - Previsões e tendências
     }
 
     show() {
         if (this.icon) {
             this.icon.style.display = 'flex';
             this.isVisible = true;
-            console.log('👁️ Ícone flutuante AI mostrado');
+            console.log('👁️ Ícone flutuante Gestor Inteligente mostrado');
         }
     }
 
@@ -2285,7 +2351,7 @@ class FloatingAIIcon {
         if (this.icon) {
             this.icon.style.display = 'none';
             this.isVisible = false;
-            console.log('🙈 Ícone flutuante AI ocultado');
+            console.log('🙈 Ícone flutuante Gestor Inteligente ocultado');
         }
     }
 
@@ -2301,42 +2367,42 @@ class FloatingAIIcon {
         if (this.icon) {
             this.icon.remove();
             this.icon = null;
-            console.log('🗑️ Ícone flutuante AI removido');
+            console.log('🗑️ Ícone flutuante Gestor Inteligente removido');
         }
     }
 }
 
-// Inicializar ícone flutuante AI
-let floatingAIIcon = null;
+// Inicializar ícone flutuante Gestor Inteligente
+let gestorInteligenteIcon = null;
 
-function initFloatingAIIcon() {
-    console.log('🤖 Inicializando ícone flutuante AI...');
-    if (!floatingAIIcon) {
-        floatingAIIcon = new FloatingAIIcon();
+function initGestorInteligenteIcon() {
+    console.log('🧠 Inicializando ícone flutuante Gestor Inteligente...');
+    if (!gestorInteligenteIcon) {
+        gestorInteligenteIcon = new GestorInteligenteIcon();
     }
-    console.log('✅ Ícone flutuante AI inicializado!');
+    console.log('✅ Ícone flutuante Gestor Inteligente inicializado!');
 }
 
 // Inicializar quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('📄 DOM carregado, verificando permissões para ícone flutuante AI...');
+    console.log('📄 DOM carregado, verificando permissões para ícone flutuante Gestor Inteligente...');
     
-    // Verificar se o usuário tem permissão para ver o ícone AI
+    // Verificar se o usuário tem permissão para ver o ícone
     const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
     const userRole = currentUser.role || 'user';
     
-    // Apenas admin e manager podem ver o ícone AI
+    // Apenas admin e manager podem ver o ícone
     if (userRole === 'admin' || userRole === 'manager') {
-        console.log('✅ Usuário tem permissão para ícone AI, inicializando...');
-    initFloatingAIIcon();
+        console.log('✅ Usuário tem permissão para ícone Gestor Inteligente, inicializando...');
+        initGestorInteligenteIcon();
     } else {
-        console.log('❌ Usuário comum - ícone AI oculto');
+        console.log('❌ Usuário comum - ícone Gestor Inteligente oculto');
     }
 });
 
 // Expor funções globalmente
-window.floatingAIIcon = floatingAIIcon;
-window.initFloatingAIIcon = initFloatingAIIcon;
+window.gestorInteligenteIcon = gestorInteligenteIcon;
+window.initGestorInteligenteIcon = initGestorInteligenteIcon;
 
 // ==================== COMISSÕES ====================
 
