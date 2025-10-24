@@ -3341,6 +3341,40 @@ app.delete('/api/clear-appointments-simple', async (req, res) => {
     }
 });
 
+// Endpoint para limpar todas as comissões (admin only)
+app.delete('/api/clear-commissions', authenticateToken, async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({
+                success: false,
+                message: 'Apenas administradores podem executar esta operação'
+            });
+        }
+
+        const countBefore = await Revenue.countDocuments({ type: 'comissao' });
+        if (countBefore === 0) {
+            return res.json({
+                success: true,
+                message: 'Nenhuma comissão encontrada para apagar',
+                deletedCount: 0
+            });
+        }
+
+        const result = await Revenue.deleteMany({ type: 'comissao' });
+        res.json({
+            success: true,
+            message: `Todas as comissões foram apagadas com sucesso`,
+            deletedCount: result.deletedCount
+        });
+    } catch (error) {
+        console.error('❌ Erro ao apagar comissões:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro interno do servidor: ' + error.message
+        });
+    }
+});
+
 // Rota para apagar todos os agendamentos (APENAS PARA DESENVOLVIMENTO)
 app.delete('/api/appointments/clear-all', authenticateToken, async (req, res) => {
     try {

@@ -5502,6 +5502,66 @@ window.clearAllAppointments = async function() {
     }
 };
 
+// Função para apagar todas as comissões
+window.clearAllCommissions = async function() {
+    try {
+        // Confirmar ação
+        const confirmed = confirm(
+            '⚠️ ATENÇÃO: Esta operação irá apagar TODAS as comissões!\n\n' +
+            'Esta ação NÃO pode ser desfeita!\n\n' +
+            'Tem certeza que deseja continuar?'
+        );
+        
+        if (!confirmed) {
+            return;
+        }
+        
+        // Segunda confirmação
+        const doubleConfirmed = confirm(
+            '🚨 ÚLTIMA CONFIRMAÇÃO 🚨\n\n' +
+            'Você está prestes a apagar TODAS as comissões do sistema.\n\n' +
+            'Esta ação é IRREVERSÍVEL!\n\n' +
+            'Digite "CONFIRMAR" para continuar:'
+        );
+        
+        if (!doubleConfirmed) {
+            return;
+        }
+        
+        // Mostrar loading
+        window.showLoading('Apagando todas as comissões...');
+        
+        const token = localStorage.getItem('authToken');
+        const response = await fetch('/api/clear-commissions', {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const result = await response.json();
+        
+        window.hideLoading();
+        
+        if (result.success) {
+            showNotification(`✅ ${result.message} (${result.deletedCount} comissões apagadas)`, 'success');
+            
+            // Recarregar dados de comissões se estiver na página
+            if (window.comissoesManager) {
+                await window.comissoesManager.loadCommissions();
+            }
+        } else {
+            showNotification(`❌ Erro: ${result.message}`, 'error');
+        }
+        
+    } catch (error) {
+        window.hideLoading();
+        console.error('Erro ao apagar comissões:', error);
+        showNotification('❌ Erro ao apagar comissões', 'error');
+    }
+};
+
 // Mostrar seção administrativa apenas para admins
 function checkAdminPermissions() {
     try {
