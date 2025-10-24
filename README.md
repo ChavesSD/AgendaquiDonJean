@@ -34,7 +34,7 @@ CH Studio/
 
 ## 🚀 Início Rápido
 
-### 1. **Iniciar o Sistema**
+### 1. **Desenvolvimento Local**
 ```bash
 # Windows
 start.bat
@@ -47,10 +47,19 @@ cd backend
 npm run dev
 ```
 
-### 2. **Acessar o Sistema**
-- URL: http://localhost:3000
-- Email: `admin@chstudio.com`
-- Senha: `admin123`
+### 2. **Deploy em Produção (Railway)**
+```bash
+# 1. Configure as variáveis de ambiente no Railway
+# 2. Conecte o repositório GitHub
+# 3. Deploy automático será executado
+```
+📖 **Guia completo**: [RAILWAY_DEPLOY_COMPLETE.md](RAILWAY_DEPLOY_COMPLETE.md)
+
+### 3. **Acessar o Sistema**
+- **Local**: http://localhost:3000
+- **Produção**: https://seu-dominio.railway.app
+- **Email**: `admin@chstudio.com`
+- **Senha**: `admin123`
 
 ## 🎯 Funcionalidades
 
@@ -85,9 +94,15 @@ npm run dev
 
 ## 📚 Documentação
 
-Toda a documentação está na pasta `docs/`:
-
+### **Documentação Principal**
 - **[README Completo](docs/README.md)** - Documentação detalhada
+- **[Documentação Completa](docs/DOCUMENTACAO-COMPLETA.md)** - Guia técnico completo
+
+### **Deploy e Produção**
+- **[Deploy Railway](RAILWAY_DEPLOY_COMPLETE.md)** - Guia completo de deploy no Railway
+- **[Checklist Deploy](DEPLOY_CHECKLIST.md)** - Checklist de verificação
+
+### **Guias de Uso**
 - **[Como Usar](docs/COMO-USAR.md)** - Guia de uso
 - **[Como Acessar](docs/COMO-ACESSAR.md)** - Instruções de acesso
 - **[Desenvolvimento](docs/INSTRUCOES-DEV.md)** - Guia para desenvolvedores

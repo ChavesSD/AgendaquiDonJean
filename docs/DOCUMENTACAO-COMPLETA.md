@@ -218,7 +218,32 @@ const PERMISSIONS = {
 
 ## 🚀 **Deploy e Produção**
 
-### **Configuração para Produção**
+### **Deploy no Railway (Recomendado)**
+
+O sistema está completamente preparado para deploy na plataforma Railway:
+
+#### **Configuração Rápida**
+1. **Acesse [railway.app](https://railway.app)**
+2. **Conecte o repositório GitHub**
+3. **Configure root directory**: `/backend`
+4. **Adicione as variáveis de ambiente**
+5. **Deploy automático será executado**
+
+#### **Variáveis de Ambiente Necessárias**
+```env
+PORT=3000
+NODE_ENV=production
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/ch-studio
+JWT_SECRET=sua-chave-super-secreta-aqui
+CORS_ORIGIN=https://seu-dominio.railway.app
+RAILWAY_STATIC_URL=https://seu-dominio.railway.app
+```
+
+📖 **Guia completo**: [RAILWAY_DEPLOY_COMPLETE.md](../RAILWAY_DEPLOY_COMPLETE.md)
+
+### **Deploy Tradicional (VPS/Dedicado)**
+
+#### **Configuração para Produção**
 
 1. **Configure as variáveis de ambiente** para produção
 2. **Use um processo manager** como PM2
@@ -226,7 +251,7 @@ const PERMISSIONS = {
 4. **Use HTTPS** para segurança
 5. **Configure backup automático** do banco de dados
 
-### **Comandos de Produção**
+#### **Comandos de Produção**
 
 ```bash
 # Instalar PM2 globalmente
