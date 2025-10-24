@@ -831,9 +831,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (userRole === 'admin' || userRole === 'manager') {
             console.log('✅ Usuário tem permissão para carregar lista de usuários');
-        loadUsers();
+            loadUsers();
         } else {
             console.log('❌ Usuário comum - não carregando lista de usuários');
+            // Ocultar seção de usuários para usuários comuns
+            const usersSection = document.querySelector('.users-section');
+            if (usersSection) {
+                usersSection.style.display = 'none';
+            }
         }
     }
 
@@ -1002,7 +1007,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 const result = await response.json();
                 showNotification(result.message, 'success');
                 closeUserModal();
-                loadUsers(); // Recarregar lista
+                // Recarregar lista apenas se tiver permissão
+                const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
+                if (currentUser.role === 'admin' || currentUser.role === 'manager') {
+                    loadUsers();
+                }
                 
                 // Se for edição do usuário atual, atualizar dados do header/sidebar
                 if (userId) {
@@ -1237,7 +1246,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (response.ok) {
                 const result = await response.json();
                 showNotification(result.message, 'success');
-                loadUsers(); // Recarregar lista
+                // Recarregar lista apenas se tiver permissão
+                const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
+                if (currentUser.role === 'admin' || currentUser.role === 'manager') {
+                    loadUsers();
+                }
             } else {
                 const error = await response.json();
                 showNotification(error.message, 'error');
