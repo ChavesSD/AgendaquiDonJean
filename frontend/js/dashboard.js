@@ -2184,7 +2184,6 @@ class GestorInteligenteIcon {
         console.log('🧠 Inicializando ícone flutuante Gestor Inteligente...');
         this.createIcon();
         this.setupEventListeners();
-        this.startEnergyAnimation();
         console.log('✅ Ícone flutuante Gestor Inteligente inicializado!');
     }
 
@@ -2200,34 +2199,64 @@ class GestorInteligenteIcon {
         this.icon.className = 'gestor-inteligente-icon';
         this.icon.setAttribute('title', 'Gestor Inteligente');
         
-        // Criar SVG simplificado - apenas chip com energia na borda
+        // Criar SVG profissional com gradiente
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svg.setAttribute('viewBox', '0 0 200 200');
         svg.setAttribute('class', 'gestor-svg');
         
-        // Núcleo central (base preta)
+        // Definir gradiente profissional
+        const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+        const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+        gradient.setAttribute('id', 'aiGradient');
+        gradient.setAttribute('x1', '0%');
+        gradient.setAttribute('y1', '0%');
+        gradient.setAttribute('x2', '100%');
+        gradient.setAttribute('y2', '100%');
+        
+        const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+        stop1.setAttribute('offset', '0%');
+        stop1.setAttribute('stop-color', '#00b7ff');
+        stop1.setAttribute('stop-opacity', '0.8');
+        
+        const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+        stop2.setAttribute('offset', '50%');
+        stop2.setAttribute('stop-color', '#0099cc');
+        stop2.setAttribute('stop-opacity', '0.9');
+        
+        const stop3 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+        stop3.setAttribute('offset', '100%');
+        stop3.setAttribute('stop-color', '#006699');
+        stop3.setAttribute('stop-opacity', '1');
+        
+        gradient.appendChild(stop1);
+        gradient.appendChild(stop2);
+        gradient.appendChild(stop3);
+        defs.appendChild(gradient);
+        svg.appendChild(defs);
+        
+        // Núcleo central (base preta) - tamanho equilibrado
         const core = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        core.setAttribute('x', '60');
-        core.setAttribute('y', '60');
-        core.setAttribute('width', '80');
-        core.setAttribute('height', '80');
-        core.setAttribute('rx', '15');
+        core.setAttribute('x', '45');
+        core.setAttribute('y', '45');
+        core.setAttribute('width', '90');
+        core.setAttribute('height', '90');
+        core.setAttribute('rx', '18');
         core.setAttribute('class', 'ai-core');
         
-        // Texto AI
+        // Texto AI - perfeitamente centralizado
         const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text.setAttribute('x', '100');
-        text.setAttribute('y', '100');
+        text.setAttribute('x', '90');
+        text.setAttribute('y', '90');
         text.setAttribute('class', 'ai-text');
         text.textContent = 'AI';
         
-        // Energia correndo na borda do chip
+        // Borda profissional com gradiente - tamanho equilibrado
         const chipEnergy = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        chipEnergy.setAttribute('x', '60');
-        chipEnergy.setAttribute('y', '60');
-        chipEnergy.setAttribute('width', '80');
-        chipEnergy.setAttribute('height', '80');
-        chipEnergy.setAttribute('rx', '15');
+        chipEnergy.setAttribute('x', '45');
+        chipEnergy.setAttribute('y', '45');
+        chipEnergy.setAttribute('width', '90');
+        chipEnergy.setAttribute('height', '90');
+        chipEnergy.setAttribute('rx', '18');
         chipEnergy.setAttribute('class', 'chip-energy');
         
         // Adicionar elementos ao SVG
@@ -2256,12 +2285,10 @@ class GestorInteligenteIcon {
         // Efeito de hover
         this.icon.addEventListener('mouseenter', () => {
             this.icon.classList.add('hovered');
-            this.intensifyEnergyAnimation();
         });
 
         this.icon.addEventListener('mouseleave', () => {
             this.icon.classList.remove('hovered');
-            this.normalizeEnergyAnimation();
         });
 
         // Efeito de clique
@@ -2276,32 +2303,7 @@ class GestorInteligenteIcon {
         console.log('✅ Event listeners do ícone flutuante configurados');
     }
 
-    startEnergyAnimation() {
-        if (!this.icon) return;
-        
-        const chipEnergy = this.icon.querySelector('.chip-energy');
-        if (chipEnergy) {
-            chipEnergy.style.animationDuration = '6s'; // Velocidade mais lenta
-        }
-    }
-
-    intensifyEnergyAnimation() {
-        if (!this.icon) return;
-        
-        const chipEnergy = this.icon.querySelector('.chip-energy');
-        if (chipEnergy) {
-            chipEnergy.style.animationDuration = '3s'; // Mais rápido no hover
-        }
-    }
-
-    normalizeEnergyAnimation() {
-        if (!this.icon) return;
-        
-        const chipEnergy = this.icon.querySelector('.chip-energy');
-        if (chipEnergy) {
-            chipEnergy.style.animationDuration = '6s'; // Volta ao normal
-        }
-    }
+    // Funções de animação removidas - agora usando CSS puro para melhor performance
 
     handleClick() {
         console.log('🧠 Clique no Gestor Inteligente detectado');
@@ -5427,6 +5429,85 @@ document.addEventListener('click', (e) => {
 
 // Expor funções globalmente
 window.reportsManager = reportsManager;
+
+// Função para apagar todos os agendamentos
+window.clearAllAppointments = async function() {
+    try {
+        // Confirmar ação
+        const confirmed = confirm(
+            '⚠️ ATENÇÃO: Esta operação irá apagar TODOS os agendamentos!\n\n' +
+            'Esta ação NÃO pode ser desfeita!\n\n' +
+            'Tem certeza que deseja continuar?'
+        );
+        
+        if (!confirmed) {
+            return;
+        }
+        
+        // Segunda confirmação
+        const doubleConfirmed = confirm(
+            '🚨 ÚLTIMA CONFIRMAÇÃO 🚨\n\n' +
+            'Você está prestes a apagar TODOS os agendamentos do sistema.\n\n' +
+            'Esta ação é IRREVERSÍVEL!\n\n' +
+            'Digite "CONFIRMAR" para continuar:'
+        );
+        
+        if (!doubleConfirmed) {
+            return;
+        }
+        
+        // Mostrar loading
+        window.showLoading('Apagando todos os agendamentos...');
+        
+        const token = localStorage.getItem('authToken');
+        const response = await fetch('/api/clear-appointments-simple', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const result = await response.json();
+        
+        window.hideLoading();
+        
+        if (result.success) {
+            showNotification(`✅ ${result.message} (${result.deletedCount} agendamentos apagados)`, 'success');
+            
+            // Recarregar dados se necessário
+            if (window.agendaManager) {
+                await window.agendaManager.loadAppointments();
+            }
+        } else {
+            showNotification(`❌ Erro: ${result.message}`, 'error');
+        }
+        
+    } catch (error) {
+        window.hideLoading();
+        console.error('Erro ao apagar agendamentos:', error);
+        showNotification('❌ Erro ao apagar agendamentos', 'error');
+    }
+};
+
+// Mostrar seção administrativa apenas para admins
+function checkAdminPermissions() {
+    try {
+        const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+        const isAdmin = userData.role === 'admin';
+        
+        const adminActions = document.getElementById('admin-actions');
+        if (adminActions) {
+            adminActions.style.display = isAdmin ? 'block' : 'none';
+        }
+    } catch (error) {
+        console.error('Erro ao verificar permissões de admin:', error);
+    }
+}
+
+// Verificar permissões quando a página carregar
+document.addEventListener('DOMContentLoaded', function() {
+    checkAdminPermissions();
+});
 window.initReportsManager = initReportsManager;
 window.comissoesManager = comissoesManager;
 window.initComissoesManager = initComissoesManager;

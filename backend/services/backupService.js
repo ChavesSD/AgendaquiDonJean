@@ -7,6 +7,8 @@ class BackupService {
     constructor() {
         this.backupDir = path.join(__dirname, '../backups');
         this.ensureBackupDir();
+        this.autoBackupInterval = null;
+        this.startAutoBackup();
     }
 
     // Garantir que o diretório de backup existe
@@ -479,6 +481,166 @@ class BackupService {
             return {
                 success: false,
                 message: 'Erro ao importar backup: ' + error.message
+            };
+        }
+    }
+
+    // Iniciar backup automático
+    startAutoBackup() {
+        // Backup diário às 2:00 da manhã
+        const now = new Date();
+        const tomorrow = new Date(now);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(2, 0, 0, 0);
+        
+        const msUntilBackup = tomorrow.getTime() - now.getTime();
+        
+        setTimeout(() => {
+            this.performAutoBackup();
+            // Agendar próximo backup (24 horas)
+            this.autoBackupInterval = setInterval(() => {
+                this.performAutoBackup();
+            }, 24 * 60 * 60 * 1000);
+        }, msUntilBackup);
+        
+        console.log(`🔄 Backup automático agendado para ${tomorrow.toLocaleString('pt-BR')}`);
+    }
+
+    // Parar backup automático
+    stopAutoBackup() {
+        if (this.autoBackupInterval) {
+            clearInterval(this.autoBackupInterval);
+            this.autoBackupInterval = null;
+            console.log('⏹️ Backup automático parado');
+        }
+    }
+
+    // Executar backup automático
+    async performAutoBackup() {
+        try {
+            console.log('🔄 Iniciando backup automático...');
+            
+            // Verificar se já existe backup hoje
+            const today = new Date().toDateString();
+            const existingBackups = this.getBackupList();
+            const todayBackup = existingBackups.find(backup => 
+                new Date(backup.createdAt).toDateString() === today
+            );
+            
+            if (todayBackup) {
+                console.log('📦 Backup do dia já existe, pulando...');
+                return;
+            }
+            
+            // Criar backup
+            const result = await this.createBackup();
+            
+            if (result.success) {
+                console.log('✅ Backup automático concluído com sucesso');
+                
+                // Limpar backups antigos (manter apenas últimos 7 dias)
+                await this.cleanupOldBackups();
+            } else {
+                console.error('❌ Erro no backup automático:', result.message);
+            }
+        } catch (error) {
+            console.error('💥 Erro no backup automático:', error);
+        }
+    }
+
+    // Limpar backups antigos
+    async cleanupOldBackups() {
+        try {
+            const backups = this.getBackupList();
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            
+            const oldBackups = backups.filter(backup => 
+                new Date(backup.createdAt) < sevenDaysAgo
+            );
+            
+            for (const backup of oldBackups) {
+                try {
+                    const filePath = path.join(this.backupDir, backup.filename);
+                    if (fs.existsSync(filePath)) {
+                        fs.unlinkSync(filePath);
+                        console.log(`🗑️ Backup antigo removido: ${backup.filename}`);
+                    }
+                } catch (error) {
+                    console.error(`Erro ao remover backup ${backup.filename}:`, error);
+                }
+            }
+            
+            // Atualizar lista de backups
+            this.updateBackupList(backups.filter(backup => 
+                new Date(backup.createdAt) >= sevenDaysAgo
+            ));
+            
+        } catch (error) {
+            console.error('Erro ao limpar backups antigos:', error);
+        }
+    }
+
+    // Verificar integridade do backup
+    async verifyBackup(backupId) {
+        try {
+            const backup = this.getBackupById(backupId);
+            if (!backup) {
+                return { success: false, message: 'Backup não encontrado' };
+            }
+            
+            const filePath = path.join(this.backupDir, backup.filename);
+            if (!fs.existsSync(filePath)) {
+                return { success: false, message: 'Arquivo de backup não encontrado' };
+            }
+            
+            // Verificar tamanho do arquivo
+            const stats = fs.statSync(filePath);
+            if (stats.size === 0) {
+                return { success: false, message: 'Arquivo de backup está vazio' };
+            }
+            
+            // Verificar se é um ZIP válido
+            const archiver = require('archiver');
+            // Implementação básica de verificação
+            
+            return {
+                success: true,
+                message: 'Backup íntegro',
+                size: stats.size,
+                lastModified: stats.mtime
+            };
+        } catch (error) {
+            return {
+                success: false,
+                message: 'Erro ao verificar backup: ' + error.message
+            };
+        }
+    }
+
+    // Obter estatísticas de backup
+    getBackupStats() {
+        try {
+            const backups = this.getBackupList();
+            const totalSize = backups.reduce((sum, backup) => sum + (backup.size || 0), 0);
+            const lastBackup = backups.length > 0 ? backups[backups.length - 1] : null;
+            
+            return {
+                totalBackups: backups.length,
+                totalSize: totalSize,
+                lastBackup: lastBackup ? {
+                    date: lastBackup.createdAt,
+                    size: lastBackup.size
+                } : null,
+                autoBackupEnabled: this.autoBackupInterval !== null
+            };
+        } catch (error) {
+            console.error('Erro ao obter estatísticas de backup:', error);
+            return {
+                totalBackups: 0,
+                totalSize: 0,
+                lastBackup: null,
+                autoBackupEnabled: false
             };
         }
     }

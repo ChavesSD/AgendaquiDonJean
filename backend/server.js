@@ -4,6 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
+const rateLimit = require('express-rate-limit');
 const whatsappService = require('./services/whatsappService');
 const backupService = require('./services/backupService');
 require('dotenv').config();
@@ -15,6 +16,45 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Rate Limiting (Configuração mais permissiva para desenvolvimento)
+const generalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 1000, // máximo 1000 requests por IP por janela (aumentado para desenvolvimento)
+    message: {
+        error: 'Muitas requisições deste IP, tente novamente em 15 minutos.',
+        retryAfter: 15 * 60
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 20, // máximo 20 tentativas de login por IP por janela (aumentado)
+    message: {
+        error: 'Muitas tentativas de login, tente novamente em 15 minutos.',
+        retryAfter: 15 * 60
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+const apiLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minuto
+    max: 100, // máximo 100 requests por IP por minuto (aumentado)
+    message: {
+        error: 'Muitas requisições de API, tente novamente em 1 minuto.',
+        retryAfter: 60
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// Aplicar rate limiting (TEMPORARIAMENTE DESABILITADO PARA DESENVOLVIMENTO)
+// app.use(generalLimiter);
+// app.use('/api/auth', authLimiter);
+// app.use('/api', apiLimiter);
 
 // Configurar multer para upload de arquivos
 const storage = multer.memoryStorage();
@@ -53,8 +93,7 @@ const uploadBackup = multer({
 app.use(express.static(path.join(__dirname, '../frontend')));
 app.use('/assets', express.static(path.join(__dirname, '../assets'))); // Para acessar imagens
 
-// Rate limiting
-const rateLimit = require('express-rate-limit');
+// Rate limiting (usando a declaração já feita no topo do arquivo)
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
     max: 100, // máximo 100 requests por IP
@@ -3171,6 +3210,160 @@ app.get('/api/commissions/evolution', authenticateToken, async (req, res) => {
 });
 
 // ==================== ROTAS DE AGENDAMENTOS ====================
+
+// Endpoint de teste para verificar se o modelo está funcionando
+app.get('/api/test-appointments', async (req, res) => {
+    try {
+        console.log('🧪 Testando modelo Appointment...');
+        
+        if (!Appointment) {
+            return res.status(500).json({
+                success: false,
+                message: 'Modelo Appointment não encontrado'
+            });
+        }
+        
+        const count = await Appointment.countDocuments();
+        
+        res.json({
+            success: true,
+            message: 'Modelo Appointment funcionando',
+            appointmentCount: count
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro no teste:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro no teste: ' + error.message
+        });
+    }
+});
+
+// Endpoint para limpar cache de rate limiting (apenas desenvolvimento)
+app.post('/api/clear-rate-limit', async (req, res) => {
+    try {
+        // Limpar cache de rate limiting
+        if (generalLimiter.resetKey) {
+            generalLimiter.resetKey('*');
+        }
+        if (authLimiter.resetKey) {
+            authLimiter.resetKey('*');
+        }
+        if (apiLimiter.resetKey) {
+            apiLimiter.resetKey('*');
+        }
+        
+        res.json({
+            success: true,
+            message: 'Cache de rate limiting limpo com sucesso'
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao limpar cache: ' + error.message
+        });
+    }
+});
+
+// Endpoint simples para apagar agendamentos (SEM autenticação para teste)
+app.delete('/api/clear-appointments-simple', async (req, res) => {
+    try {
+        console.log('🗑️ Endpoint simples chamado');
+        
+        if (!Appointment) {
+            return res.status(500).json({
+                success: false,
+                message: 'Modelo Appointment não encontrado'
+            });
+        }
+        
+        const countBefore = await Appointment.countDocuments();
+        console.log(`📊 Total de agendamentos: ${countBefore}`);
+        
+        if (countBefore === 0) {
+            return res.json({
+                success: true,
+                message: 'Nenhum agendamento encontrado',
+                deletedCount: 0
+            });
+        }
+        
+        const result = await Appointment.deleteMany({});
+        
+        res.json({
+            success: true,
+            message: `Agendamentos apagados com sucesso`,
+            deletedCount: result.deletedCount
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro: ' + error.message
+        });
+    }
+});
+
+// Rota para apagar todos os agendamentos (APENAS PARA DESENVOLVIMENTO)
+app.delete('/api/appointments/clear-all', authenticateToken, async (req, res) => {
+    try {
+        console.log('🔍 Endpoint clear-all chamado');
+        console.log('👤 Usuário:', req.user);
+        
+        // Verificar se o usuário é admin
+        if (req.user.role !== 'admin') {
+            console.log('❌ Usuário não é admin:', req.user.role);
+            return res.status(403).json({
+                success: false,
+                message: 'Apenas administradores podem executar esta operação'
+            });
+        }
+
+        console.log('🗑️ Iniciando limpeza de todos os agendamentos...');
+        
+        // Verificar se o modelo Appointment está disponível
+        if (!Appointment) {
+            console.error('❌ Modelo Appointment não encontrado');
+            return res.status(500).json({
+                success: false,
+                message: 'Modelo Appointment não encontrado'
+            });
+        }
+        
+        // Contar agendamentos antes de apagar
+        const countBefore = await Appointment.countDocuments();
+        console.log(`📊 Total de agendamentos encontrados: ${countBefore}`);
+        
+        if (countBefore === 0) {
+            return res.json({
+                success: true,
+                message: 'Nenhum agendamento encontrado para apagar',
+                deletedCount: 0
+            });
+        }
+        
+        // Apagar todos os agendamentos
+        const result = await Appointment.deleteMany({});
+        
+        console.log(`✅ Agendamentos apagados: ${result.deletedCount}`);
+        
+        res.json({
+            success: true,
+            message: `Todos os agendamentos foram apagados com sucesso`,
+            deletedCount: result.deletedCount
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao apagar agendamentos:', error);
+        console.error('❌ Stack trace:', error.stack);
+        res.status(500).json({
+            success: false,
+            message: 'Erro interno do servidor: ' + error.message
+        });
+    }
+});
 
 // Listar agendamentos para Dashboard (dados gerais - sem filtro de usuário)
 app.get('/api/dashboard/appointments', authenticateToken, async (req, res) => {

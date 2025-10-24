@@ -1734,6 +1734,17 @@
                                         </button>
                                     </div>
                                     
+                                    <!-- Seção de Limpeza de Dados (Apenas Admin) -->
+                                    <div class="admin-actions" id="admin-actions" style="display: none;">
+                                        <h3>⚙️ Ações Administrativas</h3>
+                                        <div class="admin-actions-grid">
+                                            <button class="btn btn-danger" onclick="clearAllAppointments()">
+                                                <i class="fas fa-trash"></i>
+                                                Apagar Todos os Agendamentos
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
                                     <!-- Input oculto para upload de arquivo -->
                                     <input type="file" id="backup-file-input" accept=".zip" style="display: none;">
                                     
@@ -2480,6 +2491,14 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Utilitários -->
+    <script src="js/utils/validation.js"></script>
+    <script src="js/utils/loading.js"></script>
+    <script src="js/utils/cache.js"></script>
+    <script src="js/utils/logger.js"></script>
+    
+    <!-- Scripts principais -->
     <script src="js/agenda.js"></script>
     <script src="js/whatsapp.js"></script>
     <script src="js/dashboard.js"></script>
