@@ -1,0 +1,11 @@
+# Ignorar arquivos desnecessários para o Railway
+frontend/
+assets/
+docs/
+*.md
+.git/
+.gitignore
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
