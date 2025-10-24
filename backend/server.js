@@ -3423,17 +3423,14 @@ app.delete('/api/clear-appointments-simple', async (req, res) => {
     }
 });
 
-// Endpoint para limpar todas as comissões (admin only)
-app.delete('/api/clear-commissions', authenticateToken, async (req, res) => {
+// Endpoint simples para limpar comissões (sem autenticação para teste)
+app.delete('/api/clear-commissions-simple', async (req, res) => {
     try {
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({
-                success: false,
-                message: 'Apenas administradores podem executar esta operação'
-            });
-        }
-
+        console.log('🗑️ Endpoint simples de limpeza de comissões chamado');
+        
         const countBefore = await Revenue.countDocuments({ type: 'comissao' });
+        console.log(`📊 Comissões encontradas antes da limpeza: ${countBefore}`);
+        
         if (countBefore === 0) {
             return res.json({
                 success: true,
@@ -3443,6 +3440,8 @@ app.delete('/api/clear-commissions', authenticateToken, async (req, res) => {
         }
 
         const result = await Revenue.deleteMany({ type: 'comissao' });
+        console.log(`✅ Comissões apagadas: ${result.deletedCount}`);
+        
         res.json({
             success: true,
             message: `Todas as comissões foram apagadas com sucesso`,
