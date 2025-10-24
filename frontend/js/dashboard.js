@@ -5563,6 +5563,54 @@ window.clearAllCommissions = async function() {
     }
 };
 
+// Função para limpar comissões órfãs
+window.clearOrphanCommissions = async function() {
+    try {
+        // Confirmar ação
+        const confirmed = confirm(
+            '🔍 Esta operação irá verificar e apagar comissões órfãs!\n\n' +
+            'Comissões órfãs são aquelas que não têm agendamento correspondente.\n\n' +
+            'Deseja continuar?'
+        );
+        
+        if (!confirmed) {
+            return;
+        }
+        
+        // Mostrar loading
+        window.showLoading('Verificando comissões órfãs...');
+        
+        const token = localStorage.getItem('authToken');
+        const response = await fetch('/api/clear-orphan-commissions', {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const result = await response.json();
+        
+        window.hideLoading();
+        
+        if (result.success) {
+            showNotification(`✅ ${result.message}`, 'success');
+            
+            // Recarregar dados de comissões se estiver na página
+            if (window.comissoesManager) {
+                await window.comissoesManager.loadCommissions();
+            }
+        } else {
+            showNotification(`❌ Erro: ${result.message}`, 'error');
+        }
+        
+    } catch (error) {
+        window.hideLoading();
+        console.error('Erro ao verificar comissões órfãs:', error);
+        showNotification('❌ Erro ao verificar comissões órfãs', 'error');
+    }
+};
+
 // Mostrar seção administrativa apenas para admins
 function checkAdminPermissions() {
     try {

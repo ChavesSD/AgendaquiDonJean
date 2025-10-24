@@ -3457,6 +3457,64 @@ app.delete('/api/clear-commissions', authenticateToken, async (req, res) => {
     }
 });
 
+// Endpoint para limpar comissões órfãs (sem agendamento correspondente)
+app.delete('/api/clear-orphan-commissions', authenticateToken, async (req, res) => {
+    try {
+        console.log('🔍 Verificando comissões órfãs...');
+        
+        // Buscar todas as comissões
+        const allCommissions = await Revenue.find({ type: 'comissao' });
+        console.log(`📊 Total de comissões encontradas: ${allCommissions.length}`);
+        
+        let orphanCount = 0;
+        const orphanIds = [];
+        
+        // Verificar cada comissão se tem agendamento correspondente
+        for (const commission of allCommissions) {
+            if (commission.appointmentId) {
+                const appointment = await Appointment.findById(commission.appointmentId);
+                if (!appointment) {
+                    orphanCount++;
+                    orphanIds.push(commission._id);
+                    console.log(`🗑️ Comissão órfã encontrada: ${commission._id} (agendamento ${commission.appointmentId} não existe)`);
+                }
+            } else {
+                // Comissão sem appointmentId também é considerada órfã
+                orphanCount++;
+                orphanIds.push(commission._id);
+                console.log(`🗑️ Comissão sem agendamento: ${commission._id}`);
+            }
+        }
+        
+        if (orphanCount === 0) {
+            return res.json({
+                success: true,
+                message: 'Nenhuma comissão órfã encontrada',
+                deletedCount: 0
+            });
+        }
+        
+        // Excluir comissões órfãs
+        const result = await Revenue.deleteMany({ _id: { $in: orphanIds } });
+        
+        console.log(`✅ Comissões órfãs excluídas: ${result.deletedCount}`);
+        
+        res.json({
+            success: true,
+            message: `${result.deletedCount} comissões órfãs foram excluídas com sucesso`,
+            deletedCount: result.deletedCount,
+            orphanCount: orphanCount
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao verificar comissões órfãs:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro interno do servidor: ' + error.message
+        });
+    }
+});
+
 // Rota para apagar todos os agendamentos (APENAS PARA DESENVOLVIMENTO)
 app.delete('/api/appointments/clear-all', authenticateToken, async (req, res) => {
     try {
