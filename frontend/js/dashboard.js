@@ -831,7 +831,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (userRole === 'admin' || userRole === 'manager') {
             console.log('✅ Usuário tem permissão para carregar lista de usuários');
-            loadUsers();
+        loadUsers();
         } else {
             console.log('❌ Usuário comum - não carregando lista de usuários');
             // Ocultar seção de usuários para usuários comuns
@@ -5485,7 +5485,8 @@ window.clearAllAppointments = async function() {
         window.hideLoading();
         
         if (result.success) {
-            showNotification(`✅ ${result.message} (${result.deletedCount} agendamentos apagados)`, 'success');
+            const relatedMsg = result.relatedDeletedCount ? ` e ${result.relatedDeletedCount} dados relacionados` : '';
+            showNotification(`✅ ${result.message} (${result.deletedCount} agendamentos${relatedMsg} apagados)`, 'success');
             
             // Recarregar dados se necessário
             if (window.agendaManager) {

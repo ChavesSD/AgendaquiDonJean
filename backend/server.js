@@ -237,6 +237,37 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 // Middleware de autenticação
+// ==================== FUNÇÕES UTILITÁRIAS ====================
+
+// Função para excluir dados relacionados a um agendamento
+async function deleteAppointmentRelatedData(appointmentId, clientName) {
+    try {
+        let totalDeleted = 0;
+        
+        // Excluir receitas do agendamento (incluindo comissões)
+        const revenueResult = await Revenue.deleteMany({ appointmentId: appointmentId });
+        totalDeleted += revenueResult.deletedCount;
+        console.log(`✅ Receitas excluídas: ${revenueResult.deletedCount}`);
+        
+        // Excluir gastos relacionados ao agendamento (comissões)
+        if (clientName) {
+            const expenseResult = await Expense.deleteMany({ 
+                name: { $regex: /Comissão.*/i },
+                description: { $regex: clientName }
+            });
+            totalDeleted += expenseResult.deletedCount;
+            console.log(`✅ Gastos de comissão excluídos: ${expenseResult.deletedCount}`);
+        }
+        
+        return totalDeleted;
+    } catch (error) {
+        console.error('❌ Erro ao excluir dados relacionados:', error);
+        throw error;
+    }
+}
+
+// ==================== MIDDLEWARE DE AUTENTICAÇÃO ====================
+
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -2763,7 +2794,29 @@ app.delete('/api/revenues/:id', authenticateToken, async (req, res) => {
             return res.status(404).json({ success: false, message: 'Receita não encontrada' });
         }
         
-        res.json({ success: true, message: 'Receita excluída com sucesso' });
+        // Se for uma receita de agendamento, também excluir comissões relacionadas
+        if (revenue.appointmentId) {
+            console.log('🗑️ Excluindo comissões relacionadas ao agendamento...');
+            
+            // Excluir comissões do mesmo agendamento
+            const commissionResult = await Revenue.deleteMany({ 
+                appointmentId: revenue.appointmentId,
+                type: 'comissao'
+            });
+            console.log(`✅ Comissões excluídas: ${commissionResult.deletedCount}`);
+            
+            // Excluir gastos de comissão relacionados
+            const appointment = await Appointment.findById(revenue.appointmentId);
+            if (appointment) {
+                const expenseResult = await Expense.deleteMany({ 
+                    name: { $regex: /Comissão.*/i },
+                    description: { $regex: appointment.clientName }
+                });
+                console.log(`✅ Gastos de comissão excluídos: ${expenseResult.deletedCount}`);
+            }
+        }
+        
+        res.json({ success: true, message: 'Receita e dados relacionados excluídos com sucesso' });
     } catch (error) {
         console.error('Erro ao excluir receita:', error);
         res.status(500).json({ success: false, message: 'Erro interno do servidor' });
@@ -2843,7 +2896,21 @@ app.delete('/api/expenses/:id', authenticateToken, async (req, res) => {
             return res.status(404).json({ success: false, message: 'Gasto não encontrado' });
         }
         
-        res.json({ success: true, message: 'Gasto excluído com sucesso' });
+        // Se for um gasto de comissão, também excluir a comissão relacionada
+        if (expense.name && expense.name.toLowerCase().includes('comissão')) {
+            console.log('🗑️ Excluindo comissão relacionada ao gasto...');
+            
+            // Buscar e excluir comissões relacionadas pelo nome do cliente
+            if (expense.description) {
+                const commissionResult = await Revenue.deleteMany({ 
+                    type: 'comissao',
+                    description: { $regex: expense.description, $options: 'i' }
+                });
+                console.log(`✅ Comissões relacionadas excluídas: ${commissionResult.deletedCount}`);
+            }
+        }
+        
+        res.json({ success: true, message: 'Gasto e dados relacionados excluídos com sucesso' });
     } catch (error) {
         console.error('Erro ao excluir gasto:', error);
         res.status(500).json({ success: false, message: 'Erro interno do servidor' });
@@ -3324,12 +3391,27 @@ app.delete('/api/clear-appointments-simple', async (req, res) => {
             });
         }
         
+        // Primeiro, buscar todos os agendamentos que serão excluídos para limpar dados relacionados
+        const appointmentsToDelete = await Appointment.find({});
+        console.log(`🗑️ Encontrados ${appointmentsToDelete.length} agendamentos para excluir`);
+        
+        // Excluir receitas, comissões e gastos relacionados a todos os agendamentos
+        let totalRelatedDeleted = 0;
+        for (const appointment of appointmentsToDelete) {
+            const deletedCount = await deleteAppointmentRelatedData(appointment._id, appointment.clientName);
+            totalRelatedDeleted += deletedCount;
+        }
+        
+        console.log(`✅ Dados relacionados excluídos: ${totalRelatedDeleted} registros`);
+        
+        // Agora excluir os agendamentos
         const result = await Appointment.deleteMany({});
         
         res.json({
             success: true,
-            message: `Agendamentos apagados com sucesso`,
-            deletedCount: result.deletedCount
+            message: `Agendamentos e dados relacionados apagados com sucesso`,
+            deletedCount: result.deletedCount,
+            relatedDeletedCount: totalRelatedDeleted
         });
         
     } catch (error) {
@@ -3413,15 +3495,29 @@ app.delete('/api/appointments/clear-all', authenticateToken, async (req, res) =>
             });
         }
         
-        // Apagar todos os agendamentos
+        // Primeiro, buscar todos os agendamentos que serão excluídos para limpar dados relacionados
+        const appointmentsToDelete = await Appointment.find({});
+        console.log(`🗑️ Encontrados ${appointmentsToDelete.length} agendamentos para excluir`);
+        
+        // Excluir receitas, comissões e gastos relacionados a todos os agendamentos
+        let totalRelatedDeleted = 0;
+        for (const appointment of appointmentsToDelete) {
+            const deletedCount = await deleteAppointmentRelatedData(appointment._id, appointment.clientName);
+            totalRelatedDeleted += deletedCount;
+        }
+        
+        console.log(`✅ Dados relacionados excluídos: ${totalRelatedDeleted} registros`);
+        
+        // Agora excluir os agendamentos
         const result = await Appointment.deleteMany({});
         
         console.log(`✅ Agendamentos apagados: ${result.deletedCount}`);
         
         res.json({
             success: true,
-            message: `Todos os agendamentos foram apagados com sucesso`,
-            deletedCount: result.deletedCount
+            message: `Todos os agendamentos e dados relacionados foram apagados com sucesso`,
+            deletedCount: result.deletedCount,
+            relatedDeletedCount: totalRelatedDeleted
         });
         
     } catch (error) {
@@ -4056,27 +4152,13 @@ app.delete('/api/appointments/:id', authenticateToken, async (req, res) => {
             return res.status(404).json({ success: false, message: 'Agendamento não encontrado' });
         }
         
-        // Se for agendamento finalizado, também excluir receitas, comissões e gastos associados
+        // Excluir dados relacionados usando função utilitária
+        console.log('🗑️ Excluindo agendamento e todos os dados relacionados...');
+        const relatedDeletedCount = await deleteAppointmentRelatedData(id, appointment.clientName);
+        
+        // Log adicional se for agendamento finalizado
         if (appointment.status === 'completed') {
-            console.log('🗑️ Excluindo agendamento finalizado e suas receitas/comissões/gastos...');
-            
-            // Excluir receitas do agendamento
-            await Revenue.deleteMany({ appointmentId: id });
-            console.log('✅ Receitas do agendamento excluídas');
-            
-            // Excluir comissões do agendamento
-            await Revenue.deleteMany({ 
-                appointmentId: id,
-                type: 'comissao'
-            });
-            console.log('✅ Comissões do agendamento excluídas');
-            
-            // Excluir gastos de comissão do agendamento
-            await Expense.deleteMany({ 
-                name: { $regex: /Comissão.*/i },
-                description: { $regex: appointment.clientName }
-            });
-            console.log('✅ Gastos de comissão do agendamento excluídos');
+            console.log('📋 Agendamento finalizado - dados financeiros limpos');
         }
         
         await Appointment.findByIdAndDelete(id);
