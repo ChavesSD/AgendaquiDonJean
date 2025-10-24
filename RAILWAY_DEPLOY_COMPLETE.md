@@ -59,12 +59,12 @@ RAILWAY_STATIC_URL=https://seu-dominio.railway.app
 
 ### 3. **Configuração do Build**
 
-- **Root Directory**: `/backend` (ou deixar vazio para usar nixpacks.toml)
-- **Build Command**: `npm install` (automático via nixpacks.toml)
-- **Start Command**: `npm start` (automático via nixpacks.toml)
-
-**⚠️ Importante**: O Railway agora detectará automaticamente como projeto Node.js através dos arquivos de configuração criados.
+- **Root Directory**: Deixar vazio (detecção automática)
+- **Build Command**: `npm install` (automático via package.json na raiz)
+- **Start Command**: `npm start` (automático via package.json na raiz)
 - **Health Check Path**: `/api/health`
+
+**⚠️ Importante**: O Railway agora detectará automaticamente como projeto Node.js através do `package.json` na raiz do projeto.
 
 ---
 
@@ -183,10 +183,19 @@ curl https://seu-dominio.railway.app/api/health
 ### **Problema: "Script start.sh not found" / "Railpack could not determine how to build"**
 **Sintomas**: Railway não detecta projeto Node.js
 **Soluções**:
-- ✅ **Corrigido**: Arquivos de configuração criados (`nixpacks.toml`, `Procfile`, `.nvmrc`)
-- ✅ **Corrigido**: `package.json` com `engines` especificado
+- ✅ **Corrigido**: Arquivos de configuração criados (`Procfile`, `.nvmrc`)
+- ✅ **Corrigido**: `package.json` na raiz com `engines` especificado
 - ✅ **Corrigido**: `railway.json` com configurações corretas
 - **Ação**: Fazer novo deploy após as correções
+
+### **Problema: "undefined variable 'npm-9_x'" / Erro Nix**
+**Sintomas**: Erro no build com pacote Nix inválido
+**Soluções**:
+- ✅ **Corrigido**: Removido `nixpacks.toml` com pacote inválido
+- ✅ **Corrigido**: `package.json` na raiz para detecção automática
+- ✅ **Corrigido**: Simplificado configurações Railway
+- ✅ **Corrigido**: Adicionado `.railwayignore` para otimizar build
+- **Ação**: Railway agora detecta automaticamente como Node.js
 
 ### **Problema: Banco não Conecta**
 **Sintomas**: Erro de conexão com MongoDB
