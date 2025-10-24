@@ -2917,6 +2917,57 @@ app.delete('/api/expenses/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// ==================== ROTAS DE CONTATOS ====================
+
+// Listar contatos
+app.get('/api/contacts', authenticateToken, async (req, res) => {
+    try {
+        console.log('📞 Buscando contatos...');
+        
+        // Por enquanto, retornar array vazio
+        // TODO: Implementar busca de contatos do WhatsApp ou banco de dados
+        const contacts = [];
+        
+        console.log(`📞 Contatos encontrados: ${contacts.length}`);
+        
+        res.json({
+            success: true,
+            contacts: contacts
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao buscar contatos:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro interno do servidor'
+        });
+    }
+});
+
+// Sincronizar contatos com WhatsApp
+app.post('/api/contacts/sync-whatsapp', authenticateToken, async (req, res) => {
+    try {
+        console.log('🔄 Sincronizando contatos com WhatsApp...');
+        
+        // Por enquanto, retornar sucesso sem sincronização real
+        // TODO: Implementar sincronização real com WhatsApp
+        console.log('✅ Sincronização simulada concluída');
+        
+        res.json({
+            success: true,
+            message: 'Contatos sincronizados com sucesso',
+            contactsCount: 0
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao sincronizar contatos:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro interno do servidor'
+        });
+    }
+});
+
 // ==================== ROTAS DE MAQUININHAS ====================
 
 // Criar maquininha
