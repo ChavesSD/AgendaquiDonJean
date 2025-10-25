@@ -157,8 +157,8 @@ body {
 }
 
 
-.welcome-section h2 {
-    font-size: 2.5rem;
+.welcome-section h3 {
+    font-size: 2rem;
     color: #2c3e50;
     margin-bottom: 20px;
     font-weight: 700;
@@ -167,8 +167,12 @@ body {
 .welcome-description {
     font-size: 1.2rem;
     color: #7f8c8d;
-    margin-bottom: 40px;
+    margin-bottom: 15px;
     line-height: 1.6;
+}
+
+.welcome-description:last-of-type {
+    margin-bottom: 40px;
 }
 
 .company-info {
@@ -839,8 +843,8 @@ body {
     }
     
     
-    .welcome-section h2 {
-        font-size: 1.8rem;
+    .welcome-section h3 {
+        font-size: 1.6rem;
     }
     
     .step-header h2 {
