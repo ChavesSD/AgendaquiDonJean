@@ -452,6 +452,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Event listeners para formulários de configurações
         initConfigForms();
+        
+        // Inicializar checkboxes de horário de funcionamento
+        initWorkingHoursCheckboxes();
+    }
+
+    // Inicializar checkboxes de horário de funcionamento
+    function initWorkingHoursCheckboxes() {
+        const saturdayCheckbox = document.getElementById('saturday-enabled');
+        const sundayCheckbox = document.getElementById('sunday-enabled');
+        
+        // Função para atualizar estado visual do checkbox
+        function updateCheckboxState(checkbox) {
+            const label = checkbox.closest('.checkbox-label');
+            if (checkbox.checked) {
+                label.classList.add('active');
+            } else {
+                label.classList.remove('active');
+            }
+        }
+        
+        // Event listeners para sábado
+        if (saturdayCheckbox) {
+            updateCheckboxState(saturdayCheckbox); // Estado inicial
+            saturdayCheckbox.addEventListener('change', function() {
+                updateCheckboxState(this);
+            });
+        }
+        
+        // Event listeners para domingo
+        if (sundayCheckbox) {
+            updateCheckboxState(sundayCheckbox); // Estado inicial
+            sundayCheckbox.addEventListener('change', function() {
+                updateCheckboxState(this);
+            });
+        }
     }
 
     // Inicializar formulários de configurações
@@ -607,7 +642,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (saturdayOpen) saturdayOpen.value = saturday.open || '08:00';
                 if (saturdayClose) saturdayClose.value = saturday.close || '12:00';
-                if (saturdayEnabled) saturdayEnabled.checked = saturday.enabled || false;
+                if (saturdayEnabled) {
+                    saturdayEnabled.checked = saturday.enabled || false;
+                    // Atualizar estado visual
+                    const label = saturdayEnabled.closest('.checkbox-label');
+                    if (saturdayEnabled.checked) {
+                        label.classList.add('active');
+                    } else {
+                        label.classList.remove('active');
+                    }
+                }
             }
 
             const sunday = settings.workingHours.sunday;
@@ -618,7 +662,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (sundayOpen) sundayOpen.value = sunday.open || '08:00';
                 if (sundayClose) sundayClose.value = sunday.close || '12:00';
-                if (sundayEnabled) sundayEnabled.checked = sunday.enabled || false;
+                if (sundayEnabled) {
+                    sundayEnabled.checked = sunday.enabled || false;
+                    // Atualizar estado visual
+                    const label = sundayEnabled.closest('.checkbox-label');
+                    if (sundayEnabled.checked) {
+                        label.classList.add('active');
+                    } else {
+                        label.classList.remove('active');
+                    }
+                }
             }
         }
     }

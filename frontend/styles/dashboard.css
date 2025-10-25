@@ -1584,6 +1584,50 @@ body {
     margin-bottom: 20px;
 }
 
+/* Mensagem de Desenvolvimento */
+.development-notice {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    padding: 40px 20px;
+}
+
+.notice-content {
+    text-align: center;
+    max-width: 500px;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(151, 87, 86, 0.1);
+}
+
+.notice-content i {
+    font-size: 4rem;
+    color: #975756;
+    margin-bottom: 20px;
+    opacity: 0.8;
+}
+
+.notice-content h4 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.notice-content p {
+    font-size: 1.1rem;
+    color: #7f8c8d;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.notice-content p:last-child {
+    margin-bottom: 0;
+}
+
 .section-header {
     display: flex;
     justify-content: space-between;
@@ -1663,42 +1707,82 @@ body {
     text-align: center;
 }
 
-/* Checkbox Customizado */
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    font-size: 16px;
-    color: #2c3e50;
+/* Checkbox Customizado para Horário de Funcionamento - Versão Corrigida */
+.dia-config .checkbox-label {
+    display: flex !important;
+    align-items: center !important;
+    cursor: pointer !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: #2c3e50 !important;
+    padding: 12px 16px !important;
+    background: rgba(255, 255, 255, 0.8) !important;
+    border-radius: 8px !important;
+    border: 2px solid rgba(151, 87, 86, 0.2) !important;
+    transition: all 0.3s ease !important;
+    user-select: none !important;
+    gap: 12px !important;
+    min-height: 48px !important;
+    margin: 0 !important;
 }
 
-.checkbox-label input[type="checkbox"] {
-    display: none;
+.dia-config .checkbox-label:hover {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-color: rgba(151, 87, 86, 0.4) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(151, 87, 86, 0.15) !important;
 }
 
-.checkmark {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #975756;
-    border-radius: 4px;
-    margin-right: 10px;
-    position: relative;
-    transition: all 0.3s ease;
+.dia-config .checkbox-label input[type="checkbox"] {
+    display: none !important;
 }
 
-.checkbox-label input[type="checkbox"]:checked + .checkmark {
-    background: #975756;
+.dia-config .checkmark {
+    width: 24px !important;
+    height: 24px !important;
+    border: 3px solid #975756 !important;
+    border-radius: 4px !important;
+    position: relative !important;
+    transition: all 0.3s ease !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    display: block !important;
+    flex-shrink: 0 !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+    max-width: 24px !important;
+    max-height: 24px !important;
+    box-sizing: border-box !important;
 }
 
-.checkbox-label input[type="checkbox"]:checked + .checkmark::after {
-    content: '✓';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-size: 12px;
-    font-weight: bold;
+.dia-config .checkbox-label input[type="checkbox"]:checked + .checkmark {
+    background: linear-gradient(135deg, #975756, #7a4443) !important;
+    border-color: #7a4443 !important;
+    box-shadow: 0 4px 8px rgba(151, 87, 86, 0.3) !important;
+}
+
+.dia-config .checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+    content: '✓' !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    color: white !important;
+    font-size: 14px !important;
+    font-weight: bold !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dia-config .checkbox-label input[type="checkbox"]:checked ~ span {
+    color: #975756 !important;
+    font-weight: 700 !important;
+}
+
+/* Estado ativo quando checkbox está marcado */
+.dia-config .checkbox-label.active {
+    background: rgba(151, 87, 86, 0.1) !important;
+    border-color: #975756 !important;
+    box-shadow: 0 4px 12px rgba(151, 87, 86, 0.2) !important;
 }
 
 /* Usuários */
