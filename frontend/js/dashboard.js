@@ -7484,6 +7484,8 @@ function loadSavedColors() {
         document.documentElement.style.setProperty('--primary-color', savedColors.primary);
         // Aplicar variações da cor principal
         applyColorVariations(savedColors.primary, 'primary');
+        // Aplicar cor a elementos específicos
+        applyColorToElements(savedColors.primary, 'primary');
     }
     
     if (savedColors.secondary) {
@@ -7493,6 +7495,8 @@ function loadSavedColors() {
         document.documentElement.style.setProperty('--secondary-color', savedColors.secondary);
         // Aplicar variações da cor secundária
         applyColorVariations(savedColors.secondary, 'secondary');
+        // Aplicar cor a elementos específicos
+        applyColorToElements(savedColors.secondary, 'secondary');
     }
     
     if (savedColors.success) {
@@ -7525,6 +7529,9 @@ function applyPrimaryColor() {
     // Aplicar variações da cor principal
     applyColorVariations(color, 'primary');
     
+    // Aplicar cor a elementos específicos
+    applyColorToElements(color, 'primary');
+    
     // Salvar no localStorage
     const savedColors = JSON.parse(localStorage.getItem('systemColors') || '{}');
     savedColors.primary = color;
@@ -7540,6 +7547,9 @@ function applySecondaryColor() {
     
     // Aplicar variações da cor secundária
     applyColorVariations(color, 'secondary');
+    
+    // Aplicar cor a elementos específicos
+    applyColorToElements(color, 'secondary');
     
     // Salvar no localStorage
     const savedColors = JSON.parse(localStorage.getItem('systemColors') || '{}');
@@ -7995,4 +8005,40 @@ function hexToRgb(hex) {
         g: parseInt(result[2], 16),
         b: parseInt(result[3], 16)
     } : null;
+}
+
+// Aplicar cor a elementos específicos
+function applyColorToElements(color, type) {
+    const rgb = hexToRgb(color);
+    if (!rgb) return;
+    
+    // Aplicar cor aos botões primários
+    if (type === 'primary') {
+        const primaryButtons = document.querySelectorAll('.btn-primary');
+        primaryButtons.forEach(btn => {
+            btn.style.background = color;
+            btn.style.boxShadow = `0 4px 15px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.3)`;
+        });
+        
+        // Aplicar cor aos elementos da sidebar
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
+            sidebar.style.background = `linear-gradient(180deg, ${color} 0%, var(--secondary-color) 100%)`;
+        }
+        
+        // Aplicar cor aos headers
+        const headers = document.querySelectorAll('.sidebar-header');
+        headers.forEach(header => {
+            header.style.borderBottom = `2px solid ${color}`;
+        });
+    }
+    
+    // Aplicar cor aos botões secundários
+    if (type === 'secondary') {
+        const secondaryButtons = document.querySelectorAll('.btn-secondary');
+        secondaryButtons.forEach(btn => {
+            btn.style.background = color;
+            btn.style.boxShadow = `0 4px 15px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.3)`;
+        });
+    }
 }
