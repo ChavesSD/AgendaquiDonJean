@@ -7140,6 +7140,9 @@ function initDevArea() {
     // Inicializar gerenciamento de licenças
     initLicenseManagement();
     
+    // Inicializar gerenciamento de assets
+    initAssetsManagement();
+    
     // Carregar logs do sistema
     loadSystemLogs();
 }
@@ -7689,4 +7692,243 @@ function downloadLogs() {
         
         showNotification('✅ Logs baixados com sucesso!', 'success');
     }
+}
+
+// ===== GERENCIAMENTO DE ASSETS =====
+
+// Inicializar gerenciamento de assets
+function initAssetsManagement() {
+    console.log('🖼️ Inicializando gerenciamento de assets...');
+    
+    // Configurar drag and drop
+    setupDragAndDrop();
+    
+    // Configurar input de arquivo
+    setupFileInput();
+    
+    // Carregar assets atuais
+    loadCurrentAssets();
+}
+
+// Configurar drag and drop
+function setupDragAndDrop() {
+    const uploadZone = document.getElementById('upload-zone');
+    const fileInput = document.getElementById('assets-input');
+    
+    if (!uploadZone || !fileInput) return;
+    
+    // Prevenir comportamento padrão do navegador
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadZone.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    // Destacar zona de drop
+    ['dragenter', 'dragover'].forEach(eventName => {
+        uploadZone.addEventListener(eventName, highlight, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        uploadZone.addEventListener(eventName, unhighlight, false);
+    });
+    
+    // Processar arquivos soltos
+    uploadZone.addEventListener('drop', handleDrop, false);
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    function highlight(e) {
+        uploadZone.classList.add('dragover');
+    }
+    
+    function unhighlight(e) {
+        uploadZone.classList.remove('dragover');
+    }
+    
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files);
+    }
+}
+
+// Configurar input de arquivo
+function setupFileInput() {
+    const fileInput = document.getElementById('assets-input');
+    
+    if (!fileInput) return;
+    
+    fileInput.addEventListener('change', function(e) {
+        handleFiles(e.target.files);
+    });
+}
+
+// Processar arquivos selecionados
+function handleFiles(files) {
+    const validFiles = [];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    
+    Array.from(files).forEach(file => {
+        // Validar tipo de arquivo
+        if (!allowedTypes.includes(file.type)) {
+            showNotification(`❌ Arquivo ${file.name} não é um formato válido (JPG/PNG)`, 'error');
+            return;
+        }
+        
+        // Validar tamanho
+        if (file.size > maxSize) {
+            showNotification(`❌ Arquivo ${file.name} é muito grande (máximo 5MB)`, 'error');
+            return;
+        }
+        
+        validFiles.push(file);
+    });
+    
+    if (validFiles.length > 0) {
+        displaySelectedFiles(validFiles);
+    }
+}
+
+// Exibir arquivos selecionados
+function displaySelectedFiles(files) {
+    const uploadedFilesDiv = document.getElementById('uploaded-files');
+    const filesList = document.getElementById('files-list');
+    
+    if (!uploadedFilesDiv || !filesList) return;
+    
+    filesList.innerHTML = '';
+    
+    files.forEach(file => {
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item';
+        fileItem.innerHTML = `
+            <div class="file-info">
+                <i class="fas fa-image"></i>
+                <span class="file-name">${file.name}</span>
+            </div>
+            <span class="file-size">${formatFileSize(file.size)}</span>
+        `;
+        filesList.appendChild(fileItem);
+    });
+    
+    uploadedFilesDiv.style.display = 'block';
+    
+    // Armazenar arquivos para upload
+    window.selectedFiles = files;
+}
+
+// Limpar arquivos selecionados
+function clearSelectedFiles() {
+    const uploadedFilesDiv = document.getElementById('uploaded-files');
+    const fileInput = document.getElementById('assets-input');
+    
+    if (uploadedFilesDiv) {
+        uploadedFilesDiv.style.display = 'none';
+    }
+    
+    if (fileInput) {
+        fileInput.value = '';
+    }
+    
+    window.selectedFiles = [];
+}
+
+// Fazer upload dos assets
+function uploadAssets() {
+    if (!window.selectedFiles || window.selectedFiles.length === 0) {
+        showNotification('❌ Nenhum arquivo selecionado', 'error');
+        return;
+    }
+    
+    const formData = new FormData();
+    
+    window.selectedFiles.forEach(file => {
+        formData.append('assets', file);
+    });
+    
+    // Simular upload (aqui você implementaria a chamada real para o backend)
+    showNotification('📤 Fazendo upload dos assets...', 'info');
+    
+    // Simular progresso
+    setTimeout(() => {
+        showNotification('✅ Assets enviados com sucesso!', 'success');
+        clearSelectedFiles();
+        loadCurrentAssets(); // Recarregar assets atuais
+    }, 2000);
+}
+
+// Carregar assets atuais
+function loadCurrentAssets() {
+    console.log('📁 Carregando assets atuais...');
+    
+    // Aqui você implementaria a chamada para o backend para obter a lista de assets
+    // Por enquanto, vamos apenas simular
+    const assets = [
+        'Background Dashboard.jpg',
+        'Background Login.png',
+        'Favicon.png',
+        'LogoSiderBarAberta.png',
+        'LogoSiderBarFechada.png'
+    ];
+    
+    console.log('Assets encontrados:', assets);
+}
+
+// Visualizar asset
+function previewAsset(filename) {
+    const modal = document.getElementById('asset-preview-modal');
+    const previewImage = document.getElementById('preview-image');
+    
+    if (!modal || !previewImage) return;
+    
+    // Definir src da imagem
+    previewImage.src = `../assets/${filename}`;
+    previewImage.alt = filename;
+    
+    // Mostrar modal
+    modal.classList.add('show');
+    
+    // Fechar modal ao clicar fora
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeAssetPreview();
+        }
+    });
+}
+
+// Fechar preview de asset
+function closeAssetPreview() {
+    const modal = document.getElementById('asset-preview-modal');
+    
+    if (modal) {
+        modal.classList.remove('show');
+    }
+}
+
+// Formatar tamanho do arquivo
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Validar nome do arquivo
+function validateAssetName(filename) {
+    const validNames = [
+        'Background Dashboard.jpg',
+        'Background Login.png',
+        'Favicon.png',
+        'LogoSiderBarAberta.png',
+        'LogoSiderBarFechada.png'
+    ];
+    
+    return validNames.includes(filename);
 }

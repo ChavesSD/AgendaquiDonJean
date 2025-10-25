@@ -2108,7 +2108,7 @@
                                                     <div class="license-card" data-plan="basic">
                                                         <div class="license-header">
                                                             <h5>Básico</h5>
-                                                            <div class="license-price">Gratuito</div>
+                                                            <div class="license-price">R$ 59,99/mês</div>
                                                         </div>
                                                         <div class="license-features">
                                                             <ul>
@@ -2127,7 +2127,7 @@
                                                     <div class="license-card" data-plan="intermediate">
                                                         <div class="license-header">
                                                             <h5>Intermediário</h5>
-                                                            <div class="license-price">R$ 29,90/mês</div>
+                                                            <div class="license-price">R$ 79,99/mês</div>
                                                         </div>
                                                         <div class="license-features">
                                                             <ul>
@@ -2146,7 +2146,7 @@
                                                     <div class="license-card premium" data-plan="advanced">
                                                         <div class="license-header">
                                                             <h5>Avançado</h5>
-                                                            <div class="license-price">R$ 59,90/mês</div>
+                                                            <div class="license-price">R$ 99,99/mês</div>
                                                         </div>
                                                         <div class="license-features">
                                                             <ul>
@@ -2160,6 +2160,130 @@
                                                         <button class="btn btn-outline-primary" onclick="selectLicense('advanced')">
                                                             Selecionar
                                                         </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Seção de Gerenciamento de Assets -->
+                                    <div class="config-section">
+                                        <h3><i class="fas fa-images"></i> Gerenciamento de Assets</h3>
+                                        <div class="assets-management">
+                                            <div class="assets-info">
+                                                <h4><i class="fas fa-info-circle"></i> Informações Importantes</h4>
+                                                <div class="info-box">
+                                                    <p><strong>⚠️ Nomes Exatos Obrigatórios:</strong></p>
+                                                    <ul>
+                                                        <li><code>Background Dashboard.jpg</code> - Imagem de fundo do dashboard</li>
+                                                        <li><code>Background Login.png</code> - Imagem de fundo da tela de login</li>
+                                                        <li><code>Favicon.png</code> - Ícone do navegador</li>
+                                                        <li><code>LogoSiderBarAberta.png</code> - Logo quando sidebar está aberta</li>
+                                                        <li><code>LogoSiderBarFechada.png</code> - Logo quando sidebar está fechada</li>
+                                                    </ul>
+                                                    <p><strong>📋 Especificações:</strong></p>
+                                                    <ul>
+                                                        <li>Formatos aceitos: JPG, PNG</li>
+                                                        <li>Tamanho máximo: 5MB por arquivo</li>
+                                                        <li>Resolução recomendada: 1920x1080 para backgrounds</li>
+                                                        <li>Favicon: 32x32 ou 64x64 pixels</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="assets-upload">
+                                                <h4><i class="fas fa-upload"></i> Upload de Assets</h4>
+                                                <div class="upload-area">
+                                                    <div class="upload-zone" id="upload-zone">
+                                                        <i class="fas fa-cloud-upload-alt"></i>
+                                                        <p>Arraste e solte os arquivos aqui ou clique para selecionar</p>
+                                                        <input type="file" id="assets-input" multiple accept=".jpg,.jpeg,.png" style="display: none;">
+                                                        <button class="btn btn-primary" onclick="document.getElementById('assets-input').click()">
+                                                            <i class="fas fa-folder-open"></i> Selecionar Arquivos
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="uploaded-files" id="uploaded-files" style="display: none;">
+                                                    <h5>Arquivos Selecionados:</h5>
+                                                    <div class="files-list" id="files-list"></div>
+                                                    <div class="upload-actions">
+                                                        <button class="btn btn-success" onclick="uploadAssets()">
+                                                            <i class="fas fa-upload"></i> Fazer Upload
+                                                        </button>
+                                                        <button class="btn btn-secondary" onclick="clearSelectedFiles()">
+                                                            <i class="fas fa-times"></i> Limpar Seleção
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="current-assets">
+                                                <h4><i class="fas fa-images"></i> Assets Atuais</h4>
+                                                <div class="assets-grid" id="current-assets-grid">
+                                                    <div class="asset-item">
+                                                        <div class="asset-preview">
+                                                            <img src="../assets/Background Dashboard.jpg" alt="Background Dashboard" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2Y4ZjlmYSIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSIjNjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+SW1hZ2VtPC90ZXh0Pjwvc3ZnPg=='">
+                                                        </div>
+                                                        <div class="asset-info">
+                                                            <h6>Background Dashboard</h6>
+                                                            <p>Background Dashboard.jpg</p>
+                                                            <button class="btn btn-sm btn-outline-primary" onclick="previewAsset('Background Dashboard.jpg')">
+                                                                <i class="fas fa-eye"></i> Visualizar
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="asset-item">
+                                                        <div class="asset-preview">
+                                                            <img src="../assets/Background Login.png" alt="Background Login" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2Y4ZjlmYSIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSIjNjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+SW1hZ2VtPC90ZXh0Pjwvc3ZnPg=='">
+                                                        </div>
+                                                        <div class="asset-info">
+                                                            <h6>Background Login</h6>
+                                                            <p>Background Login.png</p>
+                                                            <button class="btn btn-sm btn-outline-primary" onclick="previewAsset('Background Login.png')">
+                                                                <i class="fas fa-eye"></i> Visualizar
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="asset-item">
+                                                        <div class="asset-preview">
+                                                            <img src="../assets/Favicon.png" alt="Favicon" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2Y4ZjlmYSIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSIjNjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+SW1hZ2VtPC90ZXh0Pjwvc3ZnPg=='">
+                                                        </div>
+                                                        <div class="asset-info">
+                                                            <h6>Favicon</h6>
+                                                            <p>Favicon.png</p>
+                                                            <button class="btn btn-sm btn-outline-primary" onclick="previewAsset('Favicon.png')">
+                                                                <i class="fas fa-eye"></i> Visualizar
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="asset-item">
+                                                        <div class="asset-preview">
+                                                            <img src="../assets/LogoSiderBarAberta.png" alt="Logo Sidebar Aberta" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2Y4ZjlmYSIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSIjNjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+SW1hZ2VtPC90ZXh0Pjwvc3ZnPg=='">
+                                                        </div>
+                                                        <div class="asset-info">
+                                                            <h6>Logo Sidebar Aberta</h6>
+                                                            <p>LogoSiderBarAberta.png</p>
+                                                            <button class="btn btn-sm btn-outline-primary" onclick="previewAsset('LogoSiderBarAberta.png')">
+                                                                <i class="fas fa-eye"></i> Visualizar
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="asset-item">
+                                                        <div class="asset-preview">
+                                                            <img src="../assets/LogoSiderBarFechada.png" alt="Logo Sidebar Fechada" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2Y4ZjlmYSIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSIjNjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+SW1hZ2VtPC90ZXh0Pjwvc3ZnPg=='">
+                                                        </div>
+                                                        <div class="asset-info">
+                                                            <h6>Logo Sidebar Fechada</h6>
+                                                            <p>LogoSiderBarFechada.png</p>
+                                                            <button class="btn btn-sm btn-outline-primary" onclick="previewAsset('LogoSiderBarFechada.png')">
+                                                                <i class="fas fa-eye"></i> Visualizar
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -2914,6 +3038,16 @@
     <script src="js/services.js"></script>
     <script src="js/stock.js"></script>
     <script src="js/finance.js"></script>
+    
+    <!-- Modal de Preview de Assets -->
+    <div class="asset-preview-modal" id="asset-preview-modal">
+        <div class="asset-preview-content">
+            <button class="asset-preview-close" onclick="closeAssetPreview()">
+                <i class="fas fa-times"></i>
+            </button>
+            <img id="preview-image" src="" alt="Preview">
+        </div>
+    </div>
     
 </body>
 </html>
