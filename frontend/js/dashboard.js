@@ -3786,12 +3786,12 @@ class ReportsManager {
                 return;
             }
 
-            // Carregar dados dos profissionais com estatísticas reais
+            // Carregar dados dos profissionais com estatísticas reais (apenas agendamentos finalizados)
             const [professionalsResponse, statsResponse] = await Promise.all([
                 fetch('/api/professionals', {
                 headers: { 'Authorization': `Bearer ${token}` }
                 }),
-                fetch('/api/dashboard/professionals/stats', {
+                fetch('/api/professionals/stats', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 })
             ]);
@@ -3857,7 +3857,7 @@ class ReportsManager {
                         revenue: item.revenue || 0,
                         rating: item.rating || 0,
                         specialty: item.professional?.function || item.professional?.specialty || 'Geral',
-                        workHours: item.professional?.workHours || Math.floor(Math.random() * 40) + 20
+                        workHours: item.count > 0 ? (item.professional?.workHours || 0) : 0
                     })),
                     monthlyPerformance: await this.processMonthlyPerformanceFromAppointments(professionalsWithStats, token)
                 };
@@ -4075,7 +4075,43 @@ class ReportsManager {
 
         // Fallback para quando não há dados
         if (!categories || categories.length === 0) {
-            console.log('📦 Nenhuma categoria encontrada');
+            console.log('📦 Nenhuma categoria encontrada - renderizando gráfico vazio');
+            this.charts.category = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Nenhum dado disponível'],
+                    datasets: [{
+                        data: [1],
+                        backgroundColor: ['#ecf0f1'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                generateLabels: function(chart) {
+                                    return [{
+                                        text: 'Nenhuma categoria encontrada',
+                                        fillStyle: '#95a5a6',
+                                        strokeStyle: '#95a5a6',
+                                        lineWidth: 0,
+                                        pointStyle: 'circle'
+                                    }];
+                                }
+                            }
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    }
+                }
+            });
             return;
         }
 
@@ -4730,6 +4766,49 @@ class ReportsManager {
             this.charts.professionals.destroy();
         }
 
+        // Se não há dados, renderizar gráfico vazio com mensagem
+        if (!professionals || professionals.length === 0) {
+            console.log('👥 Nenhum profissional encontrado para o gráfico - renderizando gráfico vazio');
+            this.charts.professionals = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Nenhum dado disponível'],
+                    datasets: [{
+                        label: 'Agendamentos',
+                        data: [0],
+                        backgroundColor: '#ecf0f1',
+                        borderColor: '#bdc3c7',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Número de Agendamentos'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Profissionais'
+                            }
+                        }
+                    }
+                }
+            });
+            return;
+        }
+
         this.charts.professionals = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -4846,14 +4925,56 @@ class ReportsManager {
             this.charts.schedule.destroy();
         }
 
-        // Usar dados reais de horários de trabalho
-        const workHours = professionals.map(prof => ({
-            name: prof.name,
-            hours: prof.workHours || 40 // Usar dados reais ou padrão de 40 horas
-        }));
+        // Calcular horas trabalhadas baseadas nos agendamentos finalizados
+        const workHours = professionals.map(prof => {
+            // Se não há agendamentos, retornar 0 horas
+            const hours = prof.appointments > 0 ? prof.workHours || 0 : 0;
+            return {
+                name: prof.name,
+                hours: hours
+            };
+        });
 
-        if (workHours.length === 0) {
-            console.log('👥 Nenhum dado de horário encontrado');
+        // Se não há dados ou todos têm 0 horas, renderizar gráfico vazio
+        if (workHours.length === 0 || workHours.every(item => item.hours === 0)) {
+            console.log('👥 Nenhum agendamento finalizado encontrado - renderizando gráfico vazio');
+            this.charts.schedule = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Nenhum dado disponível'],
+                    datasets: [{
+                        label: 'Horas por Semana',
+                        data: [0],
+                        backgroundColor: '#ecf0f1',
+                        borderColor: '#bdc3c7',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Horas'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Profissionais'
+                            }
+                        }
+                    }
+                }
+            });
             return;
         }
 
@@ -4969,9 +5090,45 @@ class ReportsManager {
             this.charts.popularServices.destroy();
         }
 
-        // Se não há dados, não renderizar
+        // Se não há dados, renderizar gráfico vazio com mensagem
         if (!services || services.length === 0) {
-            console.log('⚙️ Nenhum serviço encontrado para o gráfico');
+            console.log('⚙️ Nenhum serviço encontrado para o gráfico - renderizando gráfico vazio');
+            this.charts.popularServices = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Nenhum dado disponível'],
+                    datasets: [{
+                        data: [1],
+                        backgroundColor: ['#ecf0f1'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                generateLabels: function(chart) {
+                                    return [{
+                                        text: 'Nenhum serviço com agendamentos encontrado',
+                                        fillStyle: '#95a5a6',
+                                        strokeStyle: '#95a5a6',
+                                        lineWidth: 0,
+                                        pointStyle: 'circle'
+                                    }];
+                                }
+                            }
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    }
+                }
+            });
             return;
         }
 
@@ -4982,6 +5139,48 @@ class ReportsManager {
             .slice(0, 5); // Top 5 serviços
 
         console.log('⚙️ Serviços mais populares processados:', sortedServices);
+
+        // Se não há serviços com agendamentos, renderizar gráfico vazio
+        if (sortedServices.length === 0) {
+            console.log('⚙️ Nenhum serviço com agendamentos encontrado - renderizando gráfico vazio');
+            this.charts.popularServices = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Nenhum dado disponível'],
+                    datasets: [{
+                        data: [1],
+                        backgroundColor: ['#ecf0f1'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                generateLabels: function(chart) {
+                                    return [{
+                                        text: 'Nenhum serviço com agendamentos encontrado',
+                                        fillStyle: '#95a5a6',
+                                        strokeStyle: '#95a5a6',
+                                        lineWidth: 0,
+                                        pointStyle: 'circle'
+                                    }];
+                                }
+                            }
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    }
+                }
+            });
+            return;
+        }
 
         this.charts.popularServices = new Chart(ctx, {
             type: 'doughnut',
@@ -5031,9 +5230,49 @@ class ReportsManager {
             this.charts.lessRequested.destroy();
         }
 
-        // Se não há dados, não renderizar
+        // Se não há dados, renderizar gráfico vazio com mensagem
         if (!services || services.length === 0) {
-            console.log('⚙️ Nenhum serviço encontrado para o gráfico de menos solicitados');
+            console.log('⚙️ Nenhum serviço encontrado para o gráfico de menos solicitados - renderizando gráfico vazio');
+            this.charts.lessRequested = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Nenhum dado disponível'],
+                    datasets: [{
+                        label: 'Agendamentos',
+                        data: [0],
+                        backgroundColor: ['#ecf0f1'],
+                        borderColor: ['#bdc3c7'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Número de Agendamentos'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Serviços'
+                            }
+                        }
+                    }
+                }
+            });
             return;
         }
 
@@ -5048,6 +5287,52 @@ class ReportsManager {
         lessRequestedData.forEach((service, index) => {
             console.log(`⚙️ ${index + 1}º lugar: ${service.name} - ${service.appointments} agendamentos`);
         });
+
+        // Se não há dados processados, renderizar gráfico vazio
+        if (lessRequestedData.length === 0) {
+            console.log('⚙️ Nenhum serviço processado para o gráfico de menos solicitados - renderizando gráfico vazio');
+            this.charts.lessRequested = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Nenhum dado disponível'],
+                    datasets: [{
+                        label: 'Agendamentos',
+                        data: [0],
+                        backgroundColor: ['#ecf0f1'],
+                        borderColor: ['#bdc3c7'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Número de Agendamentos'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Serviços'
+                            }
+                        }
+                    }
+                }
+            });
+            return;
+        }
 
         this.charts.lessRequested = new Chart(ctx, {
             type: 'bar',
@@ -5441,19 +5726,491 @@ class ReportsManager {
         }
     }
 
-    exportChart(chartId) {
+    async exportChart(chartId) {
         console.log('📤 Exportando gráfico:', chartId);
-        this.showNotification('Funcionalidade de exportação será implementada em breve', 'info');
+        try {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const margin = 20;
+            let currentY = margin;
+
+            // Cabeçalho
+            pdf.setFontSize(20);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('CH CELIA HOLANDA STUDIO', pageWidth / 2, currentY, { align: 'center' });
+            currentY += 10;
+
+            pdf.setFontSize(16);
+            pdf.setFont('helvetica', 'normal');
+            pdf.text('EXPORTAÇÃO DE GRÁFICO', pageWidth / 2, currentY, { align: 'center' });
+            currentY += 15;
+
+            // Data
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR');
+            pdf.setFontSize(10);
+            pdf.text(`Gerado em: ${dateStr}`, pageWidth / 2, currentY, { align: 'center' });
+            currentY += 15;
+
+            // Capturar o gráfico com configurações otimizadas
+            const chartElement = document.getElementById(chartId);
+            if (chartElement) {
+                const canvas = await html2canvas(chartElement, {
+                    scale: 3, // Aumentar escala para melhor qualidade
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    logging: false,
+                    width: chartElement.scrollWidth,
+                    height: chartElement.scrollHeight,
+                    scrollX: 0,
+                    scrollY: 0,
+                    windowWidth: chartElement.scrollWidth,
+                    windowHeight: chartElement.scrollHeight,
+                    foreignObjectRendering: true,
+                    removeContainer: true,
+                    imageTimeout: 0,
+                    // Forçar cores mais vivas
+                    onclone: function(clonedDoc) {
+                        const style = clonedDoc.createElement('style');
+                        style.textContent = `
+                            * {
+                                -webkit-print-color-adjust: exact !important;
+                                color-adjust: exact !important;
+                                print-color-adjust: exact !important;
+                            }
+                            canvas {
+                                image-rendering: -webkit-optimize-contrast !important;
+                                image-rendering: crisp-edges !important;
+                            }
+                            .chart-container {
+                                filter: saturate(1.2) contrast(1.1) !important;
+                            }
+                        `;
+                        clonedDoc.head.appendChild(style);
+                    }
+                });
+
+                const imgWidth = pageWidth - (margin * 2);
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+                if (currentY + imgHeight > pageHeight - margin) {
+                    pdf.addPage();
+                    currentY = margin;
+                }
+
+                // Processar imagem para melhorar qualidade
+                const processedCanvas = this.enhanceImageQuality(canvas);
+                const imgData = processedCanvas.toDataURL('image/png', 1.0); // Qualidade máxima
+                pdf.addImage(imgData, 'PNG', margin, currentY, imgWidth, imgHeight);
+            } else {
+                pdf.setFontSize(12);
+                pdf.text('Gráfico não encontrado', margin, currentY);
+            }
+
+            // Salvar
+            const fileName = `grafico_${chartId}_${now.toISOString().split('T')[0]}.pdf`;
+            pdf.save(fileName);
+            
+            this.showNotification('Gráfico exportado com sucesso!', 'success');
+            
+        } catch (error) {
+            console.error('❌ Erro ao exportar gráfico:', error);
+            this.showNotification('Erro ao exportar gráfico', 'error');
+        }
     }
 
     exportAllReports() {
         console.log('📤 Exportando todos os relatórios...');
-        this.showNotification('Funcionalidade de exportação completa será implementada em breve', 'info');
+        this.showNotification('Gerando relatório completo em PDF...', 'info');
+        
+        // Gerar relatório completo com todas as abas
+        this.generateCompleteReport();
     }
 
     generateReport() {
-        console.log('📊 Gerando relatório...');
-        this.showNotification('Relatório gerado com sucesso!', 'success');
+        console.log('📊 Gerando relatório da aba atual...');
+        const activeTab = document.querySelector('.tab-btn.active');
+        if (activeTab) {
+            const tabName = activeTab.getAttribute('data-tab');
+            this.showNotification(`Gerando relatório de ${tabName}...`, 'info');
+            this.generateTabReport(tabName);
+        } else {
+            this.showNotification('Nenhuma aba ativa encontrada', 'error');
+        }
+    }
+
+    async generateCompleteReport() {
+        try {
+            // Mostrar indicador de progresso
+            this.showProgressIndicator('Gerando relatório completo...');
+            
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            
+            // Configurações do PDF
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const margin = 20;
+            let currentY = margin;
+
+            // Cabeçalho do relatório
+            pdf.setFontSize(20);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('CH CELIA HOLANDA STUDIO', pageWidth / 2, currentY, { align: 'center' });
+            currentY += 10;
+
+            pdf.setFontSize(16);
+            pdf.setFont('helvetica', 'normal');
+            pdf.text('RELATÓRIO COMPLETO', pageWidth / 2, currentY, { align: 'center' });
+            currentY += 10;
+
+            // Data de geração
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR');
+            pdf.setFontSize(10);
+            pdf.text(`Gerado em: ${dateStr}`, pageWidth / 2, currentY, { align: 'center' });
+            currentY += 15;
+
+            // Filtros aplicados
+            const startDate = document.getElementById('reports-start-date')?.value || 'Não definido';
+            const endDate = document.getElementById('reports-end-date')?.value || 'Não definido';
+            const period = document.getElementById('reports-period')?.value || 'Personalizado';
+
+            pdf.setFontSize(12);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('PERÍODO DO RELATÓRIO:', margin, currentY);
+            currentY += 8;
+
+            pdf.setFont('helvetica', 'normal');
+            pdf.text(`Data Início: ${startDate}`, margin, currentY);
+            currentY += 6;
+            pdf.text(`Data Fim: ${endDate}`, margin, currentY);
+            currentY += 6;
+            pdf.text(`Período: ${period}`, margin, currentY);
+            currentY += 15;
+
+            // Gerar relatórios de cada aba
+            const tabs = ['agenda', 'estoque', 'financeiro', 'profissionais', 'servicos'];
+            
+            for (const tab of tabs) {
+                currentY = await this.addTabToPDF(pdf, tab, currentY, pageWidth, pageHeight, margin);
+                
+                // Verificar se precisa de nova página
+                if (currentY > pageHeight - 30) {
+                    pdf.addPage();
+                    currentY = margin;
+                }
+            }
+
+            // Salvar o PDF
+            const fileName = `relatorio_completo_${now.toISOString().split('T')[0]}.pdf`;
+            pdf.save(fileName);
+            
+            // Esconder indicador de progresso
+            this.hideProgressIndicator();
+            this.showNotification('Relatório completo gerado com sucesso!', 'success');
+            
+        } catch (error) {
+            console.error('❌ Erro ao gerar relatório completo:', error);
+            this.hideProgressIndicator();
+            this.showNotification('Erro ao gerar relatório completo', 'error');
+        }
+    }
+
+    async generateTabReport(tabName) {
+        try {
+            this.showProgressIndicator(`Gerando relatório de ${this.getTabTitle(tabName)}...`);
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const margin = 20;
+            let currentY = margin;
+
+            // Cabeçalho
+            pdf.setFontSize(20);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('CH CELIA HOLANDA STUDIO', pageWidth / 2, currentY, { align: 'center' });
+            currentY += 10;
+
+            pdf.setFontSize(16);
+            pdf.setFont('helvetica', 'normal');
+            const tabTitle = this.getTabTitle(tabName);
+            pdf.text(`RELATÓRIO - ${tabTitle.toUpperCase()}`, pageWidth / 2, currentY, { align: 'center' });
+            currentY += 15;
+
+            // Data e filtros
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR');
+            pdf.setFontSize(10);
+            pdf.text(`Gerado em: ${dateStr}`, pageWidth / 2, currentY, { align: 'center' });
+            currentY += 15;
+
+            // Adicionar conteúdo da aba específica
+            currentY = await this.addTabToPDF(pdf, tabName, currentY, pageWidth, pageHeight, margin);
+
+            // Salvar o PDF
+            const fileName = `relatorio_${tabName}_${now.toISOString().split('T')[0]}.pdf`;
+            pdf.save(fileName);
+            
+            this.hideProgressIndicator();
+            this.showNotification(`Relatório de ${tabTitle} gerado com sucesso!`, 'success');
+            
+        } catch (error) {
+            console.error(`❌ Erro ao gerar relatório de ${tabName}:`, error);
+            this.hideProgressIndicator();
+            this.showNotification(`Erro ao gerar relatório de ${tabName}`, 'error');
+        }
+    }
+
+    getTabTitle(tabName) {
+        const titles = {
+            'agenda': 'Agenda',
+            'estoque': 'Estoque',
+            'financeiro': 'Financeiro',
+            'profissionais': 'Profissionais',
+            'servicos': 'Serviços'
+        };
+        return titles[tabName] || tabName;
+    }
+
+    async addTabToPDF(pdf, tabName, currentY, pageWidth, pageHeight, margin) {
+        try {
+            // Título da seção
+            pdf.setFontSize(14);
+            pdf.setFont('helvetica', 'bold');
+            const sectionTitle = this.getTabTitle(tabName);
+            pdf.text(sectionTitle, margin, currentY);
+            currentY += 10;
+
+            // Capturar o conteúdo da aba como imagem
+            const tabElement = document.getElementById(`${tabName}-tab`);
+            if (tabElement) {
+                // Temporariamente mostrar a aba se estiver oculta
+                const wasHidden = tabElement.style.display === 'none';
+                if (wasHidden) {
+                    tabElement.style.display = 'block';
+                }
+
+                // Aplicar classe especial para PDF
+                tabElement.classList.add('pdf-export-mode');
+
+                // Capturar como canvas com configurações otimizadas para cores vivas
+                const canvas = await html2canvas(tabElement, {
+                    scale: 3, // Aumentar escala para melhor qualidade
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    logging: false, // Desabilitar logs para melhor performance
+                    width: tabElement.scrollWidth,
+                    height: tabElement.scrollHeight,
+                    scrollX: 0,
+                    scrollY: 0,
+                    windowWidth: tabElement.scrollWidth,
+                    windowHeight: tabElement.scrollHeight,
+                    // Configurações para melhorar cores
+                    foreignObjectRendering: true,
+                    removeContainer: true,
+                    imageTimeout: 0,
+                    // Forçar cores mais vivas
+                    onclone: function(clonedDoc) {
+                        // Aplicar estilos para melhorar cores no clone
+                        const style = clonedDoc.createElement('style');
+                        style.textContent = `
+                            * {
+                                -webkit-print-color-adjust: exact !important;
+                                color-adjust: exact !important;
+                                print-color-adjust: exact !important;
+                            }
+                            .stat-card .stat-icon {
+                                filter: saturate(1.2) contrast(1.1) !important;
+                            }
+                            .stat-card::before {
+                                filter: saturate(1.2) contrast(1.1) !important;
+                            }
+                            canvas {
+                                image-rendering: -webkit-optimize-contrast !important;
+                                image-rendering: crisp-edges !important;
+                            }
+                        `;
+                        clonedDoc.head.appendChild(style);
+                    }
+                });
+
+                // Calcular dimensões da imagem
+                const imgWidth = pageWidth - (margin * 2);
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+                // Verificar se cabe na página
+                if (currentY + imgHeight > pageHeight - margin) {
+                    pdf.addPage();
+                    currentY = margin;
+                }
+
+                // Processar imagem para melhorar qualidade
+                const processedCanvas = this.enhanceImageQuality(canvas);
+                const imgData = processedCanvas.toDataURL('image/png', 1.0); // Qualidade máxima
+                pdf.addImage(imgData, 'PNG', margin, currentY, imgWidth, imgHeight);
+                currentY += imgHeight + 10;
+
+                // Remover classe especial e restaurar estado original
+                tabElement.classList.remove('pdf-export-mode');
+                if (wasHidden) {
+                    tabElement.style.display = 'none';
+                }
+            } else {
+                // Se não conseguir capturar a aba, adicionar dados em texto
+                currentY = this.addTabDataAsText(pdf, tabName, currentY, pageWidth, margin);
+            }
+
+            return currentY;
+            
+        } catch (error) {
+            console.error(`❌ Erro ao adicionar aba ${tabName} ao PDF:`, error);
+            // Fallback: adicionar dados em texto
+            return this.addTabDataAsText(pdf, tabName, currentY, pageWidth, margin);
+        }
+    }
+
+    addTabDataAsText(pdf, tabName, currentY, pageWidth, margin) {
+        // Adicionar dados da aba em formato de texto como fallback
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'normal');
+        
+        const tabElement = document.getElementById(`${tabName}-tab`);
+        if (tabElement) {
+            // Extrair texto dos cards de estatísticas
+            const statCards = tabElement.querySelectorAll('.stat-card');
+            statCards.forEach(card => {
+                const title = card.querySelector('p')?.textContent || '';
+                const value = card.querySelector('h3')?.textContent || '';
+                
+                if (title && value) {
+                    pdf.text(`${title}: ${value}`, margin, currentY);
+                    currentY += 6;
+                }
+            });
+        } else {
+            pdf.text('Dados não disponíveis para esta seção', margin, currentY);
+            currentY += 6;
+        }
+        
+        return currentY + 10;
+    }
+
+    showProgressIndicator(message = 'Processando...') {
+        // Remover indicador existente se houver
+        this.hideProgressIndicator();
+        
+        const progressDiv = document.createElement('div');
+        progressDiv.id = 'pdf-progress-indicator';
+        progressDiv.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+        `;
+        
+        progressDiv.innerHTML = `
+            <div style="
+                background: white;
+                padding: 30px;
+                border-radius: 10px;
+                text-align: center;
+                color: #333;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            ">
+                <div style="
+                    width: 50px;
+                    height: 50px;
+                    border: 4px solid #f3f3f3;
+                    border-top: 4px solid #975756;
+                    border-radius: 50%;
+                    animation: spin 1s linear infinite;
+                    margin: 0 auto 20px;
+                "></div>
+                <h3 style="margin: 0 0 10px; color: #975756;">${message}</h3>
+                <p style="margin: 0; color: #666;">Aguarde enquanto geramos o PDF...</p>
+            </div>
+        `;
+        
+        // Adicionar animação CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        document.body.appendChild(progressDiv);
+    }
+
+    hideProgressIndicator() {
+        const progressDiv = document.getElementById('pdf-progress-indicator');
+        if (progressDiv) {
+            progressDiv.remove();
+        }
+    }
+
+    enhanceImageQuality(canvas) {
+        // Criar um novo canvas para processar a imagem
+        const enhancedCanvas = document.createElement('canvas');
+        const ctx = enhancedCanvas.getContext('2d');
+        
+        // Manter as mesmas dimensões
+        enhancedCanvas.width = canvas.width;
+        enhancedCanvas.height = canvas.height;
+        
+        // Desenhar a imagem original
+        ctx.drawImage(canvas, 0, 0);
+        
+        // Obter dados da imagem
+        const imageData = ctx.getImageData(0, 0, enhancedCanvas.width, enhancedCanvas.height);
+        const data = imageData.data;
+        
+        // Aplicar melhorias de cor e contraste
+        for (let i = 0; i < data.length; i += 4) {
+            // Aplicar saturação e contraste
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            const a = data[i + 3];
+            
+            // Aumentar saturação (tornar cores mais vivas)
+            const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+            const saturation = 1.3; // Aumentar saturação em 30%
+            
+            data[i] = Math.min(255, Math.max(0, gray + saturation * (r - gray)));
+            data[i + 1] = Math.min(255, Math.max(0, gray + saturation * (g - gray)));
+            data[i + 2] = Math.min(255, Math.max(0, gray + saturation * (b - gray)));
+            
+            // Aumentar contraste ligeiramente
+            const contrast = 1.1;
+            data[i] = Math.min(255, Math.max(0, (data[i] - 128) * contrast + 128));
+            data[i + 1] = Math.min(255, Math.max(0, (data[i + 1] - 128) * contrast + 128));
+            data[i + 2] = Math.min(255, Math.max(0, (data[i + 2] - 128) * contrast + 128));
+        }
+        
+        // Aplicar os dados processados de volta ao canvas
+        ctx.putImageData(imageData, 0, 0);
+        
+        return enhancedCanvas;
     }
 
     showNotification(message, type = 'info') {
