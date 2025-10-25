@@ -1020,6 +1020,10 @@
                                 <i class="fas fa-cogs"></i>
                                 <span>Serviços</span>
                             </button>
+                            <button class="tab-btn" data-tab="comissoes">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span>Comissões</span>
+                            </button>
                         </div>
 
                         <!-- Conteúdo das Abas -->
@@ -1472,6 +1476,76 @@
                                         </div>
                                         <canvas id="lessRequestedChart"></canvas>
                                     </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Aba Comissões -->
+                            <div class="tab-pane" id="comissoes-tab">
+                                <div class="reports-grid">
+                                    <div class="stats-cards">
+                                        <!-- Cards de estatísticas de comissões -->
+                                        <div class="stat-card card-blue">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-users"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="reports-total-professionals">0</h3>
+                                                <p>TOTAL DE PROFISSIONAIS</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card card-green">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-money-bill-wave"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="reports-total-commissions">R$ 0,00</h3>
+                                                <p>TOTAL DE COMISSÕES</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card card-orange">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-percentage"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="reports-avg-commission">0%</h3>
+                                                <p>COMISSÃO MÉDIA</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card card-purple">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-star"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="reports-top-earner">-</h3>
+                                                <p>MAIOR GANHADOR</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="charts-grid">
+                                        <div class="chart-container">
+                                            <div class="chart-header">
+                                                <h3>Comissões por Profissional</h3>
+                                                <button class="btn btn-sm btn-secondary" id="export-commissions-chart">
+                                                    <i class="fas fa-download"></i>
+                                                    Exportar
+                                                </button>
+                                            </div>
+                                            <canvas id="commissionsChart"></canvas>
+                                        </div>
+                                        <div class="chart-container">
+                                            <div class="chart-header">
+                                                <h3>Ranking de Comissões</h3>
+                                                <button class="btn btn-sm btn-secondary" id="export-commission-ranking">
+                                                    <i class="fas fa-download"></i>
+                                                    Exportar
+                                                </button>
+                                            </div>
+                                            <div class="commission-ranking" id="commission-ranking">
+                                                <!-- Ranking será carregado aqui -->
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

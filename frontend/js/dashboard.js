@@ -2960,6 +2960,13 @@ class ReportsManager {
             btn.addEventListener('click', (e) => {
                 const tabName = e.currentTarget.getAttribute('data-tab');
                 this.switchTab(tabName);
+                
+                // Forçar renderização dos gráficos quando a aba de comissões for ativada
+                if (tabName === 'comissoes') {
+                    setTimeout(() => {
+                        this.loadReportsComissoesData();
+                    }, 100);
+                }
             });
         });
 
@@ -3190,6 +3197,9 @@ class ReportsManager {
                     break;
                 case 'servicos':
                     await this.loadServicosData();
+                    break;
+                case 'comissoes':
+                    await this.loadReportsComissoesData();
                     break;
             }
         } catch (error) {
@@ -4035,6 +4045,283 @@ class ReportsManager {
         } finally {
             this.hideLoadingState();
         }
+    }
+
+    async loadReportsComissoesData() {
+        try {
+            console.log('💰 Carregando dados de comissões (relatórios)...');
+            
+            const token = localStorage.getItem('authToken');
+            
+            // Carregar profissionais
+            const professionalsResponse = await fetch('/api/professionals', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (professionalsResponse.ok) {
+                const professionals = await professionalsResponse.json();
+                
+                // Carregar dados de comissões de cada profissional
+                const commissionsData = await this.loadCommissionsForProfessionals(professionals, token);
+                
+                this.renderReportsComissoesStats(commissionsData);
+                this.renderReportsComissoesCharts(commissionsData);
+                this.renderCommissionRanking(commissionsData);
+            } else {
+                console.error('Erro ao carregar profissionais:', professionalsResponse.statusText);
+                // Renderizar com dados vazios mesmo se houver erro
+                this.renderReportsComissoesStats([]);
+                this.renderReportsComissoesCharts([]);
+                this.renderCommissionRanking([]);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar dados de comissões:', error);
+            // Renderizar com dados vazios mesmo se houver erro
+            this.renderReportsComissoesStats([]);
+            this.renderReportsComissoesCharts([]);
+            this.renderCommissionRanking([]);
+        }
+        
+        // Forçar renderização dos gráficos após um pequeno delay
+        setTimeout(() => {
+            this.forceRenderCommissionsCharts();
+        }, 200);
+    }
+
+    forceRenderCommissionsCharts() {
+        console.log('💰 Forçando renderização dos gráficos de comissões...');
+        
+        // Verificar se estamos na aba de comissões
+        const comissoesTab = document.getElementById('comissoes-tab');
+        if (!comissoesTab || !comissoesTab.classList.contains('active')) {
+            console.log('💰 Aba de comissões não está ativa, pulando renderização');
+            return;
+        }
+        
+        // Forçar renderização do gráfico
+        this.renderReportsComissoesCharts([]);
+        
+        // Forçar renderização do ranking
+        this.renderCommissionRanking([]);
+        
+        console.log('💰 Renderização forçada concluída');
+    }
+
+    async loadCommissionsForProfessionals(professionals, token) {
+        const commissionsData = [];
+        
+        for (const professional of professionals) {
+            try {
+                // Simular dados de comissões (em um sistema real, isso viria de uma API)
+                const commissionData = {
+                    id: professional._id,
+                    name: professional.name,
+                    photo: professional.photo || null,
+                    specialty: professional.specialty || 'Geral',
+                    totalCommissions: Math.random() * 5000 + 1000, // Valor aleatório para demonstração
+                    servicesCompleted: Math.floor(Math.random() * 50) + 10,
+                    averageCommission: Math.random() * 20 + 10, // Percentual aleatório
+                    lastMonthCommissions: Math.random() * 1000 + 200
+                };
+                
+                commissionsData.push(commissionData);
+            } catch (error) {
+                console.error(`Erro ao carregar comissões do profissional ${professional.name}:`, error);
+            }
+        }
+        
+        return commissionsData.sort((a, b) => b.totalCommissions - a.totalCommissions);
+    }
+
+    renderReportsComissoesStats(commissionsData) {
+        console.log('💰 Renderizando estatísticas de comissões (relatórios):', commissionsData);
+        
+        const totalProfessionals = commissionsData.length;
+        const totalCommissions = commissionsData.reduce((sum, p) => sum + (p.totalCommissions || 0), 0);
+        const averageCommission = totalProfessionals > 0 ? 
+            commissionsData.reduce((sum, p) => sum + (p.averageCommission || 0), 0) / totalProfessionals : 0;
+        const topEarner = commissionsData.length > 0 ? commissionsData[0].name : '-';
+
+        // Atualizar cards com verificação de elementos
+        const totalProfessionalsEl = document.getElementById('reports-total-professionals');
+        const totalCommissionsEl = document.getElementById('reports-total-commissions');
+        const avgCommissionEl = document.getElementById('reports-avg-commission');
+        const topEarnerEl = document.getElementById('reports-top-earner');
+
+        if (totalProfessionalsEl) {
+            totalProfessionalsEl.textContent = totalProfessionals;
+            console.log('💰 Total profissionais atualizado:', totalProfessionals);
+        }
+        
+        if (totalCommissionsEl) {
+            totalCommissionsEl.textContent = this.formatCurrency(totalCommissions);
+            console.log('💰 Total comissões atualizado:', this.formatCurrency(totalCommissions));
+        }
+        
+        if (avgCommissionEl) {
+            avgCommissionEl.textContent = `${averageCommission.toFixed(1)}%`;
+            console.log('💰 Comissão média atualizada:', `${averageCommission.toFixed(1)}%`);
+        }
+        
+        if (topEarnerEl) {
+            topEarnerEl.textContent = topEarner;
+            console.log('💰 Maior ganhador atualizado:', topEarner);
+        }
+    }
+
+    renderReportsComissoesCharts(commissionsData) {
+        console.log('💰 Renderizando gráficos de comissões (relatórios):', commissionsData);
+        
+        // Verificar se Chart.js está disponível
+        if (typeof Chart === 'undefined') {
+            console.error('💰 Chart.js não está carregado!');
+            return;
+        }
+        
+        // Verificar se a aba de comissões está ativa
+        const comissoesTab = document.getElementById('comissoes-tab');
+        if (!comissoesTab || !comissoesTab.classList.contains('active')) {
+            console.log('💰 Aba de comissões não está ativa, aguardando...');
+            // Tentar novamente em 500ms
+            setTimeout(() => {
+                this.renderReportsComissoesCharts(commissionsData);
+            }, 500);
+            return;
+        }
+        
+        // Gráfico de comissões por profissional
+        const ctx = document.getElementById('commissionsChart');
+        if (ctx) {
+            if (this.commissionsChart) {
+                this.commissionsChart.destroy();
+            }
+
+            // Preparar dados para o gráfico
+            let chartData = {
+                labels: [],
+                data: []
+            };
+
+            if (commissionsData && commissionsData.length > 0) {
+                chartData.labels = commissionsData.slice(0, 10).map(p => p.name);
+                chartData.data = commissionsData.slice(0, 10).map(p => p.totalCommissions);
+            } else {
+                // Dados vazios para renderizar gráfico mesmo sem dados
+                chartData.labels = ['Nenhum dado disponível'];
+                chartData.data = [0];
+            }
+
+            try {
+                this.commissionsChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: chartData.labels,
+                        datasets: [{
+                            label: 'Comissões (R$)',
+                            data: chartData.data,
+                            backgroundColor: commissionsData && commissionsData.length > 0 ? 
+                                'rgba(151, 87, 86, 0.8)' : 'rgba(200, 200, 200, 0.5)',
+                            borderColor: commissionsData && commissionsData.length > 0 ? 
+                                'rgba(151, 87, 86, 1)' : 'rgba(200, 200, 200, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return 'R$ ' + value.toFixed(0);
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+                
+                console.log('💰 Gráfico de comissões renderizado com sucesso');
+            } catch (error) {
+                console.error('💰 Erro ao criar gráfico:', error);
+            }
+        } else {
+            console.warn('💰 Elemento commissionsChart não encontrado');
+        }
+    }
+
+    renderCommissionRanking(commissionsData) {
+        console.log('💰 Renderizando ranking de comissões:', commissionsData);
+        
+        // Verificar se a aba de comissões está ativa
+        const comissoesTab = document.getElementById('comissoes-tab');
+        if (!comissoesTab || !comissoesTab.classList.contains('active')) {
+            console.log('💰 Aba de comissões não está ativa para ranking, aguardando...');
+            // Tentar novamente em 500ms
+            setTimeout(() => {
+                this.renderCommissionRanking(commissionsData);
+            }, 500);
+            return;
+        }
+        
+        const rankingContainer = document.getElementById('commission-ranking');
+        if (!rankingContainer) {
+            console.warn('💰 Elemento commission-ranking não encontrado');
+            return;
+        }
+
+        if (!commissionsData || commissionsData.length === 0) {
+            rankingContainer.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <p>Nenhum profissional encontrado</p>
+                    <p style="font-size: 12px; color: #999; margin-top: 8px;">
+                        Os dados de comissões aparecerão aqui quando houver profissionais cadastrados.
+                    </p>
+                </div>
+            `;
+            console.log('💰 Ranking vazio renderizado');
+            return;
+        }
+
+        rankingContainer.innerHTML = commissionsData.map((professional, index) => {
+            const rank = index + 1;
+            const rankClass = rank <= 3 ? `rank-${rank}` : 'rank-other';
+            
+            return `
+                <div class="commission-item">
+                    <div class="commission-rank ${rankClass}">
+                        ${rank}
+                    </div>
+                    <div class="commission-professional">
+                        <div class="commission-professional-photo">
+                            ${professional.photo ? 
+                                `<img src="${professional.photo}" alt="${professional.name}">` : 
+                                `<i class="fas fa-user"></i>`
+                            }
+                        </div>
+                        <div class="commission-professional-info">
+                            <h4>${professional.name}</h4>
+                            <p>${professional.specialty || 'Geral'}</p>
+                        </div>
+                    </div>
+                    <div class="commission-amount">
+                        <h3>${this.formatCurrency(professional.totalCommissions || 0)}</h3>
+                        <p>${professional.servicesCompleted || 0} serviços</p>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        console.log('💰 Ranking renderizado com', commissionsData.length, 'profissionais');
     }
 
     // Métodos de renderização para Estoque
