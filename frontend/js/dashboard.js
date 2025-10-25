@@ -87,8 +87,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Logout
-    logoutBtn.addEventListener('click', function() {
-        if (confirm('Tem certeza que deseja sair?')) {
+    logoutBtn.addEventListener('click', async function() {
+        const confirmed = await confirmAction(
+            'Confirmar saída',
+            'Tem certeza que deseja sair do sistema?',
+            'Você precisará fazer login novamente para acessar o sistema.'
+        );
+        if (confirmed) {
             logout();
         }
     });
@@ -387,42 +392,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.head.appendChild(style);
     }
 
-    // Notificações
-    function showNotification(message, type = 'success') {
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        notification.innerHTML = `
-            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-            <span>${message}</span>
-        `;
-
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            notification.style.animation = 'slideOutRight 0.3s ease';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.remove();
-                }
-            }, 300);
-        }, 4000);
-    }
-
-    // Adicionar CSS para animação de saída
-    const notificationStyle = document.createElement('style');
-    notificationStyle.textContent = `
-        @keyframes slideOutRight {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-        }
-    `;
-    document.head.appendChild(notificationStyle);
+    // ==================== SISTEMA DE NOTIFICAÇÕES ====================
+    // As funções de notificação e confirmação estão no arquivo js/utils/notifications.js
 
     // Inicializar abas de configurações
     function initConfigTabs() {
@@ -446,6 +417,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 const targetPane = document.getElementById(`${targetTab}-tab`);
                 if (targetPane) {
                     targetPane.classList.add('active');
+                }
+
+                // Carregar dados específicos da aba
+                if (targetTab === 'contatos') {
+                    dashboard.loadContacts();
                 }
                 
                 // Inicializar AgendaManager quando a aba de agenda for ativada
@@ -1230,7 +1206,11 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        if (!confirm('Tem certeza que deseja excluir este usuário?')) {
+        const confirmed = await confirmDelete(
+            'este usuário',
+            'Todos os dados associados ao usuário serão perdidos permanentemente.'
+        );
+        if (!confirmed) {
             return;
         }
 
@@ -2941,6 +2921,9 @@ class ReportsManager {
 
         // Botões de exportação individuais
         this.setupExportButtons();
+
+        // Event listeners para contatos
+        this.setupContactsEventListeners();
     }
 
     setupExportButtons() {
@@ -6220,6 +6203,371 @@ class ReportsManager {
             console.log(`[${type.toUpperCase()}] ${message}`);
         }
     }
+
+    // ==================== GERENCIAMENTO DE CONTATOS ====================
+
+    setupContactsEventListeners() {
+        // Botão de sincronizar WhatsApp
+        document.getElementById('sync-contacts-btn')?.addEventListener('click', () => {
+            this.syncWhatsAppContacts();
+        });
+
+        // Botão de adicionar contato
+        document.getElementById('add-contact-btn')?.addEventListener('click', () => {
+            this.showContactModal();
+        });
+
+        // Busca de contatos
+        document.getElementById('contact-search')?.addEventListener('input', (e) => {
+            this.searchContacts(e.target.value);
+        });
+
+        // Filtro por origem
+        document.getElementById('contact-source-filter')?.addEventListener('change', (e) => {
+            this.filterContactsBySource(e.target.value);
+        });
+    }
+
+    async loadContacts(page = 1, search = '', origin = '') {
+        try {
+            console.log('📞 Carregando contatos...');
+            this.showLoadingState('contacts-list');
+
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                console.error('Token não encontrado');
+                this.hideLoadingState();
+                return;
+            }
+
+            const params = new URLSearchParams({
+                page: page.toString(),
+                limit: '20'
+            });
+
+            if (search) params.append('search', search);
+            if (origin) params.append('origin', origin);
+
+            const response = await fetch(`/api/contacts?${params}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('📞 Contatos carregados:', data);
+                this.renderContacts(data.contacts, data.pagination);
+            } else {
+                console.error('Erro ao carregar contatos:', response.status);
+                this.showNotification('Erro ao carregar contatos', 'error');
+            }
+
+            this.hideLoadingState();
+        } catch (error) {
+            console.error('Erro ao carregar contatos:', error);
+            this.showNotification('Erro ao carregar contatos', 'error');
+            this.hideLoadingState();
+        }
+    }
+
+    renderContacts(contacts, pagination) {
+        const contactsList = document.getElementById('contacts-list');
+        if (!contactsList) return;
+
+        if (contacts.length === 0) {
+            contactsList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <h3>Nenhum contato encontrado</h3>
+                    <p>Adicione contatos manualmente ou sincronize com o WhatsApp.</p>
+                </div>
+            `;
+            return;
+        }
+
+        const contactsHTML = contacts.map(contact => `
+            <div class="contact-card" data-contact-id="${contact._id}">
+                <div class="contact-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="contact-info">
+                    <h4>${contact.name}</h4>
+                    <p class="contact-phone">
+                        <i class="fas fa-phone"></i>
+                        ${contact.phone}
+                    </p>
+                    ${contact.email ? `
+                        <p class="contact-email">
+                            <i class="fas fa-envelope"></i>
+                            ${contact.email}
+                        </p>
+                    ` : ''}
+                    <div class="contact-meta">
+                        <span class="contact-origin ${contact.origin}">
+                            <i class="fas fa-${contact.origin === 'whatsapp' ? 'whatsapp' : 'user-plus'}"></i>
+                            ${contact.origin === 'whatsapp' ? 'WhatsApp' : 'Manual'}
+                        </span>
+                        ${contact.totalAppointments > 0 ? `
+                            <span class="contact-appointments">
+                                <i class="fas fa-calendar"></i>
+                                ${contact.totalAppointments} agendamentos
+                            </span>
+                        ` : ''}
+                    </div>
+                </div>
+                <div class="contact-actions">
+                    <button class="btn btn-sm btn-primary" onclick="dashboard.editContact('${contact._id}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="dashboard.deleteContact('${contact._id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+
+        contactsList.innerHTML = contactsHTML;
+        this.renderContactsPagination(pagination);
+    }
+
+    renderContactsPagination(pagination) {
+        const paginationEl = document.getElementById('contacts-pagination');
+        if (!paginationEl) return;
+
+        if (pagination.pages <= 1) {
+            paginationEl.innerHTML = '';
+            return;
+        }
+
+        let paginationHTML = '<div class="pagination-controls">';
+        
+        // Botão anterior
+        if (pagination.page > 1) {
+            paginationHTML += `
+                <button class="btn btn-sm" onclick="dashboard.loadContacts(${pagination.page - 1})">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            `;
+        }
+
+        // Páginas
+        const startPage = Math.max(1, pagination.page - 2);
+        const endPage = Math.min(pagination.pages, pagination.page + 2);
+
+        for (let i = startPage; i <= endPage; i++) {
+            paginationHTML += `
+                <button class="btn btn-sm ${i === pagination.page ? 'active' : ''}" 
+                        onclick="dashboard.loadContacts(${i})">
+                    ${i}
+                </button>
+            `;
+        }
+
+        // Botão próximo
+        if (pagination.page < pagination.pages) {
+            paginationHTML += `
+                <button class="btn btn-sm" onclick="dashboard.loadContacts(${pagination.page + 1})">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            `;
+        }
+
+        paginationHTML += '</div>';
+        paginationEl.innerHTML = paginationHTML;
+    }
+
+    async syncWhatsAppContacts() {
+        try {
+            console.log('🔄 Sincronizando contatos do WhatsApp...');
+            this.showNotification('Sincronizando contatos do WhatsApp...', 'info');
+
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                this.showNotification('Token não encontrado', 'error');
+                return;
+            }
+
+            const response = await fetch('/api/contacts/sync-whatsapp', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.showNotification(`Sincronização concluída! ${data.contactsCount} contatos processados.`, 'success');
+                this.loadContacts(); // Recarregar lista
+            } else {
+                this.showNotification(data.message, 'error');
+            }
+        } catch (error) {
+            console.error('Erro na sincronização:', error);
+            this.showNotification('Erro na sincronização', 'error');
+        }
+    }
+
+    showContactModal(contact = null) {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>${contact ? 'Editar Contato' : 'Novo Contato'}</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="contact-form">
+                        <div class="form-group">
+                            <label for="contact-name">Nome *</label>
+                            <input type="text" id="contact-name" value="${contact?.name || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-phone">Telefone *</label>
+                            <input type="tel" id="contact-phone" value="${contact?.phone || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-email">E-mail</label>
+                            <input type="email" id="contact-email" value="${contact?.email || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-notes">Observações</label>
+                            <textarea id="contact-notes" rows="3">${contact?.notes || ''}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-tags">Tags (separadas por vírgula)</label>
+                            <input type="text" id="contact-tags" value="${contact?.tags?.join(', ') || ''}">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+                    <button class="btn btn-primary" onclick="dashboard.saveContact('${contact?._id || ''}')">
+                        ${contact ? 'Atualizar' : 'Salvar'}
+                    </button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // Fechar modal ao clicar no X ou fora
+        modal.querySelector('.modal-close').addEventListener('click', () => modal.remove());
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.remove();
+        });
+    }
+
+    async saveContact(contactId) {
+        try {
+            const form = document.getElementById('contact-form');
+            const formData = new FormData(form);
+            
+            const contactData = {
+                name: document.getElementById('contact-name').value,
+                phone: document.getElementById('contact-phone').value,
+                email: document.getElementById('contact-email').value,
+                notes: document.getElementById('contact-notes').value,
+                tags: document.getElementById('contact-tags').value.split(',').map(tag => tag.trim()).filter(tag => tag)
+            };
+
+            if (!contactData.name || !contactData.phone) {
+                this.showNotification('Nome e telefone são obrigatórios', 'error');
+                return;
+            }
+
+            const token = localStorage.getItem('authToken');
+            const url = contactId ? `/api/contacts/${contactId}` : '/api/contacts';
+            const method = contactId ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(contactData)
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.showNotification(contactId ? 'Contato atualizado com sucesso!' : 'Contato criado com sucesso!', 'success');
+                document.querySelector('.modal-overlay').remove();
+                this.loadContacts();
+            } else {
+                this.showNotification(data.message, 'error');
+            }
+        } catch (error) {
+            console.error('Erro ao salvar contato:', error);
+            this.showNotification('Erro ao salvar contato', 'error');
+        }
+    }
+
+    editContact(contactId) {
+        // Buscar dados do contato e abrir modal
+        this.getContactById(contactId).then(contact => {
+            if (contact) {
+                this.showContactModal(contact);
+            }
+        });
+    }
+
+    async getContactById(contactId) {
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch(`/api/contacts/${contactId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                return data.contact;
+            }
+        } catch (error) {
+            console.error('Erro ao obter contato:', error);
+        }
+        return null;
+    }
+
+    async deleteContact(contactId) {
+        const confirmed = await confirmDelete(
+            'este contato',
+            'O contato será removido da sua lista, mas os dados de agendamentos serão preservados.'
+        );
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch(`/api/contacts/${contactId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.showNotification('Contato removido com sucesso!', 'success');
+                this.loadContacts();
+            } else {
+                this.showNotification(data.message, 'error');
+            }
+        } catch (error) {
+            console.error('Erro ao remover contato:', error);
+            this.showNotification('Erro ao remover contato', 'error');
+        }
+    }
+
+    searchContacts(searchTerm) {
+        clearTimeout(this.searchTimeout);
+        this.searchTimeout = setTimeout(() => {
+            this.loadContacts(1, searchTerm);
+        }, 500);
+    }
+
+    filterContactsBySource(origin) {
+        this.loadContacts(1, '', origin);
+    }
 }
 
 // Inicializar Reports Manager
@@ -6284,10 +6632,10 @@ window.reportsManager = reportsManager;
 window.clearAllAppointments = async function() {
     try {
         // Confirmar ação
-        const confirmed = confirm(
-            '⚠️ ATENÇÃO: Esta operação irá apagar TODOS os agendamentos!\n\n' +
-            'Esta ação NÃO pode ser desfeita!\n\n' +
-            'Tem certeza que deseja continuar?'
+        const confirmed = await confirmDangerousAction(
+            '⚠️ ATENÇÃO: Apagar TODOS os agendamentos',
+            'Esta operação irá apagar TODOS os agendamentos do sistema!',
+            'Esta ação NÃO pode ser desfeita e irá remover permanentemente todos os dados de agendamentos.'
         );
         
         if (!confirmed) {
@@ -6295,11 +6643,10 @@ window.clearAllAppointments = async function() {
         }
         
         // Segunda confirmação
-        const doubleConfirmed = confirm(
-            '🚨 ÚLTIMA CONFIRMAÇÃO 🚨\n\n' +
-            'Você está prestes a apagar TODOS os agendamentos do sistema.\n\n' +
-            'Esta ação é IRREVERSÍVEL!\n\n' +
-            'Digite "CONFIRMAR" para continuar:'
+        const doubleConfirmed = await confirmDangerousAction(
+            '🚨 ÚLTIMA CONFIRMAÇÃO 🚨',
+            'Você está prestes a apagar TODOS os agendamentos do sistema.',
+            'Esta ação é IRREVERSÍVEL! Todos os dados de agendamentos serão perdidos permanentemente.'
         );
         
         if (!doubleConfirmed) {
@@ -6344,10 +6691,10 @@ window.clearAllAppointments = async function() {
 window.clearAllCommissions = async function() {
     try {
         // Confirmar ação
-        const confirmed = confirm(
-            '⚠️ ATENÇÃO: Esta operação irá apagar TODAS as comissões!\n\n' +
-            'Esta ação NÃO pode ser desfeita!\n\n' +
-            'Tem certeza que deseja continuar?'
+        const confirmed = await confirmDangerousAction(
+            '⚠️ ATENÇÃO: Apagar TODAS as comissões',
+            'Esta operação irá apagar TODAS as comissões do sistema!',
+            'Esta ação NÃO pode ser desfeita e irá remover permanentemente todos os dados de comissões.'
         );
         
         if (!confirmed) {
@@ -6355,11 +6702,10 @@ window.clearAllCommissions = async function() {
         }
         
         // Segunda confirmação
-        const doubleConfirmed = confirm(
-            '🚨 ÚLTIMA CONFIRMAÇÃO 🚨\n\n' +
-            'Você está prestes a apagar TODAS as comissões do sistema.\n\n' +
-            'Esta ação é IRREVERSÍVEL!\n\n' +
-            'Digite "CONFIRMAR" para continuar:'
+        const doubleConfirmed = await confirmDangerousAction(
+            '🚨 ÚLTIMA CONFIRMAÇÃO 🚨',
+            'Você está prestes a apagar TODAS as comissões do sistema.',
+            'Esta ação é IRREVERSÍVEL! Todos os dados de comissões serão perdidos permanentemente.'
         );
         
         if (!doubleConfirmed) {

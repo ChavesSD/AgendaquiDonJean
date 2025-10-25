@@ -657,6 +657,153 @@ class WhatsAppService {
             throw error;
         }
     }
+
+    // Sincronizar contatos do WhatsApp
+    async syncContacts() {
+        try {
+            console.log('🔄 Iniciando sincronização de contatos do WhatsApp...');
+            
+            if (!this.client || !this.isConnected) {
+                throw new Error('WhatsApp não está conectado');
+            }
+
+            // Aguardar WhatsApp estar pronto
+            await this.waitForReady();
+
+            // Obter todos os chats
+            const chats = await this.client.getChats();
+            console.log(`📱 Encontrados ${chats.length} chats no WhatsApp`);
+
+            const contacts = [];
+            const Contact = require('../models/Contact');
+
+            for (const chat of chats) {
+                try {
+                    // Pular grupos por enquanto (focar em contatos individuais)
+                    if (chat.isGroup) {
+                        continue;
+                    }
+
+                    const contactId = chat.id._serialized;
+                    const phoneNumber = contactId.replace('@c.us', '');
+                    
+                    // Obter informações do contato
+                    const contactInfo = await this.client.getContactById(contactId);
+                    
+                    if (contactInfo) {
+                        const contactData = {
+                            name: contactInfo.name || contactInfo.pushname || phoneNumber,
+                            phone: phoneNumber,
+                            whatsappId: contactId,
+                            origin: 'whatsapp',
+                            isActive: true,
+                            lastInteraction: new Date(),
+                            whatsappData: {
+                                isGroup: chat.isGroup || false,
+                                isBusiness: contactInfo.isBusiness || false,
+                                status: contactInfo.status || '',
+                                isOnline: contactInfo.isOnline || false
+                            }
+                        };
+
+                        // Verificar se o contato já existe
+                        const existingContact = await Contact.findOne({
+                            $or: [
+                                { whatsappId: contactId },
+                                { phone: phoneNumber }
+                            ]
+                        });
+
+                        if (existingContact) {
+                            // Atualizar contato existente
+                            await Contact.findByIdAndUpdate(existingContact._id, {
+                                ...contactData,
+                                lastSyncAt: new Date()
+                            });
+                            console.log(`✅ Contato atualizado: ${contactData.name}`);
+                        } else {
+                            // Criar novo contato
+                            const newContact = new Contact({
+                                ...contactData,
+                                createdBy: 'system' // Será atualizado pelo usuário logado
+                            });
+                            await newContact.save();
+                            console.log(`➕ Novo contato criado: ${contactData.name}`);
+                        }
+
+                        contacts.push(contactData);
+                    }
+                } catch (contactError) {
+                    console.error(`❌ Erro ao processar contato:`, contactError.message);
+                    continue;
+                }
+            }
+
+            console.log(`✅ Sincronização concluída: ${contacts.length} contatos processados`);
+            return {
+                success: true,
+                message: `Sincronização concluída com sucesso`,
+                contactsCount: contacts.length,
+                contacts: contacts
+            };
+
+        } catch (error) {
+            console.error('❌ Erro na sincronização de contatos:', error);
+            return {
+                success: false,
+                message: 'Erro na sincronização: ' + error.message
+            };
+        }
+    }
+
+    // Obter contatos do WhatsApp
+    async getWhatsAppContacts() {
+        try {
+            if (!this.client || !this.isConnected) {
+                throw new Error('WhatsApp não está conectado');
+            }
+
+            await this.waitForReady();
+            const chats = await this.client.getChats();
+            
+            const contacts = [];
+            for (const chat of chats) {
+                if (!chat.isGroup) {
+                    const contactId = chat.id._serialized;
+                    const phoneNumber = contactId.replace('@c.us', '');
+                    
+                    try {
+                        const contactInfo = await this.client.getContactById(contactId);
+                        if (contactInfo) {
+                            contacts.push({
+                                id: contactId,
+                                name: contactInfo.name || contactInfo.pushname || phoneNumber,
+                                phone: phoneNumber,
+                                isBusiness: contactInfo.isBusiness || false,
+                                status: contactInfo.status || '',
+                                isOnline: contactInfo.isOnline || false
+                            });
+                        }
+                    } catch (contactError) {
+                        console.error(`Erro ao obter contato ${contactId}:`, contactError.message);
+                    }
+                }
+            }
+
+            return {
+                success: true,
+                contacts: contacts,
+                count: contacts.length
+            };
+
+        } catch (error) {
+            console.error('Erro ao obter contatos do WhatsApp:', error);
+            return {
+                success: false,
+                message: 'Erro ao obter contatos: ' + error.message
+            };
+        }
+    }
 }
 
 // Instância singleton

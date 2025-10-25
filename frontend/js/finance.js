@@ -830,7 +830,11 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     window.deleteRevenue = async function(revenueId) {
-        if (confirm('Tem certeza que deseja excluir esta receita?')) {
+        const confirmed = await confirmDelete(
+            'esta receita',
+            'Esta ação não pode ser desfeita. Os dados da receita serão perdidos permanentemente.'
+        );
+        if (confirmed) {
             try {
                 const token = localStorage.getItem('authToken');
                 const response = await fetch(`/api/revenues/${revenueId}`, {
@@ -859,7 +863,11 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     window.deleteExpense = async function(expenseId) {
-        if (confirm('Tem certeza que deseja excluir este gasto?')) {
+        const confirmed = await confirmDelete(
+            'este gasto',
+            'Esta ação não pode ser desfeita. Os dados do gasto serão perdidos permanentemente.'
+        );
+        if (confirmed) {
             try {
                 const token = localStorage.getItem('authToken');
                 const response = await fetch(`/api/expenses/${expenseId}`, {
@@ -888,7 +896,11 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     window.deletePos = async function(posId) {
-        if (confirm('Tem certeza que deseja excluir esta maquininha?')) {
+        const confirmed = await confirmDelete(
+            'esta maquininha',
+            'Esta ação não pode ser desfeita. Os dados da maquininha serão perdidos permanentemente.'
+        );
+        if (confirmed) {
             try {
                 const token = localStorage.getItem('authToken');
                 const response = await fetch(`/api/pos-machines/${posId}`, {

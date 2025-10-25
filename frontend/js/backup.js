@@ -243,7 +243,12 @@ class BackupManager {
 
     // Executar manutenção
     async performMaintenance() {
-        if (!confirm('Tem certeza que deseja executar a manutenção do banco? Esta ação pode demorar alguns minutos.')) {
+        const confirmed = await confirmAction(
+            'Executar manutenção do banco',
+            'Tem certeza que deseja executar a manutenção do banco?',
+            'Esta ação pode demorar alguns minutos e o sistema pode ficar mais lento durante o processo.'
+        );
+        if (!confirmed) {
             return;
         }
 
@@ -422,7 +427,11 @@ class BackupManager {
 
     // Deletar backup
     async deleteBackup(backupId) {
-        if (!confirm('Tem certeza que deseja deletar este backup?')) {
+        const confirmed = await confirmDelete(
+            'este backup',
+            'Esta ação não pode ser desfeita. O arquivo de backup será removido permanentemente.'
+        );
+        if (!confirmed) {
             return;
         }
 

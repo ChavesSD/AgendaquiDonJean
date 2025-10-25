@@ -529,7 +529,12 @@ class AgendaManager {
     }
 
     async confirmAppointment(appointmentId) {
-        if (confirm('Deseja confirmar este agendamento?')) {
+        const confirmed = await confirmAction(
+            'Confirmar agendamento',
+            'Deseja confirmar este agendamento?',
+            'O cliente receberá uma notificação de confirmação.'
+        );
+        if (confirmed) {
             try {
                 // Buscar dados do agendamento antes de confirmar
                 const appointment = this.appointments.find(apt => apt._id === appointmentId);
@@ -610,7 +615,12 @@ class AgendaManager {
         console.log('🔄 Iniciando finalização do agendamento no frontend:', appointmentId);
         console.log('🔑 Token disponível:', localStorage.getItem('authToken') ? 'Sim' : 'Não');
         
-        if (confirm('Deseja finalizar este agendamento? Isso criará uma receita automaticamente.')) {
+        const confirmed = await confirmAction(
+            'Finalizar agendamento',
+            'Deseja finalizar este agendamento?',
+            'Isso criará uma receita automaticamente e marcará o agendamento como concluído.'
+        );
+        if (confirmed) {
             try {
                 console.log('🌐 Fazendo requisição para:', `/api/appointments/${appointmentId}/complete`);
                 const response = await fetch(`/api/appointments/${appointmentId}/complete`, {
@@ -655,7 +665,11 @@ class AgendaManager {
     }
 
     async deleteAppointment(appointmentId) {
-        if (confirm('Deseja excluir este agendamento? Esta ação não pode ser desfeita.')) {
+        const confirmed = await confirmDelete(
+            'este agendamento',
+            'Esta ação não pode ser desfeita. Todos os dados do agendamento serão perdidos.'
+        );
+        if (confirmed) {
             try {
                 const response = await fetch(`/api/appointments/${appointmentId}`, {
                     method: 'DELETE',
@@ -1232,8 +1246,12 @@ class AgendaManager {
         console.log('Editar contato:', contactId);
     }
     
-    deleteContact(contactId) {
-        if (confirm('Tem certeza que deseja excluir este contato?')) {
+    async deleteContact(contactId) {
+        const confirmed = await confirmDelete(
+            'este contato',
+            'O contato será removido da sua lista, mas os dados de agendamentos serão preservados.'
+        );
+        if (confirmed) {
             // Implementar exclusão de contato
             console.log('Excluir contato:', contactId);
         }

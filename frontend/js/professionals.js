@@ -315,7 +315,11 @@ class ProfessionalManager {
 
     // Excluir profissional
     async deleteProfessional(id) {
-        if (!confirm('Tem certeza que deseja excluir este profissional?')) {
+        const confirmed = await confirmDelete(
+            'este profissional',
+            'Esta ação não pode ser desfeita. Todos os dados do profissional serão perdidos permanentemente.'
+        );
+        if (!confirmed) {
             return;
         }
 

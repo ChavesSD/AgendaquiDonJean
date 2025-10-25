@@ -4453,6 +4453,296 @@ app.get('/api/appointments/by-date', authenticateToken, async (req, res) => {
     }
 });
 
+// ==================== ROTAS DE CONTATOS ====================
+
+const Contact = require('./models/Contact');
+
+// Listar contatos
+app.get('/api/contacts', authenticateToken, async (req, res) => {
+    try {
+        const { search, origin, page = 1, limit = 20 } = req.query;
+        
+        let filter = { isActive: true };
+        
+        // Filtro por busca
+        if (search) {
+            filter.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { phone: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } }
+            ];
+        }
+        
+        // Filtro por origem
+        if (origin && origin !== 'all') {
+            filter.origin = origin;
+        }
+        
+        const skip = (page - 1) * limit;
+        
+        const contacts = await Contact.find(filter)
+            .sort({ lastInteraction: -1, createdAt: -1 })
+            .skip(skip)
+            .limit(parseInt(limit));
+            
+        const total = await Contact.countDocuments(filter);
+        
+        res.json({
+            success: true,
+            contacts,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                total,
+                pages: Math.ceil(total / limit)
+            }
+        });
+        
+    } catch (error) {
+        console.error('Erro ao listar contatos:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// Obter contato por ID
+app.get('/api/contacts/:id', authenticateToken, async (req, res) => {
+    try {
+        const contact = await Contact.findById(req.params.id);
+        
+        if (!contact) {
+            return res.status(404).json({ success: false, message: 'Contato não encontrado' });
+        }
+        
+        res.json({ success: true, contact });
+        
+    } catch (error) {
+        console.error('Erro ao obter contato:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// Criar novo contato
+app.post('/api/contacts', authenticateToken, async (req, res) => {
+    try {
+        const { name, phone, email, notes, tags } = req.body;
+        
+        if (!name || !phone) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Nome e telefone são obrigatórios' 
+            });
+        }
+        
+        // Verificar se já existe contato com este telefone
+        const existingContact = await Contact.findOne({ phone });
+        if (existingContact) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Já existe um contato com este telefone' 
+            });
+        }
+        
+        const contact = new Contact({
+            name,
+            phone,
+            email,
+            notes,
+            tags: tags || [],
+            origin: 'manual',
+            createdBy: req.user.userId,
+            isActive: true
+        });
+        
+        await contact.save();
+        
+        res.status(201).json({ success: true, contact });
+        
+    } catch (error) {
+        console.error('Erro ao criar contato:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// Atualizar contato
+app.put('/api/contacts/:id', authenticateToken, async (req, res) => {
+    try {
+        const { name, phone, email, notes, tags, isActive } = req.body;
+        
+        const contact = await Contact.findById(req.params.id);
+        if (!contact) {
+            return res.status(404).json({ success: false, message: 'Contato não encontrado' });
+        }
+        
+        // Verificar se o telefone já existe em outro contato
+        if (phone && phone !== contact.phone) {
+            const existingContact = await Contact.findOne({ 
+                phone, 
+                _id: { $ne: req.params.id } 
+            });
+            if (existingContact) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'Já existe um contato com este telefone' 
+                });
+            }
+        }
+        
+        const updateData = {};
+        if (name !== undefined) updateData.name = name;
+        if (phone !== undefined) updateData.phone = phone;
+        if (email !== undefined) updateData.email = email;
+        if (notes !== undefined) updateData.notes = notes;
+        if (tags !== undefined) updateData.tags = tags;
+        if (isActive !== undefined) updateData.isActive = isActive;
+        
+        const updatedContact = await Contact.findByIdAndUpdate(
+            req.params.id,
+            updateData,
+            { new: true }
+        );
+        
+        res.json({ success: true, contact: updatedContact });
+        
+    } catch (error) {
+        console.error('Erro ao atualizar contato:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// Deletar contato (soft delete)
+app.delete('/api/contacts/:id', authenticateToken, async (req, res) => {
+    try {
+        const contact = await Contact.findByIdAndUpdate(
+            req.params.id,
+            { isActive: false },
+            { new: true }
+        );
+        
+        if (!contact) {
+            return res.status(404).json({ success: false, message: 'Contato não encontrado' });
+        }
+        
+        res.json({ success: true, message: 'Contato removido com sucesso' });
+        
+    } catch (error) {
+        console.error('Erro ao deletar contato:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
+// Sincronizar contatos do WhatsApp
+app.post('/api/contacts/sync-whatsapp', authenticateToken, async (req, res) => {
+    try {
+        console.log('🔄 Iniciando sincronização de contatos do WhatsApp...');
+        
+        const whatsappService = require('./services/whatsappService');
+        
+        // Verificar se WhatsApp está conectado
+        const status = whatsappService.getStatus();
+        if (!status.isConnected) {
+            return res.status(400).json({
+                success: false,
+                message: 'WhatsApp não está conectado. Conecte o WhatsApp primeiro.'
+            });
+        }
+        
+        // Executar sincronização
+        const result = await whatsappService.syncContacts();
+        
+        if (result.success) {
+            res.json({
+                success: true,
+                message: result.message,
+                contactsCount: result.contactsCount
+            });
+        } else {
+            res.status(400).json({
+                success: false,
+                message: result.message
+            });
+        }
+        
+    } catch (error) {
+        console.error('Erro na sincronização de contatos:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Erro interno do servidor' 
+        });
+    }
+});
+
+// Obter contatos do WhatsApp (sem salvar no banco)
+app.get('/api/contacts/whatsapp', authenticateToken, async (req, res) => {
+    try {
+        const whatsappService = require('./services/whatsappService');
+        
+        const status = whatsappService.getStatus();
+        if (!status.isConnected) {
+            return res.status(400).json({
+                success: false,
+                message: 'WhatsApp não está conectado'
+            });
+        }
+        
+        const result = await whatsappService.getWhatsAppContacts();
+        
+        if (result.success) {
+            res.json({
+                success: true,
+                contacts: result.contacts,
+                count: result.count
+            });
+        } else {
+            res.status(400).json({
+                success: false,
+                message: result.message
+            });
+        }
+        
+    } catch (error) {
+        console.error('Erro ao obter contatos do WhatsApp:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Erro interno do servidor' 
+        });
+    }
+});
+
+// Estatísticas de contatos
+app.get('/api/contacts/stats', authenticateToken, async (req, res) => {
+    try {
+        const totalContacts = await Contact.countDocuments({ isActive: true });
+        const whatsappContacts = await Contact.countDocuments({ 
+            isActive: true, 
+            origin: 'whatsapp' 
+        });
+        const manualContacts = await Contact.countDocuments({ 
+            isActive: true, 
+            origin: 'manual' 
+        });
+        
+        // Contatos com mais interações
+        const topContacts = await Contact.find({ isActive: true })
+            .sort({ totalAppointments: -1 })
+            .limit(5)
+            .select('name phone totalAppointments totalSpent');
+        
+        res.json({
+            success: true,
+            stats: {
+                total: totalContacts,
+                whatsapp: whatsappContacts,
+                manual: manualContacts,
+                topContacts
+            }
+        });
+        
+    } catch (error) {
+        console.error('Erro ao obter estatísticas de contatos:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    }
+});
+
 // Iniciar servidor
 server.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Servidor rodando na porta ${PORT}`);

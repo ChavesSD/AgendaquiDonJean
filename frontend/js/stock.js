@@ -915,7 +915,11 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     window.deleteProduct = async function(productId) {
-        if (!confirm('Tem certeza que deseja excluir este produto?')) {
+        const confirmed = await confirmDelete(
+            'este produto',
+            'Esta ação não pode ser desfeita. Todos os dados do produto serão perdidos permanentemente.'
+        );
+        if (!confirmed) {
             return;
         }
 

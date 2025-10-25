@@ -349,7 +349,11 @@ class ServiceManager {
 
     // Excluir serviço
     async deleteService(id) {
-        if (!confirm('Tem certeza que deseja excluir este serviço?')) {
+        const confirmed = await confirmDelete(
+            'este serviço',
+            'Esta ação não pode ser desfeita. Todos os dados do serviço serão perdidos permanentemente.'
+        );
+        if (!confirmed) {
             return;
         }
 
