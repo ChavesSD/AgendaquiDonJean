@@ -1180,13 +1180,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             onclick="${!canEdit ? 'showNotification("Apenas o próprio usuário pode editar seu perfil", "error")' : `editUser('${user._id}')`}" 
                             title="${!canEdit ? 'Edição restrita' : 'Editar'}"
                             ${!canEdit ? 'disabled' : ''}>
-                        <i class="fas fa-edit"></i>
+                        <i class="fas fa-pen"></i>
                     </button>
                     <button class="btn-icon danger ${!canDelete ? 'disabled' : ''}" 
                             onclick="${!canDelete ? 'showNotification("Não é possível excluir o usuário administrador do sistema", "error")' : `deleteUser('${user._id}')`}" 
                             title="${!canDelete ? 'Usuário protegido' : 'Excluir'}"
                             ${!canDelete ? 'disabled' : ''}>
-                        <i class="fas fa-trash"></i>
+                        <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
             `;
@@ -6369,10 +6369,10 @@ class ReportsManager {
                 </div>
                 <div class="contact-actions">
                     <button class="btn btn-sm btn-primary" onclick="dashboard.editContact('${contact._id}')">
-                        <i class="fas fa-edit"></i>
+                        <i class="fas fa-pen"></i>
                     </button>
                     <button class="btn btn-sm btn-danger" onclick="dashboard.deleteContact('${contact._id}')">
-                        <i class="fas fa-trash"></i>
+                        <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
             </div>

@@ -322,7 +322,7 @@ class AgendaManager {
         if (appointment.status !== 'completed') {
             buttons += `
                 <button class="btn btn-danger btn-sm" onclick="window.agendaManager.deleteAppointment('${appointment._id}')">
-                    <i class="fas fa-trash"></i> Excluir
+                    <i class="fas fa-trash-alt"></i> Excluir
                 </button>
             `;
         }
@@ -1180,13 +1180,13 @@ class AgendaManager {
                 </div>
                 <div class="contact-actions">
                     <button class="btn btn-sm btn-outline" onclick="agendaManager.editContact('${contact._id}')">
-                        <i class="fas fa-edit"></i>
+                        <i class="fas fa-pen"></i>
                     </button>
                     <button class="btn btn-sm btn-success" onclick="agendaManager.sendWhatsAppMessage('${contact.phone}')">
                         <i class="fab fa-whatsapp"></i>
                     </button>
                     <button class="btn btn-sm btn-danger" onclick="agendaManager.deleteContact('${contact._id}')">
-                        <i class="fas fa-trash"></i>
+                        <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
             </div>

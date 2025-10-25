@@ -314,11 +314,11 @@ class ServiceManager {
 
                 <div class="service-actions">
                     <button class="btn btn-primary" onclick="serviceManager.editService('${service._id}')">
-                        <i class="fas fa-edit"></i>
+                        <i class="fas fa-pen"></i>
                         Editar
                     </button>
                     <button class="btn btn-danger" onclick="serviceManager.deleteService('${service._id}')">
-                        <i class="fas fa-trash"></i>
+                        <i class="fas fa-trash-alt"></i>
                         Excluir
                     </button>
                 </div>

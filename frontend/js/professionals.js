@@ -282,10 +282,10 @@ class ProfessionalManager {
                 </div>
                 <div class="professional-actions">
                     <button class="btn btn-sm btn-primary" onclick="professionalManager.editProfessional('${professional._id}')">
-                        <i class="fas fa-edit"></i>
+                        <i class="fas fa-pen"></i>
                     </button>
                     <button class="btn btn-sm btn-danger" onclick="professionalManager.deleteProfessional('${professional._id}')">
-                        <i class="fas fa-trash"></i>
+                        <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
             </div>

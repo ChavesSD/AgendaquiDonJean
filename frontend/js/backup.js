@@ -417,7 +417,7 @@ class BackupManager {
                             <i class="fas fa-download"></i>
                         </button>
                         <button class="btn btn-danger btn-sm" onclick="backupManager.deleteBackup('${backup.id}')" title="Deletar Backup">
-                            <i class="fas fa-trash"></i>
+                            <i class="fas fa-trash-alt"></i>
                         </button>
                     </div>
                 </td>

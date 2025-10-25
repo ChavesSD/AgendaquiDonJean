@@ -410,7 +410,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <div class="product-actions">
                 <button class="btn btn-sm btn-primary" onclick="editProduct('${product._id}')" title="Editar">
-                    <i class="fas fa-edit"></i>
+                    <i class="fas fa-pen"></i>
                 </button>
                 <button class="btn btn-sm ${isEntradaTab ? 'btn-success' : 'btn-warning'}" 
                         onclick="${isEntradaTab ? 'openAddItemsModal' : 'withdrawProduct'}('${product._id}')" 
@@ -419,7 +419,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <i class="fas fa-${isEntradaTab ? 'plus' : 'minus'}"></i>
                 </button>
                 <button class="btn btn-sm btn-danger" onclick="deleteProduct('${product._id}')" title="Excluir">
-                    <i class="fas fa-trash"></i>
+                    <i class="fas fa-trash-alt"></i>
                 </button>
             </div>
         `;

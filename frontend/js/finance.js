@@ -362,10 +362,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <div class="item-actions">
                     <button class="btn btn-sm btn-primary" onclick="editRevenue('${revenue._id}')" title="Editar">
-                        <i class="fas fa-edit"></i>
+                        <i class="fas fa-pen"></i>
                     </button>
                     <button class="btn btn-sm btn-danger" onclick="deleteRevenue('${revenue._id}')" title="Excluir">
-                        <i class="fas fa-trash"></i>
+                        <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
             </div>
@@ -433,10 +433,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <div class="item-actions">
                     <button class="btn btn-sm btn-primary" onclick="editExpense('${expense._id}')" title="Editar">
-                        <i class="fas fa-edit"></i>
+                        <i class="fas fa-pen"></i>
                     </button>
                     <button class="btn btn-sm btn-danger" onclick="deleteExpense('${expense._id}')" title="Excluir">
-                        <i class="fas fa-trash"></i>
+                        <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
             </div>
@@ -485,10 +485,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <div class="item-actions">
                     <button class="btn btn-sm btn-primary" onclick="editPos('${pos._id}')" title="Editar">
-                        <i class="fas fa-edit"></i>
+                        <i class="fas fa-pen"></i>
                     </button>
                     <button class="btn btn-sm btn-danger" onclick="deletePos('${pos._id}')" title="Excluir">
-                        <i class="fas fa-trash"></i>
+                        <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
             </div>
