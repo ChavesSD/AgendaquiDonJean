@@ -1885,20 +1885,6 @@
                                         </button>
                                     </div>
                                     
-                                    <!-- Seção de Limpeza de Dados (Apenas Admin) -->
-            <div class="admin-actions" id="admin-actions" style="display: none;">
-                <h3>⚙️ Ações Administrativas</h3>
-                <div class="admin-actions-grid">
-                    <button class="btn btn-danger" onclick="clearAllAppointments()">
-                        <i class="fas fa-trash-alt"></i>
-                        Apagar Todos os Agendamentos
-                    </button>
-                    <button class="btn btn-warning" onclick="clearAllCommissions()">
-                        <i class="fas fa-coins"></i>
-                        Apagar Todas as Comissões
-                    </button>
-                </div>
-            </div>
                                     
                                     <!-- Input oculto para upload de arquivo -->
                                     <input type="file" id="backup-file-input" accept=".zip" style="display: none;">
@@ -1953,16 +1939,263 @@
                             
                             <!-- Aba Área Dev -->
                             <div class="tab-pane" id="licencas-tab">
-                                <div class="config-section">
-                                    <h3>Área de Desenvolvimento</h3>
+                                <!-- Verificação de permissão Admin -->
+                                <div id="dev-area-content" style="display: none;">
                                     
-                                    <div class="development-notice">
-                                        <div class="notice-content">
-                                            <i class="fas fa-tools"></i>
-                                            <h4>Página em Desenvolvimento</h4>
-                                            <p>Esta funcionalidade está sendo desenvolvida e estará disponível em breve.</p>
-                                            <p>Aqui você poderá acessar ferramentas de desenvolvimento, logs do sistema, configurações avançadas e recursos para desenvolvedores.</p>
+                                    <!-- Seção de Ações Administrativas -->
+                                    <div class="config-section">
+                                        <h3><i class="fas fa-shield-alt"></i> Ações Administrativas</h3>
+                                        <div class="admin-actions-grid">
+                                            <div class="admin-category">
+                                                <h4><i class="fas fa-calendar-alt"></i> Agendamentos</h4>
+                                                <button class="btn btn-danger" onclick="clearAllAppointments()">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                    Apagar Todos os Agendamentos
+                                                </button>
+                                            </div>
+                                            
+                                            <div class="admin-category">
+                                                <h4><i class="fas fa-coins"></i> Financeiro</h4>
+                                                <button class="btn btn-warning" onclick="clearAllCommissions()">
+                                                    <i class="fas fa-coins"></i>
+                                                    Apagar Todas as Comissões
+                                                </button>
+                                                <button class="btn btn-danger" onclick="clearAllRevenues()">
+                                                    <i class="fas fa-chart-line"></i>
+                                                    Apagar Todas as Receitas
+                                                </button>
+                                                <button class="btn btn-danger" onclick="clearAllExpenses()">
+                                                    <i class="fas fa-chart-line-down"></i>
+                                                    Apagar Todos os Gastos
+                                                </button>
+                                                <button class="btn btn-danger" onclick="clearAllSales()">
+                                                    <i class="fas fa-shopping-cart"></i>
+                                                    Apagar Todas as Vendas
+                                                </button>
+                                                <button class="btn btn-danger" onclick="clearAllPosMachines()">
+                                                    <i class="fas fa-credit-card"></i>
+                                                    Apagar Todas as Maquininhas
+                                                </button>
+                                            </div>
+                                            
+                                            <div class="admin-category">
+                                                <h4><i class="fas fa-users"></i> Profissionais</h4>
+                                                <button class="btn btn-danger" onclick="clearAllProfessionals()">
+                                                    <i class="fas fa-user-tie"></i>
+                                                    Apagar Todos os Profissionais
+                                                </button>
+                                            </div>
+                                            
+                                            <div class="admin-category">
+                                                <h4><i class="fas fa-concierge-bell"></i> Serviços</h4>
+                                                <button class="btn btn-danger" onclick="clearAllServices()">
+                                                    <i class="fas fa-spa"></i>
+                                                    Apagar Todos os Serviços
+                                                </button>
+                                            </div>
+                                            
+                                            <div class="admin-category">
+                                                <h4><i class="fas fa-boxes"></i> Estoque</h4>
+                                                <button class="btn btn-danger" onclick="clearAllProducts()">
+                                                    <i class="fas fa-box"></i>
+                                                    Apagar Todos os Produtos
+                                                </button>
+                                            </div>
+                                            
+                                            <div class="admin-category">
+                                                <h4><i class="fas fa-users-cog"></i> Usuários</h4>
+                                                <button class="btn btn-danger" onclick="clearAllUsers()">
+                                                    <i class="fas fa-user-slash"></i>
+                                                    Apagar Todos os Usuários (Exceto Admin)
+                                                </button>
+                                            </div>
+                                            
+                                            <div class="admin-category">
+                                                <h4><i class="fas fa-comments"></i> WhatsApp</h4>
+                                                <button class="btn btn-danger" onclick="clearAllWhatsAppMessages()">
+                                                    <i class="fas fa-comment-dots"></i>
+                                                    Apagar Todas as Mensagens
+                                                </button>
+                                            </div>
                                         </div>
+                                    </div>
+                                    
+                                    <!-- Seção de Personalização de Cores -->
+                                    <div class="config-section">
+                                        <h3><i class="fas fa-palette"></i> Personalização de Cores</h3>
+                                        <div class="color-customization">
+                                            <div class="color-group">
+                                                <h4>Cor Principal</h4>
+                                                <div class="color-input-group">
+                                                    <input type="color" id="primary-color" value="#975756" class="color-picker">
+                                                    <input type="text" id="primary-color-hex" value="#975756" class="color-hex" readonly>
+                                                    <button class="btn btn-primary" onclick="applyPrimaryColor()">
+                                                        <i class="fas fa-check"></i> Aplicar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="color-group">
+                                                <h4>Cor Secundária</h4>
+                                                <div class="color-input-group">
+                                                    <input type="color" id="secondary-color" value="#7a4443" class="color-picker">
+                                                    <input type="text" id="secondary-color-hex" value="#7a4443" class="color-hex" readonly>
+                                                    <button class="btn btn-primary" onclick="applySecondaryColor()">
+                                                        <i class="fas fa-check"></i> Aplicar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="color-group">
+                                                <h4>Cor de Sucesso</h4>
+                                                <div class="color-input-group">
+                                                    <input type="color" id="success-color" value="#28a745" class="color-picker">
+                                                    <input type="text" id="success-color-hex" value="#28a745" class="color-hex" readonly>
+                                                    <button class="btn btn-primary" onclick="applySuccessColor()">
+                                                        <i class="fas fa-check"></i> Aplicar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="color-group">
+                                                <h4>Cor de Aviso</h4>
+                                                <div class="color-input-group">
+                                                    <input type="color" id="warning-color" value="#ffc107" class="color-picker">
+                                                    <input type="text" id="warning-color-hex" value="#ffc107" class="color-hex" readonly>
+                                                    <button class="btn btn-primary" onclick="applyWarningColor()">
+                                                        <i class="fas fa-check"></i> Aplicar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="color-group">
+                                                <h4>Cor de Perigo</h4>
+                                                <div class="color-input-group">
+                                                    <input type="color" id="danger-color" value="#dc3545" class="color-picker">
+                                                    <input type="text" id="danger-color-hex" value="#dc3545" class="color-hex" readonly>
+                                                    <button class="btn btn-primary" onclick="applyDangerColor()">
+                                                        <i class="fas fa-check"></i> Aplicar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="color-actions">
+                                                <button class="btn btn-success" onclick="saveColorScheme()">
+                                                    <i class="fas fa-save"></i> Salvar Esquema de Cores
+                                                </button>
+                                                <button class="btn btn-secondary" onclick="resetColorScheme()">
+                                                    <i class="fas fa-undo"></i> Restaurar Padrão
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Seção de Gerenciamento de Licenças -->
+                                    <div class="config-section">
+                                        <h3><i class="fas fa-key"></i> Gerenciamento de Licenças</h3>
+                                        <div class="license-management">
+                                            <div class="current-license">
+                                                <h4>Licença Atual</h4>
+                                                <div class="license-info">
+                                                    <span class="license-type" id="current-license-type">Básico</span>
+                                                    <span class="license-status active">Ativa</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="license-options">
+                                                <h4>Escolher Plano</h4>
+                                                <div class="license-cards">
+                                                    <div class="license-card" data-plan="basic">
+                                                        <div class="license-header">
+                                                            <h5>Básico</h5>
+                                                            <div class="license-price">Gratuito</div>
+                                                        </div>
+                                                        <div class="license-features">
+                                                            <ul>
+                                                                <li><i class="fas fa-check"></i> Sistema Completo para gerenciamento</li>
+                                                                <li><i class="fas fa-check"></i> Sistema de agendamento</li>
+                                                                <li><i class="fas fa-check"></i> Controle financeiro</li>
+                                                                <li><i class="fas fa-check"></i> Gestão de profissionais</li>
+                                                                <li><i class="fas fa-check"></i> Controle de estoque</li>
+                                                            </ul>
+                                                        </div>
+                                                        <button class="btn btn-outline-primary" onclick="selectLicense('basic')">
+                                                            Selecionar
+                                                        </button>
+                                                    </div>
+                                                    
+                                                    <div class="license-card" data-plan="intermediate">
+                                                        <div class="license-header">
+                                                            <h5>Intermediário</h5>
+                                                            <div class="license-price">R$ 29,90/mês</div>
+                                                        </div>
+                                                        <div class="license-features">
+                                                            <ul>
+                                                                <li><i class="fas fa-check"></i> Tudo do plano Básico</li>
+                                                                <li><i class="fas fa-check"></i> Atendente Automático WhatsApp</li>
+                                                                <li><i class="fas fa-check"></i> Fluxo de atendimento automático</li>
+                                                                <li><i class="fas fa-check"></i> Respostas automáticas</li>
+                                                                <li><i class="fas fa-check"></i> Agendamento via WhatsApp</li>
+                                                            </ul>
+                                                        </div>
+                                                        <button class="btn btn-outline-primary" onclick="selectLicense('intermediate')">
+                                                            Selecionar
+                                                        </button>
+                                                    </div>
+                                                    
+                                                    <div class="license-card premium" data-plan="advanced">
+                                                        <div class="license-header">
+                                                            <h5>Avançado</h5>
+                                                            <div class="license-price">R$ 59,90/mês</div>
+                                                        </div>
+                                                        <div class="license-features">
+                                                            <ul>
+                                                                <li><i class="fas fa-check"></i> Tudo do plano Intermediário</li>
+                                                                <li><i class="fas fa-check"></i> Gestor Inteligente</li>
+                                                                <li><i class="fas fa-check"></i> Análise preditiva</li>
+                                                                <li><i class="fas fa-check"></i> Relatórios avançados</li>
+                                                                <li><i class="fas fa-check"></i> Suporte prioritário</li>
+                                                            </ul>
+                                                        </div>
+                                                        <button class="btn btn-outline-primary" onclick="selectLicense('advanced')">
+                                                            Selecionar
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Seção de Logs do Sistema -->
+                                    <div class="config-section">
+                                        <h3><i class="fas fa-file-alt"></i> Logs do Sistema</h3>
+                                        <div class="system-logs">
+                                            <div class="log-controls">
+                                                <button class="btn btn-primary" onclick="refreshLogs()">
+                                                    <i class="fas fa-sync"></i> Atualizar Logs
+                                                </button>
+                                                <button class="btn btn-warning" onclick="clearLogs()">
+                                                    <i class="fas fa-trash"></i> Limpar Logs
+                                                </button>
+                                                <button class="btn btn-success" onclick="downloadLogs()">
+                                                    <i class="fas fa-download"></i> Baixar Logs
+                                                </button>
+                                            </div>
+                                            <div class="log-container">
+                                                <pre id="system-logs-content">Carregando logs do sistema...</pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                
+                                <!-- Mensagem de acesso negado para não-admins -->
+                                <div id="dev-area-denied" style="display: none;">
+                                    <div class="access-denied">
+                                        <i class="fas fa-lock"></i>
+                                        <h3>Acesso Restrito</h3>
+                                        <p>Esta área é restrita apenas para administradores do sistema.</p>
+                                        <p>Entre em contato com o administrador para obter acesso.</p>
                                     </div>
                                 </div>
                             </div>

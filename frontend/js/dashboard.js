@@ -7121,5 +7121,572 @@ document.addEventListener('DOMContentLoaded', function() {
     // Aguardar um pouco para garantir que todos os elementos estejam prontos
     setTimeout(() => {
         initComissoesManager();
+        initDevArea();
     }, 500);
 });
+
+// ===== ÁREA DEV - FUNCIONALIDADES =====
+
+// Inicializar Área Dev
+function initDevArea() {
+    console.log('🔧 Inicializando Área Dev...');
+    
+    // Verificar permissões de admin
+    checkDevAreaAccess();
+    
+    // Inicializar personalização de cores
+    initColorCustomization();
+    
+    // Inicializar gerenciamento de licenças
+    initLicenseManagement();
+    
+    // Carregar logs do sistema
+    loadSystemLogs();
+}
+
+// Verificar acesso à Área Dev (apenas Admin)
+function checkDevAreaAccess() {
+    const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+    const devAreaContent = document.getElementById('dev-area-content');
+    const devAreaDenied = document.getElementById('dev-area-denied');
+    
+    if (userData.role === 'admin') {
+        if (devAreaContent) devAreaContent.style.display = 'block';
+        if (devAreaDenied) devAreaDenied.style.display = 'none';
+        console.log('✅ Acesso à Área Dev liberado para Admin');
+    } else {
+        if (devAreaContent) devAreaContent.style.display = 'none';
+        if (devAreaDenied) devAreaDenied.style.display = 'block';
+        console.log('❌ Acesso à Área Dev negado - usuário não é Admin');
+    }
+}
+
+// ===== AÇÕES ADMINISTRATIVAS =====
+
+// Apagar todos os agendamentos
+async function clearAllAppointments() {
+    if (!confirm('⚠️ ATENÇÃO: Esta ação irá apagar TODOS os agendamentos do sistema. Esta ação não pode ser desfeita!\n\nTem certeza que deseja continuar?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/appointments/clear-all', {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            showNotification('✅ Todos os agendamentos foram apagados com sucesso!', 'success');
+        } else {
+            throw new Error('Erro ao apagar agendamentos');
+        }
+    } catch (error) {
+        console.error('Erro ao apagar agendamentos:', error);
+        showNotification('❌ Erro ao apagar agendamentos: ' + error.message, 'error');
+    }
+}
+
+// Apagar todas as comissões
+async function clearAllCommissions() {
+    if (!confirm('⚠️ ATENÇÃO: Esta ação irá apagar TODAS as comissões do sistema. Esta ação não pode ser desfeita!\n\nTem certeza que deseja continuar?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/commissions/clear-all', {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            showNotification('✅ Todas as comissões foram apagadas com sucesso!', 'success');
+        } else {
+            throw new Error('Erro ao apagar comissões');
+        }
+    } catch (error) {
+        console.error('Erro ao apagar comissões:', error);
+        showNotification('❌ Erro ao apagar comissões: ' + error.message, 'error');
+    }
+}
+
+// Apagar todas as receitas
+async function clearAllRevenues() {
+    if (!confirm('⚠️ ATENÇÃO: Esta ação irá apagar TODAS as receitas do sistema. Esta ação não pode ser desfeita!\n\nTem certeza que deseja continuar?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/revenues/clear-all', {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            showNotification('✅ Todas as receitas foram apagadas com sucesso!', 'success');
+        } else {
+            throw new Error('Erro ao apagar receitas');
+        }
+    } catch (error) {
+        console.error('Erro ao apagar receitas:', error);
+        showNotification('❌ Erro ao apagar receitas: ' + error.message, 'error');
+    }
+}
+
+// Apagar todos os gastos
+async function clearAllExpenses() {
+    if (!confirm('⚠️ ATENÇÃO: Esta ação irá apagar TODOS os gastos do sistema. Esta ação não pode ser desfeita!\n\nTem certeza que deseja continuar?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/expenses/clear-all', {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            showNotification('✅ Todos os gastos foram apagados com sucesso!', 'success');
+        } else {
+            throw new Error('Erro ao apagar gastos');
+        }
+    } catch (error) {
+        console.error('Erro ao apagar gastos:', error);
+        showNotification('❌ Erro ao apagar gastos: ' + error.message, 'error');
+    }
+}
+
+// Apagar todas as vendas
+async function clearAllSales() {
+    if (!confirm('⚠️ ATENÇÃO: Esta ação irá apagar TODAS as vendas do sistema. Esta ação não pode ser desfeita!\n\nTem certeza que deseja continuar?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/sales/clear-all', {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            showNotification('✅ Todas as vendas foram apagadas com sucesso!', 'success');
+        } else {
+            throw new Error('Erro ao apagar vendas');
+        }
+    } catch (error) {
+        console.error('Erro ao apagar vendas:', error);
+        showNotification('❌ Erro ao apagar vendas: ' + error.message, 'error');
+    }
+}
+
+// Apagar todas as maquininhas
+async function clearAllPosMachines() {
+    if (!confirm('⚠️ ATENÇÃO: Esta ação irá apagar TODAS as maquininhas do sistema. Esta ação não pode ser desfeita!\n\nTem certeza que deseja continuar?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/pos-machines/clear-all', {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            showNotification('✅ Todas as maquininhas foram apagadas com sucesso!', 'success');
+        } else {
+            throw new Error('Erro ao apagar maquininhas');
+        }
+    } catch (error) {
+        console.error('Erro ao apagar maquininhas:', error);
+        showNotification('❌ Erro ao apagar maquininhas: ' + error.message, 'error');
+    }
+}
+
+// Apagar todos os profissionais
+async function clearAllProfessionals() {
+    if (!confirm('⚠️ ATENÇÃO: Esta ação irá apagar TODOS os profissionais do sistema. Esta ação não pode ser desfeita!\n\nTem certeza que deseja continuar?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/professionals/clear-all', {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            showNotification('✅ Todos os profissionais foram apagados com sucesso!', 'success');
+        } else {
+            throw new Error('Erro ao apagar profissionais');
+        }
+    } catch (error) {
+        console.error('Erro ao apagar profissionais:', error);
+        showNotification('❌ Erro ao apagar profissionais: ' + error.message, 'error');
+    }
+}
+
+// Apagar todos os serviços
+async function clearAllServices() {
+    if (!confirm('⚠️ ATENÇÃO: Esta ação irá apagar TODOS os serviços do sistema. Esta ação não pode ser desfeita!\n\nTem certeza que deseja continuar?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/services/clear-all', {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            showNotification('✅ Todos os serviços foram apagados com sucesso!', 'success');
+        } else {
+            throw new Error('Erro ao apagar serviços');
+        }
+    } catch (error) {
+        console.error('Erro ao apagar serviços:', error);
+        showNotification('❌ Erro ao apagar serviços: ' + error.message, 'error');
+    }
+}
+
+// Apagar todos os produtos
+async function clearAllProducts() {
+    if (!confirm('⚠️ ATENÇÃO: Esta ação irá apagar TODOS os produtos do sistema. Esta ação não pode ser desfeita!\n\nTem certeza que deseja continuar?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/products/clear-all', {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            showNotification('✅ Todos os produtos foram apagados com sucesso!', 'success');
+        } else {
+            throw new Error('Erro ao apagar produtos');
+        }
+    } catch (error) {
+        console.error('Erro ao apagar produtos:', error);
+        showNotification('❌ Erro ao apagar produtos: ' + error.message, 'error');
+    }
+}
+
+// Apagar todos os usuários (exceto admin)
+async function clearAllUsers() {
+    if (!confirm('⚠️ ATENÇÃO: Esta ação irá apagar TODOS os usuários do sistema (exceto administradores). Esta ação não pode ser desfeita!\n\nTem certeza que deseja continuar?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/users/clear-all', {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            showNotification('✅ Todos os usuários foram apagados com sucesso!', 'success');
+        } else {
+            throw new Error('Erro ao apagar usuários');
+        }
+    } catch (error) {
+        console.error('Erro ao apagar usuários:', error);
+        showNotification('❌ Erro ao apagar usuários: ' + error.message, 'error');
+    }
+}
+
+// Apagar todas as mensagens do WhatsApp
+async function clearAllWhatsAppMessages() {
+    if (!confirm('⚠️ ATENÇÃO: Esta ação irá apagar TODAS as mensagens do WhatsApp do sistema. Esta ação não pode ser desfeita!\n\nTem certeza que deseja continuar?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/whatsapp-messages/clear-all', {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            showNotification('✅ Todas as mensagens do WhatsApp foram apagadas com sucesso!', 'success');
+        } else {
+            throw new Error('Erro ao apagar mensagens do WhatsApp');
+        }
+    } catch (error) {
+        console.error('Erro ao apagar mensagens do WhatsApp:', error);
+        showNotification('❌ Erro ao apagar mensagens do WhatsApp: ' + error.message, 'error');
+    }
+}
+
+// ===== PERSONALIZAÇÃO DE CORES =====
+
+// Inicializar personalização de cores
+function initColorCustomization() {
+    console.log('🎨 Inicializando personalização de cores...');
+    
+    // Carregar cores salvas
+    loadSavedColors();
+    
+    // Adicionar event listeners para os color pickers
+    const colorPickers = document.querySelectorAll('.color-picker');
+    colorPickers.forEach(picker => {
+        picker.addEventListener('change', function() {
+            const hexInput = this.parentElement.querySelector('.color-hex');
+            if (hexInput) {
+                hexInput.value = this.value;
+            }
+        });
+    });
+}
+
+// Carregar cores salvas
+function loadSavedColors() {
+    const savedColors = JSON.parse(localStorage.getItem('systemColors') || '{}');
+    
+    if (savedColors.primary) {
+        document.getElementById('primary-color').value = savedColors.primary;
+        document.getElementById('primary-color-hex').value = savedColors.primary;
+    }
+    
+    if (savedColors.secondary) {
+        document.getElementById('secondary-color').value = savedColors.secondary;
+        document.getElementById('secondary-color-hex').value = savedColors.secondary;
+    }
+    
+    if (savedColors.success) {
+        document.getElementById('success-color').value = savedColors.success;
+        document.getElementById('success-color-hex').value = savedColors.success;
+    }
+    
+    if (savedColors.warning) {
+        document.getElementById('warning-color').value = savedColors.warning;
+        document.getElementById('warning-color-hex').value = savedColors.warning;
+    }
+    
+    if (savedColors.danger) {
+        document.getElementById('danger-color').value = savedColors.danger;
+        document.getElementById('danger-color-hex').value = savedColors.danger;
+    }
+}
+
+// Aplicar cor principal
+function applyPrimaryColor() {
+    const color = document.getElementById('primary-color').value;
+    document.documentElement.style.setProperty('--primary-color', color);
+    showNotification('✅ Cor principal aplicada com sucesso!', 'success');
+}
+
+// Aplicar cor secundária
+function applySecondaryColor() {
+    const color = document.getElementById('secondary-color').value;
+    document.documentElement.style.setProperty('--secondary-color', color);
+    showNotification('✅ Cor secundária aplicada com sucesso!', 'success');
+}
+
+// Aplicar cor de sucesso
+function applySuccessColor() {
+    const color = document.getElementById('success-color').value;
+    document.documentElement.style.setProperty('--success-color', color);
+    showNotification('✅ Cor de sucesso aplicada com sucesso!', 'success');
+}
+
+// Aplicar cor de aviso
+function applyWarningColor() {
+    const color = document.getElementById('warning-color').value;
+    document.documentElement.style.setProperty('--warning-color', color);
+    showNotification('✅ Cor de aviso aplicada com sucesso!', 'success');
+}
+
+// Aplicar cor de perigo
+function applyDangerColor() {
+    const color = document.getElementById('danger-color').value;
+    document.documentElement.style.setProperty('--danger-color', color);
+    showNotification('✅ Cor de perigo aplicada com sucesso!', 'success');
+}
+
+// Salvar esquema de cores
+function saveColorScheme() {
+    const colors = {
+        primary: document.getElementById('primary-color').value,
+        secondary: document.getElementById('secondary-color').value,
+        success: document.getElementById('success-color').value,
+        warning: document.getElementById('warning-color').value,
+        danger: document.getElementById('danger-color').value
+    };
+    
+    localStorage.setItem('systemColors', JSON.stringify(colors));
+    showNotification('✅ Esquema de cores salvo com sucesso!', 'success');
+}
+
+// Restaurar cores padrão
+function resetColorScheme() {
+    if (!confirm('Tem certeza que deseja restaurar as cores padrão do sistema?')) {
+        return;
+    }
+    
+    const defaultColors = {
+        primary: '#975756',
+        secondary: '#7a4443',
+        success: '#28a745',
+        warning: '#ffc107',
+        danger: '#dc3545'
+    };
+    
+    // Aplicar cores padrão
+    Object.keys(defaultColors).forEach(key => {
+        document.documentElement.style.setProperty(`--${key}-color`, defaultColors[key]);
+        const picker = document.getElementById(`${key}-color`);
+        const hex = document.getElementById(`${key}-color-hex`);
+        if (picker) picker.value = defaultColors[key];
+        if (hex) hex.value = defaultColors[key];
+    });
+    
+    // Salvar no localStorage
+    localStorage.setItem('systemColors', JSON.stringify(defaultColors));
+    showNotification('✅ Cores padrão restauradas com sucesso!', 'success');
+}
+
+// ===== GERENCIAMENTO DE LICENÇAS =====
+
+// Inicializar gerenciamento de licenças
+function initLicenseManagement() {
+    console.log('🔑 Inicializando gerenciamento de licenças...');
+    
+    // Carregar licença atual
+    loadCurrentLicense();
+}
+
+// Carregar licença atual
+function loadCurrentLicense() {
+    const currentLicense = localStorage.getItem('currentLicense') || 'basic';
+    const licenseTypeElement = document.getElementById('current-license-type');
+    
+    if (licenseTypeElement) {
+        const licenseNames = {
+            'basic': 'Básico',
+            'intermediate': 'Intermediário',
+            'advanced': 'Avançado'
+        };
+        
+        licenseTypeElement.textContent = licenseNames[currentLicense] || 'Básico';
+    }
+}
+
+// Selecionar licença
+function selectLicense(plan) {
+    if (!confirm(`Tem certeza que deseja alterar para o plano ${plan.toUpperCase()}?`)) {
+        return;
+    }
+    
+    // Salvar licença selecionada
+    localStorage.setItem('currentLicense', plan);
+    
+    // Atualizar interface
+    loadCurrentLicense();
+    
+    // Remover seleção anterior
+    document.querySelectorAll('.license-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    // Adicionar seleção atual
+    const selectedCard = document.querySelector(`[data-plan="${plan}"]`);
+    if (selectedCard) {
+        selectedCard.classList.add('selected');
+    }
+    
+    showNotification(`✅ Plano ${plan.toUpperCase()} selecionado com sucesso!`, 'success');
+}
+
+// ===== LOGS DO SISTEMA =====
+
+// Carregar logs do sistema
+function loadSystemLogs() {
+    console.log('📋 Carregando logs do sistema...');
+    
+    const logsContent = document.getElementById('system-logs-content');
+    if (logsContent) {
+        // Simular logs do sistema
+        const logs = [
+            `[${new Date().toLocaleString()}] Sistema inicializado`,
+            `[${new Date().toLocaleString()}] Usuário logado: Admin`,
+            `[${new Date().toLocaleString()}] Área Dev acessada`,
+            `[${new Date().toLocaleString()}] Verificação de permissões: OK`,
+            `[${new Date().toLocaleString()}] Personalização de cores carregada`,
+            `[${new Date().toLocaleString()}] Gerenciamento de licenças inicializado`,
+            `[${new Date().toLocaleString()}] Logs do sistema carregados`
+        ];
+        
+        logsContent.textContent = logs.join('\n');
+    }
+}
+
+// Atualizar logs
+function refreshLogs() {
+    loadSystemLogs();
+    showNotification('✅ Logs atualizados com sucesso!', 'success');
+}
+
+// Limpar logs
+function clearLogs() {
+    if (!confirm('Tem certeza que deseja limpar todos os logs do sistema?')) {
+        return;
+    }
+    
+    const logsContent = document.getElementById('system-logs-content');
+    if (logsContent) {
+        logsContent.textContent = `[${new Date().toLocaleString()}] Logs limpos pelo administrador`;
+    }
+    
+    showNotification('✅ Logs limpos com sucesso!', 'success');
+}
+
+// Baixar logs
+function downloadLogs() {
+    const logsContent = document.getElementById('system-logs-content');
+    if (logsContent) {
+        const logs = logsContent.textContent;
+        const blob = new Blob([logs], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `system-logs-${new Date().toISOString().split('T')[0]}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showNotification('✅ Logs baixados com sucesso!', 'success');
+    }
+}
