@@ -1116,25 +1116,46 @@
                             <div class="tab-pane" id="estoque-tab">
                                 <div class="reports-grid">
                                     <div class="stats-cards">
-                                        <div class="stat-card">
-                                            <div class="stat-icon products">
+                                        <!-- Cards da tela de estoque -->
+                                        <div class="stat-card card-blue">
+                                            <div class="stat-icon">
                                                 <i class="fas fa-boxes"></i>
                                             </div>
                                             <div class="stat-content">
-                                                <h3 id="reports-total-products">0</h3>
-                                                <p>Total de Produtos</p>
+                                                <h3 id="reports-total-products-stock">0</h3>
+                                                <p>TOTAL DE PRODUTOS</p>
                                             </div>
                                         </div>
-                                        <div class="stat-card">
-                                            <div class="stat-icon low-stock">
+                                        <div class="stat-card card-green">
+                                            <div class="stat-icon active">
+                                                <i class="fas fa-check-circle"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="reports-in-stock-products">0</h3>
+                                                <p>EM ESTOQUE</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card card-orange">
+                                            <div class="stat-icon inactive">
                                                 <i class="fas fa-exclamation-triangle"></i>
                                             </div>
                                             <div class="stat-content">
-                                                <h3 id="reports-low-stock">0</h3>
-                                                <p>Estoque Baixo</p>
+                                                <h3 id="reports-low-stock-products">0</h3>
+                                                <p>ESTOQUE BAIXO</p>
                                             </div>
                                         </div>
-                                        <div class="stat-card">
+                                        <div class="stat-card card-red">
+                                            <div class="stat-icon leave">
+                                                <i class="fas fa-times-circle"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="reports-out-of-stock-products">0</h3>
+                                                <p>SEM ESTOQUE</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Cards únicos dos relatórios (sem duplicatas) -->
+                                        <div class="stat-card card-purple">
                                             <div class="stat-icon value">
                                                 <i class="fas fa-dollar-sign"></i>
                                             </div>
@@ -1143,7 +1164,7 @@
                                                 <p>Valor do Estoque</p>
                                             </div>
                                         </div>
-                                        <div class="stat-card">
+                                        <div class="stat-card card-teal">
                                             <div class="stat-icon movements">
                                                 <i class="fas fa-chart-line"></i>
                                             </div>
@@ -1281,13 +1302,23 @@
                             <div class="tab-pane" id="profissionais-tab">
                                 <div class="reports-grid">
                                     <div class="stats-cards">
+                                        <!-- Cards da tela de profissionais -->
                                         <div class="stat-card">
-                                            <div class="stat-icon total">
+                                            <div class="stat-icon">
                                                 <i class="fas fa-users"></i>
                                             </div>
                                             <div class="stat-content">
-                                                <h3 id="reports-total-professionals">0</h3>
-                                                <p>Total de Profissionais</p>
+                                                <h3 id="reports-total-professionals-stock">0</h3>
+                                                <p>TOTAL</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-icon active">
+                                                <i class="fas fa-user-check"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="reports-active-professionals">0</h3>
+                                                <p>ATIVO</p>
                                             </div>
                                         </div>
                                         <div class="stat-card">
@@ -1295,10 +1326,30 @@
                                                 <i class="fas fa-user-times"></i>
                                             </div>
                                             <div class="stat-content">
-                                                <h3 id="reports-inactive-professionals">0</h3>
-                                                <p>Inativos</p>
+                                                <h3 id="reports-inactive-professionals-stock">0</h3>
+                                                <p>INATIVO</p>
                                             </div>
                                         </div>
+                                        <div class="stat-card">
+                                            <div class="stat-icon vacation">
+                                                <i class="fas fa-umbrella-beach"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="reports-vacation-professionals">0</h3>
+                                                <p>FÉRIAS</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-icon leave">
+                                                <i class="fas fa-clock"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="reports-leave-professionals">0</h3>
+                                                <p>LICENÇA</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Card único dos relatórios (sem duplicatas) -->
                                         <div class="stat-card">
                                             <div class="stat-icon top">
                                                 <i class="fas fa-star"></i>
@@ -1349,16 +1400,37 @@
                             <div class="tab-pane" id="servicos-tab">
                                 <div class="reports-grid">
                                     <div class="stats-cards">
-                                        <div class="stat-card">
-                                            <div class="stat-icon total">
+                                        <!-- Cards da tela de serviços -->
+                                        <div class="stat-card card-blue">
+                                            <div class="stat-icon">
                                                 <i class="fas fa-cogs"></i>
                                             </div>
                                             <div class="stat-content">
-                                                <h3 id="reports-total-services">0</h3>
-                                                <p>Total de Serviços</p>
+                                                <h3 id="reports-total-services-stock">0</h3>
+                                                <p>TOTAL DE SERVIÇOS</p>
                                             </div>
                                         </div>
-                                        <div class="stat-card">
+                                        <div class="stat-card card-green">
+                                            <div class="stat-icon active">
+                                                <i class="fas fa-check-circle"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="reports-active-services">0</h3>
+                                                <p>SERVIÇOS ATIVOS</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card card-red">
+                                            <div class="stat-icon inactive">
+                                                <i class="fas fa-times-circle"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="reports-inactive-services">0</h3>
+                                                <p>SERVIÇOS INATIVOS</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Cards únicos dos relatórios (sem duplicatas) -->
+                                        <div class="stat-card card-orange">
                                             <div class="stat-icon popular">
                                                 <i class="fas fa-star"></i>
                                             </div>
@@ -1367,7 +1439,7 @@
                                                 <p>Mais Popular</p>
                                             </div>
                                         </div>
-                                        <div class="stat-card">
+                                        <div class="stat-card card-purple">
                                             <div class="stat-icon price">
                                                 <i class="fas fa-dollar-sign"></i>
                                             </div>

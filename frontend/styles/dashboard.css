@@ -7278,4 +7278,68 @@ body {
     box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
 }
 
+/* ==================== CORES ÚNICAS PARA CARDS DE ESTOQUE - RELATÓRIOS ==================== */
+
+/* Card Azul - Total de Produtos */
+.reports-grid .stat-card.card-blue .stat-icon {
+    background: linear-gradient(135deg, #3498db, #2980b9) !important;
+}
+
+/* Card Verde - Em Estoque */
+.reports-grid .stat-card.card-green .stat-icon {
+    background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
+}
+
+/* Card Laranja - Estoque Baixo */
+.reports-grid .stat-card.card-orange .stat-icon {
+    background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+}
+
+/* Card Vermelho - Sem Estoque */
+.reports-grid .stat-card.card-red .stat-icon {
+    background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+}
+
+/* Card Roxo - Valor do Estoque */
+.reports-grid .stat-card.card-purple .stat-icon {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad) !important;
+}
+
+/* Card Teal - Total de Movimentações */
+.reports-grid .stat-card.card-teal .stat-icon {
+    background: linear-gradient(135deg, #1abc9c, #16a085) !important;
+}
+
+/* Aplicar cor do sistema (vermelho/marrom escuro) para a barra de cima de todos os cards de estoque nos relatórios */
+.reports-grid .stat-card::before {
+    background: linear-gradient(90deg, #975756, #7a4443) !important;
+}
+
+/* ==================== CORES ÚNICAS PARA CARDS DE SERVIÇOS - RELATÓRIOS ==================== */
+
+/* Card Azul - Total de Serviços */
+.reports-grid .stat-card.card-blue .stat-icon {
+    background: linear-gradient(135deg, #3498db, #2980b9) !important;
+}
+
+/* Card Verde - Serviços Ativos */
+.reports-grid .stat-card.card-green .stat-icon {
+    background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
+}
+
+/* Card Vermelho - Serviços Inativos */
+.reports-grid .stat-card.card-red .stat-icon {
+    background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+}
+
+/* Card Laranja - Mais Popular */
+.reports-grid .stat-card.card-orange .stat-icon {
+    background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+}
+
+/* Card Roxo - Preço Médio */
+.reports-grid .stat-card.card-purple .stat-icon {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad) !important;
+}
+
 

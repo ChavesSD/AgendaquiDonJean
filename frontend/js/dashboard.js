@@ -3551,11 +3551,22 @@ class ReportsManager {
                     console.log('📦 Propriedades do primeiro produto:', Object.keys(products[0]));
                 }
                 
-                // Calcular estoque baixo com verificação robusta
+                // Calcular estatísticas de estoque (igual à tela de estoque)
+                const inStock = products.filter(p => {
+                    const quantity = p.quantity || p.stock || 0;
+                    const minimum = p.minimumQuantity || p.minimum_stock || p.minStock || 5;
+                    return quantity > minimum;
+                }).length;
+                
                 const lowStock = products.filter(p => {
                     const quantity = p.quantity || p.stock || 0;
-                    const minimum = p.minimumQuantity || p.minimum_stock || p.minStock || 5; // fallback para 5
-                    return quantity <= minimum;
+                    const minimum = p.minimumQuantity || p.minimum_stock || p.minStock || 5;
+                    return quantity <= minimum && quantity > 0;
+                }).length;
+                
+                const outOfStock = products.filter(p => {
+                    const quantity = p.quantity || p.stock || 0;
+                    return quantity === 0;
                 }).length;
                 
                 const stockValue = products.reduce((sum, p) => {
@@ -3649,7 +3660,9 @@ class ReportsManager {
                 
                 const estoqueData = {
                     totalProducts,
+                    inStock,
                     lowStock,
+                    outOfStock,
                     stockValue,
                     movementsCount: movements.length,
                     movementsEntries: entries,
@@ -3671,7 +3684,9 @@ class ReportsManager {
                 console.log('📦 Dados do estoque carregados:', estoqueData);
                 console.log('📦 Valores específicos:', {
                     totalProducts: estoqueData.totalProducts,
+                    inStock: estoqueData.inStock,
                     lowStock: estoqueData.lowStock,
+                    outOfStock: estoqueData.outOfStock,
                     stockValue: estoqueData.stockValue,
                     movementsCount: estoqueData.movementsCount
                 });
@@ -3793,9 +3808,12 @@ class ReportsManager {
                 console.log('👥 Dados dos profissionais:', allProfessionals);
                 console.log('👥 Estatísticas dos profissionais:', professionalsWithStats);
                 
-                // Processar dados dos profissionais
+                // Processar dados dos profissionais (igual à tela de profissionais)
                 const totalProfessionals = allProfessionals.length;
+                const activeProfessionals = allProfessionals.filter(p => p.status === 'active' || p.status === 'ativo').length;
                 const inactiveProfessionals = allProfessionals.filter(p => p.status === 'inactive' || p.status === 'inativo').length;
+                const vacationProfessionals = allProfessionals.filter(p => p.status === 'vacation' || p.status === 'ferias').length;
+                const leaveProfessionals = allProfessionals.filter(p => p.status === 'leave' || p.status === 'licenca').length;
                 
                 // Encontrar o profissional com mais atendimentos
                 let topProfessional = { firstName: 'Nenhum', lastName: 'Profissional' };
@@ -3822,7 +3840,10 @@ class ReportsManager {
                 
                 const profissionaisData = {
                     totalProfessionals,
+                    activeProfessionals,
                     inactiveProfessionals,
+                    vacationProfessionals,
+                    leaveProfessionals,
                     topProfessional: topProfessional.firstName && topProfessional.lastName ? 
                         capitalizeName(topProfessional.firstName) + ' ' + capitalizeName(topProfessional.lastName) : 
                         'Nenhum Profissional',
@@ -3900,8 +3921,10 @@ class ReportsManager {
                 console.log('⚙️ Dados dos serviços:', allServices);
                 console.log('⚙️ Estatísticas dos serviços:', servicesWithStats);
                 
-                // Processar dados dos serviços
+                // Processar dados dos serviços (igual à tela de serviços)
                 const totalServices = allServices.length;
+                const activeServices = allServices.filter(s => s.status === 'active' || s.status === 'ativo').length;
+                const inactiveServices = allServices.filter(s => s.status === 'inactive' || s.status === 'inativo').length;
                 
                 console.log('⚙️ Total de serviços processado:', totalServices);
                 
@@ -3950,6 +3973,8 @@ class ReportsManager {
                 
                 const servicosData = {
                     totalServices,
+                    activeServices,
+                    inactiveServices,
                     popularService: popularService.name || 'Nenhum Serviço',
                     averagePrice: averagePrice,
                     totalRevenue: totalRevenue,
@@ -3980,26 +4005,44 @@ class ReportsManager {
     renderEstoqueStats(data) {
         console.log('📦 Renderizando estatísticas do estoque:', data);
         
-        const totalProductsEl = document.getElementById('reports-total-products');
-        const lowStockEl = document.getElementById('reports-low-stock');
+        // Elementos dos cards da tela de estoque
+        const totalProductsStockEl = document.getElementById('reports-total-products-stock');
+        const inStockProductsEl = document.getElementById('reports-in-stock-products');
+        const lowStockProductsEl = document.getElementById('reports-low-stock-products');
+        const outOfStockProductsEl = document.getElementById('reports-out-of-stock-products');
+        
+        // Elementos dos cards únicos dos relatórios
         const stockValueEl = document.getElementById('reports-stock-value');
         const stockMovementsEl = document.getElementById('reports-stock-movements');
         
         console.log('📦 Elementos encontrados:', {
-            totalProducts: !!totalProductsEl,
-            lowStock: !!lowStockEl,
+            totalProductsStock: !!totalProductsStockEl,
+            inStockProducts: !!inStockProductsEl,
+            lowStockProducts: !!lowStockProductsEl,
+            outOfStockProducts: !!outOfStockProductsEl,
             stockValue: !!stockValueEl,
             stockMovements: !!stockMovementsEl
         });
         
-        if (totalProductsEl) {
-            totalProductsEl.textContent = data.totalProducts || 0;
-            console.log('📦 Total produtos definido:', data.totalProducts || 0);
+        // Atualizar cards da tela de estoque
+        if (totalProductsStockEl) {
+            totalProductsStockEl.textContent = data.totalProducts || 0;
+            console.log('📦 Total produtos (estoque) definido:', data.totalProducts || 0);
         }
-        if (lowStockEl) {
-            lowStockEl.textContent = data.lowStock || 0;
-            console.log('📦 Estoque baixo definido:', data.lowStock || 0);
+        if (inStockProductsEl) {
+            inStockProductsEl.textContent = data.inStock || 0;
+            console.log('📦 Em estoque definido:', data.inStock || 0);
         }
+        if (lowStockProductsEl) {
+            lowStockProductsEl.textContent = data.lowStock || 0;
+            console.log('📦 Estoque baixo (estoque) definido:', data.lowStock || 0);
+        }
+        if (outOfStockProductsEl) {
+            outOfStockProductsEl.textContent = data.outOfStock || 0;
+            console.log('📦 Sem estoque definido:', data.outOfStock || 0);
+        }
+        
+        // Atualizar cards únicos dos relatórios
         if (stockValueEl) {
             stockValueEl.textContent = this.formatCurrency(data.stockValue || 0);
             console.log('📦 Valor do estoque definido:', this.formatCurrency(data.stockValue || 0));
@@ -4621,24 +4664,48 @@ class ReportsManager {
     renderProfissionaisStats(data) {
         console.log('👥 Renderizando estatísticas dos profissionais:', data);
         
-        const totalProfessionalsEl = document.getElementById('reports-total-professionals');
-        const inactiveProfessionalsEl = document.getElementById('reports-inactive-professionals');
+        // Elementos dos cards da tela de profissionais
+        const totalProfessionalsStockEl = document.getElementById('reports-total-professionals-stock');
+        const activeProfessionalsEl = document.getElementById('reports-active-professionals');
+        const inactiveProfessionalsStockEl = document.getElementById('reports-inactive-professionals-stock');
+        const vacationProfessionalsEl = document.getElementById('reports-vacation-professionals');
+        const leaveProfessionalsEl = document.getElementById('reports-leave-professionals');
+        
+        // Elemento do card único dos relatórios
         const topProfessionalEl = document.getElementById('reports-top-professional');
         
         console.log('👥 Elementos encontrados:', {
-            totalProfessionalsEl: !!totalProfessionalsEl,
-            inactiveProfessionalsEl: !!inactiveProfessionalsEl,
-            topProfessionalEl: !!topProfessionalEl
+            totalProfessionalsStock: !!totalProfessionalsStockEl,
+            activeProfessionals: !!activeProfessionalsEl,
+            inactiveProfessionalsStock: !!inactiveProfessionalsStockEl,
+            vacationProfessionals: !!vacationProfessionalsEl,
+            leaveProfessionals: !!leaveProfessionalsEl,
+            topProfessional: !!topProfessionalEl
         });
         
-        if (totalProfessionalsEl) {
-            totalProfessionalsEl.textContent = data.totalProfessionals || 0;
-            console.log('👥 Total de profissionais atualizado:', data.totalProfessionals || 0);
+        // Atualizar cards da tela de profissionais
+        if (totalProfessionalsStockEl) {
+            totalProfessionalsStockEl.textContent = data.totalProfessionals || 0;
+            console.log('👥 Total de profissionais (estoque) atualizado:', data.totalProfessionals || 0);
         }
-        if (inactiveProfessionalsEl) {
-            inactiveProfessionalsEl.textContent = data.inactiveProfessionals || 0;
-            console.log('👥 Profissionais inativos atualizados:', data.inactiveProfessionals || 0);
+        if (activeProfessionalsEl) {
+            activeProfessionalsEl.textContent = data.activeProfessionals || 0;
+            console.log('👥 Profissionais ativos atualizados:', data.activeProfessionals || 0);
         }
+        if (inactiveProfessionalsStockEl) {
+            inactiveProfessionalsStockEl.textContent = data.inactiveProfessionals || 0;
+            console.log('👥 Profissionais inativos (estoque) atualizados:', data.inactiveProfessionals || 0);
+        }
+        if (vacationProfessionalsEl) {
+            vacationProfessionalsEl.textContent = data.vacationProfessionals || 0;
+            console.log('👥 Profissionais em férias atualizados:', data.vacationProfessionals || 0);
+        }
+        if (leaveProfessionalsEl) {
+            leaveProfessionalsEl.textContent = data.leaveProfessionals || 0;
+            console.log('👥 Profissionais em licença atualizados:', data.leaveProfessionals || 0);
+        }
+        
+        // Atualizar card único dos relatórios
         if (topProfessionalEl) {
             topProfessionalEl.textContent = data.topProfessional || '-';
             console.log('👥 Top profissional atualizado:', data.topProfessional || '-');
@@ -4828,25 +4895,38 @@ class ReportsManager {
     renderServicosStats(data) {
         console.log('⚙️ Renderizando estatísticas dos serviços:', data);
         
-        const totalServicesEl = document.getElementById('reports-total-services');
+        // Elementos dos cards da tela de serviços
+        const totalServicesStockEl = document.getElementById('reports-total-services-stock');
+        const activeServicesEl = document.getElementById('reports-active-services');
+        const inactiveServicesEl = document.getElementById('reports-inactive-services');
+        
+        // Elementos dos cards únicos dos relatórios
         const mostPopularServiceEl = document.getElementById('most-popular-service');
         const avgServicePriceEl = document.getElementById('avg-service-price');
         
         console.log('⚙️ Elementos encontrados:', {
-            totalServices: !!totalServicesEl,
+            totalServicesStock: !!totalServicesStockEl,
+            activeServices: !!activeServicesEl,
+            inactiveServices: !!inactiveServicesEl,
             mostPopular: !!mostPopularServiceEl,
             avgPrice: !!avgServicePriceEl
         });
         
-        if (totalServicesEl) {
-            console.log('⚙️ Elemento totalServicesEl encontrado:', totalServicesEl);
-            console.log('⚙️ Valor a ser definido:', data.totalServices);
-            totalServicesEl.textContent = data.totalServices || 0;
-            console.log('⚙️ Total de serviços definido:', totalServicesEl.textContent);
-        } else {
-            console.error('⚙️ Elemento totalServicesEl não encontrado no DOM');
+        // Atualizar cards da tela de serviços
+        if (totalServicesStockEl) {
+            totalServicesStockEl.textContent = data.totalServices || 0;
+            console.log('⚙️ Total de serviços (estoque) atualizado:', data.totalServices || 0);
+        }
+        if (activeServicesEl) {
+            activeServicesEl.textContent = data.activeServices || 0;
+            console.log('⚙️ Serviços ativos atualizados:', data.activeServices || 0);
+        }
+        if (inactiveServicesEl) {
+            inactiveServicesEl.textContent = data.inactiveServices || 0;
+            console.log('⚙️ Serviços inativos atualizados:', data.inactiveServices || 0);
         }
         
+        // Atualizar cards únicos dos relatórios
         if (mostPopularServiceEl) {
             // Aplicar capitalização correta (apenas primeira letra da primeira palavra)
             const capitalizeServiceName = (name) => {
