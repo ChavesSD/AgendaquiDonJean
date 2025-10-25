@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const historyProductFilter = document.getElementById('history-product-filter');
     const historyDateFrom = document.getElementById('history-date-from');
     const historyDateTo = document.getElementById('history-date-to');
+    const filterHistoryDates = document.getElementById('filter-history-dates');
     const clearHistoryFilters = document.getElementById('clear-history-filters');
     
     const productSearch = document.getElementById('product-search');
@@ -98,11 +99,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (historyProductFilter) {
             historyProductFilter.addEventListener('change', filterHistory);
         }
-        if (historyDateFrom) {
-            historyDateFrom.addEventListener('change', filterHistory);
-        }
-        if (historyDateTo) {
-            historyDateTo.addEventListener('change', filterHistory);
+        if (filterHistoryDates) {
+            filterHistoryDates.addEventListener('click', applyHistoryDateFilters);
         }
         if (clearHistoryFilters) {
             clearHistoryFilters.addEventListener('click', clearHistoryFiltersFunc);
@@ -121,9 +119,51 @@ document.addEventListener('DOMContentLoaded', function() {
             if (e.target === withdrawalModal) closeWithdrawalModalFunc();
         });
         
+        // Configurar datas padrão
+        setDefaultHistoryDates();
+        
         // Carregar dados iniciais
         loadProducts();
         loadHistory();
+    }
+
+    // Configurar datas padrão do histórico
+    function setDefaultHistoryDates() {
+        const today = new Date();
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        
+        if (historyDateFrom) {
+            historyDateFrom.value = formatDateForInput(firstDayOfMonth);
+        }
+        if (historyDateTo) {
+            historyDateTo.value = formatDateForInput(lastDayOfMonth);
+        }
+    }
+    
+    // Formatar data para input
+    function formatDateForInput(date) {
+        return date.toISOString().split('T')[0];
+    }
+    
+    // Aplicar filtros de data do histórico
+    function applyHistoryDateFilters() {
+        const startDate = historyDateFrom?.value || '';
+        const endDate = historyDateTo?.value || '';
+        
+        // Validar datas
+        if (startDate && endDate) {
+            const fromDate = new Date(startDate);
+            const toDate = new Date(endDate);
+            
+            if (fromDate > toDate) {
+                showNotification('A data de início deve ser anterior à data de fim', 'error');
+                return;
+            }
+        }
+        
+        filterHistory();
+        showNotification('Filtros aplicados com sucesso!', 'success');
     }
 
     // Carregar produtos
@@ -302,11 +342,15 @@ document.addEventListener('DOMContentLoaded', function() {
     function clearHistoryFiltersFunc() {
         if (historyTypeFilter) historyTypeFilter.value = '';
         if (historyProductFilter) historyProductFilter.value = '';
-        if (historyDateFrom) historyDateFrom.value = '';
-        if (historyDateTo) historyDateTo.value = '';
+        
+        // Resetar para o mês atual
+        setDefaultHistoryDates();
         
         filteredHistory = [...historyData];
         renderHistory();
+        
+        // Mostrar notificação de sucesso
+        showNotification('Filtros limpos com sucesso!', 'success');
     }
 
     // Formatar data e hora

@@ -1500,7 +1500,7 @@ class DashboardManager {
     resetFilters() {
         this.setDefaultDates();
         this.loadDashboardData();
-        this.showNotification('Filtros resetados', 'info');
+        this.showNotification('Filtros limpos com sucesso!', 'success');
     }
 
     async loadDashboardData() {
@@ -3084,7 +3084,7 @@ class ReportsManager {
     resetFilters() {
         this.setDefaultDates();
         this.loadReportsData();
-        this.showNotification('Filtros resetados', 'info');
+        this.showNotification('Filtros limpos com sucesso!', 'success');
     }
 
     switchTab(tabName) {

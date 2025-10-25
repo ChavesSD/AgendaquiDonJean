@@ -350,11 +350,28 @@ class AgendaManager {
     }
 
     async applyDateFilters() {
-        this.filters.startDate = document.getElementById('agenda-date-from').value;
-        this.filters.endDate = document.getElementById('agenda-date-to').value;
+        const startDate = document.getElementById('agenda-date-from').value;
+        const endDate = document.getElementById('agenda-date-to').value;
+        
+        // Validar datas
+        if (startDate && endDate) {
+            const fromDate = new Date(startDate);
+            const toDate = new Date(endDate);
+            
+            if (fromDate > toDate) {
+                showNotification('A data de início deve ser anterior à data de fim', 'error');
+                return;
+            }
+        }
+        
+        this.filters.startDate = startDate;
+        this.filters.endDate = endDate;
         
         await this.loadAppointments();
         await this.loadStatistics();
+        
+        // Mostrar notificação de sucesso
+        showNotification('Filtros aplicados com sucesso!', 'success');
     }
 
     clearDateFilters() {
@@ -369,6 +386,9 @@ class AgendaManager {
         this.populateDateInputs();
         this.loadAppointments();
         this.loadStatistics();
+        
+        // Mostrar notificação de sucesso
+        showNotification('Filtros limpos com sucesso!', 'success');
     }
 
     filterByProfessional(professionalId) {

@@ -39,9 +39,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Filtros do histórico
     const financeHistoryTypeFilter = document.getElementById('finance-history-type-filter');
-    const financeHistoryDateFrom = document.getElementById('finance-history-date-from');
-    const financeHistoryDateTo = document.getElementById('finance-history-date-to');
-    const clearFinanceHistoryFilters = document.getElementById('clear-finance-history-filters');
     
     // Gráfico
     let financeChart = null;
@@ -150,15 +147,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Filtros do histórico
         if (financeHistoryTypeFilter) {
             financeHistoryTypeFilter.addEventListener('change', filterFinanceHistory);
-        }
-        if (financeHistoryDateFrom) {
-            financeHistoryDateFrom.addEventListener('change', filterFinanceHistory);
-        }
-        if (financeHistoryDateTo) {
-            financeHistoryDateTo.addEventListener('change', filterFinanceHistory);
-        }
-        if (clearFinanceHistoryFilters) {
-            clearFinanceHistoryFilters.addEventListener('click', clearFinanceHistoryFiltersFunc);
         }
         
         // Configurar filtros padrão
@@ -708,27 +696,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Filtrar histórico financeiro
     function filterFinanceHistory() {
         const typeFilter = financeHistoryTypeFilter?.value || '';
-        const dateFrom = financeHistoryDateFrom?.value || '';
-        const dateTo = financeHistoryDateTo?.value || '';
 
         filteredFinanceHistory = financeHistory.filter(item => {
             const matchesType = !typeFilter || item.type === typeFilter;
-            
-            let matchesDate = true;
-            if (dateFrom || dateTo) {
-                const itemDate = new Date(item.date);
-                if (dateFrom) {
-                    const fromDate = new Date(dateFrom);
-                    matchesDate = matchesDate && itemDate >= fromDate;
-                }
-                if (dateTo) {
-                    const toDate = new Date(dateTo);
-                    toDate.setHours(23, 59, 59, 999);
-                    matchesDate = matchesDate && itemDate <= toDate;
-                }
-            }
-
-            return matchesType && matchesDate;
+            return matchesType;
         });
 
         renderFinanceHistory();
@@ -745,17 +716,11 @@ document.addEventListener('DOMContentLoaded', function() {
         currentDateFrom = '';
         currentDateTo = '';
         loadFinanceData();
+        
+        // Mostrar notificação de sucesso
+        showNotification('Filtros limpos com sucesso!', 'success');
     }
 
-    // Limpar filtros do histórico
-    function clearFinanceHistoryFiltersFunc() {
-        if (financeHistoryTypeFilter) financeHistoryTypeFilter.value = '';
-        if (financeHistoryDateFrom) financeHistoryDateFrom.value = '';
-        if (financeHistoryDateTo) financeHistoryDateTo.value = '';
-        
-        filteredFinanceHistory = [...financeHistory];
-        renderFinanceHistory();
-    }
 
     // Manipular filtro de data
     function handleDateFilter() {
@@ -778,6 +743,9 @@ document.addEventListener('DOMContentLoaded', function() {
         renderRevenues();
         renderExpenses();
         renderFinanceHistory();
+        
+        // Mostrar notificação de sucesso
+        showNotification('Filtros aplicados com sucesso!', 'success');
     }
 
     // Funções auxiliares
