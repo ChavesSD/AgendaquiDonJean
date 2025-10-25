@@ -7480,26 +7480,40 @@ function loadSavedColors() {
     if (savedColors.primary) {
         document.getElementById('primary-color').value = savedColors.primary;
         document.getElementById('primary-color-hex').value = savedColors.primary;
+        // Aplicar a cor salva
+        document.documentElement.style.setProperty('--primary-color', savedColors.primary);
+        // Aplicar variações da cor principal
+        applyColorVariations(savedColors.primary, 'primary');
     }
     
     if (savedColors.secondary) {
         document.getElementById('secondary-color').value = savedColors.secondary;
         document.getElementById('secondary-color-hex').value = savedColors.secondary;
+        // Aplicar a cor salva
+        document.documentElement.style.setProperty('--secondary-color', savedColors.secondary);
+        // Aplicar variações da cor secundária
+        applyColorVariations(savedColors.secondary, 'secondary');
     }
     
     if (savedColors.success) {
         document.getElementById('success-color').value = savedColors.success;
         document.getElementById('success-color-hex').value = savedColors.success;
+        // Aplicar a cor salva
+        document.documentElement.style.setProperty('--success-color', savedColors.success);
     }
     
     if (savedColors.warning) {
         document.getElementById('warning-color').value = savedColors.warning;
         document.getElementById('warning-color-hex').value = savedColors.warning;
+        // Aplicar a cor salva
+        document.documentElement.style.setProperty('--warning-color', savedColors.warning);
     }
     
     if (savedColors.danger) {
         document.getElementById('danger-color').value = savedColors.danger;
         document.getElementById('danger-color-hex').value = savedColors.danger;
+        // Aplicar a cor salva
+        document.documentElement.style.setProperty('--danger-color', savedColors.danger);
     }
 }
 
@@ -7507,6 +7521,15 @@ function loadSavedColors() {
 function applyPrimaryColor() {
     const color = document.getElementById('primary-color').value;
     document.documentElement.style.setProperty('--primary-color', color);
+    
+    // Aplicar variações da cor principal
+    applyColorVariations(color, 'primary');
+    
+    // Salvar no localStorage
+    const savedColors = JSON.parse(localStorage.getItem('systemColors') || '{}');
+    savedColors.primary = color;
+    localStorage.setItem('systemColors', JSON.stringify(savedColors));
+    
     showNotification('✅ Cor principal aplicada com sucesso!', 'success');
 }
 
@@ -7514,6 +7537,15 @@ function applyPrimaryColor() {
 function applySecondaryColor() {
     const color = document.getElementById('secondary-color').value;
     document.documentElement.style.setProperty('--secondary-color', color);
+    
+    // Aplicar variações da cor secundária
+    applyColorVariations(color, 'secondary');
+    
+    // Salvar no localStorage
+    const savedColors = JSON.parse(localStorage.getItem('systemColors') || '{}');
+    savedColors.secondary = color;
+    localStorage.setItem('systemColors', JSON.stringify(savedColors));
+    
     showNotification('✅ Cor secundária aplicada com sucesso!', 'success');
 }
 
@@ -7931,4 +7963,36 @@ function validateAssetName(filename) {
     ];
     
     return validNames.includes(filename);
+}
+
+// Aplicar variações de cor (rgba)
+function applyColorVariations(color, type) {
+    // Converter hex para rgb
+    const rgb = hexToRgb(color);
+    if (!rgb) return;
+    
+    // Aplicar diferentes opacidades
+    const variations = {
+        '0.05': `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.05)`,
+        '0.1': `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1)`,
+        '0.15': `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.15)`,
+        '0.2': `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.2)`,
+        '0.3': `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.3)`,
+        '0.4': `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.4)`
+    };
+    
+    // Aplicar as variações como variáveis CSS
+    Object.keys(variations).forEach(opacity => {
+        document.documentElement.style.setProperty(`--${type}-color-${opacity}`, variations[opacity]);
+    });
+}
+
+// Converter hex para rgb
+function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
 }
