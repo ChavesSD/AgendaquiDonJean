@@ -4913,7 +4913,7 @@ class ReportsManager {
             // Se não há agendamentos, retornar 0 horas
             const hours = prof.appointments > 0 ? prof.workHours || 0 : 0;
             return {
-                name: prof.name,
+            name: prof.name,
                 hours: hours
             };
         });
