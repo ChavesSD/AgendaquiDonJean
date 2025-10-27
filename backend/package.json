@@ -1,7 +1,7 @@
 {
-  "name": "agendaqui-backend",
+  "name": "ch-studio-backend",
   "version": "1.0.0",
-  "description": "Sistema de gestão Agendaqui - Backend",
+  "description": "Sistema de gestão CH Studio - Backend",
   "main": "server.js",
   "engines": {
     "node": ">=16.0.0",
@@ -28,7 +28,7 @@
     "node-fetch": "^3.3.2",
     "qrcode": "^1.5.4",
     "socket.io": "^4.8.1",
-    "whatsapp-web.js": "^1.23.0"
+    "whatsapp-web.js": "^1.34.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
@@ -40,6 +40,6 @@
     "express",
     "mongodb"
   ],
-  "author": "Agendaqui",
+  "author": "CH Studio",
   "license": "MIT"
 }

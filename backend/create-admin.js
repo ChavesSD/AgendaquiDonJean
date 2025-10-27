@@ -3,7 +3,12 @@ const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
 // Conectar ao MongoDB Atlas
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://chstudiobanco_db_user:VKwho9FvxKQiTO9E@cluster0.qj9gn8z.mongodb.net/ch-studio?retryWrites=true&w=majority&appName=Cluster0';
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+    console.error('❌ MONGODB_URI não configurada! Configure a variável de ambiente MONGODB_URI');
+    process.exit(1);
+}
 
 mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
@@ -26,7 +31,7 @@ async function createAdmin() {
 
         // Dados do admin
         const adminData = {
-            name: 'Administrador Agendaqui',
+            name: 'Administrador CH Studio',
             email: 'admin@chstudio.com',
             password: 'admin123',
             role: 'admin'

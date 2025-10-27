@@ -15,14 +15,19 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 const corsOptions = {
     origin: function (origin, callback) {
-        // Permitir requests sem origin (mobile apps, Postman, etc.)
-        if (!origin) return callback(null, true);
+        // Em produção, não permitir requests sem origin
+        if (process.env.NODE_ENV === 'production' && !origin) {
+            return callback(new Error('Origin required in production'), false);
+        }
+        
+        // Permitir requests sem origin apenas em desenvolvimento
+        if (!origin && process.env.NODE_ENV !== 'production') {
+            return callback(null, true);
+        }
         
         const allowedOrigins = [
             'http://localhost:3000',
             'http://localhost:3001',
-            'http://10.0.0.15:3000',
-            'http://10.0.0.15:3001',
             process.env.CORS_ORIGIN,
             process.env.RAILWAY_STATIC_URL
         ].filter(Boolean);
@@ -30,7 +35,7 @@ const corsOptions = {
         if (allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
-            callback(new Error('Not allowed by CORS'));
+            callback(new Error(`Origin ${origin} not allowed by CORS`));
         }
     },
     credentials: true,
@@ -139,7 +144,12 @@ const limiter = rateLimit({
 app.use('/api/auth', limiter);
 
 // Conexão com MongoDB Atlas
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://chstudiobanco_db_user:VKwho9FvxKQiTO9E@cluster0.qj9gn8z.mongodb.net/ch-studio?retryWrites=true&w=majority&appName=Cluster0';
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+    console.error('❌ MONGODB_URI não configurada! Configure a variável de ambiente MONGODB_URI');
+    process.exit(1);
+}
 
 console.log('🔗 Tentando conectar ao MongoDB...');
 console.log('📍 URI:', MONGODB_URI.substring(0, 50) + '...');
@@ -167,7 +177,6 @@ const Expense = require('./models/Expense');
 const PosMachine = require('./models/PosMachine');
 const Sale = require('./models/Sale');
 const Appointment = require('./models/Appointment');
-const authService = require('./simple-auth');
 
 // Função auxiliar para converter horário em minutos
 function timeToMinutes(time) {
@@ -371,7 +380,7 @@ app.get('/api/company-settings', authenticateToken, async (req, res) => {
         if (!settings) {
             // Criar configurações padrão se não existirem
             settings = new CompanySettings({
-                companyName: 'Agendaqui',
+                companyName: 'CH Studio',
                 cnpj: '',
                 cep: '',
                 street: '',
@@ -490,7 +499,7 @@ app.get('/api/public/company-settings', async (req, res) => {
         if (!settings) {
             // Retornar configurações padrão se não existirem
             settings = {
-                companyName: 'Agendaqui',
+                companyName: 'CH Studio',
                 whatsapp: '(11) 99999-9999',
                 workingHours: {
                     weekdays: { open: '08:00', close: '18:00' },
@@ -1069,7 +1078,7 @@ app.get('/api/whatsapp/messages', authenticateToken, async (req, res) => {
         if (!messages) {
             // Criar mensagens padrão se não existirem
             messages = new WhatsAppMessages({
-                welcomeMessage: 'Olá! Seja bem-vindo ao Agendaqui! Como posso ajudá-lo?',
+                welcomeMessage: 'Olá! Seja bem-vindo ao CH Studio! Como posso ajudá-lo?',
                 outOfHoursMessage: 'Olá! Obrigado por entrar em contato. Estamos fora do horário de funcionamento. Retornaremos em breve!',
                 confirmationMessage: 'Olá! Seu agendamento foi confirmado com sucesso! Aguardamos você no horário marcado.',
                 cancellationMessage: 'Olá! Infelizmente seu agendamento foi cancelado. Entre em contato conosco para reagendar em outro horário.'
