@@ -371,7 +371,7 @@ app.get('/api/company-settings', authenticateToken, async (req, res) => {
         if (!settings) {
             // Criar configurações padrão se não existirem
             settings = new CompanySettings({
-                companyName: 'CH Studio',
+                companyName: 'Agendaqui',
                 cnpj: '',
                 cep: '',
                 street: '',
@@ -490,7 +490,7 @@ app.get('/api/public/company-settings', async (req, res) => {
         if (!settings) {
             // Retornar configurações padrão se não existirem
             settings = {
-                companyName: 'CH Studio',
+                companyName: 'Agendaqui',
                 whatsapp: '(11) 99999-9999',
                 workingHours: {
                     weekdays: { open: '08:00', close: '18:00' },
@@ -1069,7 +1069,7 @@ app.get('/api/whatsapp/messages', authenticateToken, async (req, res) => {
         if (!messages) {
             // Criar mensagens padrão se não existirem
             messages = new WhatsAppMessages({
-                welcomeMessage: 'Olá! Seja bem-vindo ao CH Studio! Como posso ajudá-lo?',
+                welcomeMessage: 'Olá! Seja bem-vindo ao Agendaqui! Como posso ajudá-lo?',
                 outOfHoursMessage: 'Olá! Obrigado por entrar em contato. Estamos fora do horário de funcionamento. Retornaremos em breve!',
                 confirmationMessage: 'Olá! Seu agendamento foi confirmado com sucesso! Aguardamos você no horário marcado.',
                 cancellationMessage: 'Olá! Infelizmente seu agendamento foi cancelado. Entre em contato conosco para reagendar em outro horário.'

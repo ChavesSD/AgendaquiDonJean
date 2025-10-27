@@ -1,4 +1,4 @@
-# ✅ Checklist de Deploy - CH Studio
+# ✅ Checklist de Deploy - Agendaqui
 
 ## 🔧 Configuração do Railway
 

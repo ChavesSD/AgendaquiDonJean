@@ -24,7 +24,7 @@ async function createAdminDirect() {
 
         // Criar usuário admin
         const admin = new User({
-            name: 'Administrador CH Studio',
+            name: 'Administrador Agendaqui',
             email: 'admin@chstudio.com',
             password: hashedPassword,
             role: 'admin'

@@ -22,7 +22,7 @@ async function resetAdmin() {
 
         // Dados do admin
         const adminData = {
-            name: 'Administrador CH Studio',
+            name: 'Administrador Agendaqui',
             email: 'admin@chstudio.com',
             password: 'admin123',
             role: 'admin'

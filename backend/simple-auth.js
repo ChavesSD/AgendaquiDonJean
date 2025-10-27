@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 let users = [
     {
         id: 1,
-        name: 'Administrador CH Studio',
+        name: 'Administrador Agendaqui',
         email: 'admin@chstudio.com',
         password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // admin123
         role: 'admin',

@@ -1,4 +1,4 @@
-# 🌐 Acesso à Rede Local - CH Studio
+# 🌐 Acesso à Rede Local - Agendaqui
 
 ## 📱 Como Acessar de Outros Dispositivos
 
@@ -26,7 +26,7 @@ node server.js
 ### 📱 Testando o Acesso:
 1. **No celular/tablet:** Abra o navegador
 2. **Digite:** `http://10.0.0.15:3000`
-3. **Deve carregar:** A página de login do CH Studio
+3. **Deve carregar:** A página de login do Agendaqui
 
 ### ⚠️ Solução de Problemas:
 
@@ -38,7 +38,7 @@ node server.js
 #### Para liberar no firewall:
 ```powershell
 # Executar como Administrador
-New-NetFirewallRule -DisplayName "CH Studio" -Direction Inbound -Protocol TCP -LocalPort 3000 -Action Allow
+New-NetFirewallRule -DisplayName "Agendaqui" -Direction Inbound -Protocol TCP -LocalPort 3000 -Action Allow
 ```
 
 ### 🔄 Atualizar IP (se necessário):
@@ -61,4 +61,4 @@ const allowedOrigins = [
 - ✅ **Responsividade mobile:** Implementada
 
 ---
-**🎯 Agora você pode acessar o CH Studio de qualquer dispositivo na sua rede local!**
+**🎯 Agora você pode acessar o Agendaqui de qualquer dispositivo na sua rede local!**
