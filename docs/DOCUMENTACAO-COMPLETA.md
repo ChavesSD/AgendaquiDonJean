@@ -1,8 +1,8 @@
-# 📚 Agendaqui - Documentação Completa
+# 📚 CH Studio - Documentação Completa
 
 ## 🎯 **Visão Geral**
 
-O **Agendaqui** é um sistema completo de gestão empresarial desenvolvido com tecnologias modernas, oferecendo uma interface intuitiva e funcionalidades robustas para gerenciamento de negócios.
+O **CH Studio** é um sistema completo de gestão empresarial desenvolvido com tecnologias modernas, oferecendo uma interface intuitiva e funcionalidades robustas para gerenciamento de negócios.
 
 ## 🚀 **Funcionalidades Implementadas**
 
@@ -386,6 +386,6 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalh
 
 ---
 
-**Agendaqui** - Sistema de Gestão Empresarial © 2025
+**CH Studio** - Sistema de Gestão Empresarial © 2024
 
 **Desenvolvido com ❤️ para facilitar a gestão empresarial**

@@ -1,8 +1,8 @@
-# 🚀 Agendaqui - Deploy Completo no Railway
+# 🚀 CH Studio - Deploy Completo no Railway
 
 ## 📋 **Visão Geral**
 
-Este documento contém todas as informações necessárias para fazer o deploy do sistema Agendaqui na plataforma Railway, incluindo configurações, troubleshooting e manutenção.
+Este documento contém todas as informações necessárias para fazer o deploy do sistema CH Studio na plataforma Railway, incluindo configurações, troubleshooting e manutenção.
 
 ---
 
@@ -312,7 +312,7 @@ curl https://seu-dominio.railway.app/api/health
 ## 🎯 **Estrutura Final do Projeto**
 
 ```
-Agendaqui/
+CH Studio/
 ├── backend/                 # 🎯 Root directory no Railway
 │   ├── server.js           # Servidor principal
 │   ├── package.json        # Dependências
@@ -411,6 +411,6 @@ node -e "console.log(process.env)"
 
 ---
 
-**🎉 Agendaqui está pronto para produção no Railway!**
+**🎉 CH Studio está pronto para produção no Railway!**
 
 **Desenvolvido com ❤️ para facilitar a gestão empresarial**

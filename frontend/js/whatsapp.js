@@ -351,7 +351,7 @@ class WhatsAppManager {
         
         if (!testNumber) return;
 
-        const message = 'Teste de integração WhatsApp - Agendaqui';
+        const message = 'Teste de integração WhatsApp - CH Studio';
         
         try {
             const token = localStorage.getItem('authToken');

@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agendaqui - Dashboard</title>
+    <title>CH Studio - Dashboard</title>
     <link rel="icon" type="image/png" href="/assets/Favicon.png">
+    <link rel="stylesheet" href="styles/variables.css">
     <link rel="stylesheet" href="styles/dashboard.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Bibliotecas para geração de PDF -->
@@ -16,8 +17,8 @@
         <!-- Menu Lateral -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <img src="/assets/LogoSiderBarAberta.png" alt="Agendaqui" class="sidebar-logo sidebar-logo-open">
-                <img src="/assets/LogoSiderBarFechada.png" alt="Agendaqui" class="sidebar-logo sidebar-logo-collapsed">
+                <img src="/assets/LogoSiderBarAberta.png" alt="CH Studio" class="sidebar-logo sidebar-logo-open">
+                <img src="/assets/LogoSiderBarFechada.png" alt="CH Studio" class="sidebar-logo sidebar-logo-collapsed">
             </div>
             
             <nav class="sidebar-nav">
@@ -3058,6 +3059,12 @@
     <script src="js/utils/logger.js"></script>
     
     <!-- Scripts principais -->
+    <!-- Sistema de otimização -->
+    <script src="js/utils/minify.js"></script>
+    
+    <!-- Utilitários comuns -->
+    <script src="js/utils/common.js"></script>
+    
     <!-- Sistema de notificações -->
     <script src="js/utils/notifications.js"></script>
     

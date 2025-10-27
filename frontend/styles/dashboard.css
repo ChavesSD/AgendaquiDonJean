@@ -4,32 +4,8 @@
     box-sizing: border-box;
 }
 
-/* ===== VARIÁVEIS CSS PARA PERSONALIZAÇÃO ===== */
-:root {
-    --primary-color: #975756;
-    --secondary-color: #7a4443;
-    --success-color: #28a745;
-    --warning-color: #ffc107;
-    --danger-color: #dc3545;
-    --info-color: #17a2b8;
-    --light-color: #f8f9fa;
-    --dark-color: #343a40;
-    
-    /* Variações de opacidade para cores personalizáveis */
-    --primary-color-05: rgba(151, 87, 86, 0.05);
-    --primary-color-10: rgba(151, 87, 86, 0.1);
-    --primary-color-15: rgba(151, 87, 86, 0.15);
-    --primary-color-20: rgba(151, 87, 86, 0.2);
-    --primary-color-30: rgba(151, 87, 86, 0.3);
-    --primary-color-40: rgba(151, 87, 86, 0.4);
-    
-    --secondary-color-05: rgba(122, 68, 67, 0.05);
-    --secondary-color-10: rgba(122, 68, 67, 0.1);
-    --secondary-color-15: rgba(122, 68, 67, 0.15);
-    --secondary-color-20: rgba(122, 68, 67, 0.2);
-    --secondary-color-30: rgba(122, 68, 67, 0.3);
-    --secondary-color-40: rgba(122, 68, 67, 0.4);
-}
+/* ===== IMPORTAR VARIÁVEIS CENTRALIZADAS ===== */
+@import url('./variables.css');
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

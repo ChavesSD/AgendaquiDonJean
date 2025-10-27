@@ -1,7 +1,7 @@
 {
-  "name": "agendaqui-backend",
+  "name": "ch-studio-backend",
   "version": "1.0.0",
-  "description": "Sistema de gestão Agendaqui - Backend",
+  "description": "Sistema de gestão CH Studio - Backend",
   "main": "server.js",
   "engines": {
     "node": ">=16.0.0",
@@ -40,6 +40,6 @@
     "express",
     "mongodb"
   ],
-  "author": "Agendaqui",
+  "author": "CH Studio",
   "license": "MIT"
 }

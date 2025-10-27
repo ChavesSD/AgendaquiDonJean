@@ -1,5 +1,5 @@
 /**
- * Sistema de Notificações e Confirmações do Agendaqui
+ * Sistema de Notificações e Confirmações do CH Studio
  * 
  * Este arquivo centraliza todas as funções de notificação e confirmação
  * para garantir consistência em todo o sistema.

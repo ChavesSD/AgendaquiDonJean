@@ -3,13 +3,15 @@
 class Logger {
     constructor() {
         this.isProduction = window.location.hostname !== 'localhost';
-        this.logLevel = this.isProduction ? 'warn' : 'debug';
+        this.logLevel = this.isProduction ? 'error' : 'info'; // Reduzir logs em produção
         this.levels = {
             error: 0,
             warn: 1,
             info: 2,
             debug: 3
         };
+        this.maxLogs = this.isProduction ? 50 : 200; // Limitar logs em produção
+        this.logCount = 0;
     }
 
     // Verificar se deve logar
@@ -61,9 +63,10 @@ class Logger {
 
     // Log de erro
     error(message, data = {}, context = {}) {
-        if (!this.shouldLog('error')) return;
+        if (!this.shouldLog('error') || this.logCount >= this.maxLogs) return;
 
         const logEntry = this.createLogEntry('error', message, data, context);
+        this.logCount++;
         
         if (this.isProduction) {
             this.sendToServer(logEntry);
@@ -74,9 +77,10 @@ class Logger {
 
     // Log de warning
     warn(message, data = {}, context = {}) {
-        if (!this.shouldLog('warn')) return;
+        if (!this.shouldLog('warn') || this.logCount >= this.maxLogs) return;
 
         const logEntry = this.createLogEntry('warn', message, data, context);
+        this.logCount++;
         
         if (this.isProduction) {
             this.sendToServer(logEntry);
@@ -87,14 +91,16 @@ class Logger {
 
     // Log de informação
     info(message, data = {}, context = {}) {
-        if (!this.isProduction && this.shouldLog('info')) {
+        if (!this.isProduction && this.shouldLog('info') && this.logCount < this.maxLogs) {
+            this.logCount++;
             console.info(`ℹ️ ${message}`, data, context);
         }
     }
 
     // Log de debug
     debug(message, data = {}, context = {}) {
-        if (!this.isProduction && this.shouldLog('debug')) {
+        if (!this.isProduction && this.shouldLog('debug') && this.logCount < this.maxLogs) {
+            this.logCount++;
             console.debug(`🐛 ${message}`, data, context);
         }
     }

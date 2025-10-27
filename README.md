@@ -1,11 +1,11 @@
-# 🏢 Agendaqui - Sistema de Gestão Empresarial
+# 🏢 CH Studio - Sistema de Gestão Empresarial
 
 Sistema completo de gestão empresarial desenvolvido com HTML, CSS, JavaScript (Frontend) e Node.js + MongoDB (Backend).
 
 ## 📁 Estrutura do Projeto
 
 ```
-Agendaqui/
+CH Studio/
 ├── 📁 frontend/              # Interface do usuário
 │   ├── index.html            # Tela de login
 │   ├── dashboard.html        # Dashboard principal
@@ -162,6 +162,6 @@ Para dúvidas e problemas:
 
 ---
 
-**Agendaqui** - Sistema de Gestão Empresarial © 2025
+**CH Studio** - Sistema de Gestão Empresarial © 2024
 
 **Status**: ✅ **PRONTO PARA USO!**
