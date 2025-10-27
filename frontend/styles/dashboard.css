@@ -6185,8 +6185,8 @@ body {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     border: 1px solid var(--primary-color-10);
     display: flex;
-    align-items: center;
-    gap: 20px;
+    flex-direction: column;
+    gap: 15px;
     transition: all 0.3s ease;
     position: relative;
 }
@@ -6234,7 +6234,19 @@ body {
     color: #2c3e50;
     font-size: 18px;
     font-weight: 600;
-    margin: 0 0 5px 0;
+    margin: 0 0 15px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.appointment-info h4 .appointment-status {
+    font-size: 14px;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
 }
 
 .appointment-client {
@@ -6244,10 +6256,44 @@ body {
     font-weight: 500;
 }
 
+/* Container principal com detalhes e ações na mesma linha */
+.appointment-main-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+/* Detalhes do agendamento em linha */
 .appointment-details {
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+}
+
+.appointment-detail-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #7f8c8d;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.appointment-detail-item i {
+    color: var(--primary-color);
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+    font-size: 14px;
+}
+
+.appointment-detail-item span {
+    color: #2c3e50;
+    font-weight: 500;
 }
 
 .appointment-details span {
@@ -6306,6 +6352,7 @@ body {
     display: flex;
     gap: 8px;
     flex-shrink: 0;
+    align-items: center;
 }
 
 .appointment-actions .btn {
@@ -6975,6 +7022,17 @@ body {
         max-width: 100%;
     }
     
+    .appointment-main-content {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+    }
+    
+    .appointment-details {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
     .appointment-actions {
         justify-content: center;
         flex-wrap: wrap;
@@ -6996,6 +7054,16 @@ body {
     .appointment-card {
         padding: 15px;
         gap: 10px;
+    }
+    
+    .appointment-main-content {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .appointment-details {
+        justify-content: center;
+        flex-wrap: wrap;
     }
     
     .appointment-actions {

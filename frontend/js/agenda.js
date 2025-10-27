@@ -247,19 +247,37 @@ class AgendaManager {
             <div class="appointment-card ${statusClass}">
                 <div class="appointment-info">
                     <div class="appointment-header">
-                        <h4>${appointment.clientName}</h4>
-                        <span class="appointment-status ${statusClass}">${statusText}</span>
-                    </div>
-                    <div class="appointment-details">
-                        <p><i class="fas fa-user"></i> ${appointment.professional.firstName} ${appointment.professional.lastName}</p>
-                        <p><i class="fas fa-cog"></i> ${appointment.service.name}</p>
-                        <p><i class="fas fa-calendar"></i> ${date} às ${time}</p>
-                        <p><i class="fas fa-phone"></i> ${appointment.clientPhone}</p>
-                        ${appointment.notes ? `<p><i class="fas fa-sticky-note"></i> ${appointment.notes}</p>` : ''}
+                        <h4>${appointment.clientName} <span class="appointment-status ${statusClass}">${statusText}</span></h4>
                     </div>
                 </div>
-                <div class="appointment-actions">
-                    ${this.getActionButtons(appointment)}
+                <div class="appointment-main-content">
+                    <div class="appointment-details">
+                        <div class="appointment-detail-item">
+                            <i class="fas fa-user"></i>
+                            <span>${appointment.professional.firstName} ${appointment.professional.lastName}</span>
+                        </div>
+                        <div class="appointment-detail-item">
+                            <i class="fas fa-cog"></i>
+                            <span>${appointment.service.name}</span>
+                        </div>
+                        <div class="appointment-detail-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>${date} às ${time}</span>
+                        </div>
+                        <div class="appointment-detail-item">
+                            <i class="fas fa-phone"></i>
+                            <span>${appointment.clientPhone}</span>
+                        </div>
+                        ${appointment.notes ? `
+                        <div class="appointment-detail-item">
+                            <i class="fas fa-sticky-note"></i>
+                            <span>${appointment.notes}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div class="appointment-actions">
+                        ${this.getActionButtons(appointment)}
+                    </div>
                 </div>
             </div>
         `;
