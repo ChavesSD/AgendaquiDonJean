@@ -845,6 +845,33 @@ body {
     .step span {
         font-size: 0.7rem;
     }
+    
+    /* Ajustes do calendário para mobile */
+    .calendar-container {
+        padding: 15px;
+        margin: 0 -10px; /* Compensar padding do container pai */
+    }
+    
+    .calendar-header h3 {
+        font-size: 1.3rem;
+    }
+    
+    .calendar {
+        gap: 3px;
+        font-size: 0.85rem;
+    }
+    
+    .calendar-day {
+        min-height: 35px;
+        font-size: 0.8rem;
+        padding: 2px;
+    }
+    
+    .calendar-day-header {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 8px 2px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -911,5 +938,77 @@ body {
     .refresh-btn {
         width: 100%;
         justify-content: center;
+    }
+    
+    /* Ajustes do calendário para telas muito pequenas */
+    .calendar-container {
+        padding: 10px;
+        margin: 0 -5px; /* Compensar padding do container pai */
+    }
+    
+    .calendar-header h3 {
+        font-size: 1.2rem;
+    }
+    
+    .calendar {
+        gap: 2px;
+        font-size: 0.8rem;
+    }
+    
+    .calendar-day {
+        min-height: 30px;
+        font-size: 0.75rem;
+        padding: 1px;
+    }
+    
+    .calendar-day-header {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 6px 1px;
+    }
+    
+    /* Garantir que o calendário não ultrapasse a largura da tela */
+    .calendar-container {
+        overflow-x: hidden;
+    }
+    
+    .calendar {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+/* Media query específica para dispositivos móveis muito pequenos */
+@media (max-width: 400px) {
+    .calendar-container {
+        padding: 8px;
+        margin: 0 -8px;
+    }
+    
+    .calendar-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .calendar {
+        gap: 1px;
+        font-size: 0.75rem;
+    }
+    
+    .calendar-day {
+        min-height: 28px;
+        font-size: 0.7rem;
+        padding: 0;
+    }
+    
+    .calendar-day-header {
+        font-size: 0.65rem;
+        font-weight: 600;
+        padding: 4px 0;
+    }
+    
+    /* Forçar quebra de linha se necessário */
+    .calendar-day-header {
+        word-break: break-all;
+        line-height: 1.2;
     }
 }
