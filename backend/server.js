@@ -21,6 +21,8 @@ const corsOptions = {
         const allowedOrigins = [
             'http://localhost:3000',
             'http://localhost:3001',
+            'http://10.0.0.15:3000',
+            'http://10.0.0.15:3001',
             process.env.CORS_ORIGIN,
             process.env.RAILWAY_STATIC_URL
         ].filter(Boolean);
@@ -4747,6 +4749,6 @@ app.get('/api/contacts/stats', authenticateToken, async (req, res) => {
 server.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Servidor rodando na porta ${PORT}`);
     console.log(`📱 Acesse localmente: http://localhost:${PORT}`);
-    console.log(`🌐 Acesse de outros dispositivos: http://192.168.0.8:${PORT}`);
+    console.log(`🌐 Acesse de outros dispositivos: http://10.0.0.15:${PORT}`);
     console.log(`🔌 WebSocket ativo para atualizações em tempo real`);
 });
