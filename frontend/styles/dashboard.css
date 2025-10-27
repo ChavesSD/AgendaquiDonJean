@@ -6260,7 +6260,7 @@ body {
 .appointment-main-content {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
     flex-wrap: wrap;
 }
 
@@ -6268,7 +6268,7 @@ body {
 .appointment-details {
     display: flex;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 8px;
     align-items: center;
     flex: 1;
     min-width: 0;
@@ -6277,7 +6277,7 @@ body {
 .appointment-detail-item {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 5px;
     color: #7f8c8d;
     font-size: 14px;
     white-space: nowrap;
