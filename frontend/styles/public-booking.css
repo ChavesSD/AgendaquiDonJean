@@ -846,6 +846,23 @@ body {
         font-size: 0.7rem;
     }
     
+    /* Centralizar textos da seção de serviço em tablets e mobile */
+    .service-info-item {
+        text-align: center;
+    }
+    
+    .service-info-item strong {
+        text-align: center;
+    }
+    
+    .service-info-item span {
+        text-align: center;
+    }
+    
+    .service-info-description {
+        text-align: center;
+    }
+    
     /* Ajustes do calendário para mobile */
     .calendar-container {
         padding: 15px;
@@ -933,6 +950,20 @@ body {
     .service-info-description {
         font-size: 0.8rem;
         line-height: 1.4;
+        text-align: center;
+    }
+    
+    /* Centralizar textos da seção de serviço em mobile */
+    .service-info-item {
+        text-align: center;
+    }
+    
+    .service-info-item strong {
+        text-align: center;
+    }
+    
+    .service-info-item span {
+        text-align: center;
     }
     
     .refresh-btn {
@@ -1010,5 +1041,22 @@ body {
     .calendar-day-header {
         word-break: break-all;
         line-height: 1.2;
+    }
+    
+    /* Centralizar textos da seção de serviço em mobile muito pequeno */
+    .service-info-item {
+        text-align: center;
+    }
+    
+    .service-info-item strong {
+        text-align: center;
+    }
+    
+    .service-info-item span {
+        text-align: center;
+    }
+    
+    .service-info-description {
+        text-align: center;
     }
 }
