@@ -1,3 +1,22 @@
+/* ===== VARIÁVEIS CSS PARA PERSONALIZAÇÃO ===== */
+:root {
+    --primary-color: #975756;
+    --secondary-color: #7a4443;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    
+    /* Variações de opacidade para cores personalizáveis */
+    --primary-color-10: rgba(151, 87, 86, 0.1);
+    --primary-color-20: rgba(151, 87, 86, 0.2);
+    --primary-color-30: rgba(151, 87, 86, 0.3);
+    --primary-color-40: rgba(151, 87, 86, 0.4);
+    --primary-color-50: rgba(151, 87, 86, 0.5);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -6,7 +25,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--info-color) 0%, var(--primary-color) 100%);
     background-image: url('/assets/Background Login.png');
     background-size: cover;
     background-position: center;
@@ -43,12 +62,12 @@ body::before {
 }
 
 .login-box {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(248, 249, 250, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 20px;
     padding: 50px 45px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(248, 249, 250, 0.2);
     text-align: center;
     animation: slideUp 0.6s ease-out;
     width: 100%;
@@ -93,18 +112,20 @@ body::before {
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
-    color: #999;
+    color: var(--dark-color);
     font-size: 16px;
+    opacity: 0.6;
+    transition: all 0.3s ease;
 }
 
 .input-group input {
     width: 100%;
     padding: 15px 45px 15px 45px;
-    border: 2px solid #e1e5e9;
+    border: 2px solid var(--light-color);
     border-radius: 10px;
     font-size: 16px;
     transition: all 0.3s ease;
-    background: #fff;
+    background: var(--light-color);
 }
 
 .password-toggle {
@@ -114,36 +135,54 @@ body::before {
     transform: translateY(-50%);
     background: none;
     border: none;
-    color: #999;
+    color: var(--dark-color);
     font-size: 16px;
     cursor: pointer;
     padding: 5px;
     transition: all 0.3s ease;
     border-radius: 4px;
     z-index: 10;
+    opacity: 0.6;
 }
 
 .password-toggle:hover {
-    color: #975756;
-    background: rgba(151, 87, 86, 0.1);
+    color: var(--primary-color);
+    background: var(--primary-color-10);
 }
 
 .password-toggle:focus {
     outline: none;
-    color: #975756;
-    background: rgba(151, 87, 86, 0.1);
+    color: var(--primary-color);
+    background: var(--primary-color-10);
 }
 
 .input-group input:focus {
     outline: none;
-    border-color: #975756;
-    box-shadow: 0 0 0 3px rgba(151, 87, 86, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-color-10);
+}
+
+.input-group input:focus + i,
+.input-group input:focus ~ .password-toggle {
+    color: var(--primary-color);
+    opacity: 1;
+}
+
+/* Estilos para placeholders */
+.input-group input::placeholder {
+    color: var(--dark-color);
+    opacity: 0.6;
+}
+
+.input-group input:focus::placeholder {
+    color: var(--primary-color);
+    opacity: 0.8;
 }
 
 
 .login-btn {
     width: 100%;
-    background: #975756;
+    background: var(--primary-color);
     color: white;
     border: none;
     padding: 15px;
@@ -161,8 +200,8 @@ body::before {
 
 .login-btn:hover {
     transform: translateY(-2px);
-    background: #7a4443;
-    box-shadow: 0 10px 20px rgba(151, 87, 86, 0.3);
+    background: var(--secondary-color);
+    box-shadow: 0 10px 20px var(--primary-color-30);
 }
 
 .login-btn:active {
@@ -172,12 +211,13 @@ body::before {
 .login-footer {
     margin-top: 30px;
     padding-top: 20px;
-    border-top: 1px solid #e1e5e9;
+    border-top: 1px solid var(--light-color);
 }
 
 .login-footer p {
-    color: #999;
+    color: var(--dark-color);
     font-size: 12px;
+    opacity: 0.6;
 }
 
 /* Responsividade */
@@ -237,14 +277,15 @@ body::before {
 }
 
 .loading .login-btn {
-    background: #ccc;
+    background: var(--light-color);
+    opacity: 0.6;
 }
 
 .spinner {
     display: inline-block;
     width: 20px;
     height: 20px;
-    border: 2px solid #ffffff;
+    border: 2px solid var(--light-color);
     border-radius: 50%;
     border-top-color: transparent;
     animation: spin 1s ease-in-out infinite;

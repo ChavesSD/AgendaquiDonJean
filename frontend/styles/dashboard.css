@@ -16,19 +16,19 @@
     --dark-color: #343a40;
     
     /* Variações de opacidade para cores personalizáveis */
-    --primary-color-0.05: rgba(151, 87, 86, 0.05);
-    --primary-color-0.1: rgba(151, 87, 86, 0.1);
-    --primary-color-0.15: rgba(151, 87, 86, 0.15);
-    --primary-color-0.2: rgba(151, 87, 86, 0.2);
-    --primary-color-0.3: rgba(151, 87, 86, 0.3);
-    --primary-color-0.4: rgba(151, 87, 86, 0.4);
+    --primary-color-05: rgba(151, 87, 86, 0.05);
+    --primary-color-10: rgba(151, 87, 86, 0.1);
+    --primary-color-15: rgba(151, 87, 86, 0.15);
+    --primary-color-20: rgba(151, 87, 86, 0.2);
+    --primary-color-30: rgba(151, 87, 86, 0.3);
+    --primary-color-40: rgba(151, 87, 86, 0.4);
     
-    --secondary-color-0.05: rgba(122, 68, 67, 0.05);
-    --secondary-color-0.1: rgba(122, 68, 67, 0.1);
-    --secondary-color-0.15: rgba(122, 68, 67, 0.15);
-    --secondary-color-0.2: rgba(122, 68, 67, 0.2);
-    --secondary-color-0.3: rgba(122, 68, 67, 0.3);
-    --secondary-color-0.4: rgba(122, 68, 67, 0.4);
+    --secondary-color-05: rgba(122, 68, 67, 0.05);
+    --secondary-color-10: rgba(122, 68, 67, 0.1);
+    --secondary-color-15: rgba(122, 68, 67, 0.15);
+    --secondary-color-20: rgba(122, 68, 67, 0.2);
+    --secondary-color-30: rgba(122, 68, 67, 0.3);
+    --secondary-color-40: rgba(122, 68, 67, 0.4);
 }
 
 body {
@@ -199,7 +199,7 @@ body {
     margin-right: 0;
     margin-bottom: 10px;
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    box-shadow: 0 4px 12px var(--primary-color-0.3);
+    box-shadow: 0 4px 12px var(--primary-color-30);
 }
 
 .user-info {
@@ -339,7 +339,7 @@ body {
 }
 
 .sidebar-toggle:hover {
-    background: var(--primary-color-0.1);
+    background: var(--primary-color-10);
     color: var(--secondary-color);
     transform: scale(1.05);
 }
@@ -375,7 +375,7 @@ body {
 }
 
 .user-menu-btn:hover {
-    background: var(--primary-color-0.1);
+    background: var(--primary-color-10);
     transform: translateY(-1px);
 }
 
@@ -544,19 +544,19 @@ body {
 }
 
 .stat-card:nth-child(1) .stat-icon {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, var(--info-color), #2980b9);
 }
 
 .stat-card:nth-child(2) .stat-icon {
-    background: linear-gradient(135deg, #27ae60, #229954);
+    background: linear-gradient(135deg, var(--success-color), #229954);
 }
 
 .stat-card:nth-child(3) .stat-icon {
-    background: linear-gradient(135deg, #e67e22, #d35400);
+    background: linear-gradient(135deg, var(--warning-color), #d35400);
 }
 
 .stat-card:nth-child(4) .stat-icon {
-    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
 }
 
 .stat-content h3 {
@@ -644,13 +644,13 @@ body {
 .btn-primary {
     background: var(--primary-color);
     color: white;
-    box-shadow: 0 4px 15px var(--primary-color-0.3);
+    box-shadow: 0 4px 15px var(--primary-color-30);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
     background: var(--secondary-color);
-    box-shadow: 0 10px 20px var(--primary-color-0.4);
+    box-shadow: 0 10px 20px var(--primary-color-40);
 }
 
 .btn-primary:active {
@@ -829,7 +829,7 @@ body {
 }
 
 .modal-close:hover {
-    background: var(--primary-color-0.1);
+    background: var(--primary-color-10);
     color: var(--primary-color);
 }
 
@@ -913,8 +913,8 @@ body {
 .modal-body input:focus,
 .modal-body select:focus,
 .modal-body textarea:focus {
-    border-color: #975756;
-    box-shadow: 0 0 0 3px rgba(151, 87, 86, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-color-10);
     outline: none;
 }
 
@@ -941,7 +941,7 @@ body {
 
 .admin-category {
     background: var(--light-color);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     border-radius: 12px;
     padding: 20px;
     transition: all 0.3s ease;
@@ -990,7 +990,7 @@ body {
     padding: 20px;
     background: white;
     border-radius: 8px;
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
 }
 
 .color-group h4 {
@@ -1046,7 +1046,7 @@ body {
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 25px;
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
 }
 
 .current-license h4 {
@@ -1063,7 +1063,7 @@ body {
 }
 
 .license-type {
-    background: #975756;
+    background: var(--primary-color);
     color: white;
     padding: 8px 16px;
     border-radius: 20px;
@@ -1080,8 +1080,8 @@ body {
 }
 
 .license-status.active {
-    background: #d4edda;
-    color: #155724;
+    background: var(--success-color-0.1);
+    color: var(--success-color);
 }
 
 .license-cards {
@@ -1107,7 +1107,7 @@ body {
 }
 
 .license-card.premium {
-    border-color: #975756;
+    border-color: var(--primary-color);
     background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
 }
 
@@ -1117,7 +1117,7 @@ body {
     top: -10px;
     left: 50%;
     transform: translateX(-50%);
-    background: #975756;
+    background: var(--primary-color);
     color: white;
     padding: 5px 15px;
     border-radius: 15px;
@@ -1282,7 +1282,7 @@ body {
     font-size: 32px;
     overflow: hidden;
     position: relative;
-    border: 3px solid var(--primary-color-0.2);
+    border: 3px solid var(--primary-color-20);
 }
 
 .avatar-preview img {
@@ -1316,7 +1316,7 @@ body {
     align-items: center;
     gap: 20px;
     transition: all 0.3s ease;
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
 }
 
 .user-card:hover {
@@ -1389,7 +1389,7 @@ body {
     height: 36px;
     border: none;
     border-radius: 6px;
-    background: #3498db;
+    background: var(--info-color);
     color: white;
     cursor: pointer;
     display: flex;
@@ -1484,7 +1484,7 @@ body {
 
 /* Tipos de notificação */
 .notification.success {
-    border-left-color: #27ae60;
+    border-left-color: var(--success-color);
     background: linear-gradient(135deg, #ffffff 0%, #f8fff8 100%);
 }
 
@@ -1529,7 +1529,7 @@ body {
 }
 
 .notification.info .notification-icon {
-    background: #3498db;
+    background: var(--info-color);
 }
 
 /* Conteúdo da notificação */
@@ -1702,19 +1702,19 @@ body {
 }
 
 .confirmation-icon.danger {
-    background: #e74c3c;
+    background: var(--danger-color);
 }
 
 .confirmation-icon.warning {
-    background: #f39c12;
+    background: var(--warning-color);
 }
 
 .confirmation-icon.info {
-    background: #3498db;
+    background: var(--info-color);
 }
 
 .confirmation-icon.success {
-    background: #27ae60;
+    background: var(--success-color);
 }
 
 .confirmation-title {
@@ -1782,7 +1782,7 @@ body {
 }
 
 .confirmation-btn-danger {
-    background: #e74c3c;
+    background: var(--danger-color);
     color: white;
 }
 
@@ -1792,12 +1792,12 @@ body {
 }
 
 .confirmation-btn-primary {
-    background: #975756;
+    background: var(--primary-color);
     color: white;
 }
 
 .confirmation-btn-primary:hover {
-    background: #7a4443;
+    background: var(--secondary-color);
     transform: translateY(-1px);
 }
 
@@ -1881,12 +1881,12 @@ body {
 }
 
 .tab-btn:hover {
-    background: var(--primary-color-0.1);
+    background: var(--primary-color-10);
     color: var(--primary-color);
 }
 
 .tab-btn.active {
-    background: #975756;
+    background: var(--primary-color);
     color: white;
 }
 
@@ -2004,7 +2004,7 @@ body {
     color: #2c3e50;
     font-weight: 600;
     text-align: center;
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
 }
 
 .config-section h3 {
@@ -2041,7 +2041,7 @@ body {
     background: rgba(255, 255, 255, 0.9);
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
 }
 
 .notice-content i {
@@ -2117,8 +2117,8 @@ body {
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #975756;
-    box-shadow: 0 0 0 3px rgba(151, 87, 86, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-color-10);
 }
 
 .form-actions {
@@ -2138,7 +2138,7 @@ body {
     background: rgba(255, 255, 255, 0.7);
     padding: 25px;
     border-radius: 12px;
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
 }
 
 .dia-config h4 {
@@ -2181,7 +2181,7 @@ body {
 .dia-config .checkmark {
     width: 24px !important;
     height: 24px !important;
-    border: 3px solid #975756 !important;
+    border: 3px solid var(--primary-color) !important;
     border-radius: 4px !important;
     position: relative !important;
     transition: all 0.3s ease !important;
@@ -2197,9 +2197,9 @@ body {
 }
 
 .dia-config .checkbox-label input[type="checkbox"]:checked + .checkmark {
-    background: linear-gradient(135deg, #975756, #7a4443) !important;
-    border-color: #7a4443 !important;
-    box-shadow: 0 4px 8px rgba(151, 87, 86, 0.3) !important;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+    border-color: var(--secondary-color) !important;
+    box-shadow: 0 4px 8px var(--primary-color-30) !important;
 }
 
 .dia-config .checkbox-label input[type="checkbox"]:checked + .checkmark::after {
@@ -2215,15 +2215,15 @@ body {
 }
 
 .dia-config .checkbox-label input[type="checkbox"]:checked ~ span {
-    color: #975756 !important;
+    color: var(--primary-color) !important;
     font-weight: 700 !important;
 }
 
 /* Estado ativo quando checkbox está marcado */
 .dia-config .checkbox-label.active {
-    background: rgba(151, 87, 86, 0.1) !important;
-    border-color: #975756 !important;
-    box-shadow: 0 4px 12px rgba(151, 87, 86, 0.2) !important;
+    background: var(--primary-color-10) !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 4px 12px var(--primary-color-20) !important;
 }
 
 /* Usuários */
@@ -2238,7 +2238,7 @@ body {
     padding: 25px;
     background: rgba(255, 255, 255, 0.7);
     border-radius: 15px;
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     transition: all 0.3s ease;
 }
 
@@ -2372,7 +2372,7 @@ body {
     background: white;
     border-radius: 10px;
     margin-bottom: 15px;
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
 }
 
 .backup-info {
@@ -2728,7 +2728,7 @@ body {
     padding: 0;
     overflow: hidden;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     position: relative;
 }
 
@@ -2811,7 +2811,7 @@ body {
 .backup-name-content i {
     color: var(--primary-color);
     font-size: 18px;
-    background: var(--primary-color-0.1);
+    background: var(--primary-color-10);
     padding: 8px;
     border-radius: 8px;
     width: 36px;
@@ -2849,7 +2849,7 @@ body {
     color: var(--primary-color);
     margin-right: 8px;
     font-size: 14px;
-    background: var(--primary-color-0.1);
+    background: var(--primary-color-10);
     padding: 6px;
     border-radius: 6px;
     width: 24px;
@@ -2885,19 +2885,19 @@ body {
 }
 
 .status-processing {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
+    background: linear-gradient(135deg, var(--warning-color), #e67e22);
     color: #fff;
     border: none;
 }
 
 .status-failed {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
     color: #fff;
     border: none;
 }
 
 .status-pending {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, var(--info-color), #2980b9);
     color: #fff;
     border: none;
 }
@@ -2945,7 +2945,7 @@ body {
 }
 
 .action-buttons .btn-info {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, var(--info-color), #2980b9);
     color: #fff;
 }
 
@@ -2954,7 +2954,7 @@ body {
 }
 
 .action-buttons .btn-danger {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
     color: #fff;
 }
 
@@ -2996,7 +2996,7 @@ body {
 .no-backups i {
     font-size: 48px;
     color: var(--primary-color);
-    background: var(--primary-color-0.1);
+    background: var(--primary-color-10);
     padding: 20px;
     border-radius: 50%;
     width: 80px;
@@ -3114,7 +3114,7 @@ body {
 }
 
 .modal-content {
-    background: linear-gradient(135deg, #975756, #7a4544);
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     margin: 2.5% auto;
     padding: 0;
     border-radius: 16px;
@@ -3381,7 +3381,7 @@ body {
     border-radius: 15px;
     padding: 25px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     display: flex;
     align-items: center;
     gap: 15px;
@@ -3419,15 +3419,15 @@ body {
 }
 
 .stat-icon.active {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    background: linear-gradient(135deg, var(--success-color), #2ecc71);
 }
 
 .stat-icon.inactive {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
 }
 
 .stat-icon.vacation {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
+    background: linear-gradient(135deg, var(--warning-color), #e67e22);
 }
 
 .stat-icon.leave {
@@ -3458,7 +3458,7 @@ body {
     border-radius: 15px;
     padding: 30px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
 }
 
 .section-header {
@@ -3494,8 +3494,8 @@ body {
 
 .search-box input:focus {
     outline: none;
-    border-color: #975756;
-    box-shadow: 0 0 0 3px rgba(151, 87, 86, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-color-10);
 }
 
 .search-box i {
@@ -3518,7 +3518,7 @@ body {
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     display: flex;
     align-items: center;
     gap: 20px;
@@ -3607,17 +3607,17 @@ body {
 }
 
 .status-active {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    background: linear-gradient(135deg, var(--success-color), #2ecc71);
     color: #fff;
 }
 
 .status-inactive {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
     color: #fff;
 }
 
 .status-vacation {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
+    background: linear-gradient(135deg, var(--warning-color), #e67e22);
     color: #fff;
 }
 
@@ -3627,7 +3627,7 @@ body {
 }
 
 .user-badge {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, var(--info-color), #2980b9);
     color: #fff;
     padding: 4px 8px;
     border-radius: 12px;
@@ -3659,7 +3659,7 @@ body {
 }
 
 .professional-actions .btn-primary {
-    background: #3498db;
+    background: var(--info-color);
     color: #fff;
 }
 
@@ -3708,8 +3708,8 @@ body {
 }
 
 .photo-preview:hover {
-    border-color: #975756;
-    background: var(--primary-color-0.1);
+    border-color: var(--primary-color);
+    background: var(--primary-color-10);
 }
 
 .photo-preview img {
@@ -3741,7 +3741,7 @@ body {
 .checkbox-group input[type="checkbox"] {
     width: 18px;
     height: 18px;
-    accent-color: #975756;
+    accent-color: var(--primary-color);
 }
 
 .checkbox-group label {
@@ -3756,7 +3756,7 @@ body {
     padding: 20px;
     border-radius: 10px;
     margin-top: 20px;
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
 }
 
 #userCredentialsSection h4 {
@@ -3775,7 +3775,7 @@ body {
     border-radius: 15px;
     padding: 30px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
 }
 
 /* Lista de Serviços */
@@ -3789,7 +3789,7 @@ body {
     border-radius: 12px;
     padding: 25px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     transition: all 0.3s ease;
     position: relative;
 }
@@ -3837,12 +3837,12 @@ body {
 }
 
 .status-active {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    background: linear-gradient(135deg, var(--success-color), #2ecc71);
     color: #fff;
 }
 
 .status-inactive {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
     color: #fff;
 }
 
@@ -3899,7 +3899,7 @@ body {
 }
 
 .professional-tag {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, var(--info-color), #2980b9);
     color: #fff;
     padding: 4px 10px;
     border-radius: 12px;
@@ -3936,7 +3936,7 @@ body {
 }
 
 .service-actions .btn-primary {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, var(--info-color), #2980b9);
     color: #fff;
 }
 
@@ -3946,7 +3946,7 @@ body {
 }
 
 .service-actions .btn-danger {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
     color: #fff;
 }
 
@@ -3977,7 +3977,7 @@ body {
     background: rgba(151, 87, 86, 0.05);
     border-radius: 10px;
     padding: 20px;
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     max-height: 200px;
     overflow-y: auto;
 }
@@ -3997,7 +3997,7 @@ body {
 .professional-checkbox-item input[type="checkbox"] {
     width: 18px;
     height: 18px;
-    accent-color: #975756;
+    accent-color: var(--primary-color);
 }
 
 .professional-checkbox-item label {
@@ -4114,7 +4114,7 @@ body {
     border-radius: 15px;
     padding: 30px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     margin-bottom: 30px;
     position: relative;
     overflow: hidden;
@@ -4142,7 +4142,7 @@ body {
     backdrop-filter: blur(10px);
     border-radius: 15px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     overflow: hidden;
 }
 
@@ -4170,12 +4170,12 @@ body {
 }
 
 .stock-tabs .tab-btn:hover {
-    background: var(--primary-color-0.1);
+    background: var(--primary-color-10);
     color: var(--primary-color);
 }
 
 .stock-tabs .tab-btn.active {
-    background: #975756;
+    background: var(--primary-color);
     color: white;
 }
 
@@ -4230,7 +4230,7 @@ body {
     border-radius: 15px;
     padding: 30px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
 }
 
 /* Seção de Retirada */
@@ -4240,7 +4240,7 @@ body {
     border-radius: 15px;
     padding: 30px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
 }
 
 /* Seção de Histórico */
@@ -4250,7 +4250,7 @@ body {
     border-radius: 15px;
     padding: 30px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
 }
 
 .history-filters {
@@ -4273,8 +4273,8 @@ body {
 .history-filters select:focus,
 .history-filters input:focus {
     outline: none;
-    border-color: #975756;
-    box-shadow: 0 0 0 3px rgba(151, 87, 86, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-color-10);
 }
 
 .history-list {
@@ -4297,7 +4297,7 @@ body {
 }
 
 .history-item.entrada {
-    border-left-color: #27ae60;
+    border-left-color: var(--success-color);
 }
 
 .history-item.saida {
@@ -4306,7 +4306,7 @@ body {
 
 /* Cores específicas para histórico financeiro */
 .history-item.receita {
-    border-left-color: #27ae60;
+    border-left-color: var(--success-color);
     background: linear-gradient(135deg, #f8fff9, #f0f9f0);
 }
 
@@ -4471,7 +4471,7 @@ body {
     border-radius: 12px;
     padding: 25px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     display: flex;
     align-items: center;
     gap: 20px;
@@ -4563,17 +4563,17 @@ body {
 }
 
 .status-badge.em-estoque {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    background: linear-gradient(135deg, var(--success-color), #2ecc71);
     color: #fff;
 }
 
 .status-badge.estoque-baixo {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
+    background: linear-gradient(135deg, var(--warning-color), #e67e22);
     color: #fff;
 }
 
 .status-badge.sem-estoque {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
     color: #fff;
 }
 
@@ -4606,7 +4606,7 @@ body {
 }
 
 .product-actions .btn-primary.btn-sm {
-    background: #3498db;
+    background: var(--info-color);
     color: #fff;
 }
 
@@ -4646,7 +4646,7 @@ body {
     border-radius: 12px;
     padding: 25px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     display: flex;
     align-items: center;
     gap: 20px;
@@ -4669,7 +4669,7 @@ body {
     padding: 20px;
     background: rgba(151, 87, 86, 0.05);
     border-radius: 10px;
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     text-align: center;
 }
 
@@ -4900,8 +4900,8 @@ body {
 
 .photo-upload input[type="url"]:focus {
     outline: none;
-    border-color: #975756;
-    box-shadow: 0 0 0 3px rgba(151, 87, 86, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-color-10);
 }
 
 .photo-upload input[type="url"]:valid + .photo-preview {
@@ -4953,8 +4953,8 @@ body {
 
 .date-filters input[type="date"]:focus {
     outline: none;
-    border-color: #975756;
-    box-shadow: 0 0 0 3px rgba(151, 87, 86, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-color-10);
 }
 
 .date-filters input[type="date"]::-webkit-calendar-picker-indicator {
@@ -4978,8 +4978,8 @@ body {
 
 .date-filters select:focus {
     outline: none;
-    border-color: #975756;
-    box-shadow: 0 0 0 3px rgba(151, 87, 86, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-color-10);
 }
 
 /* Cards de Estatísticas Financeiras */
@@ -4996,7 +4996,7 @@ body {
     border-radius: 15px;
     padding: 25px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     display: flex;
     align-items: center;
     gap: 20px;
@@ -5008,17 +5008,7 @@ body {
     box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
 }
 
-.finance-stats .stat-card.revenue {
-    /* Removida borda lateral - apenas linha superior */
-}
-
-.finance-stats .stat-card.expenses {
-    /* Removida borda lateral - apenas linha superior */
-}
-
-.finance-stats .stat-card.profit {
-    /* Removida borda lateral - apenas linha superior */
-}
+/* Cards de estatísticas financeiras - estilos removidos para simplificação */
 
 .finance-stats .stat-icon {
     width: 60px;
@@ -5032,15 +5022,15 @@ body {
 }
 
 .finance-stats .stat-card.revenue .stat-icon {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    background: linear-gradient(135deg, var(--success-color), #2ecc71);
 }
 
 .finance-stats .stat-card.expenses .stat-icon {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
 }
 
 .finance-stats .stat-card.profit .stat-icon {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, var(--info-color), #2980b9);
 }
 
 .finance-stats .stat-content h3 {
@@ -5064,7 +5054,7 @@ body {
     border-radius: 15px;
     padding: 30px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     margin-bottom: 30px;
 }
 
@@ -5081,7 +5071,7 @@ body {
     backdrop-filter: blur(10px);
     border-radius: 15px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     overflow: hidden;
 }
 
@@ -5111,12 +5101,12 @@ body {
 }
 
 .finance-tabs .tab-btn:hover {
-    background: var(--primary-color-0.1);
+    background: var(--primary-color-10);
     color: var(--primary-color);
 }
 
 .finance-tabs .tab-btn.active {
-    background: #975756;
+    background: var(--primary-color);
     color: white;
 }
 
@@ -5144,7 +5134,7 @@ body {
     border-radius: 15px;
     padding: 30px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
 }
 
 /* Ações da Maquininha */
@@ -5172,7 +5162,7 @@ body {
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     display: flex;
     align-items: center;
     gap: 20px;
@@ -5206,15 +5196,15 @@ body {
 }
 
 .revenue-item .item-icon {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    background: linear-gradient(135deg, var(--success-color), #2ecc71);
 }
 
 .expense-item .item-icon {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
 }
 
 .pos-item .item-icon {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, var(--info-color), #2980b9);
 }
 
 .revenue-item .item-icon img,
@@ -5300,17 +5290,17 @@ body {
 }
 
 .revenue-item .status-badge.revenue {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    background: linear-gradient(135deg, var(--success-color), #2ecc71);
     color: #fff;
 }
 
 .expense-item .status-badge.expense {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
     color: #fff;
 }
 
 .pos-item .status-badge.pos {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, var(--info-color), #2980b9);
     color: #fff;
 }
 
@@ -5343,7 +5333,7 @@ body {
 .revenue-item .btn-primary.btn-sm,
 .expense-item .btn-primary.btn-sm,
 .pos-item .btn-primary.btn-sm {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, var(--info-color), #2980b9);
     color: #fff;
 }
 
@@ -5357,7 +5347,7 @@ body {
 .revenue-item .btn-danger.btn-sm,
 .expense-item .btn-danger.btn-sm,
 .pos-item .btn-danger.btn-sm {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
     color: #fff;
 }
 
@@ -5497,7 +5487,7 @@ body {
     border-radius: 15px;
     padding: 25px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     display: flex;
     align-items: center;
     gap: 20px;
@@ -5534,15 +5524,15 @@ body {
 }
 
 .agenda-stats .stat-icon.pending {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
+    background: linear-gradient(135deg, var(--warning-color), #e67e22);
 }
 
 .agenda-stats .stat-icon.confirmed {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    background: linear-gradient(135deg, var(--success-color), #2ecc71);
 }
 
 .agenda-stats .stat-icon.cancelled {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
 }
 
 .agenda-stats .stat-content h3 {
@@ -5565,7 +5555,7 @@ body {
     backdrop-filter: blur(10px);
     border-radius: 15px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     overflow: hidden;
 }
 
@@ -5595,12 +5585,12 @@ body {
 }
 
 .agenda-tabs .tab-btn:hover {
-    background: var(--primary-color-0.1);
+    background: var(--primary-color-10);
     color: var(--primary-color);
 }
 
 .agenda-tabs .tab-btn.active {
-    background: #975756;
+    background: var(--primary-color);
     color: white;
 }
 
@@ -5625,7 +5615,7 @@ body {
     border-radius: 15px;
     padding: 30px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
 }
 
 .appointment-filters {
@@ -5647,8 +5637,8 @@ body {
 
 .appointment-filters select:focus {
     outline: none;
-    border-color: #975756;
-    box-shadow: 0 0 0 3px rgba(151, 87, 86, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-color-10);
 }
 
 /* Lista de Agendamentos */
@@ -5663,7 +5653,7 @@ body {
     border-radius: 12px;
     padding: 25px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     display: flex;
     align-items: center;
     gap: 20px;
@@ -5762,17 +5752,17 @@ body {
 }
 
 .status-pending {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
+    background: linear-gradient(135deg, var(--warning-color), #e67e22);
     color: #fff;
 }
 
 .status-confirmed {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    background: linear-gradient(135deg, var(--success-color), #2ecc71);
     color: #fff;
 }
 
 .status-cancelled {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
     color: #fff;
 }
 
@@ -5804,7 +5794,7 @@ body {
 }
 
 .appointment-actions .btn-primary {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, var(--info-color), #2980b9);
     color: #fff;
 }
 
@@ -5814,7 +5804,7 @@ body {
 }
 
 .appointment-actions .btn-success {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    background: linear-gradient(135deg, var(--success-color), #2ecc71);
     color: #fff;
 }
 
@@ -5824,7 +5814,7 @@ body {
 }
 
 .appointment-actions .btn-warning {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
+    background: linear-gradient(135deg, var(--warning-color), #e67e22);
     color: #fff;
 }
 
@@ -5834,7 +5824,7 @@ body {
 }
 
 .appointment-actions .btn-danger {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
     color: #fff;
 }
 
@@ -5850,7 +5840,7 @@ body {
     border-radius: 15px;
     padding: 30px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
 }
 
 .calendar-actions {
@@ -5913,7 +5903,7 @@ body {
 }
 
 .calendar-day.today {
-    background: var(--primary-color-0.1);
+    background: var(--primary-color-10);
     font-weight: 600;
 }
 
@@ -6128,7 +6118,7 @@ body {
     border-radius: 15px;
     padding: 30px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
 }
 
 .contacts-actions {
@@ -6164,12 +6154,12 @@ body {
 
 .contacts-filters select:focus {
     outline: none;
-    border-color: #975756;
-    box-shadow: 0 0 0 3px rgba(151, 87, 86, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-color-10);
 }
 
 .contacts-filters select:hover {
-    border-color: #975756;
+    border-color: var(--primary-color);
 }
 
 .contacts-list {
@@ -6274,13 +6264,13 @@ body {
 
 .pagination button:hover {
     background: #f8f9fa;
-    border-color: #975756;
+    border-color: var(--primary-color);
 }
 
 .pagination button.active {
-    background: #975756;
+    background: var(--primary-color);
     color: white;
-    border-color: #975756;
+    border-color: var(--primary-color);
 }
 
 .pagination button:disabled {
@@ -6325,7 +6315,7 @@ body {
     border-radius: 15px;
     padding: 30px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
 }
 
 .agenda-actions {
@@ -6345,8 +6335,8 @@ body {
 
 .agenda-date-picker:focus {
     outline: none;
-    border-color: #975756;
-    box-shadow: 0 0 0 3px rgba(151, 87, 86, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-color-10);
 }
 
 .agenda-timeline {
@@ -6379,7 +6369,7 @@ body {
 }
 
 .timeline-item.confirmed {
-    border-left-color: #27ae60;
+    border-left-color: var(--success-color);
     background: rgba(39, 174, 96, 0.05);
 }
 
@@ -6582,7 +6572,7 @@ body {
     border-radius: 8px;
     padding: 20px;
     margin-top: 20px;
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
 }
 
 .sale-result h4 {
@@ -6658,7 +6648,7 @@ body {
     border-radius: 15px;
     padding: 25px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     margin-bottom: 30px;
     position: relative;
     overflow: hidden;
@@ -6707,8 +6697,8 @@ body {
 
 .chart-controls .btn.active,
 .chart-controls .btn:hover {
-    border-color: #975756;
-    background: #975756;
+    border-color: var(--primary-color);
+    background: var(--primary-color);
     color: white;
 }
 
@@ -6729,7 +6719,7 @@ body {
     backdrop-filter: blur(10px);
     border-radius: 15px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     overflow: hidden;
     transition: all 0.3s ease;
     position: relative;
@@ -6796,12 +6786,12 @@ body {
     padding: 16px;
     background: rgba(151, 87, 86, 0.05);
     border-radius: 12px;
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     transition: all 0.3s ease;
 }
 
 .appointment-item:hover {
-    background: var(--primary-color-0.1);
+    background: var(--primary-color-10);
     border-color: rgba(151, 87, 86, 0.2);
 }
 
@@ -6836,7 +6826,7 @@ body {
 .appointment-time {
     color: #6c757d;
     font-size: 12px;
-    background: var(--primary-color-0.1);
+    background: var(--primary-color-10);
     padding: 2px 6px;
     border-radius: 4px;
 }
@@ -6884,12 +6874,12 @@ body {
     padding: 16px;
     background: rgba(151, 87, 86, 0.05);
     border-radius: 12px;
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     transition: all 0.3s ease;
 }
 
 .ranking-item:hover {
-    background: var(--primary-color-0.1);
+    background: var(--primary-color-10);
     border-color: rgba(151, 87, 86, 0.2);
 }
 
@@ -6947,7 +6937,7 @@ body {
 
 .ranking-count {
     color: #6c757d;
-    background: var(--primary-color-0.1);
+    background: var(--primary-color-10);
     padding: 2px 6px;
     border-radius: 4px;
 }
@@ -6969,7 +6959,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--primary-color-0.1);
+    background: var(--primary-color-10);
     color: #6c757d;
     font-size: 14px;
 }
@@ -6984,7 +6974,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--primary-color-0.1);
+    background: var(--primary-color-10);
 }
 
 .professional-photo img {
@@ -7020,7 +7010,7 @@ body {
     margin-bottom: 10px;
     background: rgba(255, 255, 255, 0.9);
     border-radius: 10px;
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     transition: all 0.3s ease;
 }
 
@@ -7059,7 +7049,7 @@ body {
 }
 
 .commission-rank.rank-other {
-    background: var(--primary-color-0.1);
+    background: var(--primary-color-10);
     color: var(--primary-color);
 }
 
@@ -7079,7 +7069,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--primary-color-0.1);
+    background: var(--primary-color-10);
 }
 
 .commission-professional-photo img {
@@ -7205,15 +7195,15 @@ body {
 
 /* Cards de comissões com cores específicas */
 #comissoes-page .stats-grid .stat-card:nth-child(1) .stat-icon {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    background: linear-gradient(135deg, var(--success-color), #2ecc71);
 }
 
 #comissoes-page .stats-grid .stat-card:nth-child(2) .stat-icon {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
+    background: linear-gradient(135deg, var(--warning-color), #e67e22);
 }
 
 #comissoes-page .stats-grid .stat-card:nth-child(3) .stat-icon {
-    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
 }
 
 /* Gráficos de comissões */
@@ -7518,7 +7508,7 @@ body {
     backdrop-filter: blur(10px);
     border-radius: 15px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     overflow: hidden;
 }
 
@@ -7548,12 +7538,12 @@ body {
 }
 
 .reports-tabs .tab-btn:hover {
-    background: var(--primary-color-0.1);
+    background: var(--primary-color-10);
     color: var(--primary-color);
 }
 
 .reports-tabs .tab-btn.active {
-    background: #975756;
+    background: var(--primary-color);
     color: white;
 }
 
@@ -7623,7 +7613,7 @@ body {
     border-radius: 15px;
     padding: 20px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     display: flex;
     align-items: center;
     gap: 15px;
@@ -7663,138 +7653,138 @@ body {
 
 /* Ícones coloridos para cards de Agenda */
 #agenda-tab .reports-grid .stat-card .stat-icon {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, var(--info-color), #2980b9);
 }
 
 #agenda-tab .reports-grid .stat-card .stat-icon.pending {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
+    background: linear-gradient(135deg, var(--warning-color), #e67e22);
 }
 
 #agenda-tab .reports-grid .stat-card .stat-icon.confirmed {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    background: linear-gradient(135deg, var(--success-color), #2ecc71);
 }
 
 #agenda-tab .reports-grid .stat-card .stat-icon.cancelled {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
 }
 
 /* Ícones coloridos para cards de Estoque */
 #estoque-tab .reports-grid .stat-card .stat-icon {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
+    background: linear-gradient(135deg, var(--warning-color), #e67e22);
 }
 
 #estoque-tab .reports-grid .stat-card .stat-icon.low-stock {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
 }
 
 #estoque-tab .reports-grid .stat-card .stat-icon.value {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    background: linear-gradient(135deg, var(--success-color), #2ecc71);
 }
 
 #estoque-tab .reports-grid .stat-card .stat-icon.movements {
-    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
 }
 
 /* Ícones coloridos para cards de Financeiro */
 #financeiro-tab .reports-grid .stat-card .stat-icon {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    background: linear-gradient(135deg, var(--success-color), #2ecc71);
 }
 
 #financeiro-tab .reports-grid .stat-card .stat-icon.revenue {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    background: linear-gradient(135deg, var(--success-color), #2ecc71);
 }
 
 #financeiro-tab .reports-grid .stat-card .stat-icon.expenses {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
 }
 
 #financeiro-tab .reports-grid .stat-card .stat-icon.profit {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, var(--info-color), #2980b9);
 }
 
 /* Ícones coloridos para cards de Profissionais */
 #profissionais-tab .reports-grid .stat-card .stat-icon {
-    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
 }
 
 #profissionais-tab .reports-grid .stat-card .stat-icon.active {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    background: linear-gradient(135deg, var(--success-color), #2ecc71);
 }
 
 #profissionais-tab .reports-grid .stat-card .stat-icon.total {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, var(--info-color), #2980b9);
 }
 
 #profissionais-tab .reports-grid .stat-card .stat-icon.inactive {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
 }
 
 #profissionais-tab .reports-grid .stat-card .stat-icon.top {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
+    background: linear-gradient(135deg, var(--warning-color), #e67e22);
 }
 
 /* Ícones coloridos para cards de Serviços */
 #servicos-tab .reports-grid .stat-card .stat-icon.total {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, var(--info-color), #2980b9);
 }
 
 #servicos-tab .reports-grid .stat-card .stat-icon.popular {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
+    background: linear-gradient(135deg, var(--warning-color), #e67e22);
 }
 
 #servicos-tab .reports-grid .stat-card .stat-icon.price {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    background: linear-gradient(135deg, var(--success-color), #2ecc71);
 }
 
 /* Ícones coloridos para cards de Financeiro */
 #financeiro-tab .reports-grid .stat-card .stat-icon.revenue {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    background: linear-gradient(135deg, var(--success-color), #2ecc71);
 }
 
 #financeiro-tab .reports-grid .stat-card .stat-icon.expenses {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
 }
 
 #financeiro-tab .reports-grid .stat-card .stat-icon.profit {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, var(--info-color), #2980b9);
 }
 
 #financeiro-tab .reports-grid .stat-card .stat-icon.margin {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
+    background: linear-gradient(135deg, var(--warning-color), #e67e22);
 }
 
 /* Ícones coloridos para cards de Estoque */
 #estoque-tab .reports-grid .stat-card .stat-icon.products {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, var(--info-color), #2980b9);
 }
 
 #estoque-tab .reports-grid .stat-card .stat-icon.low-stock {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
 }
 
 #estoque-tab .reports-grid .stat-card .stat-icon.value {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    background: linear-gradient(135deg, var(--success-color), #2ecc71);
 }
 
 #estoque-tab .reports-grid .stat-card .stat-icon.movements {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
+    background: linear-gradient(135deg, var(--warning-color), #e67e22);
 }
 
 /* Ícones coloridos para cards de Agenda */
 #agenda-tab .reports-grid .stat-card .stat-icon.total {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, var(--info-color), #2980b9);
 }
 
 #agenda-tab .reports-grid .stat-card .stat-icon.confirmed {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    background: linear-gradient(135deg, var(--success-color), #2ecc71);
 }
 
 #agenda-tab .reports-grid .stat-card .stat-icon.cancelled {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
 }
 
 #agenda-tab .reports-grid .stat-card .stat-icon.pending {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
+    background: linear-gradient(135deg, var(--warning-color), #e67e22);
 }
 
 .reports-grid .stat-card .stat-content h3 {
@@ -8109,7 +8099,6 @@ body {
 .pdf-export-mode {
     /* Forçar cores mais vivas e nítidas */
     -webkit-print-color-adjust: exact !important;
-    color-adjust: exact !important;
     print-color-adjust: exact !important;
 }
 
@@ -8347,7 +8336,7 @@ body {
 }
 
 .contact-actions .btn-primary {
-    background: #3498db;
+    background: var(--info-color);
     color: white;
 }
 
@@ -8410,9 +8399,9 @@ body {
 }
 
 .pagination-controls .btn.active {
-    background: #975756;
+    background: var(--primary-color);
     color: white;
-    border-color: #975756;
+    border-color: var(--primary-color);
 }
 
 /* Modal de contato - Padrão Unificado */
@@ -8512,7 +8501,7 @@ body {
 .form-group input:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #975756;
+    border-color: var(--primary-color);
 }
 
 .form-group textarea {
@@ -8759,64 +8748,64 @@ body {
 
 /* Card Azul - Total de Produtos */
 .reports-grid .stat-card.card-blue .stat-icon {
-    background: linear-gradient(135deg, #3498db, #2980b9) !important;
+    background: linear-gradient(135deg, var(--info-color), #2980b9) !important;
 }
 
 /* Card Verde - Em Estoque */
 .reports-grid .stat-card.card-green .stat-icon {
-    background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
+    background: linear-gradient(135deg, var(--success-color), #2ecc71) !important;
 }
 
 /* Card Laranja - Estoque Baixo */
 .reports-grid .stat-card.card-orange .stat-icon {
-    background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+    background: linear-gradient(135deg, var(--warning-color), #e67e22) !important;
 }
 
 /* Card Vermelho - Sem Estoque */
 .reports-grid .stat-card.card-red .stat-icon {
-    background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+    background: linear-gradient(135deg, var(--danger-color), #c0392b) !important;
 }
 
 /* Card Roxo - Valor do Estoque */
 .reports-grid .stat-card.card-purple .stat-icon {
-    background: linear-gradient(135deg, #9b59b6, #8e44ad) !important;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
 }
 
 /* Card Teal - Total de Movimentações */
 .reports-grid .stat-card.card-teal .stat-icon {
-    background: linear-gradient(135deg, #1abc9c, #16a085) !important;
+    background: linear-gradient(135deg, var(--info-color), #16a085) !important;
 }
 
 /* Aplicar cor do sistema (vermelho/marrom escuro) para a barra de cima de todos os cards de estoque nos relatórios */
 .reports-grid .stat-card::before {
-    background: linear-gradient(90deg, #975756, #7a4443) !important;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)) !important;
 }
 
 /* ==================== CORES ÚNICAS PARA CARDS DE SERVIÇOS - RELATÓRIOS ==================== */
 
 /* Card Azul - Total de Serviços */
 .reports-grid .stat-card.card-blue .stat-icon {
-    background: linear-gradient(135deg, #3498db, #2980b9) !important;
+    background: linear-gradient(135deg, var(--info-color), #2980b9) !important;
 }
 
 /* Card Verde - Serviços Ativos */
 .reports-grid .stat-card.card-green .stat-icon {
-    background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
+    background: linear-gradient(135deg, var(--success-color), #2ecc71) !important;
 }
 
 /* Card Vermelho - Serviços Inativos */
 .reports-grid .stat-card.card-red .stat-icon {
-    background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+    background: linear-gradient(135deg, var(--danger-color), #c0392b) !important;
 }
 
 /* Card Laranja - Mais Popular */
 .reports-grid .stat-card.card-orange .stat-icon {
-    background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+    background: linear-gradient(135deg, var(--warning-color), #e67e22) !important;
 }
 
 /* Card Roxo - Preço Médio */
 .reports-grid .stat-card.card-purple .stat-icon {
-    background: linear-gradient(135deg, #9b59b6, #8e44ad) !important;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
 }
 
 /* ===== GERENCIAMENTO DE ASSETS ===== */
@@ -8828,7 +8817,7 @@ body {
 
 .assets-info {
     background: #f8f9fa;
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     border-radius: 8px;
     padding: 1.5rem;
 }
@@ -8874,7 +8863,7 @@ body {
 
 .assets-upload {
     background: #f8f9fa;
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     border-radius: 8px;
     padding: 1.5rem;
 }
@@ -8980,7 +8969,7 @@ body {
 
 .current-assets {
     background: #f8f9fa;
-    border: 1px solid var(--primary-color-0.1);
+    border: 1px solid var(--primary-color-10);
     border-radius: 8px;
     padding: 1.5rem;
 }
