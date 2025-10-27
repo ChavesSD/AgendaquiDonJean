@@ -1746,6 +1746,26 @@ body {
     border-left: 3px solid #dee2e6;
 }
 
+.confirmation-input {
+    margin-top: 16px;
+}
+
+.confirmation-input input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.confirmation-input input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-color-10);
+}
+
 /* Rodapé do modal */
 .confirmation-footer {
     padding: 16px 24px 24px 24px;

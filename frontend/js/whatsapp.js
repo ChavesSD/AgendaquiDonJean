@@ -338,7 +338,17 @@ class WhatsAppManager {
 
     // Enviar mensagem de teste
     async sendTestMessage() {
-        const testNumber = prompt('Digite o número para teste (com DDD, apenas números):');
+        const testNumber = await showConfirmation({
+            title: 'Número para Teste',
+            message: 'Digite o número para teste (com DDD, apenas números):',
+            type: 'info',
+            confirmText: 'Enviar',
+            cancelText: 'Cancelar',
+            confirmButtonType: 'primary',
+            showInput: true,
+            inputPlaceholder: '11999999999'
+        });
+        
         if (!testNumber) return;
 
         const message = 'Teste de integração WhatsApp - CH Studio';

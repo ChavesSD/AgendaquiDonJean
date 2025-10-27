@@ -2363,11 +2363,7 @@ class GestorInteligenteIcon {
         }, 600);
 
         // Mostrar notificação
-        if (window.showNotification) {
-            window.showNotification('Gestor Inteligente ativado! Acessando recursos avançados de gestão.', 'success');
-        } else {
-            alert('Gestor Inteligente ativado! Acessando recursos avançados de gestão.');
-        }
+        showNotification('Gestor Inteligente ativado! Acessando recursos avançados de gestão.', 'success');
 
         // Aqui você pode adicionar a lógica específica do gestor inteligente
         this.openGestorInteligente();
@@ -7168,7 +7164,17 @@ function checkDevAreaAccess() {
 
 // Apagar todos os agendamentos
 async function clearAllAppointments() {
-    if (!confirm('⚠️ ATENÇÃO: Esta ação irá apagar TODOS os agendamentos do sistema. Esta ação não pode ser desfeita!\n\nTem certeza que deseja continuar?')) {
+    const confirmed = await showConfirmation({
+        title: '⚠️ Confirmar Exclusão',
+        message: 'Esta ação irá apagar TODOS os agendamentos do sistema.',
+        details: 'Esta ação não pode ser desfeita!',
+        type: 'danger',
+        confirmText: 'Apagar Todos',
+        cancelText: 'Cancelar',
+        confirmButtonType: 'danger'
+    });
+    
+    if (!confirmed) {
         return;
     }
     
@@ -7194,7 +7200,17 @@ async function clearAllAppointments() {
 
 // Apagar todas as comissões
 async function clearAllCommissions() {
-    if (!confirm('⚠️ ATENÇÃO: Esta ação irá apagar TODAS as comissões do sistema. Esta ação não pode ser desfeita!\n\nTem certeza que deseja continuar?')) {
+    const confirmed = await showConfirmation({
+        title: '⚠️ Confirmar Exclusão',
+        message: 'Esta ação irá apagar TODAS as comissões do sistema.',
+        details: 'Esta ação não pode ser desfeita!',
+        type: 'danger',
+        confirmText: 'Apagar Todas',
+        cancelText: 'Cancelar',
+        confirmButtonType: 'danger'
+    });
+    
+    if (!confirmed) {
         return;
     }
     
@@ -7220,7 +7236,17 @@ async function clearAllCommissions() {
 
 // Apagar todas as receitas
 async function clearAllRevenues() {
-    if (!confirm('⚠️ ATENÇÃO: Esta ação irá apagar TODAS as receitas do sistema. Esta ação não pode ser desfeita!\n\nTem certeza que deseja continuar?')) {
+    const confirmed = await showConfirmation({
+        title: '⚠️ Confirmar Exclusão',
+        message: 'Esta ação irá apagar TODAS as receitas do sistema.',
+        details: 'Esta ação não pode ser desfeita!',
+        type: 'danger',
+        confirmText: 'Apagar Todas',
+        cancelText: 'Cancelar',
+        confirmButtonType: 'danger'
+    });
+    
+    if (!confirmed) {
         return;
     }
     
@@ -7246,7 +7272,17 @@ async function clearAllRevenues() {
 
 // Apagar todos os gastos
 async function clearAllExpenses() {
-    if (!confirm('⚠️ ATENÇÃO: Esta ação irá apagar TODOS os gastos do sistema. Esta ação não pode ser desfeita!\n\nTem certeza que deseja continuar?')) {
+    const confirmed = await showConfirmation({
+        title: '⚠️ Confirmar Exclusão',
+        message: 'Esta ação irá apagar TODOS os gastos do sistema.',
+        details: 'Esta ação não pode ser desfeita!',
+        type: 'danger',
+        confirmText: 'Apagar Todos',
+        cancelText: 'Cancelar',
+        confirmButtonType: 'danger'
+    });
+    
+    if (!confirmed) {
         return;
     }
     
@@ -7272,7 +7308,17 @@ async function clearAllExpenses() {
 
 // Apagar todas as vendas
 async function clearAllSales() {
-    if (!confirm('⚠️ ATENÇÃO: Esta ação irá apagar TODAS as vendas do sistema. Esta ação não pode ser desfeita!\n\nTem certeza que deseja continuar?')) {
+    const confirmed = await showConfirmation({
+        title: '⚠️ Confirmar Exclusão',
+        message: 'Esta ação irá apagar TODAS as vendas do sistema.',
+        details: 'Esta ação não pode ser desfeita!',
+        type: 'danger',
+        confirmText: 'Apagar Todas',
+        cancelText: 'Cancelar',
+        confirmButtonType: 'danger'
+    });
+    
+    if (!confirmed) {
         return;
     }
     
@@ -7298,7 +7344,17 @@ async function clearAllSales() {
 
 // Apagar todas as maquininhas
 async function clearAllPosMachines() {
-    if (!confirm('⚠️ ATENÇÃO: Esta ação irá apagar TODAS as maquininhas do sistema. Esta ação não pode ser desfeita!\n\nTem certeza que deseja continuar?')) {
+    const confirmed = await showConfirmation({
+        title: '⚠️ Confirmar Exclusão',
+        message: 'Esta ação irá apagar TODAS as maquininhas do sistema.',
+        details: 'Esta ação não pode ser desfeita!',
+        type: 'danger',
+        confirmText: 'Apagar Todas',
+        cancelText: 'Cancelar',
+        confirmButtonType: 'danger'
+    });
+    
+    if (!confirmed) {
         return;
     }
     
@@ -7324,7 +7380,17 @@ async function clearAllPosMachines() {
 
 // Apagar todos os profissionais
 async function clearAllProfessionals() {
-    if (!confirm('⚠️ ATENÇÃO: Esta ação irá apagar TODOS os profissionais do sistema. Esta ação não pode ser desfeita!\n\nTem certeza que deseja continuar?')) {
+    const confirmed = await showConfirmation({
+        title: '⚠️ Confirmar Exclusão',
+        message: 'Esta ação irá apagar TODOS os profissionais do sistema.',
+        details: 'Esta ação não pode ser desfeita!',
+        type: 'danger',
+        confirmText: 'Apagar Todos',
+        cancelText: 'Cancelar',
+        confirmButtonType: 'danger'
+    });
+    
+    if (!confirmed) {
         return;
     }
     
@@ -7350,7 +7416,17 @@ async function clearAllProfessionals() {
 
 // Apagar todos os serviços
 async function clearAllServices() {
-    if (!confirm('⚠️ ATENÇÃO: Esta ação irá apagar TODOS os serviços do sistema. Esta ação não pode ser desfeita!\n\nTem certeza que deseja continuar?')) {
+    const confirmed = await showConfirmation({
+        title: '⚠️ Confirmar Exclusão',
+        message: 'Esta ação irá apagar TODOS os serviços do sistema.',
+        details: 'Esta ação não pode ser desfeita!',
+        type: 'danger',
+        confirmText: 'Apagar Todos',
+        cancelText: 'Cancelar',
+        confirmButtonType: 'danger'
+    });
+    
+    if (!confirmed) {
         return;
     }
     
@@ -7376,7 +7452,17 @@ async function clearAllServices() {
 
 // Apagar todos os produtos
 async function clearAllProducts() {
-    if (!confirm('⚠️ ATENÇÃO: Esta ação irá apagar TODOS os produtos do sistema. Esta ação não pode ser desfeita!\n\nTem certeza que deseja continuar?')) {
+    const confirmed = await showConfirmation({
+        title: '⚠️ Confirmar Exclusão',
+        message: 'Esta ação irá apagar TODOS os produtos do sistema.',
+        details: 'Esta ação não pode ser desfeita!',
+        type: 'danger',
+        confirmText: 'Apagar Todos',
+        cancelText: 'Cancelar',
+        confirmButtonType: 'danger'
+    });
+    
+    if (!confirmed) {
         return;
     }
     
@@ -7402,7 +7488,17 @@ async function clearAllProducts() {
 
 // Apagar todos os usuários (exceto admin)
 async function clearAllUsers() {
-    if (!confirm('⚠️ ATENÇÃO: Esta ação irá apagar TODOS os usuários do sistema (exceto administradores). Esta ação não pode ser desfeita!\n\nTem certeza que deseja continuar?')) {
+    const confirmed = await showConfirmation({
+        title: '⚠️ Confirmar Exclusão',
+        message: 'Esta ação irá apagar TODOS os usuários do sistema (exceto administradores).',
+        details: 'Esta ação não pode ser desfeita!',
+        type: 'danger',
+        confirmText: 'Apagar Todos',
+        cancelText: 'Cancelar',
+        confirmButtonType: 'danger'
+    });
+    
+    if (!confirmed) {
         return;
     }
     
@@ -7428,7 +7524,17 @@ async function clearAllUsers() {
 
 // Apagar todas as mensagens do WhatsApp
 async function clearAllWhatsAppMessages() {
-    if (!confirm('⚠️ ATENÇÃO: Esta ação irá apagar TODAS as mensagens do WhatsApp do sistema. Esta ação não pode ser desfeita!\n\nTem certeza que deseja continuar?')) {
+    const confirmed = await showConfirmation({
+        title: '⚠️ Confirmar Exclusão',
+        message: 'Esta ação irá apagar TODAS as mensagens do WhatsApp do sistema.',
+        details: 'Esta ação não pode ser desfeita!',
+        type: 'danger',
+        confirmText: 'Apagar Todas',
+        cancelText: 'Cancelar',
+        confirmButtonType: 'danger'
+    });
+    
+    if (!confirmed) {
         return;
     }
     
@@ -7595,8 +7701,17 @@ function saveColorScheme() {
 }
 
 // Restaurar cores padrão
-function resetColorScheme() {
-    if (!confirm('Tem certeza que deseja restaurar as cores padrão do sistema?')) {
+async function resetColorScheme() {
+    const confirmed = await showConfirmation({
+        title: 'Restaurar Cores Padrão',
+        message: 'Tem certeza que deseja restaurar as cores padrão do sistema?',
+        type: 'warning',
+        confirmText: 'Restaurar',
+        cancelText: 'Cancelar',
+        confirmButtonType: 'warning'
+    });
+    
+    if (!confirmed) {
         return;
     }
     
@@ -7649,8 +7764,17 @@ function loadCurrentLicense() {
 }
 
 // Selecionar licença
-function selectLicense(plan) {
-    if (!confirm(`Tem certeza que deseja alterar para o plano ${plan.toUpperCase()}?`)) {
+async function selectLicense(plan) {
+    const confirmed = await showConfirmation({
+        title: 'Alterar Plano de Licença',
+        message: `Tem certeza que deseja alterar para o plano ${plan.toUpperCase()}?`,
+        type: 'info',
+        confirmText: 'Alterar',
+        cancelText: 'Cancelar',
+        confirmButtonType: 'primary'
+    });
+    
+    if (!confirmed) {
         return;
     }
     
@@ -7704,8 +7828,17 @@ function refreshLogs() {
 }
 
 // Limpar logs
-function clearLogs() {
-    if (!confirm('Tem certeza que deseja limpar todos os logs do sistema?')) {
+async function clearLogs() {
+    const confirmed = await showConfirmation({
+        title: 'Limpar Logs',
+        message: 'Tem certeza que deseja limpar todos os logs do sistema?',
+        type: 'warning',
+        confirmText: 'Limpar',
+        cancelText: 'Cancelar',
+        confirmButtonType: 'warning'
+    });
+    
+    if (!confirmed) {
         return;
     }
     

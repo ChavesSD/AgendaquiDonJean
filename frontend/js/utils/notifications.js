@@ -129,6 +129,11 @@ function showConfirmation(options) {
                 <div class="confirmation-body">
                     <p class="confirmation-message">${config.message}</p>
                     ${config.details ? `<div class="confirmation-details">${config.details}</div>` : ''}
+                    ${config.showInput ? `
+                        <div class="confirmation-input">
+                            <input type="text" id="confirmation-input" placeholder="${config.inputPlaceholder || ''}" class="form-control">
+                        </div>
+                    ` : ''}
                 </div>
                 <div class="confirmation-footer">
                     <button class="confirmation-btn confirmation-btn-secondary" data-action="cancel">
@@ -147,8 +152,13 @@ function showConfirmation(options) {
 
         // Event listeners
         const handleAction = (action) => {
+            let inputValue = null;
+            if (action === 'confirm' && config.showInput) {
+                const input = overlay.querySelector('#confirmation-input');
+                inputValue = input ? input.value : null;
+            }
             overlay.remove();
-            resolve(action === 'confirm');
+            resolve(action === 'confirm' ? (config.showInput ? inputValue : true) : false);
         };
 
         overlay.addEventListener('click', (e) => {

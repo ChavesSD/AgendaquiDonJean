@@ -514,7 +514,7 @@ class AgendaManager {
         if (!appointmentData.professionalId || !appointmentData.serviceId || 
             !appointmentData.date || !appointmentData.time || 
             !appointmentData.clientName || !appointmentData.clientPhone) {
-            alert('Todos os campos obrigatórios devem ser preenchidos');
+            showNotification('Todos os campos obrigatórios devem ser preenchidos', 'warning');
             return;
         }
         
@@ -534,17 +534,17 @@ class AgendaManager {
             
             if (response.ok) {
                 const data = await response.json();
-                alert(data.message);
+                showNotification(data.message, 'success');
                 this.closeAppointmentModal();
                 await this.loadAppointments();
                 await this.loadStatistics();
             } else {
                 const error = await response.json();
-                alert(error.message);
+                showNotification(error.message, 'error');
             }
         } catch (error) {
             console.error('Erro ao salvar agendamento:', error);
-            alert('Erro ao salvar agendamento');
+            showNotification('Erro ao salvar agendamento', 'error');
         }
     }
 
@@ -559,7 +559,7 @@ class AgendaManager {
                 // Buscar dados do agendamento antes de confirmar
                 const appointment = this.appointments.find(apt => apt._id === appointmentId);
                 if (!appointment) {
-                    alert('Agendamento não encontrado');
+                    showNotification('Agendamento não encontrado', 'error');
                     return;
                 }
 
@@ -572,7 +572,7 @@ class AgendaManager {
                 
                 if (response.ok) {
                     const data = await response.json();
-                    alert(data.message);
+                    showNotification(data.message, 'success');
                     
                     // Enviar mensagem de confirmação via WhatsApp
                     await this.sendConfirmationMessage(appointment);
@@ -581,24 +581,33 @@ class AgendaManager {
                     await this.loadStatistics();
                 } else {
                     const error = await response.json();
-                    alert(error.message);
+                    showNotification(error.message, 'error');
                 }
             } catch (error) {
                 console.error('Erro ao confirmar agendamento:', error);
-                alert('Erro ao confirmar agendamento');
+                showNotification('Erro ao confirmar agendamento', 'error');
             }
         }
     }
 
     async cancelAppointment(appointmentId) {
-        const reason = prompt('Motivo do cancelamento (opcional):');
+        const reason = await showConfirmation({
+            title: 'Motivo do Cancelamento',
+            message: 'Digite o motivo do cancelamento (opcional):',
+            type: 'warning',
+            confirmText: 'Cancelar',
+            cancelText: 'Voltar',
+            confirmButtonType: 'warning',
+            showInput: true,
+            inputPlaceholder: 'Motivo do cancelamento...'
+        });
         
         if (reason !== null) {
             try {
                 // Buscar dados do agendamento antes de cancelar
                 const appointment = this.appointments.find(apt => apt._id === appointmentId);
                 if (!appointment) {
-                    alert('Agendamento não encontrado');
+                    showNotification('Agendamento não encontrado', 'error');
                     return;
                 }
 
@@ -613,7 +622,7 @@ class AgendaManager {
                 
                 if (response.ok) {
                     const data = await response.json();
-                    alert(data.message);
+                    showNotification(data.message, 'success');
                     
                     // Enviar mensagem de cancelamento via WhatsApp
                     await this.sendCancellationMessage(appointment);
@@ -622,11 +631,11 @@ class AgendaManager {
                     await this.loadStatistics();
                 } else {
                     const error = await response.json();
-                    alert(error.message);
+                    showNotification(error.message, 'error');
                 }
             } catch (error) {
                 console.error('Erro ao cancelar agendamento:', error);
-                alert('Erro ao cancelar agendamento');
+                showNotification('Erro ao cancelar agendamento', 'error');
             }
         }
     }
@@ -656,7 +665,7 @@ class AgendaManager {
                 if (response.ok) {
                     const data = await response.json();
                     console.log('✅ Dados da resposta:', data);
-                    alert(data.message);
+                    showNotification(data.message, 'success');
                     await this.loadAppointments();
                     await this.loadStatistics();
                     
@@ -666,11 +675,11 @@ class AgendaManager {
                 } else {
                     const error = await response.json();
                     console.error('❌ Erro na resposta:', error);
-                    alert(error.message);
+                    showNotification(error.message, 'error');
                 }
             } catch (error) {
                 console.error('💥 Erro ao finalizar agendamento:', error);
-                alert('Erro ao finalizar agendamento');
+                showNotification('Erro ao finalizar agendamento', 'error');
             }
         } else {
             console.log('❌ Usuário cancelou a finalização');
@@ -700,16 +709,16 @@ class AgendaManager {
                 
                 if (response.ok) {
                     const data = await response.json();
-                    alert(data.message);
+                    showNotification(data.message, 'success');
                     await this.loadAppointments();
                     await this.loadStatistics();
                 } else {
                     const error = await response.json();
-                    alert(error.message);
+                    showNotification(error.message, 'error');
                 }
             } catch (error) {
                 console.error('Erro ao excluir agendamento:', error);
-                alert('Erro ao excluir agendamento');
+                showNotification('Erro ao excluir agendamento', 'error');
             }
         }
     }

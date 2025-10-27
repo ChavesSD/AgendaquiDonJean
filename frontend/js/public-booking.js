@@ -367,19 +367,19 @@ function validateCurrentStep() {
     switch (bookingState.currentStep) {
         case 2:
             if (!bookingState.selectedProfessional) {
-                alert('Por favor, selecione um profissional.');
+                showNotification('Por favor, selecione um profissional.', 'warning');
                 return false;
             }
             break;
         case 3:
             if (!bookingState.selectedService) {
-                alert('Por favor, selecione um serviço.');
+                showNotification('Por favor, selecione um serviço.', 'warning');
                 return false;
             }
             break;
         case 4:
             if (!bookingState.selectedDate || !bookingState.selectedTime) {
-                alert('Por favor, selecione uma data e horário.');
+                showNotification('Por favor, selecione uma data e horário.', 'warning');
                 return false;
             }
             break;
@@ -412,12 +412,12 @@ async function loadProfessionals() {
             bookingState.professionals = data.professionals.filter(p => p.status === 'active');
             renderProfessionals();
         }
-    } catch (error) {
-        console.error('Erro ao carregar profissionais:', error);
-        alert('Erro ao carregar profissionais. Tente novamente.');
-    } finally {
-        showLoading(false);
-    }
+        } catch (error) {
+            console.error('Erro ao carregar profissionais:', error);
+            showNotification('Erro ao carregar profissionais. Tente novamente.', 'error');
+        } finally {
+            showLoading(false);
+        }
 }
 
 function renderProfessionals() {
@@ -480,12 +480,12 @@ async function loadServices() {
             
             renderServices();
         }
-    } catch (error) {
-        console.error('Erro ao carregar serviços:', error);
-        alert('Erro ao carregar serviços. Tente novamente.');
-    } finally {
-        showLoading(false);
-    }
+        } catch (error) {
+            console.error('Erro ao carregar serviços:', error);
+            showNotification('Erro ao carregar serviços. Tente novamente.', 'error');
+        } finally {
+            showLoading(false);
+        }
 }
 
 function renderServices() {
@@ -982,7 +982,7 @@ async function confirmBooking() {
         
         // Verificar se o horário ainda está disponível (pode ter sido ocupado por outro usuário)
         if (!isTimeAvailable(bookingState.selectedDate, bookingState.selectedTime, serviceDuration)) {
-            alert('Este horário não está mais disponível. Por favor, selecione outro horário.');
+            showNotification('Este horário não está mais disponível. Por favor, selecione outro horário.', 'warning');
             showLoading(false);
             return;
         }
@@ -1012,11 +1012,11 @@ async function confirmBooking() {
         if (result.success) {
             showSuccessModal();
         } else {
-            alert('Erro ao criar agendamento: ' + result.message);
+            showNotification('Erro ao criar agendamento: ' + result.message, 'error');
         }
     } catch (error) {
         console.error('Erro ao confirmar agendamento:', error);
-        alert('Erro ao confirmar agendamento. Tente novamente.');
+        showNotification('Erro ao confirmar agendamento. Tente novamente.', 'error');
     } finally {
         showLoading(false);
     }
