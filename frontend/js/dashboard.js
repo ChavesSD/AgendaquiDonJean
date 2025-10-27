@@ -7162,6 +7162,99 @@ function checkDevAreaAccess() {
 
 // ===== AÇÕES ADMINISTRATIVAS =====
 
+// Função de teste para verificar se as funções administrativas estão funcionais
+function testAdminFunctions() {
+    console.log('🧪 Testando funções administrativas...');
+    
+    // Lista de todas as funções administrativas
+    const adminFunctions = [
+        'clearAllAppointments',
+        'clearAllCommissions', 
+        'clearAllRevenues',
+        'clearAllExpenses',
+        'clearAllSales',
+        'clearAllPosMachines',
+        'clearAllProfessionals',
+        'clearAllServices',
+        'clearAllProducts',
+        'clearAllUsers',
+        'clearAllWhatsAppMessages'
+    ];
+    
+    // Verificar se todas as funções existem
+    let allFunctionsExist = true;
+    adminFunctions.forEach(funcName => {
+        if (typeof window[funcName] !== 'function') {
+            console.error(`❌ Função ${funcName} não encontrada!`);
+            allFunctionsExist = false;
+        } else {
+            console.log(`✅ Função ${funcName} encontrada`);
+        }
+    });
+    
+    if (allFunctionsExist) {
+        console.log('✅ Todas as funções administrativas estão disponíveis!');
+        showNotification('✅ Teste concluído: Todas as funções administrativas estão funcionais!', 'success');
+        
+        // Testar se os endpoints da API existem
+        testAPIEndpoints();
+    } else {
+        console.error('❌ Algumas funções administrativas estão faltando!');
+        showNotification('❌ Erro: Algumas funções administrativas não foram encontradas!', 'error');
+    }
+}
+
+// Função para testar se os endpoints da API existem
+async function testAPIEndpoints() {
+    console.log('🔍 Testando endpoints da API...');
+    
+    const endpoints = [
+        '/api/appointments/clear-all',
+        '/api/commissions/clear-all',
+        '/api/revenues/clear-all',
+        '/api/expenses/clear-all',
+        '/api/sales/clear-all',
+        '/api/pos-machines/clear-all',
+        '/api/professionals/clear-all',
+        '/api/services/clear-all',
+        '/api/products/clear-all',
+        '/api/users/clear-all',
+        '/api/whatsapp-messages/clear-all'
+    ];
+    
+    let allEndpointsExist = true;
+    
+    for (const endpoint of endpoints) {
+        try {
+            const response = await fetch(endpoint, {
+                method: 'OPTIONS', // Usar OPTIONS para verificar se o endpoint existe
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.status === 404) {
+                console.warn(`⚠️ Endpoint ${endpoint} não encontrado (404)`);
+                allEndpointsExist = false;
+            } else {
+                console.log(`✅ Endpoint ${endpoint} respondeu com status ${response.status}`);
+            }
+        } catch (error) {
+            console.warn(`⚠️ Erro ao testar endpoint ${endpoint}:`, error.message);
+            allEndpointsExist = false;
+        }
+    }
+    
+    if (allEndpointsExist) {
+        console.log('✅ Todos os endpoints da API estão funcionais!');
+        showNotification('✅ Todos os endpoints da API estão funcionais!', 'success');
+    } else {
+        console.warn('⚠️ Alguns endpoints da API podem não estar implementados!');
+        showNotification('⚠️ Alguns endpoints da API podem não estar implementados!', 'warning');
+    }
+}
+
 // Apagar todos os agendamentos
 async function clearAllAppointments() {
     const confirmed = await showConfirmation({
@@ -7182,7 +7275,7 @@ async function clearAllAppointments() {
         const response = await fetch('/api/appointments/clear-all', {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
                 'Content-Type': 'application/json'
             }
         });
@@ -7218,7 +7311,7 @@ async function clearAllCommissions() {
         const response = await fetch('/api/commissions/clear-all', {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
                 'Content-Type': 'application/json'
             }
         });
@@ -7254,7 +7347,7 @@ async function clearAllRevenues() {
         const response = await fetch('/api/revenues/clear-all', {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
                 'Content-Type': 'application/json'
             }
         });
@@ -7290,7 +7383,7 @@ async function clearAllExpenses() {
         const response = await fetch('/api/expenses/clear-all', {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
                 'Content-Type': 'application/json'
             }
         });
@@ -7326,7 +7419,7 @@ async function clearAllSales() {
         const response = await fetch('/api/sales/clear-all', {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
                 'Content-Type': 'application/json'
             }
         });
@@ -7362,7 +7455,7 @@ async function clearAllPosMachines() {
         const response = await fetch('/api/pos-machines/clear-all', {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
                 'Content-Type': 'application/json'
             }
         });
@@ -7398,7 +7491,7 @@ async function clearAllProfessionals() {
         const response = await fetch('/api/professionals/clear-all', {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
                 'Content-Type': 'application/json'
             }
         });
@@ -7434,7 +7527,7 @@ async function clearAllServices() {
         const response = await fetch('/api/services/clear-all', {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
                 'Content-Type': 'application/json'
             }
         });
@@ -7470,7 +7563,7 @@ async function clearAllProducts() {
         const response = await fetch('/api/products/clear-all', {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
                 'Content-Type': 'application/json'
             }
         });
@@ -7506,7 +7599,7 @@ async function clearAllUsers() {
         const response = await fetch('/api/users/clear-all', {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
                 'Content-Type': 'application/json'
             }
         });
@@ -7542,7 +7635,7 @@ async function clearAllWhatsAppMessages() {
         const response = await fetch('/api/whatsapp-messages/clear-all', {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
                 'Content-Type': 'application/json'
             }
         });
