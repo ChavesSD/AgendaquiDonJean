@@ -4953,6 +4953,26 @@ body {
     gap: 5px;
 }
 
+/* Layout específico para filtros de data com botões */
+.date-filters.with-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.date-filters.with-buttons .date-inputs {
+    display: flex;
+    gap: 15px;
+    align-items: end;
+    flex-wrap: wrap;
+}
+
+.date-filters.with-buttons .date-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
 .filter-group label {
     font-size: 12px;
     font-weight: 600;
@@ -5415,6 +5435,44 @@ body {
     .date-filters input[type="date"] {
         width: 100%;
         min-width: auto;
+    }
+    
+    /* Layout específico para mobile - datas na mesma linha */
+    .date-filters.with-buttons .date-inputs {
+        flex-direction: row;
+        gap: 10px;
+    }
+    
+    .date-filters.with-buttons .date-inputs .filter-group {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .date-filters.with-buttons .date-buttons {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .date-filters.with-buttons .date-buttons .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Mobile pequeno (até 480px) */
+@media (max-width: 480px) {
+    .date-filters.with-buttons .date-inputs {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .date-filters.with-buttons .date-inputs .filter-group {
+        width: 100%;
+    }
+    
+    .date-filters input[type="date"] {
+        font-size: 16px; /* Evita zoom no iOS */
+        padding: 12px 15px;
     }
     
     .finance-tabs .tab-btn {

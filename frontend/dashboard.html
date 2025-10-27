@@ -127,23 +127,27 @@
                 <div class="page-content active" id="dashboard-page">
                     <div class="page-header">
                         <h2>Dashboard</h2>
-                        <div class="date-filters">
-                            <div class="filter-group">
-                                <label for="dashboard-start-date">Data Início</label>
-                                <input type="date" id="dashboard-start-date" placeholder="dd/mm/aaaa">
+                        <div class="date-filters with-buttons">
+                            <div class="date-inputs">
+                                <div class="filter-group">
+                                    <label for="dashboard-start-date">Data Início</label>
+                                    <input type="date" id="dashboard-start-date" placeholder="dd/mm/aaaa">
+                                </div>
+                                <div class="filter-group">
+                                    <label for="dashboard-end-date">Data Fim</label>
+                                    <input type="date" id="dashboard-end-date" placeholder="dd/mm/aaaa">
+                                </div>
                             </div>
-                            <div class="filter-group">
-                                <label for="dashboard-end-date">Data Fim</label>
-                                <input type="date" id="dashboard-end-date" placeholder="dd/mm/aaaa">
+                            <div class="date-buttons">
+                                <button class="btn btn-primary" id="apply-dashboard-filters">
+                                    <i class="fas fa-search"></i>
+                                    Filtrar
+                                </button>
+                                <button class="btn btn-secondary" id="reset-dashboard-filters">
+                                    <i class="fas fa-times"></i>
+                                    Limpar
+                                </button>
                             </div>
-                            <button class="btn btn-primary" id="apply-dashboard-filters">
-                                <i class="fas fa-search"></i>
-                                Filtrar
-                            </button>
-                            <button class="btn btn-secondary" id="reset-dashboard-filters">
-                                <i class="fas fa-times"></i>
-                                Limpar
-                            </button>
                         </div>
                     </div>
 
@@ -217,23 +221,27 @@
                 <div class="page-content" id="agenda-page">
                     <div class="page-header">
                         <h2>Agenda</h2>
-                        <div class="date-filters">
-                            <div class="filter-group">
-                                <label for="agenda-date-from">Data Início</label>
-                                <input type="date" id="agenda-date-from" placeholder="dd/mm/aaaa">
+                        <div class="date-filters with-buttons">
+                            <div class="date-inputs">
+                                <div class="filter-group">
+                                    <label for="agenda-date-from">Data Início</label>
+                                    <input type="date" id="agenda-date-from" placeholder="dd/mm/aaaa">
+                                </div>
+                                <div class="filter-group">
+                                    <label for="agenda-date-to">Data Fim</label>
+                                    <input type="date" id="agenda-date-to" placeholder="dd/mm/aaaa">
+                                </div>
                             </div>
-                            <div class="filter-group">
-                                <label for="agenda-date-to">Data Fim</label>
-                                <input type="date" id="agenda-date-to" placeholder="dd/mm/aaaa">
+                            <div class="date-buttons">
+                                <button class="btn btn-primary" id="filter-agenda-dates">
+                                    <i class="fas fa-search"></i>
+                                    Filtrar
+                                </button>
+                                <button class="btn btn-secondary" id="clear-agenda-filters">
+                                    <i class="fas fa-times"></i>
+                                    Limpar
+                                </button>
                             </div>
-                            <button class="btn btn-primary" id="filter-agenda-dates">
-                                <i class="fas fa-search"></i>
-                                Filtrar
-                            </button>
-                            <button class="btn btn-secondary" id="clear-agenda-filters">
-                                <i class="fas fa-times"></i>
-                                Limpar
-                            </button>
                         </div>
                     </div>
 
@@ -431,23 +439,27 @@
                 <div class="page-content" id="comissoes-page">
                     <div class="page-header">
                         <h2>Minhas Comissões</h2>
-                        <div class="date-filters">
-                            <div class="filter-group">
-                                <label for="comissoes-start-date">Data Início</label>
-                                <input type="date" id="comissoes-start-date" placeholder="dd/mm/aaaa">
+                        <div class="date-filters with-buttons">
+                            <div class="date-inputs">
+                                <div class="filter-group">
+                                    <label for="comissoes-start-date">Data Início</label>
+                                    <input type="date" id="comissoes-start-date" placeholder="dd/mm/aaaa">
+                                </div>
+                                <div class="filter-group">
+                                    <label for="comissoes-end-date">Data Fim</label>
+                                    <input type="date" id="comissoes-end-date" placeholder="dd/mm/aaaa">
+                                </div>
                             </div>
-                            <div class="filter-group">
-                                <label for="comissoes-end-date">Data Fim</label>
-                                <input type="date" id="comissoes-end-date" placeholder="dd/mm/aaaa">
+                            <div class="date-buttons">
+                                <button class="btn btn-primary" id="apply-comissoes-filter">
+                                    <i class="fas fa-search"></i>
+                                    Filtrar
+                                </button>
+                                <button class="btn btn-secondary" id="clear-comissoes-filters">
+                                    <i class="fas fa-times"></i>
+                                    Limpar
+                                </button>
                             </div>
-                            <button class="btn btn-primary" id="apply-comissoes-filter">
-                                <i class="fas fa-search"></i>
-                                Filtrar
-                            </button>
-                            <button class="btn btn-secondary" id="clear-comissoes-filters">
-                                <i class="fas fa-times"></i>
-                                Limpar
-                            </button>
                         </div>
                     </div>
 
@@ -657,23 +669,27 @@
                 <div class="page-content" id="financeiro-page">
                     <div class="page-header">
                         <h2>Financeiro</h2>
-                        <div class="date-filters">
-                            <div class="filter-group">
-                                <label for="finance-date-from">Data Início</label>
-                                <input type="date" id="finance-date-from" placeholder="dd/mm/aaaa">
+                        <div class="date-filters with-buttons">
+                            <div class="date-inputs">
+                                <div class="filter-group">
+                                    <label for="finance-date-from">Data Início</label>
+                                    <input type="date" id="finance-date-from" placeholder="dd/mm/aaaa">
+                                </div>
+                                <div class="filter-group">
+                                    <label for="finance-date-to">Data Fim</label>
+                                    <input type="date" id="finance-date-to" placeholder="dd/mm/aaaa">
+                                </div>
                             </div>
-                            <div class="filter-group">
-                                <label for="finance-date-to">Data Fim</label>
-                                <input type="date" id="finance-date-to" placeholder="dd/mm/aaaa">
+                            <div class="date-buttons">
+                                <button class="btn btn-primary" id="filter-finance-dates">
+                                    <i class="fas fa-search"></i>
+                                    Filtrar
+                                </button>
+                                <button class="btn btn-secondary" id="clear-date-filters">
+                                    <i class="fas fa-times"></i>
+                                    Limpar
+                                </button>
                             </div>
-                            <button class="btn btn-primary" id="filter-finance-dates">
-                                <i class="fas fa-search"></i>
-                                Filtrar
-                            </button>
-                            <button class="btn btn-secondary" id="clear-date-filters">
-                                <i class="fas fa-times"></i>
-                                Limpar
-                            </button>
                         </div>
                     </div>
 
@@ -954,34 +970,38 @@
                 <div class="page-content" id="relatorios-page">
                     <div class="page-header">
                         <h2>Relatórios</h2>
-                        <div class="date-filters">
-                            <div class="filter-group">
-                                <label for="reports-start-date">Data Início</label>
-                                <input type="date" id="reports-start-date" placeholder="dd/mm/aaaa">
+                        <div class="date-filters with-buttons">
+                            <div class="date-inputs">
+                                <div class="filter-group">
+                                    <label for="reports-start-date">Data Início</label>
+                                    <input type="date" id="reports-start-date" placeholder="dd/mm/aaaa">
+                                </div>
+                                <div class="filter-group">
+                                    <label for="reports-end-date">Data Fim</label>
+                                    <input type="date" id="reports-end-date" placeholder="dd/mm/aaaa">
+                                </div>
+                                <div class="filter-group">
+                                    <label for="reports-period">Período</label>
+                                    <select id="reports-period">
+                                        <option value="custom">Personalizado</option>
+                                        <option value="today">Hoje</option>
+                                        <option value="week">Esta Semana</option>
+                                        <option value="month">Este Mês</option>
+                                        <option value="quarter">Este Trimestre</option>
+                                        <option value="year">Este Ano</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div class="filter-group">
-                                <label for="reports-end-date">Data Fim</label>
-                                <input type="date" id="reports-end-date" placeholder="dd/mm/aaaa">
+                            <div class="date-buttons">
+                                <button class="btn btn-primary" id="apply-reports-filters">
+                                    <i class="fas fa-search"></i>
+                                    Filtrar
+                                </button>
+                                <button class="btn btn-secondary" id="reset-reports-filters">
+                                    <i class="fas fa-times"></i>
+                                    Limpar
+                                </button>
                             </div>
-                            <div class="filter-group">
-                                <label for="reports-period">Período</label>
-                                <select id="reports-period">
-                                    <option value="custom">Personalizado</option>
-                                    <option value="today">Hoje</option>
-                                    <option value="week">Esta Semana</option>
-                                    <option value="month">Este Mês</option>
-                                    <option value="quarter">Este Trimestre</option>
-                                    <option value="year">Este Ano</option>
-                                </select>
-                            </div>
-                            <button class="btn btn-primary" id="apply-reports-filters">
-                                <i class="fas fa-search"></i>
-                                Filtrar
-                            </button>
-                            <button class="btn btn-secondary" id="reset-reports-filters">
-                                <i class="fas fa-times"></i>
-                                Limpar
-                            </button>
                         </div>
                     </div>
 
