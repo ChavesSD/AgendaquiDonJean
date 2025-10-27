@@ -58,8 +58,49 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Toggle sidebar
     sidebarToggle.addEventListener('click', function() {
-        sidebar.classList.toggle('collapsed');
-        localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        if (window.innerWidth <= 768) {
+            // Comportamento mobile: sobrepor conteúdo
+            sidebar.classList.toggle('open');
+            toggleSidebarOverlay();
+        } else {
+            // Comportamento desktop: colapsar
+            sidebar.classList.toggle('collapsed');
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        }
+    });
+    
+    // Função para toggle do overlay da sidebar
+    function toggleSidebarOverlay() {
+        let overlay = document.querySelector('.sidebar-overlay');
+        
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'sidebar-overlay';
+            document.body.appendChild(overlay);
+            
+            // Fechar sidebar ao clicar no overlay
+            overlay.addEventListener('click', function() {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('show');
+            });
+        }
+        
+        if (sidebar.classList.contains('open')) {
+            overlay.classList.add('show');
+        } else {
+            overlay.classList.remove('show');
+        }
+    }
+    
+    // Fechar sidebar ao redimensionar para desktop
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+            sidebar.classList.remove('open');
+            const overlay = document.querySelector('.sidebar-overlay');
+            if (overlay) {
+                overlay.classList.remove('show');
+            }
+        }
     });
 
     // Restaurar estado do sidebar
