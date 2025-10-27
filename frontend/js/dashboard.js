@@ -59,9 +59,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Toggle sidebar
     sidebarToggle.addEventListener('click', function() {
         if (window.innerWidth <= 768) {
-            // Comportamento mobile: sobrepor conteúdo
-            sidebar.classList.toggle('open');
-            toggleSidebarOverlay();
+            // Em mobile, não fazer nada - sidebar sempre fixa e colapsada
+            return;
         } else {
             // Comportamento desktop: colapsar
             sidebar.classList.toggle('collapsed');
@@ -92,22 +91,37 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Fechar sidebar ao redimensionar para desktop
-    window.addEventListener('resize', function() {
-        if (window.innerWidth > 768) {
+    // Função para configurar sidebar baseada no tamanho da tela
+    function configureSidebarForScreenSize() {
+        if (window.innerWidth <= 768) {
+            // Mobile: sidebar sempre colapsada e fixa
+            sidebar.classList.add('collapsed');
             sidebar.classList.remove('open');
             const overlay = document.querySelector('.sidebar-overlay');
             if (overlay) {
                 overlay.classList.remove('show');
             }
+        } else {
+            // Desktop: restaurar estado salvo
+            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (isCollapsed) {
+                sidebar.classList.add('collapsed');
+            } else {
+                sidebar.classList.remove('collapsed');
+            }
+            sidebar.classList.remove('open');
         }
+    }
+    
+    // Configurar sidebar na inicialização
+    configureSidebarForScreenSize();
+    
+    // Fechar sidebar ao redimensionar para desktop
+    window.addEventListener('resize', function() {
+        configureSidebarForScreenSize();
     });
 
-    // Restaurar estado do sidebar
-    const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-    if (sidebarCollapsed) {
-        sidebar.classList.add('collapsed');
-    }
+    // Estado do sidebar já é configurado pela função configureSidebarForScreenSize()
 
     // Navegação entre páginas
     navLinks.forEach(link => {

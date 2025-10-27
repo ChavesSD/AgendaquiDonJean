@@ -635,56 +635,182 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
+    /* Ocultar botão hambúrguer em mobile */
+    .sidebar-toggle {
+        display: none;
+    }
+    
+    /* Sidebar sempre minimizada e fixa em mobile */
     .sidebar {
-        transform: translateX(-100%);
+        width: 70px;
         position: fixed;
         top: 0;
         left: 0;
         height: 100vh;
         z-index: 1000;
-        width: 280px;
-        transition: transform 0.3s ease;
-    }
-    
-    .sidebar.open {
         transform: translateX(0);
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        transition: none;
     }
     
-    /* Overlay para fechar sidebar */
-    .sidebar-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
+    /* Garantir que sidebar esteja sempre colapsada em mobile */
+    .sidebar:not(.collapsed) {
+        width: 70px;
     }
     
-    .sidebar-overlay.show {
-        opacity: 1;
-        visibility: visible;
+    /* Ocultar textos da sidebar em mobile */
+    .sidebar .nav-text {
+        display: none;
     }
     
-    /* Ajustar conteúdo quando sidebar estiver aberta */
-    .content-area {
-        transition: margin-left 0.3s ease;
+    /* Centralizar ícones em mobile */
+    .sidebar .nav-link {
+        justify-content: center;
+        padding: 15px 10px;
     }
     
-    .sidebar.open + .content-area {
-        margin-left: 0;
+    .sidebar .nav-link i {
+        margin-right: 0;
+        width: auto;
     }
     
+    /* Ocultar detalhes do usuário em mobile */
+    .sidebar .user-details {
+        display: none;
+    }
+    
+    /* Ajustar footer da sidebar em mobile */
+    .sidebar .sidebar-footer {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+        padding: 20px 10px;
+    }
+    
+    .sidebar .user-info {
+        display: none;
+    }
+    
+    .sidebar .user-avatar {
+        width: 50px;
+        height: 50px;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    
+    .sidebar .logout-btn {
+        padding: 12px;
+        border-radius: 8px;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Ajustar conteúdo principal para sidebar fixa */
     .main-content {
-        margin-left: 0;
+        margin-left: 70px;
+        width: calc(100% - 70px);
+    }
+    
+    /* Remover overlay pois não é mais necessário */
+    .sidebar-overlay {
+        display: none;
     }
     
     .content-area {
         padding: 25px;
+    }
+    
+    /* Ajustar cabeçalho para mobile */
+    .main-header {
+        padding: 0 20px;
+        height: 60px;
+    }
+    
+    .header-left {
+        gap: 15px;
+    }
+    
+    .page-title {
+        font-size: 1.5rem;
+    }
+    
+    /* Ajustar header-right para mobile */
+    .header-right {
+        gap: 15px;
+    }
+    
+    .user-menu-btn {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+    
+    .user-avatar-small {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+/* Ajustes para mobile muito pequeno */
+@media (max-width: 480px) {
+    /* Sidebar ainda mais compacta */
+    .sidebar {
+        width: 60px;
+    }
+    
+    .main-content {
+        margin-left: 60px;
+        width: calc(100% - 60px);
+    }
+    
+    /* Ajustar navegação da sidebar */
+    .sidebar .nav-link {
+        padding: 12px 8px;
+    }
+    
+    .sidebar .nav-link i {
+        font-size: 16px;
+    }
+    
+    /* Ajustar footer da sidebar */
+    .sidebar .sidebar-footer {
+        padding: 15px 8px;
+    }
+    
+    .sidebar .user-avatar {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .sidebar .logout-btn {
+        width: 40px;
+        height: 40px;
+        padding: 8px;
+    }
+    
+    /* Ajustar cabeçalho */
+    .main-header {
+        padding: 0 15px;
+        height: 55px;
+    }
+    
+    .page-title {
+        font-size: 1.3rem;
+    }
+    
+    .user-menu-btn {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+    
+    .user-avatar-small {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .content-area {
+        padding: 20px 15px;
     }
     
     .stats-grid {
