@@ -2193,7 +2193,7 @@ body {
     .mobile-grid {
         gap: 10px;
     }
-}
+    }
     
     .confirmation-header {
         padding: 20px 20px 16px 20px;
@@ -5873,12 +5873,13 @@ body {
     }
     
     .date-filters.with-buttons .date-buttons {
-        flex-direction: column;
-        gap: 8px;
+        flex-direction: row;
+        gap: 10px;
+        justify-content: center;
     }
     
     .date-filters.with-buttons .date-buttons .btn {
-        width: 100%;
+        flex: 1;
         justify-content: center;
     }
 }
@@ -5886,12 +5887,13 @@ body {
 /* Mobile pequeno (até 480px) */
 @media (max-width: 480px) {
     .date-filters.with-buttons .date-inputs {
-        flex-direction: column;
+        flex-direction: row;
         gap: 8px;
     }
     
     .date-filters.with-buttons .date-inputs .filter-group {
-        width: 100%;
+        flex: 1;
+        min-width: 0;
     }
     
     .date-filters input[type="date"] {
@@ -5925,14 +5927,16 @@ body {
     
     /* Centralizar botões de filtro */
     .date-filters.with-buttons .date-buttons {
-        flex-direction: column;
+        flex-direction: row;
         gap: 8px;
+        justify-content: center;
     }
     
     .date-filters.with-buttons .date-buttons .btn {
-        width: 100%;
+        flex: 1;
         padding: 12px 20px;
         font-size: 16px;
+        justify-content: center;
     }
     
     .finance-tabs .tab-btn {
