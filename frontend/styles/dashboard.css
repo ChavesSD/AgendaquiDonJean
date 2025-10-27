@@ -2210,7 +2210,7 @@ body {
     
     .confirmation-btn {
         width: 100%;
-    }
+}
 
 /* Configurações - Abas */
 .config-tabs {
@@ -5301,8 +5301,10 @@ body {
 /* Layout específico para filtros de data com botões */
 .date-filters.with-buttons {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 15px;
+    align-items: end;
+    flex-wrap: wrap;
 }
 
 .date-filters.with-buttons .date-inputs {
@@ -5860,7 +5862,12 @@ body {
         min-width: auto;
     }
     
-    /* Layout específico para mobile - datas na mesma linha */
+    /* Layout específico para mobile - datas em uma linha, botões em outra */
+    .date-filters.with-buttons {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
     .date-filters.with-buttons .date-inputs {
         flex-direction: row;
         gap: 10px;
@@ -5922,6 +5929,12 @@ body {
     .sidebar {
         width: 100%;
         max-width: 280px;
+    }
+    
+    /* Layout para mobile pequeno - datas em uma linha, botões em outra */
+    .date-filters.with-buttons {
+        flex-direction: column;
+        gap: 12px;
     }
     
     /* Centralizar botões de filtro */
@@ -7966,7 +7979,7 @@ body {
     
     .professional-photo i {
         font-size: 16px;
-    }
+}
 
 /* Restrições para usuários comuns */
 .user-role-user [data-tab="contatos"] {
