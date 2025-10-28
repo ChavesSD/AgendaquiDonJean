@@ -660,6 +660,30 @@ body {
         display: flex !important;
         flex-direction: column !important;
         overflow: hidden !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    /* PADRONIZAR LARGURA DE TODOS OS CARDS EM MOBILE */
+    .dashboard-card,
+    .user-card,
+    .stat-card,
+    .card,
+    .reports-grid .stat-card,
+    .finance-stats .stat-card,
+    .agenda-stats .stat-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* PADRONIZAR CARD DO USUÁRIO NO CABEÇALHO */
+    .user-menu-btn {
+        min-width: 120px !important;
+        max-width: 200px !important;
+        width: auto !important;
+        padding: 8px 12px !important;
+        font-size: 0.9rem !important;
     }
     
     .dashboard-card .card-header {
@@ -952,6 +976,30 @@ body {
         height: 260px !important;
         min-height: 260px !important;
         max-height: 260px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    /* PADRONIZAR LARGURA DE TODOS OS CARDS EM MOBILE PEQUENO */
+    .dashboard-card,
+    .user-card,
+    .stat-card,
+    .card,
+    .reports-grid .stat-card,
+    .finance-stats .stat-card,
+    .agenda-stats .stat-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* PADRONIZAR CARD DO USUÁRIO NO CABEÇALHO - MOBILE PEQUENO */
+    .user-menu-btn {
+        min-width: 100px !important;
+        max-width: 150px !important;
+        width: auto !important;
+        padding: 6px 10px !important;
+        font-size: 0.8rem !important;
     }
     
     .dashboard-card .card-header {
@@ -7841,6 +7889,19 @@ body {
 }
 
 /* ==================== DASHBOARD SPECIFIC STYLES ==================== */
+
+/* PADRONIZAÇÃO GERAL DE LARGURA DOS CARDS */
+.dashboard-card,
+.user-card,
+.stat-card,
+.card,
+.reports-grid .stat-card,
+.finance-stats .stat-card,
+.agenda-stats .stat-card {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
 
 /* Gráfico do Dashboard */
 .dashboard-chart {
