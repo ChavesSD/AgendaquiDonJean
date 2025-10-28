@@ -6168,36 +6168,50 @@ body {
         min-width: auto;
     }
     
-    /* Layout específico para mobile - datas em uma linha, botões em outra */
+    /* LAYOUT 2x2 PARA MOBILE - DATAS E BOTÕES COM MESMO TAMANHO */
     .date-filters.with-buttons {
-        flex-direction: column;
-        gap: 15px;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        grid-template-rows: auto auto !important;
+        gap: 12px !important;
+        align-items: stretch !important;
     }
     
+    /* Primeira linha: Data Início e Data Fim */
     .date-filters.with-buttons .date-inputs {
-        flex-direction: row;
-        gap: 10px;
+        display: contents !important;
     }
     
     .date-filters.with-buttons .date-inputs .filter-group {
-        flex: 1;
-        min-width: 0;
+        display: contents !important;
     }
     
+    .date-filters.with-buttons .date-inputs .filter-group:first-child {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+    }
+    
+    .date-filters.with-buttons .date-inputs .filter-group:last-child {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+    }
+    
+    /* Segunda linha: Filtrar e Limpar */
     .date-filters.with-buttons .date-buttons {
-        flex-direction: row;
-        gap: 10px;
-        justify-content: center;
+        display: contents !important;
     }
     
-    .date-filters.with-buttons .date-buttons .btn {
-        flex: 1;
-        justify-content: center;
-        min-height: 48px; /* Mesmo tamanho dos inputs */
-        height: 48px;
+    .date-filters.with-buttons .date-buttons .btn:first-child {
+        grid-column: 1 !important;
+        grid-row: 2 !important;
     }
     
-    /* UNIFORMIZAR TAMANHOS DOS ELEMENTOS DE FILTRO EM MOBILE */
+    .date-filters.with-buttons .date-buttons .btn:last-child {
+        grid-column: 2 !important;
+        grid-row: 2 !important;
+    }
+    
+    /* UNIFORMIZAR TAMANHOS DOS 4 ELEMENTOS EM MOBILE */
     .date-filters input[type="date"],
     .date-filters select,
     .date-filters.with-buttons .date-buttons .btn {
@@ -6207,34 +6221,65 @@ body {
         font-size: 16px !important;
         border-radius: 8px !important;
         box-sizing: border-box !important;
-    }
-    
-    /* Garantir que os inputs tenham largura igual */
-    .date-filters.with-buttons .date-inputs .filter-group {
-        flex: 1;
-        min-width: 0;
-    }
-    
-    .date-filters.with-buttons .date-inputs .filter-group input[type="date"],
-    .date-filters.with-buttons .date-inputs .filter-group select {
         width: 100% !important;
-        min-width: 0 !important;
+    }
+    
+    /* Garantir que os labels fiquem acima dos inputs */
+    .date-filters.with-buttons .date-inputs .filter-group label {
+        display: block !important;
+        margin-bottom: 6px !important;
+        font-weight: 600 !important;
+        color: #2c3e50 !important;
+        font-size: 14px !important;
     }
 }
 
 /* Mobile pequeno (até 480px) */
 @media (max-width: 480px) {
+    /* LAYOUT 2x2 PARA MOBILE PEQUENO - MANTENDO MESMO LAYOUT */
+    .date-filters.with-buttons {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        grid-template-rows: auto auto !important;
+        gap: 10px !important;
+        align-items: stretch !important;
+    }
+    
+    /* Primeira linha: Data Início e Data Fim */
     .date-filters.with-buttons .date-inputs {
-        flex-direction: row;
-        gap: 8px;
+        display: contents !important;
     }
     
     .date-filters.with-buttons .date-inputs .filter-group {
-        flex: 1;
-        min-width: 0;
+        display: contents !important;
     }
     
-    /* UNIFORMIZAR TAMANHOS DOS ELEMENTOS DE FILTRO EM MOBILE PEQUENO */
+    .date-filters.with-buttons .date-inputs .filter-group:first-child {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+    }
+    
+    .date-filters.with-buttons .date-inputs .filter-group:last-child {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+    }
+    
+    /* Segunda linha: Filtrar e Limpar */
+    .date-filters.with-buttons .date-buttons {
+        display: contents !important;
+    }
+    
+    .date-filters.with-buttons .date-buttons .btn:first-child {
+        grid-column: 1 !important;
+        grid-row: 2 !important;
+    }
+    
+    .date-filters.with-buttons .date-buttons .btn:last-child {
+        grid-column: 2 !important;
+        grid-row: 2 !important;
+    }
+    
+    /* UNIFORMIZAR TAMANHOS DOS 4 ELEMENTOS EM MOBILE PEQUENO */
     .date-filters input[type="date"],
     .date-filters select,
     .date-filters.with-buttons .date-buttons .btn {
@@ -6244,13 +6289,16 @@ body {
         font-size: 16px !important; /* Evita zoom no iOS */
         border-radius: 8px !important;
         box-sizing: border-box !important;
+        width: 100% !important;
     }
     
-    /* Garantir que os inputs tenham largura igual em mobile pequeno */
-    .date-filters.with-buttons .date-inputs .filter-group input[type="date"],
-    .date-filters.with-buttons .date-inputs .filter-group select {
-        width: 100% !important;
-        min-width: 0 !important;
+    /* Garantir que os labels fiquem acima dos inputs em mobile pequeno */
+    .date-filters.with-buttons .date-inputs .filter-group label {
+        display: block !important;
+        margin-bottom: 4px !important;
+        font-weight: 600 !important;
+        color: #2c3e50 !important;
+        font-size: 13px !important;
     }
     
     /* Melhorar centralização em telas muito pequenas */
@@ -6290,16 +6338,6 @@ body {
         justify-content: center;
     }
     
-    .date-filters.with-buttons .date-buttons .btn {
-        flex: 1;
-        height: 44px !important;
-        min-height: 44px !important;
-        padding: 10px 12px !important;
-        font-size: 16px !important;
-        border-radius: 8px !important;
-        box-sizing: border-box !important;
-        justify-content: center;
-    }
     
     .finance-tabs .tab-btn {
         padding: 15px;
