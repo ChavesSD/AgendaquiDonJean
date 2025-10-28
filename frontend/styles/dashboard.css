@@ -686,6 +686,57 @@ body {
         font-size: 0.9rem !important;
     }
     
+    /* COMPACTAR CARDS DE RESUMOS - ÍCONES MENORES E LAYOUT EM LINHA */
+    .stat-card {
+        padding: 15px 20px !important;
+        height: auto !important;
+        min-height: 60px !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 15px !important;
+    }
+    
+    .stat-card .stat-icon {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 8px !important;
+        font-size: 18px !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .stat-card .stat-content {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 10px !important;
+    }
+    
+    .stat-card .stat-content h3 {
+        font-size: 24px !important;
+        margin: 0 !important;
+        font-weight: 700 !important;
+        color: #2c3e50 !important;
+    }
+    
+    .stat-card .stat-content p {
+        font-size: 12px !important;
+        margin: 0 !important;
+        color: #6c757d !important;
+        font-weight: 500 !important;
+        text-align: right !important;
+    }
+    
+    /* Ajustar botões dentro dos cards */
+    .stat-card .btn {
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+        min-width: auto !important;
+        height: 24px !important;
+    }
+    
     .dashboard-card .card-header {
         flex-shrink: 0 !important;
         padding: 15px 20px 12px !important;
@@ -1000,6 +1051,57 @@ body {
         width: auto !important;
         padding: 6px 10px !important;
         font-size: 0.8rem !important;
+    }
+    
+    /* COMPACTAR CARDS DE RESUMOS - MOBILE PEQUENO - AINDA MAIS COMPACTO */
+    .stat-card {
+        padding: 12px 15px !important;
+        height: auto !important;
+        min-height: 50px !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 12px !important;
+    }
+    
+    .stat-card .stat-icon {
+        width: 35px !important;
+        height: 35px !important;
+        border-radius: 6px !important;
+        font-size: 16px !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .stat-card .stat-content {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 8px !important;
+    }
+    
+    .stat-card .stat-content h3 {
+        font-size: 20px !important;
+        margin: 0 !important;
+        font-weight: 700 !important;
+        color: #2c3e50 !important;
+    }
+    
+    .stat-card .stat-content p {
+        font-size: 11px !important;
+        margin: 0 !important;
+        color: #6c757d !important;
+        font-weight: 500 !important;
+        text-align: right !important;
+    }
+    
+    /* Ajustar botões dentro dos cards - mobile pequeno */
+    .stat-card .btn {
+        padding: 3px 6px !important;
+        font-size: 10px !important;
+        min-width: auto !important;
+        height: 20px !important;
     }
     
     .dashboard-card .card-header {
