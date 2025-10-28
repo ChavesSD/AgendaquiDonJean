@@ -640,21 +640,20 @@ body {
         display: none !important;
     }
     
-    /* Sidebar sempre minimizada e fixa em mobile - FORÇAR PARA TODAS AS PÁGINAS */
-    .sidebar {
-        width: 50px !important;
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        height: 100vh !important;
-        z-index: 1000 !important;
-        transform: translateX(0) !important;
-        transition: none !important;
-    }
-    
-    /* Forçar sidebar fixa quando página de relatórios estiver ativa */
+    /* PADRONIZAÇÃO GLOBAL DA SIDEBAR EM MOBILE - 50px PARA TODAS AS TELAS */
+    .sidebar,
+    .sidebar.collapsed,
+    .sidebar:not(.collapsed),
+    .dashboard-container .sidebar,
+    .dashboard-container:has(#dashboard-page.active) .sidebar,
+    .dashboard-container:has(#agenda-page.active) .sidebar,
+    .dashboard-container:has(#comissoes-page.active) .sidebar,
+    .dashboard-container:has(#estoque-page.active) .sidebar,
+    .dashboard-container:has(#financeiro-page.active) .sidebar,
+    .dashboard-container:has(#profissionais-page.active) .sidebar,
+    .dashboard-container:has(#servicos-page.active) .sidebar,
     .dashboard-container:has(#relatorios-page.active) .sidebar,
-    .dashboard-container:has(#dashboard-page.active) .sidebar {
+    .dashboard-container:has(#configuracoes-page.active) .sidebar {
         width: 50px !important;
         position: fixed !important;
         top: 0 !important;
@@ -720,8 +719,18 @@ body {
         justify-content: center !important;
     }
     
-    /* Ajustar conteúdo principal para sidebar fixa */
-    .main-content {
+    /* PADRONIZAÇÃO GLOBAL DO CONTEÚDO PRINCIPAL EM MOBILE - 50px MARGEM PARA TODAS AS TELAS */
+    .main-content,
+    .dashboard-container .main-content,
+    .dashboard-container:has(#dashboard-page.active) .main-content,
+    .dashboard-container:has(#agenda-page.active) .main-content,
+    .dashboard-container:has(#comissoes-page.active) .main-content,
+    .dashboard-container:has(#estoque-page.active) .main-content,
+    .dashboard-container:has(#financeiro-page.active) .main-content,
+    .dashboard-container:has(#profissionais-page.active) .main-content,
+    .dashboard-container:has(#servicos-page.active) .main-content,
+    .dashboard-container:has(#relatorios-page.active) .main-content,
+    .dashboard-container:has(#configuracoes-page.active) .main-content {
         margin-left: 50px !important;
         width: calc(100% - 50px) !important;
     }
@@ -731,8 +740,18 @@ body {
         display: none !important;
     }
     
-    /* Ajustar cabeçalho para mobile - FIXO - FORÇAR PARA TODAS AS PÁGINAS */
-    .main-header {
+    /* PADRONIZAÇÃO GLOBAL DO CABEÇALHO EM MOBILE - 50px MARGEM PARA TODAS AS TELAS */
+    .main-header,
+    .dashboard-container .main-header,
+    .dashboard-container:has(#dashboard-page.active) .main-header,
+    .dashboard-container:has(#agenda-page.active) .main-header,
+    .dashboard-container:has(#comissoes-page.active) .main-header,
+    .dashboard-container:has(#estoque-page.active) .main-header,
+    .dashboard-container:has(#financeiro-page.active) .main-header,
+    .dashboard-container:has(#profissionais-page.active) .main-header,
+    .dashboard-container:has(#servicos-page.active) .main-header,
+    .dashboard-container:has(#relatorios-page.active) .main-header,
+    .dashboard-container:has(#configuracoes-page.active) .main-header {
         position: fixed !important;
         top: 0 !important;
         left: 50px !important;
@@ -745,20 +764,6 @@ body {
         backdrop-filter: blur(10px) !important;
     }
     
-    /* Forçar cabeçalho fixo quando página de relatórios estiver ativa */
-    .dashboard-container:has(#relatorios-page.active) .main-header,
-    .dashboard-container:has(#dashboard-page.active) .main-header {
-        position: fixed !important;
-        top: 0 !important;
-        left: 50px !important;
-        right: 0 !important;
-        width: calc(100% - 50px) !important;
-        padding: 0 20px;
-        height: 60px;
-        z-index: 999 !important;
-        background: rgba(255, 255, 255, 0.95) !important;
-        backdrop-filter: blur(10px) !important;
-    }
     
     /* Ajustar content-area para compensar cabeçalho fixo */
     .content-area {
@@ -872,18 +877,42 @@ body {
 
 /* Ajustes para mobile muito pequeno */
 @media (max-width: 480px) {
-    /* Sidebar ainda mais compacta - FORÇAR PARA TODAS AS PÁGINAS */
-    .sidebar {
-        width: 45px !important;
-    }
-    
-    /* Forçar sidebar compacta quando página de relatórios estiver ativa */
+    /* PADRONIZAÇÃO GLOBAL DA SIDEBAR EM MOBILE PEQUENO - 45px PARA TODAS AS TELAS */
+    .sidebar,
+    .sidebar.collapsed,
+    .sidebar:not(.collapsed),
+    .dashboard-container .sidebar,
+    .dashboard-container:has(#dashboard-page.active) .sidebar,
+    .dashboard-container:has(#agenda-page.active) .sidebar,
+    .dashboard-container:has(#comissoes-page.active) .sidebar,
+    .dashboard-container:has(#estoque-page.active) .sidebar,
+    .dashboard-container:has(#financeiro-page.active) .sidebar,
+    .dashboard-container:has(#profissionais-page.active) .sidebar,
+    .dashboard-container:has(#servicos-page.active) .sidebar,
     .dashboard-container:has(#relatorios-page.active) .sidebar,
-    .dashboard-container:has(#dashboard-page.active) .sidebar {
+    .dashboard-container:has(#configuracoes-page.active) .sidebar {
         width: 45px !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        height: 100vh !important;
+        z-index: 1000 !important;
+        transform: translateX(0) !important;
+        transition: none !important;
     }
     
-    .main-content {
+    /* PADRONIZAÇÃO GLOBAL DO CONTEÚDO PRINCIPAL EM MOBILE PEQUENO - 45px MARGEM PARA TODAS AS TELAS */
+    .main-content,
+    .dashboard-container .main-content,
+    .dashboard-container:has(#dashboard-page.active) .main-content,
+    .dashboard-container:has(#agenda-page.active) .main-content,
+    .dashboard-container:has(#comissoes-page.active) .main-content,
+    .dashboard-container:has(#estoque-page.active) .main-content,
+    .dashboard-container:has(#financeiro-page.active) .main-content,
+    .dashboard-container:has(#profissionais-page.active) .main-content,
+    .dashboard-container:has(#servicos-page.active) .main-content,
+    .dashboard-container:has(#relatorios-page.active) .main-content,
+    .dashboard-container:has(#configuracoes-page.active) .main-content {
         margin-left: 45px !important;
         width: calc(100% - 45px) !important;
     }
@@ -913,8 +942,18 @@ body {
         padding: 8px !important;
     }
     
-    /* Ajustar cabeçalho - FIXO - FORÇAR PARA TODAS AS PÁGINAS */
-    .main-header {
+    /* PADRONIZAÇÃO GLOBAL DO CABEÇALHO EM MOBILE PEQUENO - 45px MARGEM PARA TODAS AS TELAS */
+    .main-header,
+    .dashboard-container .main-header,
+    .dashboard-container:has(#dashboard-page.active) .main-header,
+    .dashboard-container:has(#agenda-page.active) .main-header,
+    .dashboard-container:has(#comissoes-page.active) .main-header,
+    .dashboard-container:has(#estoque-page.active) .main-header,
+    .dashboard-container:has(#financeiro-page.active) .main-header,
+    .dashboard-container:has(#profissionais-page.active) .main-header,
+    .dashboard-container:has(#servicos-page.active) .main-header,
+    .dashboard-container:has(#relatorios-page.active) .main-header,
+    .dashboard-container:has(#configuracoes-page.active) .main-header {
         position: fixed !important;
         top: 0 !important;
         left: 45px !important;
@@ -927,20 +966,6 @@ body {
         backdrop-filter: blur(10px) !important;
     }
     
-    /* Forçar cabeçalho fixo quando página de relatórios estiver ativa */
-    .dashboard-container:has(#relatorios-page.active) .main-header,
-    .dashboard-container:has(#dashboard-page.active) .main-header {
-        position: fixed !important;
-        top: 0 !important;
-        left: 45px !important;
-        right: 0 !important;
-        width: calc(100% - 45px) !important;
-        padding: 0 15px;
-        height: 55px;
-        z-index: 999 !important;
-        background: rgba(255, 255, 255, 0.95) !important;
-        backdrop-filter: blur(10px) !important;
-    }
     
     /* Ajustar content-area para compensar cabeçalho fixo */
     .content-area {
