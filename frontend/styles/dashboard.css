@@ -915,6 +915,28 @@ body {
         justify-content: center !important;
     }
     
+    /* Ajustar tamanho da logo em mobile */
+    .sidebar .sidebar-logo-open {
+        width: 120px !important;
+        height: 120px !important;
+    }
+    
+    .sidebar .sidebar-logo-collapsed {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    .sidebar .sidebar-logo {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    /* Ajustar padding do container da logo em mobile para alinhar com cabeçalho */
+    .sidebar .sidebar-header {
+        height: 60px !important;
+        padding: 8px 15px !important;
+    }
+    
     /* PADRONIZAÇÃO GLOBAL DO CONTEÚDO PRINCIPAL EM MOBILE - 50px MARGEM PARA TODAS AS TELAS */
     .main-content,
     .dashboard-container .main-content,
@@ -1281,6 +1303,28 @@ body {
         width: 40px !important;
         height: 40px !important;
         padding: 8px !important;
+    }
+    
+    /* Ajustar tamanho da logo em mobile pequeno */
+    .sidebar .sidebar-logo-open {
+        width: 100px !important;
+        height: 100px !important;
+    }
+    
+    .sidebar .sidebar-logo-collapsed {
+        width: 35px !important;
+        height: 35px !important;
+    }
+    
+    .sidebar .sidebar-logo {
+        width: 35px !important;
+        height: 35px !important;
+    }
+    
+    /* Ajustar padding do container da logo em mobile pequeno para alinhar com cabeçalho */
+    .sidebar .sidebar-header {
+        height: 55px !important;
+        padding: 6px 12px !important;
     }
     
     /* PADRONIZAÇÃO GLOBAL DO CABEÇALHO EM MOBILE PEQUENO - 45px MARGEM PARA TODAS AS TELAS */
