@@ -642,7 +642,7 @@ body {
     
     /* Sidebar sempre minimizada e fixa em mobile - FORÇAR PARA TODAS AS PÁGINAS */
     .sidebar {
-        width: 70px !important;
+        width: 50px !important;
         position: fixed !important;
         top: 0 !important;
         left: 0 !important;
@@ -655,7 +655,7 @@ body {
     /* Forçar sidebar fixa quando página de relatórios estiver ativa */
     .dashboard-container:has(#relatorios-page.active) .sidebar,
     .dashboard-container:has(#dashboard-page.active) .sidebar {
-        width: 70px !important;
+        width: 50px !important;
         position: fixed !important;
         top: 0 !important;
         left: 0 !important;
@@ -667,7 +667,7 @@ body {
     
     /* Garantir que sidebar esteja sempre colapsada em mobile */
     .sidebar:not(.collapsed) {
-        width: 70px !important;
+        width: 50px !important;
     }
     
     /* Ocultar textos da sidebar em mobile */
@@ -722,8 +722,8 @@ body {
     
     /* Ajustar conteúdo principal para sidebar fixa */
     .main-content {
-        margin-left: 70px !important;
-        width: calc(100% - 70px) !important;
+        margin-left: 50px !important;
+        width: calc(100% - 50px) !important;
     }
     
     /* Remover overlay pois não é mais necessário */
@@ -735,9 +735,9 @@ body {
     .main-header {
         position: fixed !important;
         top: 0 !important;
-        left: 70px !important;
+        left: 50px !important;
         right: 0 !important;
-        width: calc(100% - 70px) !important;
+        width: calc(100% - 50px) !important;
         padding: 0 20px;
         height: 60px;
         z-index: 999 !important;
@@ -750,9 +750,9 @@ body {
     .dashboard-container:has(#dashboard-page.active) .main-header {
         position: fixed !important;
         top: 0 !important;
-        left: 70px !important;
+        left: 50px !important;
         right: 0 !important;
-        width: calc(100% - 70px) !important;
+        width: calc(100% - 50px) !important;
         padding: 0 20px;
         height: 60px;
         z-index: 999 !important;
@@ -770,9 +770,9 @@ body {
     body .dashboard-container .main-content .main-header {
         position: fixed !important;
         top: 0 !important;
-        left: 70px !important;
+        left: 50px !important;
         right: 0 !important;
-        width: calc(100% - 70px) !important;
+        width: calc(100% - 50px) !important;
         z-index: 999 !important;
     }
     
@@ -780,7 +780,7 @@ body {
         position: fixed !important;
         top: 0 !important;
         left: 0 !important;
-        width: 70px !important;
+        width: 50px !important;
         height: 100vh !important;
         z-index: 1000 !important;
     }
@@ -820,7 +820,7 @@ body {
     body:has(#relatorios-page.active) .sidebar {
         top: 0 !important;
         left: 0 !important;
-        width: 70px !important;
+        width: 50px !important;
         height: 100vh !important;
         z-index: 1000 !important;
     }
@@ -828,16 +828,16 @@ body {
     /* Forçar cabeçalho fixo para relatórios */
     body:has(#relatorios-page.active) .main-header {
         top: 0 !important;
-        left: 70px !important;
+        left: 50px !important;
         right: 0 !important;
-        width: calc(100% - 70px) !important;
+        width: calc(100% - 50px) !important;
         z-index: 999 !important;
     }
     
     /* Garantir que conteúdo principal tenha margem correta */
     body:has(#relatorios-page.active) .main-content {
-        margin-left: 70px !important;
-        width: calc(100% - 70px) !important;
+        margin-left: 50px !important;
+        width: calc(100% - 50px) !important;
     }
     
     /* Garantir que área de conteúdo tenha margem superior */
@@ -874,18 +874,18 @@ body {
 @media (max-width: 480px) {
     /* Sidebar ainda mais compacta - FORÇAR PARA TODAS AS PÁGINAS */
     .sidebar {
-        width: 60px !important;
+        width: 45px !important;
     }
     
     /* Forçar sidebar compacta quando página de relatórios estiver ativa */
     .dashboard-container:has(#relatorios-page.active) .sidebar,
     .dashboard-container:has(#dashboard-page.active) .sidebar {
-        width: 60px !important;
+        width: 45px !important;
     }
     
     .main-content {
-        margin-left: 60px !important;
-        width: calc(100% - 60px) !important;
+        margin-left: 45px !important;
+        width: calc(100% - 45px) !important;
     }
     
     /* Ajustar navegação da sidebar */
@@ -917,9 +917,9 @@ body {
     .main-header {
         position: fixed !important;
         top: 0 !important;
-        left: 60px !important;
+        left: 45px !important;
         right: 0 !important;
-        width: calc(100% - 60px) !important;
+        width: calc(100% - 45px) !important;
         padding: 0 15px;
         height: 55px;
         z-index: 999 !important;
@@ -932,9 +932,9 @@ body {
     .dashboard-container:has(#dashboard-page.active) .main-header {
         position: fixed !important;
         top: 0 !important;
-        left: 60px !important;
+        left: 45px !important;
         right: 0 !important;
-        width: calc(100% - 60px) !important;
+        width: calc(100% - 45px) !important;
         padding: 0 15px;
         height: 55px;
         z-index: 999 !important;
@@ -952,7 +952,7 @@ body {
     body:has(#relatorios-page.active) .sidebar {
         top: 0 !important;
         left: 0 !important;
-        width: 60px !important;
+        width: 45px !important;
         height: 100vh !important;
         z-index: 1000 !important;
     }
@@ -960,16 +960,16 @@ body {
     /* Forçar cabeçalho fixo para relatórios - mobile pequeno */
     body:has(#relatorios-page.active) .main-header {
         top: 0 !important;
-        left: 60px !important;
+        left: 45px !important;
         right: 0 !important;
-        width: calc(100% - 60px) !important;
+        width: calc(100% - 45px) !important;
         z-index: 999 !important;
     }
     
     /* Garantir que conteúdo principal tenha margem correta - mobile pequeno */
     body:has(#relatorios-page.active) .main-content {
-        margin-left: 60px !important;
-        width: calc(100% - 60px) !important;
+        margin-left: 45px !important;
+        width: calc(100% - 45px) !important;
     }
     
     /* Garantir que área de conteúdo tenha margem superior - mobile pequeno */
