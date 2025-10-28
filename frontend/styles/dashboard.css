@@ -641,10 +641,20 @@ body {
     }
     
     /* Sidebar sempre minimizada e fixa em mobile - FORÇAR PARA TODAS AS PÁGINAS */
-    .sidebar,
-    #relatorios-page ~ .sidebar,
-    #dashboard-page ~ .sidebar,
-    .page-content.active ~ .sidebar {
+    .sidebar {
+        width: 70px !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        height: 100vh !important;
+        z-index: 1000 !important;
+        transform: translateX(0) !important;
+        transition: none !important;
+    }
+    
+    /* Forçar sidebar fixa quando página de relatórios estiver ativa */
+    .dashboard-container:has(#relatorios-page.active) .sidebar,
+    .dashboard-container:has(#dashboard-page.active) .sidebar {
         width: 70px !important;
         position: fixed !important;
         top: 0 !important;
@@ -722,10 +732,22 @@ body {
     }
     
     /* Ajustar cabeçalho para mobile - FIXO - FORÇAR PARA TODAS AS PÁGINAS */
-    .main-header,
-    #relatorios-page .main-header,
-    #dashboard-page .main-header,
-    .page-content.active .main-header {
+    .main-header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 70px !important;
+        right: 0 !important;
+        width: calc(100% - 70px) !important;
+        padding: 0 20px;
+        height: 60px;
+        z-index: 999 !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(10px) !important;
+    }
+    
+    /* Forçar cabeçalho fixo quando página de relatórios estiver ativa */
+    .dashboard-container:has(#relatorios-page.active) .main-header,
+    .dashboard-container:has(#dashboard-page.active) .main-header {
         position: fixed !important;
         top: 0 !important;
         left: 70px !important;
@@ -742,6 +764,25 @@ body {
     .content-area {
         padding: 25px;
         margin-top: 60px !important;
+    }
+    
+    /* REGRAS ESPECÍFICAS PARA PÁGINA DE RELATÓRIOS - MÁXIMA ESPECIFICIDADE */
+    body .dashboard-container .main-content .main-header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 70px !important;
+        right: 0 !important;
+        width: calc(100% - 70px) !important;
+        z-index: 999 !important;
+    }
+    
+    body .dashboard-container .sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 70px !important;
+        height: 100vh !important;
+        z-index: 1000 !important;
     }
     
     .header-left {
@@ -771,10 +812,13 @@ body {
 /* Ajustes para mobile muito pequeno */
 @media (max-width: 480px) {
     /* Sidebar ainda mais compacta - FORÇAR PARA TODAS AS PÁGINAS */
-    .sidebar,
-    #relatorios-page ~ .sidebar,
-    #dashboard-page ~ .sidebar,
-    .page-content.active ~ .sidebar {
+    .sidebar {
+        width: 60px !important;
+    }
+    
+    /* Forçar sidebar compacta quando página de relatórios estiver ativa */
+    .dashboard-container:has(#relatorios-page.active) .sidebar,
+    .dashboard-container:has(#dashboard-page.active) .sidebar {
         width: 60px !important;
     }
     
@@ -809,10 +853,22 @@ body {
     }
     
     /* Ajustar cabeçalho - FIXO - FORÇAR PARA TODAS AS PÁGINAS */
-    .main-header,
-    #relatorios-page .main-header,
-    #dashboard-page .main-header,
-    .page-content.active .main-header {
+    .main-header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 60px !important;
+        right: 0 !important;
+        width: calc(100% - 60px) !important;
+        padding: 0 15px;
+        height: 55px;
+        z-index: 999 !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(10px) !important;
+    }
+    
+    /* Forçar cabeçalho fixo quando página de relatórios estiver ativa */
+    .dashboard-container:has(#relatorios-page.active) .main-header,
+    .dashboard-container:has(#dashboard-page.active) .main-header {
         position: fixed !important;
         top: 0 !important;
         left: 60px !important;
