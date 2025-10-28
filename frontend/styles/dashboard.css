@@ -785,6 +785,67 @@ body {
         z-index: 1000 !important;
     }
     
+    /* FORÇAR COMPORTAMENTO FIXO ESPECIFICAMENTE PARA PÁGINA DE RELATÓRIOS */
+    #relatorios-page {
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+    }
+    
+    /* Garantir que não haja scroll horizontal em toda a página quando relatórios estiver ativo */
+    body:has(#relatorios-page.active) {
+        overflow-x: hidden !important;
+    }
+    
+    body:has(#relatorios-page.active) .dashboard-container {
+        overflow-x: hidden !important;
+    }
+    
+    body:has(#relatorios-page.active) .main-content {
+        overflow-x: hidden !important;
+    }
+    
+    body:has(#relatorios-page.active) .content-area {
+        overflow-x: hidden !important;
+    }
+    
+    /* Garantir que sidebar e header sejam fixos quando relatórios estiver ativo */
+    body:has(#relatorios-page.active) .sidebar,
+    body:has(#relatorios-page.active) .main-header {
+        position: fixed !important;
+        transform: none !important;
+        transition: none !important;
+    }
+    
+    /* Forçar sidebar fixa para relatórios */
+    body:has(#relatorios-page.active) .sidebar {
+        top: 0 !important;
+        left: 0 !important;
+        width: 70px !important;
+        height: 100vh !important;
+        z-index: 1000 !important;
+    }
+    
+    /* Forçar cabeçalho fixo para relatórios */
+    body:has(#relatorios-page.active) .main-header {
+        top: 0 !important;
+        left: 70px !important;
+        right: 0 !important;
+        width: calc(100% - 70px) !important;
+        z-index: 999 !important;
+    }
+    
+    /* Garantir que conteúdo principal tenha margem correta */
+    body:has(#relatorios-page.active) .main-content {
+        margin-left: 70px !important;
+        width: calc(100% - 70px) !important;
+    }
+    
+    /* Garantir que área de conteúdo tenha margem superior */
+    body:has(#relatorios-page.active) .content-area {
+        margin-top: 60px !important;
+        padding: 25px !important;
+    }
+    
     .header-left {
         gap: 15px;
     }
@@ -885,6 +946,36 @@ body {
     .content-area {
         padding: 20px 15px;
         margin-top: 55px !important;
+    }
+    
+    /* FORÇAR COMPORTAMENTO FIXO ESPECIFICAMENTE PARA PÁGINA DE RELATÓRIOS - MOBILE PEQUENO */
+    body:has(#relatorios-page.active) .sidebar {
+        top: 0 !important;
+        left: 0 !important;
+        width: 60px !important;
+        height: 100vh !important;
+        z-index: 1000 !important;
+    }
+    
+    /* Forçar cabeçalho fixo para relatórios - mobile pequeno */
+    body:has(#relatorios-page.active) .main-header {
+        top: 0 !important;
+        left: 60px !important;
+        right: 0 !important;
+        width: calc(100% - 60px) !important;
+        z-index: 999 !important;
+    }
+    
+    /* Garantir que conteúdo principal tenha margem correta - mobile pequeno */
+    body:has(#relatorios-page.active) .main-content {
+        margin-left: 60px !important;
+        width: calc(100% - 60px) !important;
+    }
+    
+    /* Garantir que área de conteúdo tenha margem superior - mobile pequeno */
+    body:has(#relatorios-page.active) .content-area {
+        margin-top: 55px !important;
+        padding: 20px 15px !important;
     }
     
     .page-title {
