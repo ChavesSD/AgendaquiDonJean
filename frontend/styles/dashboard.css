@@ -640,6 +640,18 @@ body {
         display: none !important;
     }
     
+    /* OCULTAR GRÁFICOS EM MOBILE - MUITO GRANDES PARA TELA PEQUENA */
+    .dashboard-chart,
+    .evolution-chart,
+    .chart-section,
+    .chart-container,
+    .charts-grid .chart-container,
+    #dashboard-page .chart-section,
+    #dashboard-page .dashboard-chart,
+    #dashboard-page .chart-container {
+        display: none !important;
+    }
+    
     /* PADRONIZAÇÃO GLOBAL DA SIDEBAR EM MOBILE - 50px PARA TODAS AS TELAS */
     .sidebar,
     .sidebar.collapsed,
@@ -877,6 +889,18 @@ body {
 
 /* Ajustes para mobile muito pequeno */
 @media (max-width: 480px) {
+    /* OCULTAR GRÁFICOS EM MOBILE PEQUENO - CONFIRMAÇÃO ADICIONAL */
+    .dashboard-chart,
+    .evolution-chart,
+    .chart-section,
+    .chart-container,
+    .charts-grid .chart-container,
+    #dashboard-page .chart-section,
+    #dashboard-page .dashboard-chart,
+    #dashboard-page .chart-container {
+        display: none !important;
+    }
+    
     /* PADRONIZAÇÃO GLOBAL DA SIDEBAR EM MOBILE PEQUENO - 45px PARA TODAS AS TELAS */
     .sidebar,
     .sidebar.collapsed,
