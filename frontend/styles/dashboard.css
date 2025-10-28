@@ -6168,92 +6168,7 @@ body {
         min-width: auto;
     }
     
-    /* LAYOUT 2x2 PARA MOBILE - DATAS E BOTÕES COM MESMO TAMANHO */
-    .date-filters.with-buttons {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
-        grid-template-rows: auto auto !important;
-        gap: 12px !important;
-        align-items: stretch !important;
-    }
-    
-    /* Primeira linha: Data Início e Data Fim */
-    .date-filters.with-buttons .date-inputs {
-        display: contents !important;
-    }
-    
-    .date-filters.with-buttons .date-inputs .filter-group {
-        display: contents !important;
-    }
-    
-    .date-filters.with-buttons .date-inputs .filter-group:first-child {
-        grid-column: 1 !important;
-        grid-row: 1 !important;
-    }
-    
-    .date-filters.with-buttons .date-inputs .filter-group:last-child {
-        grid-column: 2 !important;
-        grid-row: 1 !important;
-    }
-    
-    /* Segunda linha: Filtrar e Limpar */
-    .date-filters.with-buttons .date-buttons {
-        display: contents !important;
-    }
-    
-    .date-filters.with-buttons .date-buttons .btn:first-child {
-        grid-column: 1 !important;
-        grid-row: 2 !important;
-    }
-    
-    .date-filters.with-buttons .date-buttons .btn:last-child {
-        grid-column: 2 !important;
-        grid-row: 2 !important;
-    }
-    
-    /* UNIFORMIZAR TAMANHOS DOS 4 ELEMENTOS EM MOBILE */
-    .date-filters input[type="date"],
-    .date-filters select,
-    .date-filters.with-buttons .date-buttons .btn {
-        height: 48px !important;
-        min-height: 48px !important;
-        padding: 12px 15px !important;
-        font-size: 16px !important;
-        border-radius: 8px !important;
-        box-sizing: border-box !important;
-        width: 100% !important;
-    }
-    
-    /* OCULTAR LABELS PARA UNIFORMIZAR ALTURA - USAR PLACEHOLDERS */
-    .date-filters.with-buttons .date-inputs .filter-group label {
-        display: none !important; /* Ocultar labels para uniformizar altura */
-    }
-    
-    /* Estilizar placeholders dos inputs de data */
-    .date-filters.with-buttons input[type="date"]::placeholder {
-        color: #999 !important;
-        font-size: 16px !important;
-        opacity: 1 !important;
-    }
-    
-    /* Garantir que os inputs tenham altura uniforme */
-    .date-filters.with-buttons .date-inputs .filter-group {
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: center !important;
-        height: 48px !important;
-    }
-    
-    .date-filters.with-buttons .date-inputs .filter-group input[type="date"] {
-        height: 48px !important;
-        border: 2px solid #e1e5e9 !important;
-        background: white !important;
-    }
-}
-
-/* Mobile pequeno (até 480px) */
-@media (max-width: 480px) {
-    /* LAYOUT 2x2 PARA MOBILE PEQUENO - MANTENDO MESMO LAYOUT */
+    /* LAYOUT 2x2 PARA MOBILE - DATAS E BOTÕES COM MESMO TAMANHO - COMPACTO */
     .date-filters.with-buttons {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important;
@@ -6296,15 +6211,100 @@ body {
         grid-row: 2 !important;
     }
     
-    /* UNIFORMIZAR TAMANHOS DOS 4 ELEMENTOS EM MOBILE PEQUENO */
+    /* UNIFORMIZAR TAMANHOS DOS 4 ELEMENTOS EM MOBILE - TAMANHO REDUZIDO */
     .date-filters input[type="date"],
     .date-filters select,
     .date-filters.with-buttons .date-buttons .btn {
-        height: 44px !important;
-        min-height: 44px !important;
+        height: 42px !important;
+        min-height: 42px !important;
         padding: 10px 12px !important;
-        font-size: 16px !important; /* Evita zoom no iOS */
-        border-radius: 8px !important;
+        font-size: 15px !important;
+        border-radius: 6px !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+    }
+    
+    /* OCULTAR LABELS PARA UNIFORMIZAR ALTURA - USAR PLACEHOLDERS */
+    .date-filters.with-buttons .date-inputs .filter-group label {
+        display: none !important; /* Ocultar labels para uniformizar altura */
+    }
+    
+    /* Estilizar placeholders dos inputs de data */
+    .date-filters.with-buttons input[type="date"]::placeholder {
+        color: #999 !important;
+        font-size: 16px !important;
+        opacity: 1 !important;
+    }
+    
+    /* Garantir que os inputs tenham altura uniforme - TAMANHO REDUZIDO */
+    .date-filters.with-buttons .date-inputs .filter-group {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        height: 42px !important;
+    }
+    
+    .date-filters.with-buttons .date-inputs .filter-group input[type="date"] {
+        height: 42px !important;
+        border: 2px solid #e1e5e9 !important;
+        background: white !important;
+    }
+}
+
+/* Mobile pequeno (até 480px) */
+@media (max-width: 480px) {
+    /* LAYOUT 2x2 PARA MOBILE PEQUENO - MANTENDO MESMO LAYOUT - COMPACTO */
+    .date-filters.with-buttons {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        grid-template-rows: auto auto !important;
+        gap: 8px !important;
+        align-items: stretch !important;
+    }
+    
+    /* Primeira linha: Data Início e Data Fim */
+    .date-filters.with-buttons .date-inputs {
+        display: contents !important;
+    }
+    
+    .date-filters.with-buttons .date-inputs .filter-group {
+        display: contents !important;
+    }
+    
+    .date-filters.with-buttons .date-inputs .filter-group:first-child {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+    }
+    
+    .date-filters.with-buttons .date-inputs .filter-group:last-child {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+    }
+    
+    /* Segunda linha: Filtrar e Limpar */
+    .date-filters.with-buttons .date-buttons {
+        display: contents !important;
+    }
+    
+    .date-filters.with-buttons .date-buttons .btn:first-child {
+        grid-column: 1 !important;
+        grid-row: 2 !important;
+    }
+    
+    .date-filters.with-buttons .date-buttons .btn:last-child {
+        grid-column: 2 !important;
+        grid-row: 2 !important;
+    }
+    
+    /* UNIFORMIZAR TAMANHOS DOS 4 ELEMENTOS EM MOBILE PEQUENO - TAMANHO REDUZIDO */
+    .date-filters input[type="date"],
+    .date-filters select,
+    .date-filters.with-buttons .date-buttons .btn {
+        height: 38px !important;
+        min-height: 38px !important;
+        padding: 8px 10px !important;
+        font-size: 15px !important; /* Evita zoom no iOS */
+        border-radius: 6px !important;
         box-sizing: border-box !important;
         width: 100% !important;
     }
@@ -6321,16 +6321,16 @@ body {
         opacity: 1 !important;
     }
     
-    /* Garantir que os inputs tenham altura uniforme em mobile pequeno */
+    /* Garantir que os inputs tenham altura uniforme em mobile pequeno - TAMANHO REDUZIDO */
     .date-filters.with-buttons .date-inputs .filter-group {
         display: flex !important;
         flex-direction: column !important;
         justify-content: center !important;
-        height: 44px !important;
+        height: 38px !important;
     }
     
     .date-filters.with-buttons .date-inputs .filter-group input[type="date"] {
-        height: 44px !important;
+        height: 38px !important;
         border: 2px solid #e1e5e9 !important;
         background: white !important;
     }
