@@ -6224,13 +6224,30 @@ body {
         width: 100% !important;
     }
     
-    /* Garantir que os labels fiquem acima dos inputs */
+    /* OCULTAR LABELS PARA UNIFORMIZAR ALTURA - USAR PLACEHOLDERS */
     .date-filters.with-buttons .date-inputs .filter-group label {
-        display: block !important;
-        margin-bottom: 6px !important;
-        font-weight: 600 !important;
-        color: #2c3e50 !important;
-        font-size: 14px !important;
+        display: none !important; /* Ocultar labels para uniformizar altura */
+    }
+    
+    /* Estilizar placeholders dos inputs de data */
+    .date-filters.with-buttons input[type="date"]::placeholder {
+        color: #999 !important;
+        font-size: 16px !important;
+        opacity: 1 !important;
+    }
+    
+    /* Garantir que os inputs tenham altura uniforme */
+    .date-filters.with-buttons .date-inputs .filter-group {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        height: 48px !important;
+    }
+    
+    .date-filters.with-buttons .date-inputs .filter-group input[type="date"] {
+        height: 48px !important;
+        border: 2px solid #e1e5e9 !important;
+        background: white !important;
     }
 }
 
@@ -6292,13 +6309,30 @@ body {
         width: 100% !important;
     }
     
-    /* Garantir que os labels fiquem acima dos inputs em mobile pequeno */
+    /* OCULTAR LABELS PARA UNIFORMIZAR ALTURA EM MOBILE PEQUENO - USAR PLACEHOLDERS */
     .date-filters.with-buttons .date-inputs .filter-group label {
-        display: block !important;
-        margin-bottom: 4px !important;
-        font-weight: 600 !important;
-        color: #2c3e50 !important;
-        font-size: 13px !important;
+        display: none !important; /* Ocultar labels para uniformizar altura */
+    }
+    
+    /* Estilizar placeholders dos inputs de data em mobile pequeno */
+    .date-filters.with-buttons input[type="date"]::placeholder {
+        color: #999 !important;
+        font-size: 16px !important;
+        opacity: 1 !important;
+    }
+    
+    /* Garantir que os inputs tenham altura uniforme em mobile pequeno */
+    .date-filters.with-buttons .date-inputs .filter-group {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        height: 44px !important;
+    }
+    
+    .date-filters.with-buttons .date-inputs .filter-group input[type="date"] {
+        height: 44px !important;
+        border: 2px solid #e1e5e9 !important;
+        background: white !important;
     }
     
     /* Melhorar centralização em telas muito pequenas */
