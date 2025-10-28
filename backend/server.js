@@ -25,16 +25,28 @@ const corsOptions = {
             return callback(null, true);
         }
         
+        // Permitir acesso de qualquer IP da rede local (192.168.x.x, 10.x.x.x, 172.16-31.x.x)
+        const isLocalNetwork = origin && (
+            origin.match(/^http:\/\/192\.168\.\d+\.\d+:\d+$/) ||
+            origin.match(/^http:\/\/10\.\d+\.\d+\.\d+:\d+$/) ||
+            origin.match(/^http:\/\/172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+:\d+$/) ||
+            origin.match(/^http:\/\/localhost:\d+$/) ||
+            origin.match(/^http:\/\/127\.0\.0\.1:\d+$/)
+        );
+        
         const allowedOrigins = [
             'http://localhost:3000',
             'http://localhost:3001',
+            'http://127.0.0.1:3000',
+            'http://127.0.0.1:3001',
             process.env.CORS_ORIGIN,
             process.env.RAILWAY_STATIC_URL
         ].filter(Boolean);
         
-        if (allowedOrigins.indexOf(origin) !== -1) {
+        if (allowedOrigins.indexOf(origin) !== -1 || isLocalNetwork) {
             callback(null, true);
         } else {
+            console.log(`🚫 CORS bloqueado para origin: ${origin}`);
             callback(new Error(`Origin ${origin} not allowed by CORS`));
         }
     },
@@ -4756,8 +4768,25 @@ app.get('/api/contacts/stats', authenticateToken, async (req, res) => {
 
 // Iniciar servidor
 server.listen(PORT, '0.0.0.0', () => {
+    const os = require('os');
+    const networkInterfaces = os.networkInterfaces();
+    let localIP = 'localhost';
+    
+    // Encontrar o IP da rede local
+    for (const interfaceName in networkInterfaces) {
+        const interfaces = networkInterfaces[interfaceName];
+        for (const iface of interfaces) {
+            if (iface.family === 'IPv4' && !iface.internal) {
+                localIP = iface.address;
+                break;
+            }
+        }
+        if (localIP !== 'localhost') break;
+    }
+    
     console.log(`🚀 Servidor rodando na porta ${PORT}`);
     console.log(`📱 Acesse localmente: http://localhost:${PORT}`);
-    console.log(`🌐 Acesse de outros dispositivos: http://10.0.0.15:${PORT}`);
+    console.log(`🌐 Acesse de outros dispositivos: http://${localIP}:${PORT}`);
     console.log(`🔌 WebSocket ativo para atualizações em tempo real`);
+    console.log(`🔧 CORS configurado para aceitar conexões da rede local`);
 });

@@ -488,12 +488,22 @@ body {
 }
 
 /* ===== CENTRALIZAÇÃO DOS ÍCONES DOS CARDS ===== */
+.stat-card {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 20px !important;
+    min-height: 80px !important;
+}
+
 .stat-card .stat-icon {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     text-align: center !important;
     line-height: 1 !important;
+    flex-shrink: 0 !important;
+    position: relative !important;
 }
 
 .stat-card .stat-icon i {
@@ -503,6 +513,10 @@ body {
     width: 100% !important;
     height: 100% !important;
     font-size: inherit !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
 }
 
 .stat-card::before {
@@ -726,9 +740,14 @@ body {
         justify-content: center !important;
         text-align: center !important;
         line-height: 1 !important;
+        position: relative !important;
     }
     
     .stat-card .stat-icon i {
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -1119,9 +1138,14 @@ body {
         justify-content: center !important;
         text-align: center !important;
         line-height: 1 !important;
+        position: relative !important;
     }
     
     .stat-card .stat-icon i {
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -5700,13 +5724,84 @@ body {
         height: 250px;
     }
     
-    .stock-tabs .tab-btn {
-        padding: 15px;
-        font-size: 14px;
+    /* ===== PADRÃO MOBILE UNIFICADO PARA TODAS AS ABAS ===== */
+    .stock-tabs .tab-buttons,
+    .agenda-tabs .tab-buttons,
+    .finance-tabs .tab-buttons,
+    .reports-tabs .tab-buttons,
+    .config-tabs .tab-buttons {
+        flex-direction: column !important;
+        background: rgba(151, 87, 86, 0.1) !important;
+        border-radius: 15px !important;
+        padding: 10px !important;
+        gap: 8px !important;
     }
     
-    .stock-tabs .tab-content {
-        padding: 20px;
+    .stock-tabs .tab-btn,
+    .agenda-tabs .tab-btn,
+    .finance-tabs .tab-btn,
+    .reports-tabs .tab-btn,
+    .config-tabs .tab-btn {
+        width: 100% !important;
+        padding: 15px 20px !important;
+        font-size: 14px !important;
+        border-radius: 10px !important;
+        margin: 0 !important;
+        justify-content: flex-start !important;
+        text-align: left !important;
+        background: rgba(255, 255, 255, 0.8) !important;
+        color: #666 !important;
+        border: 1px solid rgba(151, 87, 86, 0.1) !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .stock-tabs .tab-btn:hover,
+    .agenda-tabs .tab-btn:hover,
+    .finance-tabs .tab-btn:hover,
+    .reports-tabs .tab-btn:hover,
+    .config-tabs .tab-btn:hover {
+        background: rgba(151, 87, 86, 0.1) !important;
+        color: var(--primary-color) !important;
+        transform: translateX(5px) !important;
+    }
+    
+    .stock-tabs .tab-btn.active,
+    .agenda-tabs .tab-btn.active,
+    .finance-tabs .tab-btn.active,
+    .reports-tabs .tab-btn.active,
+    .config-tabs .tab-btn.active {
+        background: var(--primary-color) !important;
+        color: white !important;
+        transform: translateX(5px) !important;
+        box-shadow: 0 4px 15px rgba(151, 87, 86, 0.3) !important;
+    }
+    
+    .stock-tabs .tab-btn.active::after,
+    .agenda-tabs .tab-btn.active::after,
+    .finance-tabs .tab-btn.active::after,
+    .reports-tabs .tab-btn.active::after,
+    .config-tabs .tab-btn.active::after {
+        display: none !important;
+    }
+    
+    .stock-tabs .tab-btn i,
+    .agenda-tabs .tab-btn i,
+    .finance-tabs .tab-btn i,
+    .reports-tabs .tab-btn i,
+    .config-tabs .tab-btn i {
+        margin-right: 10px !important;
+        font-size: 16px !important;
+        width: 20px !important;
+        text-align: center !important;
+    }
+    
+    .stock-tabs .tab-content,
+    .agenda-tabs .tab-content,
+    .finance-tabs .tab-content,
+    .reports-tabs .tab-content,
+    .config-tabs .tab-content {
+        padding: 20px !important;
+        margin-top: 15px !important;
     }
     
     #add-product-tab-btn {
@@ -5756,13 +5851,84 @@ body {
         height: 200px;
     }
     
-    .stock-tabs .tab-btn {
-        padding: 12px;
-        font-size: 12px;
+    /* ===== PADRÃO MOBILE PEQUENO UNIFICADO PARA TODAS AS ABAS ===== */
+    .stock-tabs .tab-buttons,
+    .agenda-tabs .tab-buttons,
+    .finance-tabs .tab-buttons,
+    .reports-tabs .tab-buttons,
+    .config-tabs .tab-buttons {
+        flex-direction: column !important;
+        background: rgba(151, 87, 86, 0.1) !important;
+        border-radius: 12px !important;
+        padding: 8px !important;
+        gap: 6px !important;
     }
     
-    .stock-tabs .tab-content {
-        padding: 15px;
+    .stock-tabs .tab-btn,
+    .agenda-tabs .tab-btn,
+    .finance-tabs .tab-btn,
+    .reports-tabs .tab-btn,
+    .config-tabs .tab-btn {
+        width: 100% !important;
+        padding: 12px 15px !important;
+        font-size: 12px !important;
+        border-radius: 8px !important;
+        margin: 0 !important;
+        justify-content: flex-start !important;
+        text-align: left !important;
+        background: rgba(255, 255, 255, 0.8) !important;
+        color: #666 !important;
+        border: 1px solid rgba(151, 87, 86, 0.1) !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .stock-tabs .tab-btn:hover,
+    .agenda-tabs .tab-btn:hover,
+    .finance-tabs .tab-btn:hover,
+    .reports-tabs .tab-btn:hover,
+    .config-tabs .tab-btn:hover {
+        background: rgba(151, 87, 86, 0.1) !important;
+        color: var(--primary-color) !important;
+        transform: translateX(3px) !important;
+    }
+    
+    .stock-tabs .tab-btn.active,
+    .agenda-tabs .tab-btn.active,
+    .finance-tabs .tab-btn.active,
+    .reports-tabs .tab-btn.active,
+    .config-tabs .tab-btn.active {
+        background: var(--primary-color) !important;
+        color: white !important;
+        transform: translateX(3px) !important;
+        box-shadow: 0 3px 12px rgba(151, 87, 86, 0.3) !important;
+    }
+    
+    .stock-tabs .tab-btn.active::after,
+    .agenda-tabs .tab-btn.active::after,
+    .finance-tabs .tab-btn.active::after,
+    .reports-tabs .tab-btn.active::after,
+    .config-tabs .tab-btn.active::after {
+        display: none !important;
+    }
+    
+    .stock-tabs .tab-btn i,
+    .agenda-tabs .tab-btn i,
+    .finance-tabs .tab-btn i,
+    .reports-tabs .tab-btn i,
+    .config-tabs .tab-btn i {
+        margin-right: 8px !important;
+        font-size: 14px !important;
+        width: 18px !important;
+        text-align: center !important;
+    }
+    
+    .stock-tabs .tab-content,
+    .agenda-tabs .tab-content,
+    .finance-tabs .tab-content,
+    .reports-tabs .tab-content,
+    .config-tabs .tab-content {
+        padding: 15px !important;
+        margin-top: 12px !important;
     }
     
     #add-product-tab-btn {
@@ -6814,6 +6980,20 @@ body {
     font-size: 24px;
     color: white;
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    position: relative;
+    flex-shrink: 0;
+}
+
+.agenda-stats .stat-icon i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
 }
 
 .agenda-stats .stat-icon.pending {
