@@ -487,6 +487,24 @@ body {
     overflow: hidden;
 }
 
+/* ===== CENTRALIZAÇÃO DOS ÍCONES DOS CARDS ===== */
+.stat-card .stat-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    line-height: 1 !important;
+}
+
+.stat-card .stat-icon i {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100% !important;
+    font-size: inherit !important;
+}
+
 .stat-card::before {
     content: '';
     position: absolute;
@@ -706,6 +724,17 @@ body {
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+        text-align: center !important;
+        line-height: 1 !important;
+    }
+    
+    .stat-card .stat-icon i {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        height: 100% !important;
+        font-size: inherit !important;
     }
     
     .stat-card .stat-content {
@@ -1088,6 +1117,17 @@ body {
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+        text-align: center !important;
+        line-height: 1 !important;
+    }
+    
+    .stat-card .stat-icon i {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        height: 100% !important;
+        font-size: inherit !important;
     }
     
     .stat-card .stat-content {
