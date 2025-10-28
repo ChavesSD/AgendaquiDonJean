@@ -6193,6 +6193,32 @@ body {
     .date-filters.with-buttons .date-buttons .btn {
         flex: 1;
         justify-content: center;
+        min-height: 48px; /* Mesmo tamanho dos inputs */
+        height: 48px;
+    }
+    
+    /* UNIFORMIZAR TAMANHOS DOS ELEMENTOS DE FILTRO EM MOBILE */
+    .date-filters input[type="date"],
+    .date-filters select,
+    .date-filters.with-buttons .date-buttons .btn {
+        height: 48px !important;
+        min-height: 48px !important;
+        padding: 12px 15px !important;
+        font-size: 16px !important;
+        border-radius: 8px !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Garantir que os inputs tenham largura igual */
+    .date-filters.with-buttons .date-inputs .filter-group {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .date-filters.with-buttons .date-inputs .filter-group input[type="date"],
+    .date-filters.with-buttons .date-inputs .filter-group select {
+        width: 100% !important;
+        min-width: 0 !important;
     }
 }
 
@@ -6208,9 +6234,23 @@ body {
         min-width: 0;
     }
     
-    .date-filters input[type="date"] {
-        font-size: 16px; /* Evita zoom no iOS */
-        padding: 12px 15px;
+    /* UNIFORMIZAR TAMANHOS DOS ELEMENTOS DE FILTRO EM MOBILE PEQUENO */
+    .date-filters input[type="date"],
+    .date-filters select,
+    .date-filters.with-buttons .date-buttons .btn {
+        height: 44px !important;
+        min-height: 44px !important;
+        padding: 10px 12px !important;
+        font-size: 16px !important; /* Evita zoom no iOS */
+        border-radius: 8px !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Garantir que os inputs tenham largura igual em mobile pequeno */
+    .date-filters.with-buttons .date-inputs .filter-group input[type="date"],
+    .date-filters.with-buttons .date-inputs .filter-group select {
+        width: 100% !important;
+        min-width: 0 !important;
     }
     
     /* Melhorar centralização em telas muito pequenas */
@@ -6252,8 +6292,12 @@ body {
     
     .date-filters.with-buttons .date-buttons .btn {
         flex: 1;
-        padding: 12px 20px;
-        font-size: 16px;
+        height: 44px !important;
+        min-height: 44px !important;
+        padding: 10px 12px !important;
+        font-size: 16px !important;
+        border-radius: 8px !important;
+        box-sizing: border-box !important;
         justify-content: center;
     }
     
