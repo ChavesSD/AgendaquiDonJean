@@ -640,8 +640,11 @@ body {
         display: none !important;
     }
     
-    /* Sidebar sempre minimizada e fixa em mobile */
-    .sidebar {
+    /* Sidebar sempre minimizada e fixa em mobile - FORÇAR PARA TODAS AS PÁGINAS */
+    .sidebar,
+    #relatorios-page ~ .sidebar,
+    #dashboard-page ~ .sidebar,
+    .page-content.active ~ .sidebar {
         width: 70px !important;
         position: fixed !important;
         top: 0 !important;
@@ -718,8 +721,11 @@ body {
         display: none !important;
     }
     
-    /* Ajustar cabeçalho para mobile - FIXO */
-    .main-header {
+    /* Ajustar cabeçalho para mobile - FIXO - FORÇAR PARA TODAS AS PÁGINAS */
+    .main-header,
+    #relatorios-page .main-header,
+    #dashboard-page .main-header,
+    .page-content.active .main-header {
         position: fixed !important;
         top: 0 !important;
         left: 70px !important;
@@ -764,8 +770,11 @@ body {
 
 /* Ajustes para mobile muito pequeno */
 @media (max-width: 480px) {
-    /* Sidebar ainda mais compacta */
-    .sidebar {
+    /* Sidebar ainda mais compacta - FORÇAR PARA TODAS AS PÁGINAS */
+    .sidebar,
+    #relatorios-page ~ .sidebar,
+    #dashboard-page ~ .sidebar,
+    .page-content.active ~ .sidebar {
         width: 60px !important;
     }
     
@@ -799,8 +808,11 @@ body {
         padding: 8px !important;
     }
     
-    /* Ajustar cabeçalho - FIXO */
-    .main-header {
+    /* Ajustar cabeçalho - FIXO - FORÇAR PARA TODAS AS PÁGINAS */
+    .main-header,
+    #relatorios-page .main-header,
+    #dashboard-page .main-header,
+    .page-content.active .main-header {
         position: fixed !important;
         top: 0 !important;
         left: 60px !important;
