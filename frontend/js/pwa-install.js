@@ -58,10 +58,16 @@ function showInstallButton() {
         return;
     }
     
+    // Verificar se é mobile/tablet antes de mostrar
+    const isMobile = window.innerWidth <= 768;
+    if (!isMobile) {
+        return; // Não mostrar em desktop
+    }
+    
     // Procurar por elemento de instalação no dashboard
     const installContainer = document.querySelector('.pwa-install-container');
     if (installContainer) {
-        installContainer.style.display = 'block';
+        installContainer.style.display = 'flex';
         installButton = installContainer.querySelector('.pwa-install-btn');
         if (installButton) {
             installButton.addEventListener('click', installPWA);
@@ -220,6 +226,21 @@ if (window.isPWAInstalled()) {
     document.documentElement.classList.add('pwa-installed');
     console.log('📱 App rodando como PWA instalado');
 }
+
+// Listener para redimensionamento da janela - ocultar/mostrar botão baseado no tamanho
+window.addEventListener('resize', () => {
+    const installContainer = document.querySelector('.pwa-install-container');
+    if (installContainer) {
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile && deferredPrompt && !window.isPWAInstalled()) {
+            // Se for mobile e o evento existe, mostrar
+            installContainer.style.display = 'flex';
+        } else if (!isMobile) {
+            // Se for desktop, ocultar
+            installContainer.style.display = 'none';
+        }
+    }
+});
 
 // Exportar funções globais
 window.installPWA = installPWA;
