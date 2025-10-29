@@ -8365,7 +8365,22 @@ let updateManager = {
 function initUpdateManagement() {
     console.log('🔄 Inicializando sistema de atualizações...');
     
-    // Carregar configurações salvas
+    // Limpar configuração incorreta do localStorage se existir
+    const savedConfig = localStorage.getItem('updateManagerConfig');
+    if (savedConfig) {
+        try {
+            const config = JSON.parse(savedConfig);
+            if (config.repo === 'AgendaquiCHStudio' || config.owner !== 'ChavesSD') {
+                console.log('🧹 Limpando configuração incorreta do localStorage...');
+                localStorage.removeItem('updateManagerConfig');
+            }
+        } catch (e) {
+            console.log('🧹 Removendo configuração corrompida do localStorage...');
+            localStorage.removeItem('updateManagerConfig');
+        }
+    }
+    
+    // Carregar configurações salvas (ou usar padrão)
     loadUpdateSettings();
     
     // Carregar repositórios salvos
@@ -8383,11 +8398,36 @@ function loadUpdateSettings() {
     if (savedConfig) {
         try {
             const config = JSON.parse(savedConfig);
-            updateManager.githubConfig = { ...updateManager.githubConfig, ...config };
+            // Forçar configuração correta do repositório
+            updateManager.githubConfig = { 
+                owner: 'ChavesSD',
+                repo: 'CHStudio',
+                branch: 'master',
+                ...config 
+            };
+            // Garantir que o repositório seja sempre CHStudio
+            updateManager.githubConfig.repo = 'CHStudio';
+            updateManager.githubConfig.owner = 'ChavesSD';
+            updateManager.githubConfig.branch = 'master';
         } catch (e) {
             console.error('Erro ao carregar configurações de atualizações:', e);
+            // Usar configuração padrão em caso de erro
+            updateManager.githubConfig = {
+                owner: 'ChavesSD',
+                repo: 'CHStudio',
+                branch: 'master'
+            };
         }
+    } else {
+        // Usar configuração padrão se não houver configuração salva
+        updateManager.githubConfig = {
+            owner: 'ChavesSD',
+            repo: 'CHStudio',
+            branch: 'master'
+        };
     }
+    
+    console.log('🔧 Configuração do GitHub carregada:', updateManager.githubConfig);
 }
 
 // Salvar configurações do sistema de atualizações
@@ -8450,6 +8490,7 @@ async function fetchGitHubCommits() {
     try {
         console.log('🔍 Buscando commits do GitHub:', apiUrl);
         console.log('📋 Configuração atual:', { owner, repo, branch });
+        console.log('🔧 Configuração completa do updateManager:', updateManager.githubConfig);
         
         const response = await fetch(apiUrl, {
             method: 'GET',
