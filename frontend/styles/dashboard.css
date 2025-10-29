@@ -504,6 +504,7 @@ body {
     line-height: 1 !important;
     flex-shrink: 0 !important;
     position: relative !important;
+    align-self: center !important;
 }
 
 .stat-card .stat-icon i {
@@ -513,10 +514,8 @@ body {
     width: 100% !important;
     height: 100% !important;
     font-size: inherit !important;
-    position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
+    line-height: 1 !important;
+    position: relative !important;
 }
 
 .stat-card::before {
@@ -545,10 +544,19 @@ body {
     color: white;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     transition: all 0.3s ease;
+    align-self: center;
+}
+
+.stat-icon i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
 }
 
 .stat-card:hover .stat-icon {
     transform: scale(1.1);
+    transform-origin: center center;
 }
 
 .stat-card:nth-child(1) .stat-icon {
@@ -567,13 +575,29 @@ body {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
 }
 
+.stat-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+}
+
 .stat-content h3 {
-    font-size: 16px;
-    color: #666;
-    margin-bottom: 8px;
+    font-size: 32px;
+    color: #2c3e50;
+    margin: 0 0 5px 0;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.stat-content p {
+    font-size: 14px;
+    color: #6c757d;
+    margin: 0;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    line-height: 1.2;
 }
 
 .stat-number {
@@ -741,29 +765,27 @@ body {
         text-align: center !important;
         line-height: 1 !important;
         position: relative !important;
+        align-self: center !important;
     }
     
     .stat-card .stat-icon i {
-        position: absolute !important;
-        top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         width: 100% !important;
         height: 100% !important;
         font-size: inherit !important;
+        line-height: 1 !important;
     }
     
     .stat-card .stat-content {
         flex: 1 !important;
         display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        gap: 15px !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        gap: 4px !important;
         min-height: 40px !important;
+        align-self: center !important;
     }
     
     .stat-card .stat-content h3 {
@@ -772,8 +794,6 @@ body {
         font-weight: 700 !important;
         color: #2c3e50 !important;
         line-height: 1 !important;
-        display: flex !important;
-        align-items: center !important;
     }
     
     .stat-card .stat-content p {
@@ -781,12 +801,9 @@ body {
         margin: 0 !important;
         color: #6c757d !important;
         font-weight: 500 !important;
-        text-align: right !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
         line-height: 1.2 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: flex-end !important;
-        flex: 1 !important;
     }
     
     /* Ajustar botões dentro dos cards */
@@ -1161,29 +1178,27 @@ body {
         text-align: center !important;
         line-height: 1 !important;
         position: relative !important;
+        align-self: center !important;
     }
     
     .stat-card .stat-icon i {
-        position: absolute !important;
-        top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         width: 100% !important;
         height: 100% !important;
         font-size: inherit !important;
+        line-height: 1 !important;
     }
     
     .stat-card .stat-content {
         flex: 1 !important;
         display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        gap: 12px !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        gap: 3px !important;
         min-height: 35px !important;
+        align-self: center !important;
     }
     
     .stat-card .stat-content h3 {
@@ -1192,8 +1207,6 @@ body {
         font-weight: 700 !important;
         color: #2c3e50 !important;
         line-height: 1 !important;
-        display: flex !important;
-        align-items: center !important;
     }
     
     .stat-card .stat-content p {
@@ -1201,12 +1214,9 @@ body {
         margin: 0 !important;
         color: #6c757d !important;
         font-weight: 500 !important;
-        text-align: right !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
         line-height: 1.2 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: flex-end !important;
-        flex: 1 !important;
     }
     
     /* Ajustar botões dentro dos cards - mobile pequeno */
@@ -4472,6 +4482,14 @@ body {
     color: #fff;
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     flex-shrink: 0;
+    align-self: center;
+}
+
+.stat-icon i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
 }
 
 .stat-icon.active {
@@ -6035,6 +6053,12 @@ body {
         flex-direction: column;
         gap: 15px;
         align-items: stretch;
+        text-align: center;
+    }
+    
+    .section-header h3 {
+        text-align: center !important;
+        width: 100%;
     }
     
     .search-box {
@@ -6239,6 +6263,15 @@ body {
     justify-content: center;
     font-size: 24px;
     color: white;
+    align-self: center;
+    flex-shrink: 0;
+}
+
+.finance-stats .stat-icon i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
 }
 
 .finance-stats .stat-card.revenue .stat-icon {
@@ -7026,16 +7059,14 @@ body {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     position: relative;
     flex-shrink: 0;
+    align-self: center;
 }
 
 .agenda-stats .stat-icon i {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     display: flex;
     align-items: center;
     justify-content: center;
+    line-height: 1;
     width: 100%;
     height: 100%;
 }
@@ -7409,16 +7440,36 @@ body {
 
 .calendar-actions {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 20px;
+    justify-content: center;
+    gap: 10px;
+}
+
+.calendar-actions .btn {
+    padding: 6px 12px;
+    font-size: 13px;
+    min-width: auto;
+    flex: 0 0 auto;
+}
+
+.calendar-actions .btn#prev-month {
+    order: 1;
+}
+
+.calendar-actions .btn#next-month {
+    order: 2;
 }
 
 .current-month {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 600;
     color: #2c3e50;
-    min-width: 150px;
     text-align: center;
+    flex-basis: 100%;
+    order: 3;
+    margin: 5px 0;
+    width: 100%;
 }
 
 .calendar-container {
@@ -8103,11 +8154,36 @@ body {
     .appointment-card {
         flex-direction: column;
         text-align: center;
-        gap: 15px;
+        gap: 8px !important;
+        padding: 12px !important;
+    }
+    
+    .appointment-info h4 {
+        font-size: 14px !important;
+        margin-bottom: 6px !important;
+        gap: 5px !important;
+        line-height: 1.3 !important;
+    }
+    
+    .appointment-info h4 .appointment-status {
+        font-size: 11px !important;
+        padding: 2px 5px !important;
     }
     
     .appointment-details {
         justify-content: center;
+        gap: 4px !important;
+    }
+    
+    .appointment-detail-item {
+        font-size: 11px !important;
+        gap: 3px !important;
+        line-height: 1.3 !important;
+    }
+    
+    .appointment-detail-item i {
+        font-size: 10px !important;
+        width: 12px !important;
     }
     
     .appointment-status {
@@ -8118,20 +8194,247 @@ body {
     .appointment-actions {
         justify-content: center;
         flex-wrap: wrap;
+        gap: 5px !important;
+        margin-top: 5px !important;
+    }
+    
+    .appointment-actions .btn {
+        padding: 5px 10px !important;
+        font-size: 11px !important;
+        min-height: 32px !important;
+        height: auto !important;
+    }
+    
+    .appointment-actions .btn i {
+        font-size: 11px !important;
+    }
+    
+    .appointment-main-content {
+        gap: 8px !important;
+    }
+    
+    .appointments-list {
+        gap: 10px !important;
+    }
+    
+    /* Aplicar layout 2x3 aos filtros de histórico - mesmo padrão do filtro principal */
+    .history-section {
+        padding: 20px !important;
+    }
+    
+    .history-filters {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        grid-template-rows: auto auto auto !important;
+        gap: 10px !important;
+        align-items: stretch !important;
+        justify-items: stretch !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Primeira linha: selects (todos os tipos e todos os produtos) */
+    .history-filters select:first-child {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+    }
+    
+    .history-filters select:nth-child(2) {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+    }
+    
+    /* Segunda linha: inputs de data */
+    .history-filters input[type="date"]:first-of-type {
+        grid-column: 1 !important;
+        grid-row: 2 !important;
+    }
+    
+    .history-filters input[type="date"]:last-of-type {
+        grid-column: 2 !important;
+        grid-row: 2 !important;
+    }
+    
+    /* Terceira linha: botões Filtrar e Limpar */
+    .history-filters .btn:first-of-type {
+        grid-column: 1 !important;
+        grid-row: 3 !important;
+    }
+    
+    .history-filters .btn:last-of-type {
+        grid-column: 2 !important;
+        grid-row: 3 !important;
+    }
+    
+    /* Uniformizar tamanhos - mesmo padrão do filtro principal */
+    .history-filters select,
+    .history-filters input[type="date"],
+    .history-filters .btn {
+        height: 38px !important;
+        min-height: 38px !important;
+        padding: 8px 10px !important;
+        font-size: 13px !important;
+        border-radius: 6px !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+    }
+    
+    .history-filters .btn {
+        justify-content: center !important;
+        font-size: 13px !important;
+    }
+    
+    .history-filters .btn i {
+        font-size: 12px !important;
+    }
+    
+    /* Cards de histórico - mobile tablet */
+    .history-item {
+        padding: 12px !important;
+        margin-bottom: 10px !important;
+        border-radius: 8px !important;
+    }
+    
+    .history-item-header {
+        margin-bottom: 8px !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+    
+    .history-item-type {
+        padding: 4px 8px !important;
+        font-size: 10px !important;
+        gap: 4px !important;
+    }
+    
+    .history-item-date {
+        font-size: 11px !important;
+        margin-left: 0 !important;
+        width: 100% !important;
+        text-align: left !important;
+    }
+    
+    .history-item-content {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .history-item-info {
+        gap: 3px !important;
+    }
+    
+    .history-item-info h4 {
+        font-size: 13px !important;
+        line-height: 1.3 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+    
+    .history-item-info p {
+        font-size: 11px !important;
+        line-height: 1.3 !important;
+    }
+    
+    .history-item-quantity {
+        font-size: 14px !important;
+        text-align: right !important;
+        margin-top: 0 !important;
+        font-weight: 600 !important;
+    }
+    
+    .history-item-user {
+        font-size: 11px !important;
+        text-align: left !important;
+        margin-top: 2px !important;
+    }
+    
+    .history-item-reason,
+    .history-item-notes {
+        padding: 6px 10px !important;
+        margin-top: 6px !important;
+        border-radius: 6px !important;
+        font-size: 11px !important;
+        line-height: 1.3 !important;
+    }
+    
+    .history-item-reason strong,
+    .history-item-notes strong {
+        font-size: 11px !important;
     }
     
     .calendar-actions {
-        flex-direction: column;
-        gap: 10px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+    }
+    
+    .calendar-actions .btn {
+        padding: 5px 10px !important;
+        font-size: 12px !important;
+        min-width: auto !important;
+    }
+    
+    .calendar-actions .btn#prev-month {
+        order: 1 !important;
+    }
+    
+    .calendar-actions .btn#next-month {
+        order: 2 !important;
     }
     
     .current-month {
         min-width: auto;
+        flex-basis: 100%;
+        order: 3 !important;
+        margin-top: 5px;
+        font-size: 14px !important;
+    }
+    
+    .calendar-container {
+        padding: 10px !important;
+        margin-top: 10px !important;
+    }
+    
+    .calendar-grid {
+        gap: 0 !important;
+    }
+    
+    .calendar-header {
+        padding: 8px !important;
+        font-size: 11px !important;
     }
     
     .calendar-day {
-        min-height: 60px;
-        padding: 10px 5px;
+        min-height: 40px !important;
+        padding: 5px 3px !important;
+    }
+    
+    .calendar-day-number {
+        font-size: 13px !important;
+        margin-bottom: 2px !important;
+    }
+    
+    .calendar-appointments {
+        font-size: 8px !important;
+        line-height: 1.1 !important;
+    }
+    
+    .calendar-section {
+        padding: 15px !important;
+    }
+    
+    .calendar-section .section-header {
+        margin-bottom: 15px !important;
     }
     
     .agenda-actions {
@@ -8178,34 +8481,401 @@ body {
     }
     
     .appointment-card {
-        padding: 15px;
+        padding: 10px !important;
+        gap: 6px !important;
+    }
+    
+    .appointment-info h4 {
+        font-size: 13px !important;
+        margin-bottom: 4px !important;
+        gap: 4px !important;
+        line-height: 1.2 !important;
+    }
+    
+    .appointment-info h4 .appointment-status {
+        font-size: 10px !important;
+        padding: 2px 4px !important;
     }
     
     .appointment-details {
         flex-direction: column;
-        gap: 8px;
+        gap: 3px !important;
+    }
+    
+    .appointment-detail-item {
+        font-size: 10px !important;
+        gap: 3px !important;
+        line-height: 1.2 !important;
+    }
+    
+    .appointment-detail-item i {
+        font-size: 9px !important;
+        width: 10px !important;
+    }
+    
+    .appointment-detail-item span {
+        font-size: 10px !important;
     }
     
     .appointment-actions {
         flex-direction: column;
         width: 100%;
+        gap: 4px !important;
+        margin-top: 4px !important;
     }
     
     .appointment-actions .btn {
         width: 100%;
+        padding: 5px 10px !important;
+        font-size: 11px !important;
+        min-height: 30px !important;
+        height: auto !important;
+    }
+    
+    .appointment-actions .btn i {
+        font-size: 10px !important;
+    }
+    
+    .appointment-main-content {
+        gap: 6px !important;
+    }
+    
+    .appointments-list {
+        gap: 8px !important;
+    }
+    
+    /* Ajustar layout 2x2 para mobile pequeno - filtros de histórico */
+    .history-section {
+        padding: 15px !important;
+    }
+    
+    .history-filters {
+        gap: 6px !important;
+        justify-items: stretch !important;
+        margin: 0 auto !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .history-filters select,
+    .history-filters input[type="date"],
+    .history-filters .btn {
+        height: 35px !important;
+        min-height: 35px !important;
+        padding: 6px 8px !important;
+        font-size: 12px !important;
+        border-radius: 6px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+    }
+    
+    .history-filters .btn {
+        font-size: 12px !important;
+    }
+    
+    .history-filters .btn i {
+        font-size: 11px !important;
+    }
+    
+    /* Cards de histórico - mobile pequeno */
+    .history-item {
+        padding: 10px !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .history-item-header {
+        margin-bottom: 6px !important;
+        gap: 6px !important;
+    }
+    
+    .history-item-type {
+        padding: 3px 6px !important;
+        font-size: 9px !important;
+        gap: 3px !important;
+    }
+    
+    .history-item-type i {
+        font-size: 9px !important;
+    }
+    
+    .history-item-date {
+        font-size: 10px !important;
+    }
+    
+    .history-item-content {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 5px !important;
+        margin-bottom: 6px !important;
+    }
+    
+    .history-item-info {
+        gap: 2px !important;
+    }
+    
+    .history-item-info h4 {
+        font-size: 12px !important;
+        line-height: 1.2 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+    }
+    
+    .history-item-info p {
+        font-size: 10px !important;
+        line-height: 1.2 !important;
+    }
+    
+    .history-item-quantity {
+        font-size: 13px !important;
+        text-align: right !important;
+        margin-top: 0 !important;
+        font-weight: 600 !important;
+    }
+    
+    .history-item-user {
+        font-size: 10px !important;
+        margin-top: 2px !important;
+    }
+    
+    .history-item-reason,
+    .history-item-notes {
+        padding: 5px 8px !important;
+        margin-top: 5px !important;
+        font-size: 10px !important;
+        line-height: 1.2 !important;
+    }
+    
+    .history-item-reason strong,
+    .history-item-notes strong {
+        font-size: 10px !important;
+    }
+    
+    .calendar-container {
+        padding: 8px !important;
+        margin-top: 8px !important;
+    }
+    
+    .calendar-header {
+        padding: 6px !important;
+        font-size: 10px !important;
     }
     
     .calendar-day {
-        min-height: 50px;
-        padding: 8px 3px;
+        min-height: 35px !important;
+        padding: 3px 2px !important;
     }
     
     .calendar-day-number {
-        font-size: 12px;
+        font-size: 11px !important;
+        margin-bottom: 1px !important;
+        line-height: 1.2 !important;
     }
     
     .calendar-appointments {
-        font-size: 9px;
+        font-size: 7px !important;
+        line-height: 1 !important;
+    }
+    
+    .calendar-section {
+        padding: 10px !important;
+    }
+    
+    .calendar-section .section-header {
+        margin-bottom: 10px !important;
+    }
+    
+    .calendar-section .section-header h3 {
+        font-size: 16px !important;
+        margin-bottom: 5px !important;
+    }
+    
+    /* Ajustar botões de contatos para mobile */
+    .contacts-actions {
+        flex-direction: column !important;
+        gap: 10px !important;
+        align-items: stretch !important;
+    }
+    
+    .contacts-actions .btn {
+        padding: 8px 12px !important;
+        font-size: 13px !important;
+        width: 100% !important;
+        justify-content: center !important;
+    }
+    
+    .contacts-actions .btn i {
+        font-size: 14px !important;
+        margin-right: 6px !important;
+    }
+    
+    /* Ajustar página pública para mobile */
+    .public-page-info i {
+        font-size: 2rem !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .public-page-info h3 {
+        font-size: 1.3rem !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .public-page-info p {
+        font-size: 0.9rem !important;
+        line-height: 1.4 !important;
+    }
+    
+    .public-page-actions {
+        flex-direction: column !important;
+        gap: 10px !important;
+        align-items: stretch !important;
+        margin-bottom: 20px !important;
+    }
+    
+    .public-page-actions .btn {
+        padding: 8px 16px !important;
+        font-size: 13px !important;
+        width: 100% !important;
+        justify-content: center !important;
+    }
+    
+    .public-page-actions .btn i {
+        font-size: 14px !important;
+    }
+    
+    .public-page-stats {
+        gap: 10px !important;
+        margin-top: 20px !important;
+    }
+    
+    .stat-item {
+        padding: 12px !important;
+    }
+    
+    .stat-item i {
+        font-size: 1.5rem !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .stat-item span {
+        font-size: 0.8rem !important;
+    }
+    
+    .config-section {
+        padding: 15px !important;
+    }
+    
+    .config-section h3 {
+        font-size: 18px !important;
+        text-align: center !important;
+    }
+    
+    /* Ajustar textos de empty-state para mobile */
+    .empty-state {
+        padding: 40px 20px !important;
+    }
+    
+    .empty-state i {
+        font-size: 48px !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .empty-state h3 {
+        font-size: 18px !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .empty-state p {
+        font-size: 14px !important;
+        line-height: 1.4 !important;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Ajustar botões de contatos para mobile pequeno */
+    .contacts-actions .btn {
+        padding: 6px 10px !important;
+        font-size: 12px !important;
+    }
+
+    .contacts-actions .btn i {
+        font-size: 13px !important;
+        margin-right: 5px !important;
+    }
+    
+    /* Ajustar página pública para mobile pequeno */
+    .public-page-info i {
+        font-size: 1.5rem !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .public-page-info h3 {
+        font-size: 1.1rem !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .public-page-info p {
+        font-size: 0.85rem !important;
+        line-height: 1.3 !important;
+    }
+    
+    .public-page-actions .btn {
+        padding: 6px 12px !important;
+        font-size: 12px !important;
+    }
+    
+    .public-page-actions .btn i {
+        font-size: 13px !important;
+    }
+    
+    .public-page-stats {
+        gap: 8px !important;
+        margin-top: 15px !important;
+    }
+    
+    .stat-item {
+        padding: 10px !important;
+    }
+    
+    .stat-item i {
+        font-size: 1.2rem !important;
+        margin-bottom: 5px !important;
+    }
+    
+    .stat-item span {
+        font-size: 0.75rem !important;
+    }
+    
+    .config-section {
+        padding: 10px !important;
+    }
+    
+    .config-section h3 {
+        font-size: 16px !important;
+        text-align: center !important;
+    }
+    
+    /* Ajustar textos de empty-state para mobile pequeno */
+    .empty-state {
+        padding: 30px 15px !important;
+    }
+    
+    .empty-state i {
+        font-size: 36px !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .empty-state h3 {
+        font-size: 16px !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .empty-state p {
+        font-size: 13px !important;
+        line-height: 1.3 !important;
     }
 }
 
@@ -9355,6 +10025,14 @@ body {
     color: white;
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     flex-shrink: 0;
+    align-self: center;
+}
+
+.reports-grid .stat-card .stat-icon i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
 }
 
 /* Ícones coloridos para cards de Agenda */
