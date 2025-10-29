@@ -8358,36 +8358,7 @@ let updateManager = {
         repo: 'CHStudio',
         branch: 'master'
     },
-    repositories: [
-        {
-            id: 'repo1',
-            name: 'Cliente A - Salão de Beleza',
-            url: 'https://github.com/cliente-a/salao-beleza',
-            status: 'online',
-            description: 'Sistema principal do Cliente A'
-        },
-        {
-            id: 'repo2',
-            name: 'Cliente B - Estética',
-            url: 'https://github.com/cliente-b/estetica',
-            status: 'online',
-            description: 'Sistema do Cliente B'
-        },
-        {
-            id: 'repo3',
-            name: 'Cliente C - Barbearia',
-            url: 'https://github.com/cliente-c/barbearia',
-            status: 'offline',
-            description: 'Sistema do Cliente C'
-        },
-        {
-            id: 'repo4',
-            name: 'Cliente D - Spa',
-            url: 'https://github.com/cliente-d/spa',
-            status: 'unknown',
-            description: 'Sistema do Cliente D'
-        }
-    ]
+    repositories: [] // Será preenchido com repositórios reais do GitHub
 };
 
 // Inicializar sistema de atualizações
@@ -8612,7 +8583,7 @@ async function showUpdateDetails(sha) {
     `;
     
     // Carregar lista de repositórios
-    loadRepositoriesList();
+    await loadRepositoriesList();
     
     // Atualizar botão de aplicar
     updateApplyButton();
@@ -8704,6 +8675,13 @@ function refreshUpdateList() {
     checkForUpdates();
 }
 
+// Atualizar lista de repositórios
+async function refreshRepositoriesList() {
+    console.log('🔄 Atualizando lista de repositórios...');
+    await loadRepositoriesList();
+    showNotification('Lista de repositórios atualizada!', 'success');
+}
+
 // Mostrar configurações de atualizações
 function showUpdateSettings() {
     const settings = prompt('Configurações do GitHub:\n\nOwner:', updateManager.githubConfig.owner) || updateManager.githubConfig.owner;
@@ -8750,16 +8728,67 @@ function showNotification(message, type = 'info') {
 // ===== FUNÇÕES DE GERENCIAMENTO DE REPOSITÓRIOS =====
 
 // Carregar lista de repositórios
-function loadRepositoriesList() {
+async function loadRepositoriesList() {
     const repoList = document.getElementById('repo-list');
     if (!repoList) return;
     
-    const repositoriesHTML = updateManager.repositories.map(repo => `
+    // Mostrar indicador de carregamento
+    repoList.innerHTML = `
+        <div class="loading-repositories">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Buscando repositórios do GitHub...</p>
+        </div>
+    `;
+    
+    try {
+        // Buscar repositórios reais do GitHub
+        const realRepositories = await fetchGitHubRepositories();
+        
+        // Combinar repositórios reais com os salvos localmente
+        const allRepositories = [...realRepositories, ...updateManager.repositories.filter(repo => 
+            !realRepositories.some(realRepo => realRepo.url === repo.url)
+        )];
+        
+        updateManager.repositories = allRepositories;
+        saveRepositories();
+        
+        // Renderizar lista
+        renderRepositoriesList(allRepositories);
+        
+    } catch (error) {
+        console.error('❌ Erro ao carregar repositórios:', error);
+        
+        // Fallback para repositórios salvos localmente
+        renderRepositoriesList(updateManager.repositories);
+        showNotification('Erro ao carregar repositórios do GitHub. Usando lista local.', 'warning');
+    }
+}
+
+// Renderizar lista de repositórios
+function renderRepositoriesList(repositories) {
+    const repoList = document.getElementById('repo-list');
+    if (!repoList) return;
+    
+    if (repositories.length === 0) {
+        repoList.innerHTML = `
+            <div class="no-repositories">
+                <i class="fas fa-folder-open"></i>
+                <p>Nenhum repositório encontrado</p>
+                <button class="btn btn-primary" onclick="showAddRepositoryModal()">
+                    <i class="fas fa-plus"></i> Adicionar Repositório
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    const repositoriesHTML = repositories.map(repo => `
         <div class="repo-item" data-repo-id="${repo.id}">
             <input type="checkbox" id="repo-${repo.id}" onchange="toggleRepositorySelection('${repo.id}')">
             <div class="repo-info">
                 <div class="repo-name">${repo.name}</div>
                 <div class="repo-url">${repo.url}</div>
+                ${repo.description ? `<div class="repo-description">${repo.description}</div>` : ''}
             </div>
             <div class="repo-status ${repo.status}">
                 <i class="fas fa-circle"></i>
@@ -8966,16 +8995,19 @@ function addRepository() {
 
 // Mostrar configurações de repositórios
 function showRepositorySettings() {
-    const settings = prompt('Configurações de Repositórios:\n\n1. Exportar lista atual\n2. Importar lista\n3. Limpar todos\n\nDigite o número da opção:', '1');
+    const settings = prompt('Configurações de Repositórios:\n\n1. Atualizar do GitHub\n2. Exportar lista atual\n3. Importar lista\n4. Limpar todos\n\nDigite o número da opção:', '1');
     
     switch(settings) {
         case '1':
-            exportRepositories();
+            refreshRepositoriesList();
             break;
         case '2':
-            importRepositories();
+            exportRepositories();
             break;
         case '3':
+            importRepositories();
+            break;
+        case '4':
             if (confirm('Tem certeza que deseja limpar todos os repositórios?')) {
                 clearAllRepositories();
             }
@@ -9088,6 +9120,52 @@ async function fetchCommitDetails(sha) {
         
     } catch (error) {
         console.error('❌ Erro ao buscar detalhes do commit:', error);
+        throw error;
+    }
+}
+
+// Buscar repositórios reais do GitHub
+async function fetchGitHubRepositories() {
+    const { owner } = updateManager.githubConfig;
+    const apiUrl = `https://api.github.com/users/${owner}/repos?sort=updated&per_page=20&type=all`;
+    
+    try {
+        console.log('🔍 Buscando repositórios do GitHub:', apiUrl);
+        
+        const response = await fetch(apiUrl, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/vnd.github.v3+json',
+                'User-Agent': 'CHStudio-UpdateManager/1.0'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+        }
+        
+        const repositories = await response.json();
+        
+        // Transformar dados da API para o formato esperado
+        const formattedRepositories = repositories.map((repo, index) => ({
+            id: `github-${repo.id}`,
+            name: repo.name,
+            url: repo.html_url,
+            description: repo.description || 'Sem descrição',
+            status: 'online', // Assumir online se está no GitHub
+            isPrivate: repo.private,
+            language: repo.language,
+            stars: repo.stargazers_count,
+            forks: repo.forks_count,
+            updatedAt: repo.updated_at,
+            createdAt: repo.created_at
+        }));
+        
+        console.log(`✅ Encontrados ${formattedRepositories.length} repositórios do GitHub`);
+        return formattedRepositories;
+        
+    } catch (error) {
+        console.error('❌ Erro ao buscar repositórios do GitHub:', error);
         throw error;
     }
 }
