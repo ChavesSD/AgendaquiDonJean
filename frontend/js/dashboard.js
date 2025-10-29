@@ -476,7 +476,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Carregar dados específicos da aba
                 if (targetTab === 'contatos') {
-                    dashboard.loadContacts();
+                    if (dashboardManager) {
+                        dashboardManager.loadContacts();
+                    } else {
+                        console.error('DashboardManager não está inicializado');
+                    }
                 }
                 
                 // Inicializar AgendaManager quando a aba de agenda for ativada
@@ -6712,10 +6716,10 @@ class ReportsManager {
                     </div>
                 </div>
                 <div class="contact-actions">
-                    <button class="btn btn-sm btn-primary" onclick="dashboard.editContact('${contact._id}')">
+                    <button class="btn btn-sm btn-primary" onclick="dashboardManager.editContact('${contact._id}')">
                         <i class="fas fa-pen"></i>
                     </button>
-                    <button class="btn btn-sm btn-danger" onclick="dashboard.deleteContact('${contact._id}')">
+                    <button class="btn btn-sm btn-danger" onclick="dashboardManager.deleteContact('${contact._id}')">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
@@ -6740,7 +6744,7 @@ class ReportsManager {
         // Botão anterior
         if (pagination.page > 1) {
             paginationHTML += `
-                <button class="btn btn-sm" onclick="dashboard.loadContacts(${pagination.page - 1})">
+                <button class="btn btn-sm" onclick="dashboardManager.loadContacts(${pagination.page - 1})">
                     <i class="fas fa-chevron-left"></i>
                 </button>
             `;
@@ -6753,7 +6757,7 @@ class ReportsManager {
         for (let i = startPage; i <= endPage; i++) {
             paginationHTML += `
                 <button class="btn btn-sm ${i === pagination.page ? 'active' : ''}" 
-                        onclick="dashboard.loadContacts(${i})">
+                        onclick="dashboardManager.loadContacts(${i})">
                     ${i}
                 </button>
             `;
@@ -6762,7 +6766,7 @@ class ReportsManager {
         // Botão próximo
         if (pagination.page < pagination.pages) {
             paginationHTML += `
-                <button class="btn btn-sm" onclick="dashboard.loadContacts(${pagination.page + 1})">
+                <button class="btn btn-sm" onclick="dashboardManager.loadContacts(${pagination.page + 1})">
                     <i class="fas fa-chevron-right"></i>
                 </button>
             `;
@@ -6837,7 +6841,7 @@ class ReportsManager {
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
-                    <button class="btn btn-primary" onclick="dashboard.saveContact('${contact?._id || ''}')">
+                    <button class="btn btn-primary" onclick="dashboardManager.saveContact('${contact?._id || ''}')">
                         ${contact ? 'Atualizar' : 'Salvar'}
                     </button>
                 </div>
@@ -8329,3 +8333,13 @@ function applyColorToElements(color, type) {
         });
     }
 }
+
+// Criar variável global dashboard para compatibilidade
+window.dashboard = null;
+
+// Atualizar referência global quando dashboardManager for criado
+const originalInitDashboard = initDashboard;
+initDashboard = function() {
+    originalInitDashboard();
+    window.dashboard = dashboardManager;
+};

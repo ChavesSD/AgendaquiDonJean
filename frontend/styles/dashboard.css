@@ -13337,6 +13337,11 @@ body {
     .upload-actions {
         flex-direction: column;
     }
+    
+    /* Ocultar dropdown "Personalizado" em mobile */
+    #reports-period {
+        display: none !important;
+    }
 }
 
 
