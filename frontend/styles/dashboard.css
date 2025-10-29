@@ -10793,6 +10793,7 @@ body {
 
 .appointment-details {
     display: flex;
+    flex-direction: row;
     gap: 12px;
     margin-top: 4px;
     justify-content: center;
@@ -10809,7 +10810,9 @@ body {
     padding: 4px 8px;
     border-radius: 6px;
     text-align: center;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     white-space: nowrap;
     flex-shrink: 0;
 }
