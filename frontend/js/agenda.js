@@ -25,11 +25,13 @@ class AgendaManager {
 
     async init() {
         this.setupEventListeners();
+        this.setupDateFilters();
+        this.populateDateInputs();
         await this.loadProfessionals();
         await this.loadServices();
         await this.loadAppointments();
         await this.loadStatistics();
-        this.setupDateFilters();
+        // Garantir que os inputs sejam preenchidos novamente após carregar
         this.populateDateInputs();
     }
 
@@ -78,8 +80,21 @@ class AgendaManager {
 
     populateDateInputs() {
         // Preencher os campos de data com os filtros atuais
-        document.getElementById('agenda-date-from').value = this.filters.startDate;
-        document.getElementById('agenda-date-to').value = this.filters.endDate;
+        const dateFromInput = document.getElementById('agenda-date-from');
+        const dateToInput = document.getElementById('agenda-date-to');
+        
+        if (dateFromInput && dateToInput) {
+            console.log('📅 Preenchendo campos de data:', {
+                startDate: this.filters.startDate,
+                endDate: this.filters.endDate
+            });
+            dateFromInput.value = this.filters.startDate;
+            dateToInput.value = this.filters.endDate;
+        } else {
+            console.warn('⚠️ Campos de data não encontrados, tentando novamente...');
+            // Tentar novamente após um pequeno delay se os elementos não existirem
+            setTimeout(() => this.populateDateInputs(), 100);
+        }
     }
 
     async loadProfessionals() {
