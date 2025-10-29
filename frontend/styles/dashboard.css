@@ -8217,6 +8217,352 @@ body {
         gap: 10px !important;
     }
     
+    /* Modais - mobile tablet - padrão geral */
+    .modal {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        transform: none !important;
+        z-index: 99999 !important;
+    }
+    
+    .modal.show {
+        display: flex !important;
+        align-items: flex-start !important;
+        justify-content: flex-start !important;
+        overflow: hidden !important;
+    }
+    
+    .modal-content {
+        max-width: none !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        min-width: 0 !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+        transform: none !important;
+        box-shadow: none !important;
+        box-sizing: border-box !important;
+    }
+    
+    .modal-header {
+        padding: 15px 20px !important;
+        position: sticky !important;
+        top: 0 !important;
+        background: white !important;
+        z-index: 10 !important;
+        border-bottom: 2px solid rgba(151, 87, 86, 0.1) !important;
+    }
+    
+    .modal-header h3 {
+        font-size: 18px !important;
+    }
+    
+    .modal-body {
+        padding: 15px !important;
+        max-height: calc(100vh - 140px) !important;
+        overflow-y: auto !important;
+        flex: 1 !important;
+    }
+    
+    .modal-body .form-row {
+        flex-direction: column !important;
+        gap: 0 !important;
+        margin-bottom: 15px !important;
+        width: 100% !important;
+    }
+    
+    .modal-body .form-group {
+        margin-bottom: 15px !important;
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    .modal-body label {
+        font-size: 13px !important;
+        margin-bottom: 6px !important;
+        font-weight: 600 !important;
+        display: block !important;
+        width: 100% !important;
+        text-align: left !important;
+    }
+    
+    .modal-body input[type="text"],
+    .modal-body input[type="email"],
+    .modal-body input[type="password"],
+    .modal-body input[type="number"],
+    .modal-body input[type="url"],
+    .modal-body input[type="date"],
+    .modal-body input[type="time"],
+    .modal-body select,
+    .modal-body textarea {
+        padding: 10px 12px !important;
+        font-size: 14px !important;
+        border-radius: 6px !important;
+        border: 1.5px solid #e1e5e9 !important;
+        margin-bottom: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        display: block !important;
+    }
+    
+    .modal-body textarea {
+        min-height: 60px !important;
+        resize: vertical !important;
+        width: 100% !important;
+    }
+    
+    .modal-actions,
+    .modal-footer {
+        padding: 15px 15px 20px 15px !important;
+        position: sticky !important;
+        bottom: 0 !important;
+        background: white !important;
+        z-index: 10 !important;
+        border-top: 2px solid rgba(151, 87, 86, 0.1) !important;
+        border-radius: 0 0 12px 12px !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        align-items: stretch !important;
+    }
+    
+    .modal-actions .btn,
+    .modal-footer .btn {
+        width: 100% !important;
+        padding: 10px !important;
+        font-size: 14px !important;
+        min-height: 40px !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    .close,
+    .modal-close,
+    .close-btn {
+        font-size: 28px !important;
+        padding: 5px !important;
+        color: #666 !important;
+        line-height: 1 !important;
+    }
+    
+    .close:hover,
+    .modal-close:hover,
+    .close-btn:hover {
+        color: var(--primary-color) !important;
+    }
+    
+    /* Photo upload para modais */
+    .photo-upload {
+        margin-bottom: 15px !important;
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+    
+    .photo-upload input[type="url"] {
+        padding: 10px 12px !important;
+        font-size: 13px !important;
+        margin-bottom: 8px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .photo-preview {
+        width: 80px !important;
+        height: 80px !important;
+        margin: 8px auto 0 auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    .photo-preview i {
+        font-size: 24px !important;
+        margin-bottom: 5px !important;
+    }
+    
+    .photo-preview span {
+        font-size: 10px !important;
+        padding: 0 5px !important;
+        text-align: center !important;
+        line-height: 1.2 !important;
+    }
+    
+    /* Prevenir scroll horizontal no body quando modal estiver aberto */
+    body.modal-open {
+        overflow: hidden !important;
+        position: fixed !important;
+        width: 100% !important;
+    }
+    
+    /* Estilos específicos do modal de produto (se necessário) */
+    
+    /* Estilos específicos adicionais podem ser adicionados aqui se necessário */
+    
+    #productModal .modal-header {
+        padding: 15px 20px !important;
+        position: sticky !important;
+        top: 0 !important;
+        background: white !important;
+        z-index: 10 !important;
+        border-bottom: 2px solid rgba(151, 87, 86, 0.1) !important;
+    }
+    
+    #productModal .modal-header h3 {
+        font-size: 18px !important;
+    }
+    
+    #productModal .modal-body {
+        padding: 15px !important;
+        max-height: calc(100vh - 140px) !important;
+        overflow-y: auto !important;
+    }
+    
+    #productModal .modal-body .form-row {
+        flex-direction: column !important;
+        gap: 0 !important;
+        margin-bottom: 15px !important;
+        width: 100% !important;
+    }
+    
+    #productModal .modal-body .form-group {
+        margin-bottom: 15px !important;
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    #productModal .modal-body label {
+        font-size: 13px !important;
+        margin-bottom: 6px !important;
+        font-weight: 600 !important;
+        display: block !important;
+        width: 100% !important;
+        text-align: left !important;
+    }
+    
+    #productModal .modal-body input[type="text"],
+    #productModal .modal-body input[type="email"],
+    #productModal .modal-body input[type="number"],
+    #productModal .modal-body input[type="url"],
+    #productModal .modal-body select,
+    #productModal .modal-body textarea {
+        padding: 10px 12px !important;
+        font-size: 14px !important;
+        border-radius: 6px !important;
+        border: 1.5px solid #e1e5e9 !important;
+        margin-bottom: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        display: block !important;
+    }
+    
+    #productModal .modal-body textarea {
+        min-height: 60px !important;
+        resize: vertical !important;
+        width: 100% !important;
+    }
+    
+    /* Photo upload container organizado */
+    #productModal .photo-upload {
+        margin-bottom: 15px !important;
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+    
+    #productModal .photo-upload input[type="url"] {
+        padding: 10px 12px !important;
+        font-size: 13px !important;
+        margin-bottom: 8px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Photo preview centralizado */
+    #productModal .photo-preview {
+        width: 80px !important;
+        height: 80px !important;
+        margin: 8px auto 0 auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    #productModal .photo-preview i {
+        font-size: 24px !important;
+        margin-bottom: 5px !important;
+    }
+    
+    #productModal .photo-preview span {
+        font-size: 10px !important;
+        padding: 0 5px !important;
+        text-align: center !important;
+        line-height: 1.2 !important;
+    }
+    
+    #productModal .modal-actions {
+        padding: 15px 15px 20px 15px !important;
+        position: sticky !important;
+        bottom: 0 !important;
+        background: white !important;
+        z-index: 10 !important;
+        border-top: 2px solid rgba(151, 87, 86, 0.1) !important;
+        border-radius: 0 0 12px 12px !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        align-items: stretch !important;
+    }
+    
+    #productModal .modal-actions .btn {
+        width: 100% !important;
+        padding: 10px !important;
+        font-size: 14px !important;
+        min-height: 40px !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    #productModal .close {
+        font-size: 28px !important;
+        padding: 5px !important;
+        color: #666 !important;
+        line-height: 1 !important;
+    }
+    
+    #productModal .close:hover {
+        color: var(--primary-color) !important;
+    }
+    
     /* Aplicar layout 2x3 aos filtros de histórico - mesmo padrão do filtro principal */
     .history-section {
         padding: 20px !important;
@@ -8542,6 +8888,318 @@ body {
     
     .appointments-list {
         gap: 8px !important;
+    }
+    
+    /* Modais - mobile pequeno - padrão geral */
+    .modal {
+        width: 100% !important;
+        height: 100% !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 99999 !important;
+    }
+    
+    .modal.show {
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+    }
+    
+    .modal-content {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: none !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        transform: none !important;
+        position: relative !important;
+        box-sizing: border-box !important;
+    }
+    
+    .modal-header {
+        padding: 12px 15px !important;
+    }
+    
+    .modal-header h3 {
+        font-size: 16px !important;
+    }
+    
+    .modal-body {
+        padding: 12px !important;
+        max-height: calc(100vh - 120px) !important;
+    }
+    
+    .modal-body .form-row {
+        margin-bottom: 12px !important;
+        width: 100% !important;
+    }
+    
+    .modal-body .form-group {
+        margin-bottom: 12px !important;
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    .modal-body label {
+        font-size: 12px !important;
+        margin-bottom: 5px !important;
+        display: block !important;
+        width: 100% !important;
+        text-align: left !important;
+    }
+    
+    .modal-body input[type="text"],
+    .modal-body input[type="email"],
+    .modal-body input[type="password"],
+    .modal-body input[type="number"],
+    .modal-body input[type="url"],
+    .modal-body input[type="date"],
+    .modal-body input[type="time"],
+    .modal-body select,
+    .modal-body textarea {
+        padding: 8px 10px !important;
+        font-size: 13px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        display: block !important;
+    }
+    
+    .modal-body textarea {
+        min-height: 50px !important;
+        width: 100% !important;
+    }
+    
+    .modal-actions,
+    .modal-footer {
+        padding: 12px 12px 18px 12px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        align-items: stretch !important;
+        border-radius: 0 0 10px 10px !important;
+        border-top: 2px solid rgba(151, 87, 86, 0.1) !important;
+    }
+    
+    .modal-actions .btn,
+    .modal-footer .btn {
+        padding: 8px !important;
+        font-size: 13px !important;
+        min-height: 38px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    .close,
+    .modal-close,
+    .close-btn {
+        font-size: 22px !important;
+        color: #666 !important;
+        line-height: 1 !important;
+    }
+    
+    .close:hover,
+    .modal-close:hover,
+    .close-btn:hover {
+        color: var(--primary-color) !important;
+    }
+    
+    /* Photo upload mobile pequeno */
+    .photo-upload {
+        margin-bottom: 12px !important;
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+    
+    .photo-upload input[type="url"] {
+        padding: 8px 10px !important;
+        font-size: 12px !important;
+        margin-bottom: 6px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .photo-preview {
+        width: 70px !important;
+        height: 70px !important;
+        margin: 6px auto 0 auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    .photo-preview i {
+        font-size: 20px !important;
+        margin-bottom: 4px !important;
+    }
+    
+    .photo-preview span {
+        font-size: 9px !important;
+        text-align: center !important;
+        line-height: 1.2 !important;
+    }
+    
+    /* Modal de produto - mobile pequeno */
+    #productModal.modal {
+        width: 100% !important;
+        height: 100% !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 99999 !important;
+    }
+    
+    #productModal.modal.show {
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+    }
+    
+    #productModal .modal-content {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: none !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        transform: none !important;
+        position: relative !important;
+        box-sizing: border-box !important;
+    }
+    
+    #productModal .modal-header {
+        padding: 12px 15px !important;
+    }
+    
+    #productModal .modal-header h3 {
+        font-size: 16px !important;
+    }
+    
+    #productModal .modal-body {
+        padding: 12px !important;
+        max-height: calc(100vh - 120px) !important;
+    }
+    
+    #productModal .modal-body .form-row {
+        margin-bottom: 12px !important;
+        width: 100% !important;
+    }
+    
+    #productModal .modal-body .form-group {
+        margin-bottom: 12px !important;
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    #productModal .modal-body label {
+        font-size: 12px !important;
+        margin-bottom: 5px !important;
+        display: block !important;
+        width: 100% !important;
+        text-align: left !important;
+    }
+    
+    #productModal .modal-body input[type="text"],
+    #productModal .modal-body input[type="email"],
+    #productModal .modal-body input[type="number"],
+    #productModal .modal-body input[type="url"],
+    #productModal .modal-body select,
+    #productModal .modal-body textarea {
+        padding: 8px 10px !important;
+        font-size: 13px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        display: block !important;
+    }
+    
+    #productModal .modal-body textarea {
+        min-height: 50px !important;
+        width: 100% !important;
+    }
+    
+    /* Photo upload container organizado */
+    #productModal .photo-upload {
+        margin-bottom: 12px !important;
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+    
+    #productModal .photo-upload input[type="url"] {
+        padding: 8px 10px !important;
+        font-size: 12px !important;
+        margin-bottom: 6px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Photo preview centralizado */
+    #productModal .photo-preview {
+        width: 70px !important;
+        height: 70px !important;
+        margin: 6px auto 0 auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    #productModal .photo-preview i {
+        font-size: 20px !important;
+        margin-bottom: 4px !important;
+    }
+    
+    #productModal .photo-preview span {
+        font-size: 9px !important;
+        text-align: center !important;
+        line-height: 1.2 !important;
+    }
+    
+    #productModal .modal-actions {
+        padding: 12px 12px 18px 12px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        align-items: stretch !important;
+        border-radius: 0 0 10px 10px !important;
+        border-top: 2px solid rgba(151, 87, 86, 0.1) !important;
+    }
+    
+    #productModal .modal-actions .btn {
+        padding: 8px !important;
+        font-size: 13px !important;
+        min-height: 38px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    #productModal .close {
+        font-size: 22px !important;
+        color: #666 !important;
+        line-height: 1 !important;
+    }
+    
+    #productModal .close:hover {
+        color: var(--primary-color) !important;
     }
     
     /* Ajustar layout 2x2 para mobile pequeno - filtros de histórico */
