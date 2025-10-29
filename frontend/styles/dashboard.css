@@ -313,8 +313,15 @@ body {
 
 /* Container do botão de instalação */
 .pwa-install-container {
-    display: flex;
+    display: none !important; /* Oculto por padrão (desktop) */
     align-items: center;
+}
+
+/* Garantir que fique oculto em desktop mesmo com JS */
+@media (min-width: 769px) {
+    .pwa-install-container {
+        display: none !important;
+    }
 }
 
 .pwa-install-btn {
@@ -335,6 +342,10 @@ body {
 }
 
 @media (max-width: 768px) {
+    .pwa-install-container {
+        display: flex !important; /* Exibido apenas em tablet/mobile */
+    }
+    
     .pwa-install-text {
         display: none;
     }
@@ -10803,17 +10814,27 @@ body {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    align-items: center;
+    justify-content: center;
 }
 
 .ranking-item {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
     padding: 16px;
     background: rgba(151, 87, 86, 0.05);
     border-radius: 12px;
     border: 1px solid var(--primary-color-10);
     transition: all 0.3s ease;
+}
+
+/* Container para ícone de ranking e foto do profissional */
+.ranking-item .ranking-position-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
 }
 
 .ranking-item:hover {
@@ -10833,6 +10854,7 @@ body {
     color: white;
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     position: relative;
+    flex-shrink: 0;
 }
 
 /* Medalhas para os top 3 */
@@ -10904,8 +10926,8 @@ body {
 
 /* Foto do profissional */
 .professional-photo {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     overflow: hidden;
     border: 2px solid rgba(151, 87, 86, 0.2);
@@ -10913,6 +10935,7 @@ body {
     align-items: center;
     justify-content: center;
     background: var(--primary-color-10);
+    flex-shrink: 0;
 }
 
 .professional-photo img {
