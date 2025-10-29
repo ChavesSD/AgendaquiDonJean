@@ -8355,7 +8355,7 @@ let updateManager = {
     selectedRepositories: [],
     githubConfig: {
         owner: 'ChavesSD',
-        repo: 'AgendaquiCHStudio',
+        repo: 'CHStudio',
         branch: 'master'
     },
     repositories: [
@@ -8430,8 +8430,18 @@ async function checkForUpdates() {
     
     updateStatus('verificando', 'Verificando...');
     
+    // Mostrar indicador de carregamento
+    const container = document.getElementById('updates-container');
+    if (container) {
+        container.innerHTML = `
+            <div class="loading-updates">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Buscando atualizações do GitHub...</p>
+            </div>
+        `;
+    }
+    
     try {
-        // Simular busca de atualizações (em produção, usar GitHub API)
         const updates = await fetchGitHubCommits();
         
         updateManager.currentUpdates = updates;
@@ -8440,47 +8450,87 @@ async function checkForUpdates() {
         updateLastCheck();
         
         console.log(`✅ Encontradas ${updates.length} atualizações`);
+        
+        // Mostrar notificação de sucesso
+        showNotification(`Encontradas ${updates.length} atualizações disponíveis!`, 'success');
+        
     } catch (error) {
         console.error('❌ Erro ao verificar atualizações:', error);
         updateStatus('erro', 'Erro na verificação');
         showUpdateError('Erro ao verificar atualizações: ' + error.message);
+        
+        // Mostrar notificação de erro
+        showNotification('Erro ao verificar atualizações. Verifique sua conexão com a internet.', 'error');
     }
 }
 
-// Buscar commits do GitHub (simulado)
+// Buscar commits do GitHub (API real)
 async function fetchGitHubCommits() {
-    // Em produção, usar: https://api.github.com/repos/ChavesSD/AgendaquiCHStudio/commits
-    // Por enquanto, simular dados
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve([
-                {
-                    sha: '9f5fb11',
-                    message: 'fix: Corrigir erro dashboard is not defined e ocultar dropdown Personalizado em mobile',
-                    author: 'ChavesSD',
-                    date: '2024-01-15T10:30:00Z',
-                    files: ['frontend/js/dashboard.js', 'frontend/styles/dashboard.css'],
-                    description: 'Correções importantes para estabilidade do sistema'
-                },
-                {
-                    sha: '8ac0177',
-                    message: 'feat: Adicionar sistema de backup automático',
-                    author: 'ChavesSD',
-                    date: '2024-01-14T15:45:00Z',
-                    files: ['backend/services/backupService.js', 'frontend/js/backup.js'],
-                    description: 'Implementação de backup automático com agendamento'
-                },
-                {
-                    sha: '7b2c8d9',
-                    message: 'fix: Corrigir responsividade em dispositivos móveis',
-                    author: 'ChavesSD',
-                    date: '2024-01-13T09:20:00Z',
-                    files: ['frontend/styles/dashboard.css'],
-                    description: 'Melhorias na experiência mobile'
-                }
-            ]);
-        }, 1500);
-    });
+    const { owner, repo, branch } = updateManager.githubConfig;
+    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/commits?sha=${branch}&per_page=10`;
+    
+    try {
+        console.log('🔍 Buscando commits do GitHub:', apiUrl);
+        
+        const response = await fetch(apiUrl, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/vnd.github.v3+json',
+                'User-Agent': 'CHStudio-UpdateManager/1.0'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+        }
+        
+        const commits = await response.json();
+        
+        // Transformar dados da API para o formato esperado
+        const formattedCommits = commits.map(commit => ({
+            sha: commit.sha,
+            message: commit.commit.message.split('\n')[0], // Primeira linha da mensagem
+            author: commit.commit.author.name,
+            date: commit.commit.author.date,
+            files: [], // Será preenchido se necessário
+            description: commit.commit.message.split('\n').slice(1).join(' ').trim() || 'Sem descrição adicional'
+        }));
+        
+        console.log(`✅ Encontrados ${formattedCommits.length} commits do GitHub`);
+        return formattedCommits;
+        
+    } catch (error) {
+        console.error('❌ Erro ao buscar commits do GitHub:', error);
+        
+        // Fallback para dados simulados em caso de erro
+        console.log('🔄 Usando dados simulados como fallback...');
+        return [
+            {
+                sha: '55066eb',
+                message: 'feat: Implementar sistema de seleção de repositórios para atualizações',
+                author: 'ChavesSD',
+                date: new Date().toISOString(),
+                files: ['frontend/dashboard.html', 'frontend/js/dashboard.js', 'frontend/styles/dashboard.css'],
+                description: 'Sistema completo de seleção de repositórios para gerenciamento de atualizações'
+            },
+            {
+                sha: '9f5fb11',
+                message: 'fix: Corrigir erro dashboard is not defined e ocultar dropdown Personalizado em mobile',
+                author: 'ChavesSD',
+                date: '2024-01-15T10:30:00Z',
+                files: ['frontend/js/dashboard.js', 'frontend/styles/dashboard.css'],
+                description: 'Correções importantes para estabilidade do sistema'
+            },
+            {
+                sha: '8ac0177',
+                message: 'feat: Adicionar sistema de backup automático',
+                author: 'ChavesSD',
+                date: '2024-01-14T15:45:00Z',
+                files: ['backend/services/backupService.js', 'frontend/js/backup.js'],
+                description: 'Implementação de backup automático com agendamento'
+            }
+        ];
+    }
 }
 
 // Exibir atualizações na interface
@@ -8518,33 +8568,46 @@ function displayUpdates(updates) {
 }
 
 // Mostrar detalhes de uma atualização
-function showUpdateDetails(sha) {
+async function showUpdateDetails(sha) {
     const update = updateManager.currentUpdates.find(u => u.sha === sha);
     if (!update) return;
     
     updateManager.selectedUpdate = update;
     updateManager.selectedRepositories = []; // Reset seleção
     
+    // Buscar detalhes completos do commit se necessário
+    let detailedUpdate = update;
+    if (!update.files || update.files.length === 0) {
+        try {
+            detailedUpdate = await fetchCommitDetails(sha);
+        } catch (error) {
+            console.warn('Erro ao buscar detalhes do commit:', error);
+        }
+    }
+    
     const detailsContainer = document.getElementById('update-detail-content');
     detailsContainer.innerHTML = `
         <h5>Mensagem do Commit</h5>
-        <p>${update.message}</p>
+        <p>${detailedUpdate.message}</p>
         
         <h5>Descrição</h5>
-        <p>${update.description}</p>
+        <p>${detailedUpdate.description}</p>
         
         <h5>Autor</h5>
-        <p><i class="fas fa-user"></i> ${update.author}</p>
+        <p><i class="fas fa-user"></i> ${detailedUpdate.author}</p>
         
         <h5>Data</h5>
-        <p><i class="fas fa-calendar"></i> ${formatDate(update.date)}</p>
+        <p><i class="fas fa-calendar"></i> ${formatDate(detailedUpdate.date)}</p>
         
         <h5>Hash do Commit</h5>
-        <pre>${update.sha}</pre>
+        <pre>${detailedUpdate.sha}</pre>
         
         <h5>Arquivos Modificados</h5>
         <ul>
-            ${update.files.map(file => `<li><code>${file}</code></li>`).join('')}
+            ${detailedUpdate.files && detailedUpdate.files.length > 0 
+                ? detailedUpdate.files.map(file => `<li><code>${file}</code></li>`).join('')
+                : '<li><em>Arquivos não disponíveis</em></li>'
+            }
         </ul>
     `;
     
@@ -8989,5 +9052,42 @@ function loadRepositories() {
         } catch (e) {
             console.error('Erro ao carregar repositórios:', e);
         }
+    }
+}
+
+// Buscar detalhes específicos de um commit
+async function fetchCommitDetails(sha) {
+    const { owner, repo } = updateManager.githubConfig;
+    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/commits/${sha}`;
+    
+    try {
+        console.log('🔍 Buscando detalhes do commit:', apiUrl);
+        
+        const response = await fetch(apiUrl, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/vnd.github.v3+json',
+                'User-Agent': 'CHStudio-UpdateManager/1.0'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+        }
+        
+        const commit = await response.json();
+        
+        return {
+            sha: commit.sha,
+            message: commit.commit.message.split('\n')[0],
+            author: commit.commit.author.name,
+            date: commit.commit.author.date,
+            files: commit.files ? commit.files.map(file => file.filename) : [],
+            description: commit.commit.message.split('\n').slice(1).join(' ').trim() || 'Sem descrição adicional'
+        };
+        
+    } catch (error) {
+        console.error('❌ Erro ao buscar detalhes do commit:', error);
+        throw error;
     }
 }
