@@ -8355,7 +8355,7 @@ let updateManager = {
     selectedRepositories: [],
     githubConfig: {
         owner: 'ChavesSD',
-        repo: 'CHStudio',
+        repo: 'AgendaquiCHStudio',
         branch: 'master'
     },
     repositories: [] // Será preenchido com repositórios reais do GitHub
@@ -8370,7 +8370,7 @@ function initUpdateManagement() {
     if (savedConfig) {
         try {
             const config = JSON.parse(savedConfig);
-            if (config.repo === 'AgendaquiCHStudio' || config.owner !== 'ChavesSD') {
+            if (config.repo !== 'AgendaquiCHStudio' || config.owner !== 'ChavesSD') {
                 console.log('🧹 Limpando configuração incorreta do localStorage...');
                 localStorage.removeItem('updateManagerConfig');
             }
@@ -8401,12 +8401,12 @@ function loadUpdateSettings() {
             // Forçar configuração correta do repositório
             updateManager.githubConfig = { 
                 owner: 'ChavesSD',
-                repo: 'CHStudio',
+                repo: 'AgendaquiCHStudio',
                 branch: 'master',
                 ...config 
             };
-            // Garantir que o repositório seja sempre CHStudio
-            updateManager.githubConfig.repo = 'CHStudio';
+            // Garantir que o repositório seja sempre AgendaquiCHStudio
+            updateManager.githubConfig.repo = 'AgendaquiCHStudio';
             updateManager.githubConfig.owner = 'ChavesSD';
             updateManager.githubConfig.branch = 'master';
         } catch (e) {
@@ -8414,7 +8414,7 @@ function loadUpdateSettings() {
             // Usar configuração padrão em caso de erro
             updateManager.githubConfig = {
                 owner: 'ChavesSD',
-                repo: 'CHStudio',
+                repo: 'AgendaquiCHStudio',
                 branch: 'master'
             };
         }
@@ -8422,7 +8422,7 @@ function loadUpdateSettings() {
         // Usar configuração padrão se não houver configuração salva
         updateManager.githubConfig = {
             owner: 'ChavesSD',
-            repo: 'CHStudio',
+            repo: 'AgendaquiCHStudio',
             branch: 'master'
         };
     }
