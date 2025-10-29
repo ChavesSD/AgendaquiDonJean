@@ -8452,6 +8452,9 @@ async function fetchGitHubCommits() {
         });
         
         if (!response.ok) {
+            if (response.status === 404) {
+                throw new Error(`Repositório não encontrado ou privado: ${owner}/${repo}. Verifique se o repositório existe e é público, ou configure autenticação.`);
+            }
             throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
         }
         
@@ -8473,14 +8476,38 @@ async function fetchGitHubCommits() {
     } catch (error) {
         console.error('❌ Erro ao buscar commits do GitHub:', error);
         
+        // Verificar se é erro de repositório privado
+        if (error.message.includes('privado') || error.message.includes('404')) {
+            console.log('🔒 Repositório privado detectado. Usando dados simulados...');
+            showNotification('Repositório privado detectado. Configure autenticação ou torne o repositório público para buscar atualizações reais.', 'warning');
+        } else {
+            console.log('🔄 Usando dados simulados como fallback...');
+            showNotification('Erro ao conectar com GitHub. Usando dados simulados.', 'warning');
+        }
+        
         // Fallback para dados simulados em caso de erro
-        console.log('🔄 Usando dados simulados como fallback...');
         return [
+            {
+                sha: '9ef7a78',
+                message: 'fix: Corrigir nome do repositório para AgendaquiCHStudio',
+                author: 'ChavesSD',
+                date: new Date().toISOString(),
+                files: ['frontend/js/dashboard.js'],
+                description: 'Corrigir erro 404 ao buscar commits do GitHub'
+            },
+            {
+                sha: '142a6ad',
+                message: 'feat: Implementar busca de repositórios reais do GitHub',
+                author: 'ChavesSD',
+                date: new Date(Date.now() - 60000).toISOString(),
+                files: ['frontend/js/dashboard.js', 'frontend/styles/dashboard.css'],
+                description: 'Sistema completo de seleção de repositórios para gerenciamento de atualizações'
+            },
             {
                 sha: '55066eb',
                 message: 'feat: Implementar sistema de seleção de repositórios para atualizações',
                 author: 'ChavesSD',
-                date: new Date().toISOString(),
+                date: new Date(Date.now() - 120000).toISOString(),
                 files: ['frontend/dashboard.html', 'frontend/js/dashboard.js', 'frontend/styles/dashboard.css'],
                 description: 'Sistema completo de seleção de repositórios para gerenciamento de atualizações'
             },
@@ -8491,14 +8518,6 @@ async function fetchGitHubCommits() {
                 date: '2024-01-15T10:30:00Z',
                 files: ['frontend/js/dashboard.js', 'frontend/styles/dashboard.css'],
                 description: 'Correções importantes para estabilidade do sistema'
-            },
-            {
-                sha: '8ac0177',
-                message: 'feat: Adicionar sistema de backup automático',
-                author: 'ChavesSD',
-                date: '2024-01-14T15:45:00Z',
-                files: ['backend/services/backupService.js', 'frontend/js/backup.js'],
-                description: 'Implementação de backup automático com agendamento'
             }
         ];
     }
@@ -8721,8 +8740,77 @@ function formatDate(dateString) {
 
 // Mostrar notificação
 function showNotification(message, type = 'info') {
-    // Implementar sistema de notificações se não existir
+    // Implementar sistema de notificações visual
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas fa-${getNotificationIcon(type)}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    // Adicionar estilos se não existirem
+    if (!document.getElementById('notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            .notification {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 600;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+                max-width: 400px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            }
+            .notification-success { background: #28a745; }
+            .notification-error { background: #dc3545; }
+            .notification-warning { background: #ffc107; color: #212529; }
+            .notification-info { background: #17a2b8; }
+            .notification-content {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(notification);
+    
+    // Remover após 5 segundos
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.style.animation = 'slideIn 0.3s ease reverse';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 300);
+        }
+    }, 5000);
+    
     console.log(`[${type.toUpperCase()}] ${message}`);
+}
+
+// Obter ícone da notificação
+function getNotificationIcon(type) {
+    const icons = {
+        'success': 'check-circle',
+        'error': 'exclamation-circle',
+        'warning': 'exclamation-triangle',
+        'info': 'info-circle'
+    };
+    return icons[type] || 'info-circle';
 }
 
 // ===== FUNÇÕES DE GERENCIAMENTO DE REPOSITÓRIOS =====
