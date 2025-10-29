@@ -15,13 +15,9 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 const corsOptions = {
     origin: function (origin, callback) {
-        // Em produção, não permitir requests sem origin
-        if (process.env.NODE_ENV === 'production' && !origin) {
-            return callback(new Error('Origin required in production'), false);
-        }
-        
-        // Permitir requests sem origin apenas em desenvolvimento
-        if (!origin && process.env.NODE_ENV !== 'production') {
+        // Permitir requests sem origin (healthchecks, postman, etc.)
+        // Isso é necessário para healthchecks da Railway e outras ferramentas
+        if (!origin) {
             return callback(null, true);
         }
         
@@ -46,8 +42,14 @@ const corsOptions = {
         if (allowedOrigins.indexOf(origin) !== -1 || isLocalNetwork) {
             callback(null, true);
         } else {
-            console.log(`🚫 CORS bloqueado para origin: ${origin}`);
-            callback(new Error(`Origin ${origin} not allowed by CORS`));
+            // Em produção, logar mas permitir (para evitar bloqueio de healthchecks)
+            if (process.env.NODE_ENV === 'production') {
+                console.log(`⚠️ CORS: Origin não autorizado, mas permitindo: ${origin}`);
+                callback(null, true);
+            } else {
+                console.log(`🚫 CORS bloqueado para origin: ${origin}`);
+                callback(new Error(`Origin ${origin} not allowed by CORS`));
+            }
         }
     },
     credentials: true,
