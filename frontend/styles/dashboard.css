@@ -8117,6 +8117,7 @@ body {
     gap: 10px;
     transition: all 0.3s ease;
     position: relative;
+    width: 100%;
 }
 
 .appointment-card:hover {
@@ -8156,6 +8157,7 @@ body {
 .appointment-info {
     flex: 1;
     min-width: 0;
+    width: 100%;
 }
 
 .appointment-info h4 {
@@ -8165,9 +8167,10 @@ body {
     margin: 0 0 8px 0;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     flex-wrap: wrap;
     gap: 10px;
+    width: 100%;
 }
 
 .appointment-info h4 .appointment-status {
@@ -8205,6 +8208,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    width: 100%;
+    align-items: center;
 }
 
 /* Grid de informações principais - empilhado verticalmente */
@@ -8212,18 +8217,22 @@ body {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    align-items: center;
+    width: 100%;
 }
 
 .appointment-detail-item {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     padding: 6px 10px;
     background: rgba(151, 87, 86, 0.05);
     border-radius: 6px;
     font-size: 14px;
     transition: background 0.3s ease;
-    width: 100%;
+    width: auto;
+    max-width: 100%;
     box-sizing: border-box;
 }
 
@@ -8242,7 +8251,7 @@ body {
 .appointment-detail-item span {
     color: #2c3e50;
     font-weight: 500;
-    flex: 1;
+    text-align: center;
 }
 
 /* Notas do agendamento (se houver) */
@@ -8970,8 +8979,8 @@ body {
         text-align: center;
         gap: 15px;
         padding: 20px;
-        margin: 0 auto 15px auto;
-        max-width: 100%;
+        margin: 0 0 15px 0;
+        width: 100%;
     }
     
     .appointment-main-content {
