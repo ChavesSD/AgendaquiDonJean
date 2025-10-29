@@ -9070,6 +9070,8 @@ body {
         padding: 15px !important;
         max-height: calc(100vh - 140px) !important;
         overflow-y: auto !important;
+        flex: 1 !important;
+        padding-bottom: 100px !important;
     }
     
     #productModal .modal-body .form-row {
@@ -9158,18 +9160,21 @@ body {
     
     #productModal .modal-actions {
         padding: 15px 15px 20px 15px !important;
-        position: sticky !important;
+        position: fixed !important;
         bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
         background: white !important;
-        z-index: 10 !important;
+        z-index: 1000 !important;
         border-top: 2px solid rgba(151, 87, 86, 0.1) !important;
-        border-radius: 0 0 12px 12px !important;
+        border-radius: 0 !important;
         flex-direction: column !important;
         gap: 12px !important;
-        width: 100% !important;
         box-sizing: border-box !important;
         display: flex !important;
         align-items: stretch !important;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1) !important;
     }
     
     #productModal .modal-actions .btn {
@@ -9721,6 +9726,9 @@ body {
         transform: none !important;
         position: relative !important;
         box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
     }
     
     #productModal .modal-header {
@@ -9734,6 +9742,9 @@ body {
     #productModal .modal-body {
         padding: 12px !important;
         max-height: calc(100vh - 120px) !important;
+        flex: 1 !important;
+        overflow-y: auto !important;
+        padding-bottom: 90px !important;
     }
     
     #productModal .modal-body .form-row {
@@ -9820,8 +9831,15 @@ body {
         flex-direction: column !important;
         gap: 10px !important;
         align-items: stretch !important;
-        border-radius: 0 0 10px 10px !important;
+        border-radius: 0 !important;
         border-top: 2px solid rgba(151, 87, 86, 0.1) !important;
+        background: white !important;
+        z-index: 1000 !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1) !important;
     }
     
     #productModal .modal-actions .btn {
