@@ -340,13 +340,47 @@ body {
     }
     
     .pwa-install-btn {
-        padding: 8px 12px;
-        min-width: 45px;
+        padding: 6px 10px !important;
+        min-width: 36px !important;
+        width: 36px !important;
+        height: 36px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0 !important;
     }
     
     .pwa-install-btn i {
-        font-size: 18px;
-        margin: 0;
+        font-size: 14px !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .pwa-install-text {
+        display: none;
+    }
+    
+    .pwa-install-btn {
+        padding: 5px 8px !important;
+        min-width: 32px !important;
+        width: 32px !important;
+        height: 32px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0 !important;
+    }
+    
+    .pwa-install-btn i {
+        font-size: 13px !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
 }
 
@@ -6553,6 +6587,54 @@ body {
         border-radius: 10px !important;
     }
     
+    /* Cards de Agendamento - Tablet */
+    .appointment-card {
+        padding: 14px !important;
+        gap: 8px !important;
+    }
+    
+    .appointment-info h4 {
+        font-size: 18px !important;
+        margin-bottom: 6px !important;
+    }
+    
+    .appointment-info h4 .appointment-status {
+        font-size: 10px !important;
+        padding: 4px 8px !important;
+    }
+    
+    .appointment-main-content {
+        gap: 6px !important;
+    }
+    
+    .appointment-details {
+        flex-direction: column !important;
+        gap: 4px !important;
+    }
+    
+    .appointment-detail-item {
+        width: 100% !important;
+        padding: 5px 8px !important;
+        font-size: 13px !important;
+    }
+    
+    .appointment-detail-item i {
+        font-size: 13px !important;
+        width: 15px !important;
+    }
+    
+    .appointment-actions {
+        gap: 5px !important;
+        padding-top: 6px !important;
+        margin-top: 2px !important;
+        justify-content: center !important;
+    }
+    
+    .appointment-actions .btn {
+        flex: 1 !important;
+        min-width: 100px !important;
+    }
+    
     .product-card {
         flex-direction: column;
         text-align: center;
@@ -8016,12 +8098,12 @@ body {
 .appointment-card {
     background: rgba(255, 255, 255, 0.9);
     border-radius: 12px;
-    padding: 25px;
+    padding: 16px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     border: 1px solid var(--primary-color-10);
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
     transition: all 0.3s ease;
     position: relative;
 }
@@ -8067,99 +8149,100 @@ body {
 
 .appointment-info h4 {
     color: #2c3e50;
-    font-size: 18px;
-    font-weight: 600;
-    margin: 0 0 15px 0;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: space-between;
     flex-wrap: wrap;
+    gap: 10px;
 }
 
 .appointment-info h4 .appointment-status {
-    font-size: 14px;
-    font-weight: 500;
-    padding: 4px 8px;
-    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 20px;
     white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.appointment-client {
-    color: #7f8c8d;
-    font-size: 14px;
-    margin: 0 0 10px 0;
-    font-weight: 500;
+.appointment-info h4 .appointment-status.pending {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: #fff;
 }
 
-/* Container principal com detalhes e ações na mesma linha */
+.appointment-info h4 .appointment-status.confirmed {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    color: #fff;
+}
+
+.appointment-info h4 .appointment-status.cancelled {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: #fff;
+}
+
+.appointment-info h4 .appointment-status.completed {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    color: #fff;
+}
+
+/* Container principal com detalhes organizados */
 .appointment-main-content {
     display: flex;
-    align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 8px;
 }
 
-/* Detalhes do agendamento em linha */
+/* Grid de informações principais - empilhado verticalmente */
 .appointment-details {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-    flex: 1;
-    min-width: 0;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .appointment-detail-item {
     display: flex;
     align-items: center;
-    gap: 5px;
-    color: #7f8c8d;
+    gap: 8px;
+    padding: 6px 10px;
+    background: rgba(151, 87, 86, 0.05);
+    border-radius: 6px;
     font-size: 14px;
-    white-space: nowrap;
+    transition: background 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.appointment-detail-item:hover {
+    background: rgba(151, 87, 86, 0.1);
 }
 
 .appointment-detail-item i {
     color: var(--primary-color);
-    width: 16px;
+    width: 18px;
     text-align: center;
     flex-shrink: 0;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .appointment-detail-item span {
     color: #2c3e50;
     font-weight: 500;
+    flex: 1;
 }
 
-.appointment-details span {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    color: #7f8c8d;
-    font-size: 13px;
+/* Notas do agendamento (se houver) */
+.appointment-detail-item.notes {
+    background: rgba(155, 89, 182, 0.05);
+    border-left: 3px solid #9b59b6;
+    width: 100%;
 }
 
-.appointment-details i {
-    color: var(--primary-color);
-    font-size: 12px;
-}
-
-/* Status do Agendamento */
-.appointment-status {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-}
-
-.status-badge {
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+.appointment-detail-item.notes i {
+    color: #9b59b6;
 }
 
 .status-pending {
@@ -8185,9 +8268,12 @@ body {
 /* Ações do Agendamento */
 .appointment-actions {
     display: flex;
-    gap: 8px;
-    flex-shrink: 0;
-    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    padding-top: 8px;
+    border-top: 1px solid rgba(151, 87, 86, 0.1);
+    margin-top: 2px;
 }
 
 .appointment-actions .btn {
@@ -9656,64 +9742,75 @@ body {
         padding: 15px;
     }
     
+    /* Cards de Agendamento - Mobile pequeno */
     .appointment-card {
-        padding: 10px !important;
-        gap: 6px !important;
+        padding: 12px !important;
+        gap: 8px !important;
     }
     
     .appointment-info h4 {
-        font-size: 13px !important;
-        margin-bottom: 4px !important;
-        gap: 4px !important;
-        line-height: 1.2 !important;
+        font-size: 16px !important;
+        margin-bottom: 5px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 5px !important;
     }
     
     .appointment-info h4 .appointment-status {
-        font-size: 10px !important;
-        padding: 2px 4px !important;
-    }
-    
-    .appointment-details {
-        flex-direction: column;
-        gap: 3px !important;
-    }
-    
-    .appointment-detail-item {
-        font-size: 10px !important;
-        gap: 3px !important;
-        line-height: 1.2 !important;
-    }
-    
-    .appointment-detail-item i {
         font-size: 9px !important;
-        width: 10px !important;
-    }
-    
-    .appointment-detail-item span {
-        font-size: 10px !important;
-    }
-    
-    .appointment-actions {
-        flex-direction: column;
-        width: 100%;
-        gap: 4px !important;
-        margin-top: 4px !important;
-    }
-    
-    .appointment-actions .btn {
-        width: 100%;
-        padding: 5px 10px !important;
-        font-size: 11px !important;
-        min-height: 30px !important;
-        height: auto !important;
-    }
-    
-    .appointment-actions .btn i {
-        font-size: 10px !important;
+        padding: 3px 7px !important;
+        align-self: flex-start !important;
     }
     
     .appointment-main-content {
         gap: 6px !important;
+    }
+    
+    .appointment-details {
+        flex-direction: column !important;
+        gap: 3px !important;
+    }
+    
+    .appointment-detail-item {
+        padding: 5px 8px !important;
+        font-size: 12px !important;
+        gap: 6px !important;
+        width: 100% !important;
+    }
+    
+    .appointment-detail-item i {
+        font-size: 11px !important;
+        width: 13px !important;
+    }
+    
+    .appointment-detail-item span {
+        font-size: 12px !important;
+    }
+    
+    .appointment-detail-item.notes {
+        font-size: 11px !important;
+        padding: 5px 8px !important;
+    }
+    
+    .appointment-actions {
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        gap: 4px !important;
+        padding-top: 5px !important;
+        margin-top: 2px !important;
+        justify-content: center !important;
+    }
+    
+    .appointment-actions .btn {
+        flex: 1 !important;
+        min-width: 80px !important;
+        padding: 5px 8px !important;
+        font-size: 11px !important;
+        min-height: 28px !important;
+    }
+    
+    .appointment-actions .btn i {
+        font-size: 10px !important;
     }
     
     .appointments-list {

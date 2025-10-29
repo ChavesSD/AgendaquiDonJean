@@ -269,7 +269,7 @@ class AgendaManager {
                             <span>${appointment.clientPhone}</span>
                         </div>
                         ${appointment.notes ? `
-                        <div class="appointment-detail-item">
+                        <div class="appointment-detail-item notes">
                             <i class="fas fa-sticky-note"></i>
                             <span>${appointment.notes}</span>
                         </div>
