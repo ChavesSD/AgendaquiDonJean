@@ -8355,7 +8355,7 @@ let updateManager = {
     selectedRepositories: [],
     githubConfig: {
         owner: 'ChavesSD',
-        repo: 'CHStudio',
+        repo: 'AgendaquiCHStudio',
         branch: 'master'
     },
     repositories: [] // Será preenchido com repositórios reais do GitHub
