@@ -219,6 +219,12 @@ app.post('/api/auth/login', async (req, res) => {
             return res.status(400).json({ message: 'Email e senha são obrigatórios' });
         }
 
+        // Verificar se MongoDB está conectado
+        if (mongoose.connection.readyState !== 1) {
+            console.error('❌ MongoDB não está conectado! Estado:', mongoose.connection.readyState);
+            return res.status(500).json({ message: 'Banco de dados não está disponível. Tente novamente em alguns instantes.' });
+        }
+
         // Buscar usuário no MongoDB
         const user = await User.findOne({ email });
         if (!user) {
@@ -261,8 +267,12 @@ app.post('/api/auth/login', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Erro no login:', error);
-        res.status(500).json({ message: 'Erro interno do servidor' });
+        console.error('❌ Erro no login:', error);
+        console.error('📋 Stack:', error.stack);
+        res.status(500).json({ 
+            message: 'Erro interno do servidor',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
     }
 });
 

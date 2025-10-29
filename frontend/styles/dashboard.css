@@ -10726,8 +10726,6 @@ body {
     flex-direction: column;
     gap: 12px;
     margin-top: 0; /* Remover margem superior para alinhamento */
-    align-items: center;
-    justify-content: center;
 }
 
 .appointment-item {
@@ -10740,7 +10738,6 @@ body {
     border: 1px solid var(--primary-color-10);
     transition: all 0.3s ease;
     width: 100%;
-    max-width: 100%;
 }
 
 .appointment-item:hover {
@@ -10792,7 +10789,7 @@ body {
     justify-content: center;
     align-items: center;
     width: 100%;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 }
 
 .appointment-date,
@@ -10803,11 +10800,9 @@ body {
     padding: 4px 8px;
     border-radius: 6px;
     text-align: center;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    display: inline-block;
     white-space: nowrap;
-    min-width: fit-content;
+    flex-shrink: 0;
 }
 
 .status-badge {
