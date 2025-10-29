@@ -10726,17 +10726,21 @@ body {
     flex-direction: column;
     gap: 12px;
     margin-top: 0; /* Remover margem superior para alinhamento */
+    align-items: center;
+    justify-content: center;
 }
 
 .appointment-item {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     padding: 16px;
     background: rgba(151, 87, 86, 0.05);
     border-radius: 12px;
     border: 1px solid var(--primary-color-10);
     transition: all 0.3s ease;
+    width: 100%;
+    max-width: 100%;
 }
 
 .appointment-item:hover {
@@ -10746,12 +10750,28 @@ body {
 
 .appointment-info {
     flex: 1;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .appointment-client {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+}
+
+.client-name-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    gap: 16px;
 }
 
 .appointment-client strong {
@@ -10767,8 +10787,12 @@ body {
 
 .appointment-details {
     display: flex;
-    gap: 8px;
+    gap: 12px;
     margin-top: 4px;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
 }
 
 .appointment-date,
@@ -10776,8 +10800,14 @@ body {
     color: #6c757d;
     font-size: 12px;
     background: var(--primary-color-10);
-    padding: 2px 6px;
-    border-radius: 4px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    min-width: fit-content;
 }
 
 .status-badge {

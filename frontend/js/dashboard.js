@@ -1613,18 +1613,18 @@ class DashboardManager {
             <div class="appointment-item">
                 <div class="appointment-info">
                     <div class="appointment-client">
-                        <strong>${appointment.clientName}</strong>
+                        <div class="client-name-row">
+                            <strong>${appointment.clientName}</strong>
+                            <span class="status-badge status-${appointment.status}">
+                                ${this.getStatusText(appointment.status)}
+                            </span>
+                        </div>
                         <span class="appointment-service">${appointment.service?.name || 'Serviço não definido'}</span>
                     </div>
                     <div class="appointment-details">
                         <span class="appointment-date">${this.formatDate(appointment.date)}</span>
                         <span class="appointment-time">${appointment.time}</span>
                     </div>
-                </div>
-                <div class="appointment-status">
-                    <span class="status-badge status-${appointment.status}">
-                        ${this.getStatusText(appointment.status)}
-                    </span>
                 </div>
             </div>
         `).join('');
@@ -1918,21 +1918,14 @@ class DashboardManager {
             const rankingItem = document.createElement('div');
             rankingItem.className = 'ranking-item';
             
+            // Container para posição e foto
+            const positionContainer = document.createElement('div');
+            positionContainer.className = 'ranking-position-container';
+            
             // Posição/Medalha
             const positionDiv = document.createElement('div');
             positionDiv.className = `ranking-position ${medalClass}`;
             positionDiv.innerHTML = medalIcon ? `<span class="medal-icon">${medalIcon}</span>` : `<span class="position-number">${position}</span>`;
-            
-            // Informações do profissional
-            const infoDiv = document.createElement('div');
-            infoDiv.className = 'ranking-info';
-            infoDiv.innerHTML = `
-                <div class="ranking-name">${professional.firstName} ${professional.lastName}</div>
-                <div class="ranking-details">
-                    <span class="ranking-count">${count} atendimentos</span>
-                    <span class="ranking-specialty">${professional.function || professional.specialty || 'Geral'}</span>
-                </div>
-            `;
             
             // Foto do profissional (usando a mesma lógica dos usuários)
             const photoDiv = document.createElement('div');
@@ -1965,10 +1958,23 @@ class DashboardManager {
                 console.log('✅ Avatar do profissional criado com ícone padrão');
             }
             
+            // Adicionar posição e foto ao container
+            positionContainer.appendChild(positionDiv);
+            positionContainer.appendChild(photoDiv);
+            
+            // Informações do profissional
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'ranking-info';
+            infoDiv.innerHTML = `
+                <div class="ranking-name">${professional.firstName} ${professional.lastName}</div>
+                <div class="ranking-details">
+                    <span class="ranking-count">${count} atendimentos</span>
+                </div>
+            `;
+            
             // Montar o item
-            rankingItem.appendChild(positionDiv);
+            rankingItem.appendChild(positionContainer);
             rankingItem.appendChild(infoDiv);
-            rankingItem.appendChild(photoDiv);
             
             // Adicionar ao container
             container.appendChild(rankingItem);
