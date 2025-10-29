@@ -4,7 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CH Studio - Dashboard</title>
+    <meta name="description" content="Dashboard do sistema CH Studio">
+    <meta name="theme-color" content="#975756">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="CH Studio">
     <link rel="icon" type="image/png" href="/assets/Favicon.png">
+    <link rel="apple-touch-icon" href="/assets/Logo.png">
+    <link rel="manifest" href="/manifest.json">
     <link rel="stylesheet" href="styles/variables.css">
     <link rel="stylesheet" href="styles/dashboard.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -109,6 +116,13 @@
                 </div>
                 
                 <div class="header-right">
+                    <!-- Botão de Instalação PWA -->
+                    <div class="pwa-install-container" style="display: none;">
+                        <button class="pwa-install-btn btn btn-primary btn-sm" title="Instalar App">
+                            <i class="fas fa-download"></i>
+                            <span class="pwa-install-text">Instalar</span>
+                        </button>
+                    </div>
                     
                     <div class="user-menu">
                         <button class="user-menu-btn">
@@ -3076,6 +3090,7 @@
     <script src="js/services.js"></script>
     <script src="js/stock.js"></script>
     <script src="js/finance.js"></script>
+    <script src="js/pwa-install.js"></script>
     
     <!-- Modal de Preview de Assets -->
     <div class="asset-preview-modal" id="asset-preview-modal">

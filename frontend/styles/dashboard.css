@@ -303,6 +303,199 @@ body {
     gap: 20px;
 }
 
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* ==================== PWA - PROGRESSIVE WEB APP ==================== */
+
+/* Container do botão de instalação */
+.pwa-install-container {
+    display: flex;
+    align-items: center;
+}
+
+.pwa-install-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.pwa-install-btn i {
+    font-size: 16px;
+}
+
+.pwa-install-text {
+    display: inline-block;
+}
+
+@media (max-width: 768px) {
+    .pwa-install-text {
+        display: none;
+    }
+    
+    .pwa-install-btn {
+        padding: 8px 12px;
+        min-width: 45px;
+    }
+    
+    .pwa-install-btn i {
+        font-size: 18px;
+        margin: 0;
+    }
+}
+
+/* Banner de atualização */
+.pwa-update-banner {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #975756;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.pwa-update-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.pwa-update-btn {
+    background: white;
+    color: #975756;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.pwa-update-btn:hover {
+    background: #f0f0f0;
+    transform: translateY(-1px);
+}
+
+/* Modal de instruções de instalação */
+.pwa-instructions-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.pwa-instructions-content {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.close-instructions {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #666;
+    background: none;
+    border: none;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.close-instructions:hover {
+    background: #f0f0f0;
+    color: #975756;
+}
+
+.pwa-instructions h3 {
+    color: #975756;
+    margin-bottom: 20px;
+    font-size: 20px;
+}
+
+.pwa-instructions ol {
+    margin-left: 20px;
+    line-height: 1.8;
+}
+
+.pwa-instructions li {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+/* Classe quando PWA está instalado */
+.pwa-installed .pwa-install-container {
+    display: none !important;
+}
+
+/* Esconder elementos quando PWA instalado */
+@media (display-mode: standalone) {
+    .pwa-install-container {
+        display: none !important;
+    }
+}
+
 .sidebar-toggle {
     background: none;
     border: none;
