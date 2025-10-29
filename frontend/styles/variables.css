@@ -113,6 +113,48 @@
     --breakpoint-lg: 992px;
     --breakpoint-xl: 1200px;
     --breakpoint-2xl: 1400px;
+    
+    /* ===== VARIÁVEIS MOBILE - TABLET (768px) ===== */
+    --mobile-tablet-padding: 15px;
+    --mobile-tablet-padding-sm: 12px;
+    --mobile-tablet-padding-lg: 20px;
+    --mobile-tablet-gap: 12px;
+    --mobile-tablet-gap-sm: 8px;
+    --mobile-tablet-gap-lg: 15px;
+    --mobile-tablet-font-title: 18px;
+    --mobile-tablet-font-subtitle: 16px;
+    --mobile-tablet-font-body: 14px;
+    --mobile-tablet-font-small: 13px;
+    --mobile-tablet-font-xs: 11px;
+    --mobile-tablet-btn-padding: 10px 12px;
+    --mobile-tablet-btn-height: 40px;
+    --mobile-tablet-btn-gap: 10px;
+    --mobile-tablet-input-padding: 10px 12px;
+    --mobile-tablet-input-font: 14px;
+    --mobile-tablet-border-radius: 8px;
+    --mobile-tablet-border-radius-sm: 6px;
+    --mobile-tablet-border-radius-lg: 12px;
+    
+    /* ===== VARIÁVEIS MOBILE - PEQUENO (480px) ===== */
+    --mobile-small-padding: 12px;
+    --mobile-small-padding-sm: 10px;
+    --mobile-small-padding-lg: 15px;
+    --mobile-small-gap: 10px;
+    --mobile-small-gap-sm: 6px;
+    --mobile-small-gap-lg: 12px;
+    --mobile-small-font-title: 16px;
+    --mobile-small-font-subtitle: 14px;
+    --mobile-small-font-body: 13px;
+    --mobile-small-font-small: 12px;
+    --mobile-small-font-xs: 10px;
+    --mobile-small-btn-padding: 8px 10px;
+    --mobile-small-btn-height: 38px;
+    --mobile-small-btn-gap: 8px;
+    --mobile-small-input-padding: 8px 10px;
+    --mobile-small-input-font: 13px;
+    --mobile-small-border-radius: 6px;
+    --mobile-small-border-radius-sm: 4px;
+    --mobile-small-border-radius-lg: 10px;
 }
 
 /* ===== CLASSES UTILITÁRIAS ===== */
