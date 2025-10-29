@@ -42,13 +42,13 @@ const corsOptions = {
         if (allowedOrigins.indexOf(origin) !== -1 || isLocalNetwork) {
             callback(null, true);
         } else {
-            // Em produção, logar mas permitir (para evitar bloqueio de healthchecks)
+            // Em produção, bloquear origens não autorizadas
             if (process.env.NODE_ENV === 'production') {
-                console.log(`⚠️ CORS: Origin não autorizado, mas permitindo: ${origin}`);
-                callback(null, true);
-            } else {
-                console.log(`🚫 CORS bloqueado para origin: ${origin}`);
+                console.warn(`🚫 CORS bloqueado em produção para origin: ${origin}`);
                 callback(new Error(`Origin ${origin} not allowed by CORS`));
+            } else {
+                console.log(`⚠️ CORS: Origin não autorizado em desenvolvimento, mas permitindo: ${origin}`);
+                callback(null, true);
             }
         }
     },
@@ -236,10 +236,15 @@ app.post('/api/auth/login', async (req, res) => {
         }
 
         // Gerar token JWT
+        if (!process.env.JWT_SECRET) {
+            console.error('❌ ERRO CRÍTICO: JWT_SECRET não está configurado!');
+            return res.status(500).json({ message: 'Configuração do servidor incompleta. Contate o administrador.' });
+        }
+        
         const jwt = require('jsonwebtoken');
         const token = jwt.sign(
             { userId: user._id, email: user.email, role: user.role },
-            process.env.JWT_SECRET || 'ch-studio-secret-key',
+            process.env.JWT_SECRET,
             { expiresIn: '24h' }
         );
 
@@ -301,8 +306,13 @@ const authenticateToken = (req, res, next) => {
         return res.status(401).json({ message: 'Token de acesso necessário' });
     }
 
+    if (!process.env.JWT_SECRET) {
+        console.error('❌ ERRO CRÍTICO: JWT_SECRET não está configurado!');
+        return res.status(500).json({ message: 'Configuração do servidor incompleta. Contate o administrador.' });
+    }
+
     const jwt = require('jsonwebtoken');
-    jwt.verify(token, process.env.JWT_SECRET || 'ch-studio-secret-key', (err, user) => {
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
         if (err) {
             return res.status(403).json({ message: 'Token inválido' });
         }
