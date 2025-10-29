@@ -8415,6 +8415,13 @@ async function checkForUpdates() {
     try {
         const updates = await fetchGitHubCommits();
         
+        if (updates.length === 0) {
+            console.warn('⚠️ Nenhuma atualização encontrada via API do GitHub');
+            updateStatus('erro', 'Nenhuma atualização encontrada');
+            showUpdateError('Nenhuma atualização encontrada. Verifique se o repositório existe e tem commits.');
+            return;
+        }
+        
         updateManager.currentUpdates = updates;
         displayUpdates(updates);
         updateStatus('atualizado', 'Atualizado');
@@ -8442,6 +8449,7 @@ async function fetchGitHubCommits() {
     
     try {
         console.log('🔍 Buscando commits do GitHub:', apiUrl);
+        console.log('📋 Configuração atual:', { owner, repo, branch });
         
         const response = await fetch(apiUrl, {
             method: 'GET',
@@ -8451,11 +8459,25 @@ async function fetchGitHubCommits() {
             }
         });
         
+        console.log('📡 Resposta da API:', response.status, response.statusText);
+        
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Erro da API:', errorText);
             throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
         }
         
         const commits = await response.json();
+        console.log('📦 Commits recebidos:', commits.length);
+        
+        // Log dos primeiros 3 commits para debug
+        if (commits.length > 0) {
+            console.log('🔍 Primeiros commits:', commits.slice(0, 3).map(c => ({
+                sha: c.sha.substring(0, 7),
+                message: c.commit.message.split('\n')[0],
+                date: c.commit.author.date
+            })));
+        }
         
         // Transformar dados da API para o formato esperado
         const formattedCommits = commits.map(commit => ({
@@ -8468,39 +8490,20 @@ async function fetchGitHubCommits() {
         }));
         
         console.log(`✅ Encontrados ${formattedCommits.length} commits do GitHub`);
+        console.log('📋 Commits formatados:', formattedCommits.slice(0, 3).map(c => c.sha.substring(0, 7)));
+        
         return formattedCommits;
         
     } catch (error) {
         console.error('❌ Erro ao buscar commits do GitHub:', error);
+        console.error('🔍 Detalhes do erro:', {
+            message: error.message,
+            stack: error.stack
+        });
         
-        // Fallback para dados simulados em caso de erro
-        console.log('🔄 Usando dados simulados como fallback...');
-        return [
-            {
-                sha: '55066eb',
-                message: 'feat: Implementar sistema de seleção de repositórios para atualizações',
-                author: 'ChavesSD',
-                date: new Date().toISOString(),
-                files: ['frontend/dashboard.html', 'frontend/js/dashboard.js', 'frontend/styles/dashboard.css'],
-                description: 'Sistema completo de seleção de repositórios para gerenciamento de atualizações'
-            },
-            {
-                sha: '9f5fb11',
-                message: 'fix: Corrigir erro dashboard is not defined e ocultar dropdown Personalizado em mobile',
-                author: 'ChavesSD',
-                date: '2024-01-15T10:30:00Z',
-                files: ['frontend/js/dashboard.js', 'frontend/styles/dashboard.css'],
-                description: 'Correções importantes para estabilidade do sistema'
-            },
-            {
-                sha: '8ac0177',
-                message: 'feat: Adicionar sistema de backup automático',
-                author: 'ChavesSD',
-                date: '2024-01-14T15:45:00Z',
-                files: ['backend/services/backupService.js', 'frontend/js/backup.js'],
-                description: 'Implementação de backup automático com agendamento'
-            }
-        ];
+        // Em caso de erro, retornar array vazio para forçar nova tentativa
+        console.log('🔄 Erro na API do GitHub, retornando lista vazia...');
+        return [];
     }
 }
 
@@ -8511,14 +8514,23 @@ function displayUpdates(updates) {
     if (!updates || updates.length === 0) {
         container.innerHTML = `
             <div class="no-updates">
-                <i class="fas fa-check-circle"></i>
-                <p>Nenhuma atualização disponível</p>
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Nenhuma atualização encontrada</p>
+                <p style="font-size: 12px; color: #6c757d; margin-top: 10px;">
+                    Verifique sua conexão com a internet e tente novamente.
+                </p>
+                <button class="btn btn-primary" onclick="checkForUpdates()" style="margin-top: 15px;">
+                    <i class="fas fa-sync"></i> Tentar Novamente
+                </button>
             </div>
         `;
         return;
     }
     
-    const updatesHTML = updates.map(update => `
+    // Garantir que temos no máximo 3 atualizações mais recentes
+    const recentUpdates = updates.slice(0, 3);
+    
+    const updatesHTML = recentUpdates.map(update => `
         <div class="update-item" onclick="showUpdateDetails('${update.sha}')">
             <div class="update-item-header">
                 <h5 class="update-title">${update.message}</h5>
@@ -8536,6 +8548,9 @@ function displayUpdates(updates) {
     `).join('');
     
     container.innerHTML = updatesHTML;
+    
+    // Log para debug
+    console.log(`📋 Exibindo ${recentUpdates.length} atualizações mais recentes:`, recentUpdates.map(u => u.sha));
 }
 
 // Mostrar detalhes de uma atualização
