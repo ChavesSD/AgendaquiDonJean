@@ -7201,6 +7201,9 @@ function initDevArea() {
     // Inicializar gerenciamento de licenças
     initLicenseManagement();
     
+    // Inicializar gerenciamento de atualizações
+    initUpdateManagement();
+    
     // Inicializar gerenciamento de assets
     initAssetsManagement();
     
@@ -8343,3 +8346,648 @@ initDashboard = function() {
     originalInitDashboard();
     window.dashboard = dashboardManager;
 };
+
+// ===== SISTEMA DE GERENCIAMENTO DE ATUALIZAÇÕES =====
+
+let updateManager = {
+    currentUpdates: [],
+    selectedUpdate: null,
+    selectedRepositories: [],
+    githubConfig: {
+        owner: 'ChavesSD',
+        repo: 'AgendaquiCHStudio',
+        branch: 'master'
+    },
+    repositories: [
+        {
+            id: 'repo1',
+            name: 'Cliente A - Salão de Beleza',
+            url: 'https://github.com/cliente-a/salao-beleza',
+            status: 'online',
+            description: 'Sistema principal do Cliente A'
+        },
+        {
+            id: 'repo2',
+            name: 'Cliente B - Estética',
+            url: 'https://github.com/cliente-b/estetica',
+            status: 'online',
+            description: 'Sistema do Cliente B'
+        },
+        {
+            id: 'repo3',
+            name: 'Cliente C - Barbearia',
+            url: 'https://github.com/cliente-c/barbearia',
+            status: 'offline',
+            description: 'Sistema do Cliente C'
+        },
+        {
+            id: 'repo4',
+            name: 'Cliente D - Spa',
+            url: 'https://github.com/cliente-d/spa',
+            status: 'unknown',
+            description: 'Sistema do Cliente D'
+        }
+    ]
+};
+
+// Inicializar sistema de atualizações
+function initUpdateManagement() {
+    console.log('🔄 Inicializando sistema de atualizações...');
+    
+    // Carregar configurações salvas
+    loadUpdateSettings();
+    
+    // Carregar repositórios salvos
+    loadRepositories();
+    
+    // Verificar atualizações automaticamente
+    setTimeout(() => {
+        checkForUpdates();
+    }, 1000);
+}
+
+// Carregar configurações do sistema de atualizações
+function loadUpdateSettings() {
+    const savedConfig = localStorage.getItem('updateManagerConfig');
+    if (savedConfig) {
+        try {
+            const config = JSON.parse(savedConfig);
+            updateManager.githubConfig = { ...updateManager.githubConfig, ...config };
+        } catch (e) {
+            console.error('Erro ao carregar configurações de atualizações:', e);
+        }
+    }
+}
+
+// Salvar configurações do sistema de atualizações
+function saveUpdateSettings() {
+    localStorage.setItem('updateManagerConfig', JSON.stringify(updateManager.githubConfig));
+}
+
+// Verificar atualizações disponíveis
+async function checkForUpdates() {
+    console.log('🔍 Verificando atualizações...');
+    
+    updateStatus('verificando', 'Verificando...');
+    
+    try {
+        // Simular busca de atualizações (em produção, usar GitHub API)
+        const updates = await fetchGitHubCommits();
+        
+        updateManager.currentUpdates = updates;
+        displayUpdates(updates);
+        updateStatus('atualizado', 'Atualizado');
+        updateLastCheck();
+        
+        console.log(`✅ Encontradas ${updates.length} atualizações`);
+    } catch (error) {
+        console.error('❌ Erro ao verificar atualizações:', error);
+        updateStatus('erro', 'Erro na verificação');
+        showUpdateError('Erro ao verificar atualizações: ' + error.message);
+    }
+}
+
+// Buscar commits do GitHub (simulado)
+async function fetchGitHubCommits() {
+    // Em produção, usar: https://api.github.com/repos/ChavesSD/AgendaquiCHStudio/commits
+    // Por enquanto, simular dados
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve([
+                {
+                    sha: '9f5fb11',
+                    message: 'fix: Corrigir erro dashboard is not defined e ocultar dropdown Personalizado em mobile',
+                    author: 'ChavesSD',
+                    date: '2024-01-15T10:30:00Z',
+                    files: ['frontend/js/dashboard.js', 'frontend/styles/dashboard.css'],
+                    description: 'Correções importantes para estabilidade do sistema'
+                },
+                {
+                    sha: '8ac0177',
+                    message: 'feat: Adicionar sistema de backup automático',
+                    author: 'ChavesSD',
+                    date: '2024-01-14T15:45:00Z',
+                    files: ['backend/services/backupService.js', 'frontend/js/backup.js'],
+                    description: 'Implementação de backup automático com agendamento'
+                },
+                {
+                    sha: '7b2c8d9',
+                    message: 'fix: Corrigir responsividade em dispositivos móveis',
+                    author: 'ChavesSD',
+                    date: '2024-01-13T09:20:00Z',
+                    files: ['frontend/styles/dashboard.css'],
+                    description: 'Melhorias na experiência mobile'
+                }
+            ]);
+        }, 1500);
+    });
+}
+
+// Exibir atualizações na interface
+function displayUpdates(updates) {
+    const container = document.getElementById('updates-container');
+    
+    if (!updates || updates.length === 0) {
+        container.innerHTML = `
+            <div class="no-updates">
+                <i class="fas fa-check-circle"></i>
+                <p>Nenhuma atualização disponível</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const updatesHTML = updates.map(update => `
+        <div class="update-item" onclick="showUpdateDetails('${update.sha}')">
+            <div class="update-item-header">
+                <h5 class="update-title">${update.message}</h5>
+                <span class="update-date">${formatDate(update.date)}</span>
+            </div>
+            <p class="update-description">${update.description}</p>
+            <div class="update-meta">
+                <div class="update-author">
+                    <i class="fas fa-user"></i>
+                    <span>${update.author}</span>
+                </div>
+                <div class="update-hash">${update.sha.substring(0, 7)}</div>
+            </div>
+        </div>
+    `).join('');
+    
+    container.innerHTML = updatesHTML;
+}
+
+// Mostrar detalhes de uma atualização
+function showUpdateDetails(sha) {
+    const update = updateManager.currentUpdates.find(u => u.sha === sha);
+    if (!update) return;
+    
+    updateManager.selectedUpdate = update;
+    updateManager.selectedRepositories = []; // Reset seleção
+    
+    const detailsContainer = document.getElementById('update-detail-content');
+    detailsContainer.innerHTML = `
+        <h5>Mensagem do Commit</h5>
+        <p>${update.message}</p>
+        
+        <h5>Descrição</h5>
+        <p>${update.description}</p>
+        
+        <h5>Autor</h5>
+        <p><i class="fas fa-user"></i> ${update.author}</p>
+        
+        <h5>Data</h5>
+        <p><i class="fas fa-calendar"></i> ${formatDate(update.date)}</p>
+        
+        <h5>Hash do Commit</h5>
+        <pre>${update.sha}</pre>
+        
+        <h5>Arquivos Modificados</h5>
+        <ul>
+            ${update.files.map(file => `<li><code>${file}</code></li>`).join('')}
+        </ul>
+    `;
+    
+    // Carregar lista de repositórios
+    loadRepositoriesList();
+    
+    // Atualizar botão de aplicar
+    updateApplyButton();
+    
+    document.getElementById('update-details').style.display = 'block';
+}
+
+// Fechar detalhes da atualização
+function closeUpdateDetails() {
+    document.getElementById('update-details').style.display = 'none';
+    updateManager.selectedUpdate = null;
+}
+
+// Aplicar atualização selecionada
+async function applyUpdate() {
+    if (!updateManager.selectedUpdate) {
+        showNotification('Nenhuma atualização selecionada', 'error');
+        return;
+    }
+    
+    if (updateManager.selectedRepositories.length === 0) {
+        showNotification('Selecione pelo menos um repositório', 'error');
+        return;
+    }
+    
+    const update = updateManager.selectedUpdate;
+    const selectedRepos = updateManager.selectedRepositories.map(id => 
+        updateManager.repositories.find(repo => repo.id === id)
+    ).filter(repo => repo);
+    
+    const repoList = selectedRepos.map(repo => `• ${repo.name}`).join('\n');
+    
+    if (!confirm(`Tem certeza que deseja aplicar a atualização "${update.message}" nos seguintes repositórios?\n\n${repoList}`)) {
+        return;
+    }
+    
+    try {
+        showNotification(`Aplicando atualização em ${selectedRepos.length} repositório(s)...`, 'info');
+        
+        // Simular aplicação da atualização em cada repositório
+        for (const repo of selectedRepos) {
+            console.log(`Aplicando atualização ${update.sha} no repositório: ${repo.name}`);
+            await simulateUpdateApplication(update, repo);
+        }
+        
+        showNotification(`Atualização aplicada com sucesso em ${selectedRepos.length} repositório(s)!`, 'success');
+        closeUpdateDetails();
+        
+        // Recarregar a página após 2 segundos
+        setTimeout(() => {
+            window.location.reload();
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Erro ao aplicar atualização:', error);
+        showNotification('Erro ao aplicar atualização: ' + error.message, 'error');
+    }
+}
+
+// Simular aplicação de atualização
+async function simulateUpdateApplication(update, repository) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            console.log(`Aplicando atualização ${update.sha} no repositório: ${repository.name} (${repository.url})`);
+            resolve();
+        }, 1000);
+    });
+}
+
+// Atualizar status do sistema
+function updateStatus(status, text) {
+    const statusElement = document.getElementById('update-status');
+    if (statusElement) {
+        statusElement.className = `status-value ${status}`;
+        statusElement.textContent = text;
+    }
+}
+
+// Atualizar última verificação
+function updateLastCheck() {
+    const lastCheckElement = document.getElementById('last-update-check');
+    if (lastCheckElement) {
+        lastCheckElement.textContent = new Date().toLocaleString('pt-BR');
+    }
+}
+
+// Atualizar lista de atualizações
+function refreshUpdateList() {
+    checkForUpdates();
+}
+
+// Mostrar configurações de atualizações
+function showUpdateSettings() {
+    const settings = prompt('Configurações do GitHub:\n\nOwner:', updateManager.githubConfig.owner) || updateManager.githubConfig.owner;
+    const repo = prompt('Repositório:', updateManager.githubConfig.repo) || updateManager.githubConfig.repo;
+    const branch = prompt('Branch:', updateManager.githubConfig.branch) || updateManager.githubConfig.branch;
+    
+    updateManager.githubConfig = { owner: settings, repo, branch };
+    saveUpdateSettings();
+    
+    showNotification('Configurações salvas!', 'success');
+    checkForUpdates();
+}
+
+// Mostrar erro de atualização
+function showUpdateError(message) {
+    const container = document.getElementById('updates-container');
+    container.innerHTML = `
+        <div class="update-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>${message}</p>
+            <button class="btn btn-primary" onclick="checkForUpdates()">Tentar Novamente</button>
+        </div>
+    `;
+}
+
+// Formatar data
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleString('pt-BR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+// Mostrar notificação
+function showNotification(message, type = 'info') {
+    // Implementar sistema de notificações se não existir
+    console.log(`[${type.toUpperCase()}] ${message}`);
+}
+
+// ===== FUNÇÕES DE GERENCIAMENTO DE REPOSITÓRIOS =====
+
+// Carregar lista de repositórios
+function loadRepositoriesList() {
+    const repoList = document.getElementById('repo-list');
+    if (!repoList) return;
+    
+    const repositoriesHTML = updateManager.repositories.map(repo => `
+        <div class="repo-item" data-repo-id="${repo.id}">
+            <input type="checkbox" id="repo-${repo.id}" onchange="toggleRepositorySelection('${repo.id}')">
+            <div class="repo-info">
+                <div class="repo-name">${repo.name}</div>
+                <div class="repo-url">${repo.url}</div>
+            </div>
+            <div class="repo-status ${repo.status}">
+                <i class="fas fa-circle"></i>
+                <span>${getStatusText(repo.status)}</span>
+            </div>
+        </div>
+    `).join('');
+    
+    repoList.innerHTML = repositoriesHTML;
+    updateSelectedReposSummary();
+}
+
+// Obter texto do status
+function getStatusText(status) {
+    const statusTexts = {
+        'online': 'Online',
+        'offline': 'Offline',
+        'unknown': 'Desconhecido'
+    };
+    return statusTexts[status] || 'Desconhecido';
+}
+
+// Alternar seleção de repositório
+function toggleRepositorySelection(repoId) {
+    const checkbox = document.getElementById(`repo-${repoId}`);
+    const repoItem = document.querySelector(`[data-repo-id="${repoId}"]`);
+    
+    if (checkbox.checked) {
+        if (!updateManager.selectedRepositories.includes(repoId)) {
+            updateManager.selectedRepositories.push(repoId);
+        }
+        repoItem.classList.add('selected');
+    } else {
+        updateManager.selectedRepositories = updateManager.selectedRepositories.filter(id => id !== repoId);
+        repoItem.classList.remove('selected');
+    }
+    
+    updateSelectedReposSummary();
+    updateApplyButton();
+}
+
+// Selecionar todos os repositórios
+function selectAllRepositories() {
+    updateManager.selectedRepositories = updateManager.repositories.map(repo => repo.id);
+    
+    updateManager.repositories.forEach(repo => {
+        const checkbox = document.getElementById(`repo-${repo.id}`);
+        const repoItem = document.querySelector(`[data-repo-id="${repo.id}"]`);
+        
+        if (checkbox) checkbox.checked = true;
+        if (repoItem) repoItem.classList.add('selected');
+    });
+    
+    updateSelectedReposSummary();
+    updateApplyButton();
+}
+
+// Desmarcar todos os repositórios
+function deselectAllRepositories() {
+    updateManager.selectedRepositories = [];
+    
+    updateManager.repositories.forEach(repo => {
+        const checkbox = document.getElementById(`repo-${repo.id}`);
+        const repoItem = document.querySelector(`[data-repo-id="${repo.id}"]`);
+        
+        if (checkbox) checkbox.checked = false;
+        if (repoItem) repoItem.classList.remove('selected');
+    });
+    
+    updateSelectedReposSummary();
+    updateApplyButton();
+}
+
+// Filtrar repositórios
+function filterRepositories() {
+    const searchTerm = document.getElementById('repo-search').value.toLowerCase();
+    const repoItems = document.querySelectorAll('.repo-item');
+    
+    repoItems.forEach(item => {
+        const repoName = item.querySelector('.repo-name').textContent.toLowerCase();
+        const repoUrl = item.querySelector('.repo-url').textContent.toLowerCase();
+        
+        if (repoName.includes(searchTerm) || repoUrl.includes(searchTerm)) {
+            item.style.display = 'flex';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+// Atualizar resumo de repositórios selecionados
+function updateSelectedReposSummary() {
+    const summaryElement = document.getElementById('selected-repos-summary');
+    if (!summaryElement) return;
+    
+    const count = updateManager.selectedRepositories.length;
+    const countElement = summaryElement.querySelector('.selected-count');
+    
+    if (countElement) {
+        countElement.textContent = `${count} repositório${count !== 1 ? 's' : ''} selecionado${count !== 1 ? 's' : ''}`;
+    }
+}
+
+// Atualizar botão de aplicar atualização
+function updateApplyButton() {
+    const applyBtn = document.getElementById('apply-update-btn');
+    if (!applyBtn) return;
+    
+    const hasSelection = updateManager.selectedRepositories.length > 0;
+    applyBtn.disabled = !hasSelection;
+    
+    if (hasSelection) {
+        applyBtn.innerHTML = `<i class="fas fa-download"></i> Aplicar Atualização (${updateManager.selectedRepositories.length})`;
+    } else {
+        applyBtn.innerHTML = `<i class="fas fa-download"></i> Aplicar Atualização`;
+    }
+}
+
+// Mostrar modal para adicionar repositório
+function showAddRepositoryModal() {
+    const modalHTML = `
+        <div class="repo-modal" id="add-repo-modal">
+            <div class="repo-modal-content">
+                <h3><i class="fas fa-plus"></i> Adicionar Novo Repositório</h3>
+                
+                <div class="repo-form-group">
+                    <label for="new-repo-name">Nome do Repositório</label>
+                    <input type="text" id="new-repo-name" placeholder="Ex: Cliente E - Barbearia">
+                </div>
+                
+                <div class="repo-form-group">
+                    <label for="new-repo-url">URL do Repositório</label>
+                    <input type="url" id="new-repo-url" placeholder="https://github.com/cliente-e/barbearia">
+                </div>
+                
+                <div class="repo-form-group">
+                    <label for="new-repo-description">Descrição</label>
+                    <input type="text" id="new-repo-description" placeholder="Descrição do repositório">
+                </div>
+                
+                <div class="repo-form-group">
+                    <label for="new-repo-status">Status</label>
+                    <select id="new-repo-status">
+                        <option value="online">Online</option>
+                        <option value="offline">Offline</option>
+                        <option value="unknown">Desconhecido</option>
+                    </select>
+                </div>
+                
+                <div class="repo-modal-actions">
+                    <button class="btn btn-secondary" onclick="closeAddRepositoryModal()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button class="btn btn-primary" onclick="addRepository()">
+                        <i class="fas fa-plus"></i> Adicionar
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+// Fechar modal de adicionar repositório
+function closeAddRepositoryModal() {
+    const modal = document.getElementById('add-repo-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Adicionar novo repositório
+function addRepository() {
+    const name = document.getElementById('new-repo-name').value.trim();
+    const url = document.getElementById('new-repo-url').value.trim();
+    const description = document.getElementById('new-repo-description').value.trim();
+    const status = document.getElementById('new-repo-status').value;
+    
+    if (!name || !url) {
+        showNotification('Nome e URL são obrigatórios', 'error');
+        return;
+    }
+    
+    const newRepo = {
+        id: 'repo' + Date.now(),
+        name: name,
+        url: url,
+        description: description,
+        status: status
+    };
+    
+    updateManager.repositories.push(newRepo);
+    saveRepositories();
+    
+    showNotification('Repositório adicionado com sucesso!', 'success');
+    closeAddRepositoryModal();
+    
+    // Recarregar lista se estiver visível
+    if (document.getElementById('update-details').style.display !== 'none') {
+        loadRepositoriesList();
+    }
+}
+
+// Mostrar configurações de repositórios
+function showRepositorySettings() {
+    const settings = prompt('Configurações de Repositórios:\n\n1. Exportar lista atual\n2. Importar lista\n3. Limpar todos\n\nDigite o número da opção:', '1');
+    
+    switch(settings) {
+        case '1':
+            exportRepositories();
+            break;
+        case '2':
+            importRepositories();
+            break;
+        case '3':
+            if (confirm('Tem certeza que deseja limpar todos os repositórios?')) {
+                clearAllRepositories();
+            }
+            break;
+    }
+}
+
+// Exportar lista de repositórios
+function exportRepositories() {
+    const dataStr = JSON.stringify(updateManager.repositories, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+    
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = 'repositories.json';
+    link.click();
+    
+    showNotification('Lista de repositórios exportada!', 'success');
+}
+
+// Importar lista de repositórios
+function importRepositories() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    
+    input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const importedRepos = JSON.parse(e.target.result);
+                updateManager.repositories = importedRepos;
+                saveRepositories();
+                showNotification('Lista de repositórios importada!', 'success');
+                
+                if (document.getElementById('update-details').style.display !== 'none') {
+                    loadRepositoriesList();
+                }
+            } catch (error) {
+                showNotification('Erro ao importar arquivo: ' + error.message, 'error');
+            }
+        };
+        reader.readAsText(file);
+    };
+    
+    input.click();
+}
+
+// Limpar todos os repositórios
+function clearAllRepositories() {
+    updateManager.repositories = [];
+    saveRepositories();
+    showNotification('Todos os repositórios foram removidos!', 'success');
+    
+    if (document.getElementById('update-details').style.display !== 'none') {
+        loadRepositoriesList();
+    }
+}
+
+// Salvar repositórios no localStorage
+function saveRepositories() {
+    localStorage.setItem('updateManagerRepositories', JSON.stringify(updateManager.repositories));
+}
+
+// Carregar repositórios do localStorage
+function loadRepositories() {
+    const saved = localStorage.getItem('updateManagerRepositories');
+    if (saved) {
+        try {
+            updateManager.repositories = JSON.parse(saved);
+        } catch (e) {
+            console.error('Erro ao carregar repositórios:', e);
+        }
+    }
+}

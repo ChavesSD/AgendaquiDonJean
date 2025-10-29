@@ -2336,6 +2336,118 @@
                                         </div>
                                     </div>
                                     
+                                    <!-- Seção de Gerenciamento de Atualizações -->
+                                    <div class="config-section">
+                                        <h3><i class="fas fa-sync-alt"></i> Gerenciamento de Atualizações</h3>
+                                        <div class="update-management">
+                                            <div class="update-info">
+                                                <h4><i class="fas fa-info-circle"></i> Sistema de Atualizações</h4>
+                                                <div class="info-box">
+                                                    <p><strong>🔄 Funcionalidades:</strong></p>
+                                                    <ul>
+                                                        <li>Verificar atualizações disponíveis no repositório GitHub</li>
+                                                        <li>Visualizar detalhes de cada commit/atualização</li>
+                                                        <li>Aplicar atualizações específicas em outras instâncias do sistema</li>
+                                                        <li>Gerenciar múltiplos clientes de forma centralizada</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="update-actions">
+                                                <div class="update-controls">
+                                                    <button class="btn btn-primary" onclick="checkForUpdates()">
+                                                        <i class="fas fa-sync"></i> Verificar Atualizações
+                                                    </button>
+                                                    <button class="btn btn-info" onclick="refreshUpdateList()">
+                                                        <i class="fas fa-refresh"></i> Atualizar Lista
+                                                    </button>
+                                                    <button class="btn btn-success" onclick="showUpdateSettings()">
+                                                        <i class="fas fa-cog"></i> Configurações
+                                                    </button>
+                                                </div>
+                                                
+                                                <div class="update-status">
+                                                    <div class="status-indicator">
+                                                        <span class="status-label">Status:</span>
+                                                        <span class="status-value" id="update-status">Verificando...</span>
+                                                    </div>
+                                                    <div class="last-check">
+                                                        <span class="last-check-label">Última verificação:</span>
+                                                        <span class="last-check-value" id="last-update-check">Nunca</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="updates-list" id="updates-list">
+                                                <h4><i class="fas fa-list"></i> Atualizações Disponíveis</h4>
+                                                <div class="updates-container" id="updates-container">
+                                                    <div class="loading-updates">
+                                                        <i class="fas fa-spinner fa-spin"></i>
+                                                        <p>Carregando atualizações...</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="update-details" id="update-details" style="display: none;">
+                                                <h4><i class="fas fa-info"></i> Detalhes da Atualização</h4>
+                                                <div class="update-detail-content" id="update-detail-content">
+                                                    <!-- Conteúdo será preenchido dinamicamente -->
+                                                </div>
+                                                
+                                                <!-- Seção de Seleção de Repositórios -->
+                                                <div class="repository-selection" id="repository-selection">
+                                                    <h5><i class="fas fa-server"></i> Selecionar Repositórios de Destino</h5>
+                                                    <div class="repo-selection-info">
+                                                        <p>Selecione um ou mais repositórios que receberão esta atualização:</p>
+                                                    </div>
+                                                    
+                                                    <div class="repo-list-container">
+                                                        <div class="repo-list-header">
+                                                            <div class="repo-search">
+                                                                <input type="text" id="repo-search" placeholder="Buscar repositórios..." onkeyup="filterRepositories()">
+                                                                <i class="fas fa-search"></i>
+                                                            </div>
+                                                            <div class="repo-actions">
+                                                                <button class="btn btn-sm btn-primary" onclick="selectAllRepositories()">
+                                                                    <i class="fas fa-check-double"></i> Selecionar Todos
+                                                                </button>
+                                                                <button class="btn btn-sm btn-secondary" onclick="deselectAllRepositories()">
+                                                                    <i class="fas fa-times"></i> Desmarcar Todos
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="repo-list" id="repo-list">
+                                                            <!-- Lista de repositórios será preenchida dinamicamente -->
+                                                        </div>
+                                                        
+                                                        <div class="repo-management">
+                                                            <button class="btn btn-sm btn-info" onclick="showAddRepositoryModal()">
+                                                                <i class="fas fa-plus"></i> Adicionar Repositório
+                                                            </button>
+                                                            <button class="btn btn-sm btn-warning" onclick="showRepositorySettings()">
+                                                                <i class="fas fa-cog"></i> Gerenciar Repositórios
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="selected-repos-summary" id="selected-repos-summary">
+                                                        <span class="selected-count">0 repositórios selecionados</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="update-actions-detail">
+                                                    <button class="btn btn-success" onclick="applyUpdate()" id="apply-update-btn" disabled>
+                                                        <i class="fas fa-download"></i> Aplicar Atualização
+                                                    </button>
+                                                    <button class="btn btn-secondary" onclick="closeUpdateDetails()">
+                                                        <i class="fas fa-times"></i> Fechar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
                                     <!-- Seção de Logs do Sistema -->
                                     <div class="config-section">
                                         <h3><i class="fas fa-file-alt"></i> Logs do Sistema</h3>
