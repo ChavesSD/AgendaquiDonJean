@@ -8579,12 +8579,27 @@ async function showUpdateDetails(sha) {
         <pre>${detailedUpdate.sha}</pre>
         
         <h5>Arquivos Modificados</h5>
-        <ul>
+        <div class="files-list">
             ${detailedUpdate.files && detailedUpdate.files.length > 0 
-                ? detailedUpdate.files.map(file => `<li><code>${file}</code></li>`).join('')
-                : '<li><em>Arquivos não disponíveis</em></li>'
+                ? detailedUpdate.files.map(file => `
+                    <div class="file-item">
+                        <div class="file-name">
+                            <i class="fas fa-file-code"></i>
+                            <code>${file.filename || file}</code>
+                        </div>
+                        ${file.status ? `
+                            <div class="file-changes">
+                                <span class="file-status status-${file.status}">${file.status}</span>
+                                ${file.additions ? `<span class="additions">+${file.additions}</span>` : ''}
+                                ${file.deletions ? `<span class="deletions">-${file.deletions}</span>` : ''}
+                                ${file.changes ? `<span class="changes">${file.changes} alterações</span>` : ''}
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('')
+                : '<div class="no-files"><em>Arquivos não disponíveis</em></div>'
             }
-        </ul>
+        </div>
     `;
     
     // Carregar lista de repositórios
@@ -9378,18 +9393,26 @@ function loadRepositories() {
 
 // Buscar detalhes específicos de um commit
 async function fetchCommitDetails(sha) {
-    const { owner, repo } = updateManager.githubConfig;
+    const { owner, repo, token } = updateManager.githubConfig;
     const apiUrl = `https://api.github.com/repos/${owner}/${repo}/commits/${sha}`;
     
     try {
         console.log('🔍 Buscando detalhes do commit:', apiUrl);
         
+        const headers = {
+            'Accept': 'application/vnd.github.v3+json',
+            'User-Agent': 'CHStudio-UpdateManager/1.0'
+        };
+        
+        // Adicionar token se disponível
+        if (token) {
+            headers['Authorization'] = `token ${token}`;
+            console.log('🔑 Usando token de autenticação do GitHub');
+        }
+        
         const response = await fetch(apiUrl, {
             method: 'GET',
-            headers: {
-                'Accept': 'application/vnd.github.v3+json',
-                'User-Agent': 'CHStudio-UpdateManager/1.0'
-            }
+            headers: headers
         });
         
         if (!response.ok) {
@@ -9403,7 +9426,13 @@ async function fetchCommitDetails(sha) {
             message: commit.commit.message.split('\n')[0],
             author: commit.commit.author.name,
             date: commit.commit.author.date,
-            files: commit.files ? commit.files.map(file => file.filename) : [],
+            files: commit.files ? commit.files.map(file => ({
+                filename: file.filename,
+                status: file.status,
+                additions: file.additions,
+                deletions: file.deletions,
+                changes: file.changes
+            })) : [],
             description: commit.commit.message.split('\n').slice(1).join(' ').trim() || 'Sem descrição adicional'
         };
         
@@ -9415,18 +9444,28 @@ async function fetchCommitDetails(sha) {
 
 // Buscar repositórios reais do GitHub
 async function fetchGitHubRepositories() {
-    const { owner } = updateManager.githubConfig;
-    const apiUrl = `https://api.github.com/users/${owner}/repos?sort=updated&per_page=20&type=all`;
+    const { owner, token } = updateManager.githubConfig;
+    const apiUrl = `https://api.github.com/user/repos?sort=updated&per_page=50&type=all`;
     
     try {
         console.log('🔍 Buscando repositórios do GitHub:', apiUrl);
         
+        const headers = {
+            'Accept': 'application/vnd.github.v3+json',
+            'User-Agent': 'CHStudio-UpdateManager/1.0'
+        };
+        
+        // Adicionar token se disponível
+        if (token) {
+            headers['Authorization'] = `token ${token}`;
+            console.log('🔑 Usando token de autenticação do GitHub para repositórios privados');
+        } else {
+            console.log('⚠️ Sem token - apenas repositórios públicos serão listados');
+        }
+        
         const response = await fetch(apiUrl, {
             method: 'GET',
-            headers: {
-                'Accept': 'application/vnd.github.v3+json',
-                'User-Agent': 'CHStudio-UpdateManager/1.0'
-            }
+            headers: headers
         });
         
         if (!response.ok) {
