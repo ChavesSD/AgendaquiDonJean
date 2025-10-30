@@ -8760,9 +8760,13 @@ function showUpdateSettings() {
 
 // Fechar configurações de atualização
 function closeUpdateSettings() {
+    console.log('🚪 Fechando modal de configurações...');
     const modal = document.querySelector('.modal');
     if (modal) {
         modal.remove();
+        console.log('✅ Modal fechado com sucesso');
+    } else {
+        console.log('⚠️ Modal não encontrado para fechar');
     }
 }
 
@@ -8855,6 +8859,30 @@ async function testGitHubConnection() {
         if (response.ok) {
             const commits = await response.json();
             showNotification(`✅ Conexão bem-sucedida! Encontrados ${commits.length} commits.`, 'success');
+            
+            // Salvar configurações automaticamente após teste bem-sucedido
+            console.log('💾 Salvando configurações após teste bem-sucedido...');
+            const [owner, repo] = repoInput.value.split('/');
+            updateManager.githubConfig.owner = owner;
+            updateManager.githubConfig.repo = repo;
+            updateManager.githubConfig.branch = branchInput.value || 'master';
+            updateManager.githubConfig.token = tokenInput.value || '';
+            
+            // Salvar no localStorage
+            try {
+                localStorage.setItem('githubConfig', JSON.stringify(updateManager.githubConfig));
+                console.log('✅ Configurações salvas no localStorage');
+            } catch (error) {
+                console.error('❌ Erro ao salvar no localStorage:', error);
+            }
+            
+            // Fechar modal após 2 segundos
+            setTimeout(() => {
+                closeUpdateSettings();
+                // Testar atualizações automaticamente
+                checkForUpdates();
+            }, 2000);
+            
         } else if (response.status === 404) {
             showNotification('❌ Repositório não encontrado. Verifique o nome.', 'error');
         } else if (response.status === 401) {
