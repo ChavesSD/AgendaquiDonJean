@@ -8911,48 +8911,54 @@ function formatDate(dateString) {
 
 // Mostrar notificação
 function showNotification(message, type = 'info') {
-    // Remover notificações existentes para evitar sobreposição
-    const existingNotifications = document.querySelectorAll('.notification');
-    existingNotifications.forEach(notif => notif.remove());
-    
-    // Criar container de notificações se não existir
-    let container = document.querySelector('.notifications-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.className = 'notifications-container';
-        document.body.appendChild(container);
+    // Remover notificação existente para evitar sobreposição
+    const existingNotification = document.querySelector('.notification');
+    if (existingNotification) {
+        existingNotification.remove();
     }
     
-    // Criar notificação
+    // Criar nova notificação com cores
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.innerHTML = `
-        <div class="notification-icon">
-            <i class="fas fa-${getNotificationIcon(type)}"></i>
-        </div>
-        <div class="notification-content">
-            <div class="notification-message">${message}</div>
-        </div>
-        <button class="notification-close" onclick="this.parentElement.remove()">
-            <i class="fas fa-times"></i>
-        </button>
-        <div class="notification-progress"></div>
+        <i class="fas fa-${getNotificationIcon(type)}"></i>
+        <span>${message}</span>
     `;
     
-    // Adicionar ao container
-    container.appendChild(notification);
+    // Adicionar estilos com cores
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : type === 'warning' ? '#f39c12' : '#3498db'};
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 500;
+        animation: slideIn 0.3s ease;
+        max-width: 400px;
+        word-wrap: break-word;
+    `;
     
-    // Remover automaticamente após 5 segundos
+    // Adicionar ao DOM
+    document.body.appendChild(notification);
+    
+    // Remover após 4 segundos
     setTimeout(() => {
         if (notification.parentNode) {
-            notification.style.animation = 'slideOutRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+            notification.style.animation = 'slideOut 0.3s ease';
             setTimeout(() => {
                 if (notification.parentNode) {
                     notification.remove();
                 }
-            }, 400);
+            }, 300);
         }
-    }, 5000);
+    }, 4000);
     
     console.log(`[${type.toUpperCase()}] ${message}`);
 }
