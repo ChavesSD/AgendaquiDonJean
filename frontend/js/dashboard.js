@@ -1398,52 +1398,7 @@ function copyPublicLink() {
     });
 }
 
-// Função para mostrar notificações
-function showNotification(message, type = 'info') {
-    // Remover notificação existente
-    const existingNotification = document.querySelector('.notification');
-    if (existingNotification) {
-        existingNotification.remove();
-    }
-    
-    // Criar nova notificação
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
-        <span>${message}</span>
-    `;
-    
-    // Adicionar estilos
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${type === 'success' ? '#27ae60' : '#3498db'};
-        color: white;
-        padding: 15px 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        z-index: 1000;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-weight: 500;
-        animation: slideIn 0.3s ease;
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Remover após 3 segundos
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.remove();
-            }
-        }, 300);
-    }, 3000);
-}
+// Função para mostrar notificações (removida - usando versão melhorada abaixo)
 
 // Adicionar estilos CSS para animações
 const style = document.createElement('style');
@@ -8956,62 +8911,46 @@ function formatDate(dateString) {
 
 // Mostrar notificação
 function showNotification(message, type = 'info') {
-    // Implementar sistema de notificações visual
+    // Remover notificações existentes para evitar sobreposição
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notif => notif.remove());
+    
+    // Criar container de notificações se não existir
+    let container = document.querySelector('.notifications-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'notifications-container';
+        document.body.appendChild(container);
+    }
+    
+    // Criar notificação
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.innerHTML = `
-        <div class="notification-content">
+        <div class="notification-icon">
             <i class="fas fa-${getNotificationIcon(type)}"></i>
-            <span>${message}</span>
         </div>
+        <div class="notification-content">
+            <div class="notification-message">${message}</div>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="notification-progress"></div>
     `;
     
-    // Adicionar estilos se não existirem
-    if (!document.getElementById('notification-styles')) {
-        const style = document.createElement('style');
-        style.id = 'notification-styles';
-        style.textContent = `
-            .notification {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 15px 20px;
-                border-radius: 8px;
-                color: white;
-                font-weight: 600;
-                z-index: 10000;
-                animation: slideIn 0.3s ease;
-                max-width: 400px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            }
-            .notification-success { background: #28a745; }
-            .notification-error { background: #dc3545; }
-            .notification-warning { background: #ffc107; color: #212529; }
-            .notification-info { background: #17a2b8; }
-            .notification-content {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-        `;
-        document.head.appendChild(style);
-    }
+    // Adicionar ao container
+    container.appendChild(notification);
     
-    document.body.appendChild(notification);
-    
-    // Remover após 5 segundos
+    // Remover automaticamente após 5 segundos
     setTimeout(() => {
         if (notification.parentNode) {
-            notification.style.animation = 'slideIn 0.3s ease reverse';
+            notification.style.animation = 'slideOutRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards';
             setTimeout(() => {
                 if (notification.parentNode) {
                     notification.remove();
                 }
-            }, 300);
+            }, 400);
         }
     }, 5000);
     
