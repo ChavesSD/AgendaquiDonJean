@@ -8691,43 +8691,71 @@ async function refreshRepositoriesList() {
 
 // Mostrar configurações de atualizações
 function showUpdateSettings() {
+    console.log('🔧 Abrindo configurações do GitHub...');
+    
+    // Remover modal existente se houver
+    const existingModal = document.querySelector('.modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
     const modal = document.createElement('div');
     modal.className = 'modal';
+    modal.style.display = 'flex';
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100%';
+    modal.style.height = '100%';
+    modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    modal.style.zIndex = '10000';
+    modal.style.justifyContent = 'center';
+    modal.style.alignItems = 'center';
+    
     modal.innerHTML = `
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Configurações do GitHub</h3>
-                <button onclick="closeUpdateSettings()" class="close">&times;</button>
+        <div class="modal-content" style="background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto;">
+            <div class="modal-header" style="padding: 20px 25px; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; color: #333; font-size: 1.25rem; font-weight: 600;">Configurações do GitHub</h3>
+                <button onclick="closeUpdateSettings()" class="close" style="background: none; border: none; font-size: 24px; color: #999; cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s ease;">&times;</button>
             </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>Repositório GitHub:</label>
-                    <input type="text" id="github-repo" value="${updateManager.githubConfig.owner}/${updateManager.githubConfig.repo}" placeholder="usuario/repositorio">
-                    <small>Formato: usuario/repositorio</small>
+            <div class="modal-body" style="padding: 25px;">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Repositório GitHub:</label>
+                    <input type="text" id="github-repo" value="${updateManager.githubConfig.owner}/${updateManager.githubConfig.repo}" placeholder="usuario/repositorio" style="width: 100%; padding: 12px 15px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 14px; transition: border-color 0.2s ease; box-sizing: border-box;">
+                    <small style="display: block; margin-top: 5px; color: #666; font-size: 12px;">Formato: usuario/repositorio</small>
                 </div>
-                <div class="form-group">
-                    <label>Branch:</label>
-                    <input type="text" id="github-branch" value="${updateManager.githubConfig.branch}" placeholder="master">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Branch:</label>
+                    <input type="text" id="github-branch" value="${updateManager.githubConfig.branch}" placeholder="master" style="width: 100%; padding: 12px 15px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 14px; transition: border-color 0.2s ease; box-sizing: border-box;">
                 </div>
-                <div class="form-group">
-                    <label>Token de Acesso (Obrigatório para repositórios privados):</label>
-                    <input type="password" id="github-token" value="${updateManager.githubConfig.token}" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
-                    <small>Necessário para repositórios privados. <a href="https://github.com/settings/tokens" target="_blank">Gerar token</a></small>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Token de Acesso (Obrigatório para repositórios privados):</label>
+                    <input type="password" id="github-token" value="${updateManager.githubConfig.token}" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="width: 100%; padding: 12px 15px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 14px; transition: border-color 0.2s ease; box-sizing: border-box;">
+                    <small style="display: block; margin-top: 5px; color: #666; font-size: 12px;">Necessário para repositórios privados. <a href="https://github.com/settings/tokens" target="_blank" style="color: #007bff; text-decoration: none;">Gerar token</a></small>
                 </div>
-                <div class="form-group">
-                    <label>Testar Conexão:</label>
-                    <button onclick="testGitHubConnection()" class="btn btn-secondary">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Testar Conexão:</label>
+                    <button onclick="testGitHubConnection()" class="btn btn-secondary" style="padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; background: #6c757d; color: white;">
                         <i class="fas fa-plug"></i> Testar Conexão
                     </button>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button onclick="saveUpdateSettings()" class="btn btn-primary">Salvar</button>
-                <button onclick="closeUpdateSettings()" class="btn btn-secondary">Cancelar</button>
+            <div class="modal-footer" style="padding: 20px 25px; border-top: 1px solid #e9ecef; display: flex; gap: 10px; justify-content: flex-end;">
+                <button onclick="saveUpdateSettings()" class="btn btn-primary" style="padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; background: #007bff; color: white;">Salvar</button>
+                <button onclick="closeUpdateSettings()" class="btn btn-secondary" style="padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; background: #6c757d; color: white;">Cancelar</button>
             </div>
         </div>
     `;
+    
     document.body.appendChild(modal);
+    console.log('✅ Modal de configurações criado e adicionado ao DOM');
+    
+    // Adicionar evento de clique no fundo para fechar
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeUpdateSettings();
+        }
+    });
 }
 
 // Fechar configurações de atualização
