@@ -158,11 +158,10 @@ const limiter = rateLimit({
 app.use('/api/auth', limiter);
 
 // Conexão com MongoDB Atlas
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/chstudio';
 
-if (!MONGODB_URI) {
-    console.error('❌ MONGODB_URI não configurada! Configure a variável de ambiente MONGODB_URI');
-    process.exit(1);
+if (!process.env.MONGODB_URI) {
+    console.warn('⚠️ MONGODB_URI não configurada! Usando banco local como fallback');
 }
 
 console.log('🔗 Tentando conectar ao MongoDB...');
@@ -172,11 +171,18 @@ mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
-.then(() => console.log('✅ Conectado ao MongoDB Atlas'))
+.then(() => console.log('✅ Conectado ao MongoDB'))
 .catch(err => {
-    console.log('⚠️  Erro ao conectar MongoDB Atlas:', err.message);
+    console.error('❌ Erro ao conectar MongoDB:', err.message);
     console.log('💡 Verifique suas credenciais e conexão com a internet');
     console.log('🔍 URI usada:', MONGODB_URI);
+    
+    // Em produção, não sair do processo, apenas logar o erro
+    if (process.env.NODE_ENV === 'production') {
+        console.log('⚠️ Continuando sem conexão com banco de dados em produção');
+    } else {
+        process.exit(1);
+    }
 });
 
 // Modelos
@@ -242,15 +248,16 @@ app.post('/api/auth/login', async (req, res) => {
         }
 
         // Gerar token JWT
+        const jwtSecret = process.env.JWT_SECRET || 'chave-temporaria-desenvolvimento-123456789';
+        
         if (!process.env.JWT_SECRET) {
-            console.error('❌ ERRO CRÍTICO: JWT_SECRET não está configurado!');
-            return res.status(500).json({ message: 'Configuração do servidor incompleta. Contate o administrador.' });
+            console.warn('⚠️ JWT_SECRET não configurado! Usando chave temporária para desenvolvimento');
         }
         
         const jwt = require('jsonwebtoken');
         const token = jwt.sign(
             { userId: user._id, email: user.email, role: user.role },
-            process.env.JWT_SECRET,
+            jwtSecret,
             { expiresIn: '24h' }
         );
 
@@ -316,13 +323,14 @@ const authenticateToken = (req, res, next) => {
         return res.status(401).json({ message: 'Token de acesso necessário' });
     }
 
+    const jwtSecret = process.env.JWT_SECRET || 'chave-temporaria-desenvolvimento-123456789';
+    
     if (!process.env.JWT_SECRET) {
-        console.error('❌ ERRO CRÍTICO: JWT_SECRET não está configurado!');
-        return res.status(500).json({ message: 'Configuração do servidor incompleta. Contate o administrador.' });
+        console.warn('⚠️ JWT_SECRET não configurado! Usando chave temporária para desenvolvimento');
     }
 
     const jwt = require('jsonwebtoken');
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    jwt.verify(token, jwtSecret, (err, user) => {
         if (err) {
             return res.status(403).json({ message: 'Token inválido' });
         }
@@ -4786,6 +4794,26 @@ app.get('/api/contacts/stats', authenticateToken, async (req, res) => {
         console.error('Erro ao obter estatísticas de contatos:', error);
         res.status(500).json({ success: false, message: 'Erro interno do servidor' });
     }
+});
+
+// Middleware de tratamento de erros global
+app.use((err, req, res, next) => {
+    console.error('❌ Erro não tratado:', err);
+    
+    // Se for erro de JSON malformado
+    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'JSON inválido enviado' 
+        });
+    }
+    
+    // Erro genérico
+    res.status(500).json({ 
+        success: false, 
+        message: 'Erro interno do servidor',
+        error: process.env.NODE_ENV === 'development' ? err.message : 'Erro interno'
+    });
 });
 
 // Iniciar servidor
