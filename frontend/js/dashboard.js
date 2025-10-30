@@ -8380,20 +8380,18 @@ function initUpdateManagement() {
 
 // Carregar configurações do sistema de atualizações
 function loadUpdateSettings() {
-    const savedConfig = localStorage.getItem('updateManagerConfig');
+    const savedConfig = localStorage.getItem('githubConfig');
     if (savedConfig) {
         try {
             const config = JSON.parse(savedConfig);
             updateManager.githubConfig = { ...updateManager.githubConfig, ...config };
+            console.log('✅ Configurações carregadas do localStorage:', config);
         } catch (e) {
-            console.error('Erro ao carregar configurações de atualizações:', e);
+            console.error('❌ Erro ao carregar configurações de atualizações:', e);
         }
+    } else {
+        console.log('ℹ️ Nenhuma configuração salva encontrada');
     }
-}
-
-// Salvar configurações do sistema de atualizações
-function saveUpdateSettings() {
-    localStorage.setItem('updateManagerConfig', JSON.stringify(updateManager.githubConfig));
 }
 
 // Verificar atualizações disponíveis
@@ -8761,12 +8759,31 @@ function showUpdateSettings() {
 // Fechar configurações de atualização
 function closeUpdateSettings() {
     console.log('🚪 Fechando modal de configurações...');
-    const modal = document.querySelector('.modal');
+    
+    // Tentar encontrar o modal de diferentes formas
+    let modal = document.querySelector('.modal');
+    if (!modal) {
+        modal = document.querySelector('[style*="position: fixed"]');
+    }
+    if (!modal) {
+        modal = document.querySelector('[style*="z-index: 9999"]');
+    }
+    
     if (modal) {
         modal.remove();
         console.log('✅ Modal fechado com sucesso');
+        
+        // Remover qualquer overlay ou backdrop
+        const overlays = document.querySelectorAll('[style*="background: rgba(0, 0, 0, 0.5)"]');
+        overlays.forEach(overlay => overlay.remove());
+        
     } else {
         console.log('⚠️ Modal não encontrado para fechar');
+        
+        // Forçar remoção de todos os elementos com classe modal
+        const allModals = document.querySelectorAll('.modal');
+        allModals.forEach(m => m.remove());
+        console.log(`🗑️ Removidos ${allModals.length} elementos com classe modal`);
     }
 }
 
@@ -8876,12 +8893,13 @@ async function testGitHubConnection() {
                 console.error('❌ Erro ao salvar no localStorage:', error);
             }
             
-            // Fechar modal após 2 segundos
+            // Fechar modal imediatamente após salvar
+            closeUpdateSettings();
+            
+            // Testar atualizações automaticamente após 1 segundo
             setTimeout(() => {
-                closeUpdateSettings();
-                // Testar atualizações automaticamente
                 checkForUpdates();
-            }, 2000);
+            }, 1000);
             
         } else if (response.status === 404) {
             showNotification('❌ Repositório não encontrado. Verifique o nome.', 'error');
