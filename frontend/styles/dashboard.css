@@ -11949,27 +11949,27 @@ body {
 
 /* Ícones coloridos para cards de Profissionais */
 #profissionais-tab .reports-grid .stat-card .stat-icon {
-    background: linear-gradient(135deg, #6c5ce7, #a29bfe); /* Roxo - TOTAL */
+    background: linear-gradient(135deg, var(--info-color), #2980b9); /* Azul - TOTAL */
 }
 
 #profissionais-tab .reports-grid .stat-card .stat-icon.active {
-    background: linear-gradient(135deg, #00b894, #00cec9); /* Verde - ATIVO */
+    background: linear-gradient(135deg, var(--success-color), #2ecc71); /* Verde - ATIVO */
 }
 
 #profissionais-tab .reports-grid .stat-card .stat-icon.inactive {
-    background: linear-gradient(135deg, #e17055, #fd79a8); /* Vermelho - INATIVO */
+    background: linear-gradient(135deg, var(--danger-color), #c0392b); /* Vermelho - INATIVO */
 }
 
 #profissionais-tab .reports-grid .stat-card .stat-icon.vacation {
-    background: linear-gradient(135deg, #fdcb6e, #e17055); /* Laranja - FÉRIAS */
+    background: linear-gradient(135deg, var(--warning-color), #e67e22); /* Laranja - FÉRIAS */
 }
 
 #profissionais-tab .reports-grid .stat-card .stat-icon.leave {
-    background: linear-gradient(135deg, #74b9ff, #0984e3); /* Azul - LICENÇA */
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); /* Marrom - LICENÇA */
 }
 
 #profissionais-tab .reports-grid .stat-card .stat-icon.top {
-    background: linear-gradient(135deg, #fdcb6e, #e84393); /* Rosa - MAIS ATENDIMENTOS */
+    background: linear-gradient(135deg, #9b59b6, #8e44ad); /* Roxo - MAIS ATENDIMENTOS */
 }
 
 /* Ícones coloridos para cards de Serviços */
