@@ -1,19 +1,3 @@
-// ===== UTILITÁRIOS PARA MULTI-CLIENTE =====
-
-// Função para construir URL da API com suporte a multi-cliente
-function buildApiUrl(endpoint) {
-    const basePath = window.clientDetector ? window.clientDetector.getBasePath() : '';
-    const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
-    return `${basePath}/api/${cleanEndpoint}`;
-}
-
-// Função para construir URL de asset com suporte a multi-cliente
-function buildAssetUrl(asset) {
-    const basePath = window.clientDetector ? window.clientDetector.getBasePath() : '';
-    const cleanAsset = asset.startsWith('/') ? asset.slice(1) : asset;
-    return `${basePath}/assets/${cleanAsset}`;
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     // Elementos do DOM
     const sidebar = document.getElementById('sidebar');
@@ -214,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
-            const response = await fetch(buildApiUrl('/auth/verify'), {
+            const response = await fetch('/api/auth/verify', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
