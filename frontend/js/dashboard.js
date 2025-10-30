@@ -8356,7 +8356,8 @@ let updateManager = {
     githubConfig: {
         owner: 'ChavesSD',
         repo: 'AgendaquiCHStudio',
-        branch: 'master'
+        branch: 'master',
+        token: '' // Token de acesso pessoal do GitHub
     },
     repositories: [] // Será preenchido com repositórios reais do GitHub
 };
@@ -8437,23 +8438,37 @@ async function checkForUpdates() {
 
 // Buscar commits do GitHub (API real)
 async function fetchGitHubCommits() {
-    const { owner, repo, branch } = updateManager.githubConfig;
+    const { owner, repo, branch, token } = updateManager.githubConfig;
     const apiUrl = `https://api.github.com/repos/${owner}/${repo}/commits?sha=${branch}&per_page=10`;
     
     try {
         console.log('🔍 Buscando commits do GitHub:', apiUrl);
         
+        // Preparar headers com autenticação se disponível
+        const headers = {
+            'Accept': 'application/vnd.github.v3+json',
+            'User-Agent': 'CHStudio-UpdateManager/1.0'
+        };
+        
+        if (token && token.trim() !== '') {
+            headers['Authorization'] = `token ${token}`;
+            console.log('🔑 Usando token de autenticação do GitHub');
+        } else {
+            console.log('⚠️ Nenhum token configurado - tentando acesso público');
+        }
+        
         const response = await fetch(apiUrl, {
             method: 'GET',
-            headers: {
-                'Accept': 'application/vnd.github.v3+json',
-                'User-Agent': 'CHStudio-UpdateManager/1.0'
-            }
+            headers: headers
         });
         
         if (!response.ok) {
             if (response.status === 404) {
-                throw new Error(`Repositório não encontrado ou privado: ${owner}/${repo}. Verifique se o repositório existe e é público, ou configure autenticação.`);
+                throw new Error(`Repositório não encontrado: ${owner}/${repo}. Verifique se o nome está correto.`);
+            } else if (response.status === 401) {
+                throw new Error(`Acesso negado. Token inválido ou expirado. Configure um token válido do GitHub.`);
+            } else if (response.status === 403) {
+                throw new Error(`Acesso negado. Repositório privado sem permissão. Configure um token com acesso ao repositório.`);
             }
             throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
         }
@@ -8470,56 +8485,23 @@ async function fetchGitHubCommits() {
             description: commit.commit.message.split('\n').slice(1).join(' ').trim() || 'Sem descrição adicional'
         }));
         
-        console.log(`✅ Encontrados ${formattedCommits.length} commits do GitHub`);
+        console.log(`✅ Encontrados ${formattedCommits.length} commits reais do GitHub`);
+        showNotification(`Encontradas ${formattedCommits.length} atualizações reais do GitHub!`, 'success');
         return formattedCommits;
         
     } catch (error) {
         console.error('❌ Erro ao buscar commits do GitHub:', error);
         
-        // Verificar se é erro de repositório privado
-        if (error.message.includes('privado') || error.message.includes('404')) {
-            console.log('🔒 Repositório privado detectado. Usando dados simulados...');
-            showNotification('Repositório privado detectado. Configure autenticação ou torne o repositório público para buscar atualizações reais.', 'warning');
+        if (error.message.includes('Token inválido') || error.message.includes('Acesso negado')) {
+            showNotification('Token do GitHub inválido ou expirado. Configure um token válido nas configurações.', 'error');
+        } else if (error.message.includes('Repositório não encontrado')) {
+            showNotification('Repositório não encontrado. Verifique o nome do repositório.', 'error');
         } else {
-            console.log('🔄 Usando dados simulados como fallback...');
-            showNotification('Erro ao conectar com GitHub. Usando dados simulados.', 'warning');
+            showNotification('Erro ao conectar com GitHub. Verifique sua conexão e configurações.', 'error');
         }
         
-        // Fallback para dados simulados em caso de erro
-        return [
-            {
-                sha: '9ef7a78',
-                message: 'fix: Corrigir nome do repositório para AgendaquiCHStudio',
-                author: 'ChavesSD',
-                date: new Date().toISOString(),
-                files: ['frontend/js/dashboard.js'],
-                description: 'Corrigir erro 404 ao buscar commits do GitHub'
-            },
-            {
-                sha: '142a6ad',
-                message: 'feat: Implementar busca de repositórios reais do GitHub',
-                author: 'ChavesSD',
-                date: new Date(Date.now() - 60000).toISOString(),
-                files: ['frontend/js/dashboard.js', 'frontend/styles/dashboard.css'],
-                description: 'Sistema completo de seleção de repositórios para gerenciamento de atualizações'
-            },
-            {
-                sha: '55066eb',
-                message: 'feat: Implementar sistema de seleção de repositórios para atualizações',
-                author: 'ChavesSD',
-                date: new Date(Date.now() - 120000).toISOString(),
-                files: ['frontend/dashboard.html', 'frontend/js/dashboard.js', 'frontend/styles/dashboard.css'],
-                description: 'Sistema completo de seleção de repositórios para gerenciamento de atualizações'
-            },
-            {
-                sha: '9f5fb11',
-                message: 'fix: Corrigir erro dashboard is not defined e ocultar dropdown Personalizado em mobile',
-                author: 'ChavesSD',
-                date: '2024-01-15T10:30:00Z',
-                files: ['frontend/js/dashboard.js', 'frontend/styles/dashboard.css'],
-                description: 'Correções importantes para estabilidade do sistema'
-            }
-        ];
+        // Não retornar dados simulados - forçar configuração
+        return [];
     }
 }
 
@@ -8530,8 +8512,14 @@ function displayUpdates(updates) {
     if (!updates || updates.length === 0) {
         container.innerHTML = `
             <div class="no-updates">
-                <i class="fas fa-check-circle"></i>
-                <p>Nenhuma atualização disponível</p>
+                <div class="no-updates-content">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Nenhuma atualização encontrada</h3>
+                    <p>Configure um token do GitHub para acessar repositórios privados ou verifique suas configurações.</p>
+                    <button onclick="showUpdateSettings()" class="btn btn-primary">
+                        <i class="fas fa-cog"></i> Configurar GitHub
+                    </button>
+                </div>
             </div>
         `;
         return;
@@ -8703,15 +8691,128 @@ async function refreshRepositoriesList() {
 
 // Mostrar configurações de atualizações
 function showUpdateSettings() {
-    const settings = prompt('Configurações do GitHub:\n\nOwner:', updateManager.githubConfig.owner) || updateManager.githubConfig.owner;
-    const repo = prompt('Repositório:', updateManager.githubConfig.repo) || updateManager.githubConfig.repo;
-    const branch = prompt('Branch:', updateManager.githubConfig.branch) || updateManager.githubConfig.branch;
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Configurações do GitHub</h3>
+                <button onclick="closeUpdateSettings()" class="close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Repositório GitHub:</label>
+                    <input type="text" id="github-repo" value="${updateManager.githubConfig.owner}/${updateManager.githubConfig.repo}" placeholder="usuario/repositorio">
+                    <small>Formato: usuario/repositorio</small>
+                </div>
+                <div class="form-group">
+                    <label>Branch:</label>
+                    <input type="text" id="github-branch" value="${updateManager.githubConfig.branch}" placeholder="master">
+                </div>
+                <div class="form-group">
+                    <label>Token de Acesso (Obrigatório para repositórios privados):</label>
+                    <input type="password" id="github-token" value="${updateManager.githubConfig.token}" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                    <small>Necessário para repositórios privados. <a href="https://github.com/settings/tokens" target="_blank">Gerar token</a></small>
+                </div>
+                <div class="form-group">
+                    <label>Testar Conexão:</label>
+                    <button onclick="testGitHubConnection()" class="btn btn-secondary">
+                        <i class="fas fa-plug"></i> Testar Conexão
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="saveUpdateSettings()" class="btn btn-primary">Salvar</button>
+                <button onclick="closeUpdateSettings()" class="btn btn-secondary">Cancelar</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+// Fechar configurações de atualização
+function closeUpdateSettings() {
+    const modal = document.querySelector('.modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Salvar configurações de atualização
+function saveUpdateSettings() {
+    const repoInput = document.getElementById('github-repo');
+    const branchInput = document.getElementById('github-branch');
+    const tokenInput = document.getElementById('github-token');
     
-    updateManager.githubConfig = { owner: settings, repo, branch };
-    saveUpdateSettings();
+    if (repoInput && branchInput && tokenInput) {
+        const [owner, repo] = repoInput.value.split('/');
+        updateManager.githubConfig.owner = owner || 'ChavesSD';
+        updateManager.githubConfig.repo = repo || 'AgendaquiCHStudio';
+        updateManager.githubConfig.branch = branchInput.value || 'master';
+        updateManager.githubConfig.token = tokenInput.value || '';
+        
+        saveUpdateSettings();
+        closeUpdateSettings();
+        showNotification('Configurações salvas com sucesso!', 'success');
+        
+        // Testar conexão automaticamente após salvar
+        setTimeout(() => {
+            checkForUpdates();
+        }, 1000);
+    }
+}
+
+// Testar conexão com GitHub
+async function testGitHubConnection() {
+    const repoInput = document.getElementById('github-repo');
+    const branchInput = document.getElementById('github-branch');
+    const tokenInput = document.getElementById('github-token');
     
-    showNotification('Configurações salvas!', 'success');
-    checkForUpdates();
+    if (!repoInput || !branchInput || !tokenInput) return;
+    
+    const [owner, repo] = repoInput.value.split('/');
+    const branch = branchInput.value || 'master';
+    const token = tokenInput.value || '';
+    
+    if (!owner || !repo) {
+        showNotification('Por favor, insira um repositório válido no formato usuario/repositorio', 'error');
+        return;
+    }
+    
+    showNotification('Testando conexão com GitHub...', 'info');
+    
+    try {
+        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/commits?sha=${branch}&per_page=1`;
+        
+        const headers = {
+            'Accept': 'application/vnd.github.v3+json',
+            'User-Agent': 'CHStudio-UpdateManager/1.0'
+        };
+        
+        if (token && token.trim() !== '') {
+            headers['Authorization'] = `token ${token}`;
+        }
+        
+        const response = await fetch(apiUrl, {
+            method: 'GET',
+            headers: headers
+        });
+        
+        if (response.ok) {
+            const commits = await response.json();
+            showNotification(`✅ Conexão bem-sucedida! Encontrados ${commits.length} commits.`, 'success');
+        } else if (response.status === 404) {
+            showNotification('❌ Repositório não encontrado. Verifique o nome.', 'error');
+        } else if (response.status === 401) {
+            showNotification('❌ Token inválido. Verifique seu token de acesso.', 'error');
+        } else if (response.status === 403) {
+            showNotification('❌ Acesso negado. Repositório privado sem permissão.', 'error');
+        } else {
+            showNotification(`❌ Erro: ${response.status} ${response.statusText}`, 'error');
+        }
+    } catch (error) {
+        showNotification(`❌ Erro de conexão: ${error.message}`, 'error');
+    }
 }
 
 // Mostrar erro de atualização
