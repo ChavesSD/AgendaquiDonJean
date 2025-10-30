@@ -8768,26 +8768,52 @@ function closeUpdateSettings() {
 
 // Salvar configurações de atualização
 function saveUpdateSettings() {
+    console.log('💾 Salvando configurações do GitHub...');
+    
     const repoInput = document.getElementById('github-repo');
     const branchInput = document.getElementById('github-branch');
     const tokenInput = document.getElementById('github-token');
     
-    if (repoInput && branchInput && tokenInput) {
-        const [owner, repo] = repoInput.value.split('/');
-        updateManager.githubConfig.owner = owner || 'ChavesSD';
-        updateManager.githubConfig.repo = repo || 'AgendaquiCHStudio';
-        updateManager.githubConfig.branch = branchInput.value || 'master';
-        updateManager.githubConfig.token = tokenInput.value || '';
-        
-        saveUpdateSettings();
-        closeUpdateSettings();
-        showNotification('Configurações salvas com sucesso!', 'success');
-        
-        // Testar conexão automaticamente após salvar
-        setTimeout(() => {
-            checkForUpdates();
-        }, 1000);
+    if (!repoInput || !branchInput || !tokenInput) {
+        console.error('❌ Elementos do formulário não encontrados');
+        showNotification('Erro: Elementos do formulário não encontrados', 'error');
+        return;
     }
+    
+    const [owner, repo] = repoInput.value.split('/');
+    
+    if (!owner || !repo) {
+        console.error('❌ Formato de repositório inválido');
+        showNotification('Por favor, insira um repositório válido no formato usuario/repositorio', 'error');
+        return;
+    }
+    
+    // Atualizar configurações
+    updateManager.githubConfig.owner = owner;
+    updateManager.githubConfig.repo = repo;
+    updateManager.githubConfig.branch = branchInput.value || 'master';
+    updateManager.githubConfig.token = tokenInput.value || '';
+    
+    console.log('✅ Configurações atualizadas:', updateManager.githubConfig);
+    
+    // Salvar no localStorage
+    try {
+        localStorage.setItem('githubConfig', JSON.stringify(updateManager.githubConfig));
+        console.log('✅ Configurações salvas no localStorage');
+    } catch (error) {
+        console.error('❌ Erro ao salvar no localStorage:', error);
+        showNotification('Erro ao salvar configurações localmente', 'error');
+        return;
+    }
+    
+    // Fechar modal e mostrar sucesso
+    closeUpdateSettings();
+    showNotification('Configurações salvas com sucesso!', 'success');
+    
+    // Testar conexão automaticamente após salvar
+    setTimeout(() => {
+        checkForUpdates();
+    }, 1000);
 }
 
 // Testar conexão com GitHub
