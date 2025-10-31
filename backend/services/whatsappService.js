@@ -23,11 +23,9 @@ class WhatsAppService {
             return;
         }
 
-        this.client = new Client({
-            authStrategy: new LocalAuth({
-                clientId: "ch-studio-whatsapp"
-            }),
-            puppeteer: {
+        // Resolver configuração do Chromium para ambientes como Railway
+        const getPuppeteerConfig = () => {
+            const common = {
                 headless: true,
                 args: [
                     '--no-sandbox',
@@ -37,21 +35,34 @@ class WhatsAppService {
                     '--no-first-run',
                     '--no-zygote',
                     '--single-process',
-                    '--disable-gpu',
-                    '--disable-web-security',
-                    '--disable-features=VizDisplayCompositor',
-                    '--disable-extensions',
-                    '--disable-plugins',
-                    '--disable-images',
-                    '--disable-javascript',
-                    '--disable-default-apps',
-                    '--disable-background-timer-throttling',
-                    '--disable-backgrounding-occluded-windows',
-                    '--disable-renderer-backgrounding'
+                    '--disable-gpu'
                 ],
                 timeout: 60000,
                 protocolTimeout: 60000
+            };
+            // Usar caminho do Chrome se fornecido por variável de ambiente
+            if (process.env.PUPPETEER_EXECUTABLE_PATH || process.env.CHROME_PATH) {
+                return { ...common, executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || process.env.CHROME_PATH };
             }
+            try {
+                // Tentar usar @sparticuz/chromium se instalado
+                const chromium = require('@sparticuz/chromium');
+                return {
+                    ...common,
+                    args: [...common.args, ...chromium.args],
+                    executablePath: chromium.executablePath,
+                    headless: 'new'
+                };
+            } catch (e) {
+                return common; // fallback
+            }
+        };
+
+        this.client = new Client({
+            authStrategy: new LocalAuth({
+                clientId: "ch-studio-whatsapp"
+            }),
+            puppeteer: getPuppeteerConfig()
         });
 
         // Evento: QR Code gerado
@@ -163,35 +174,12 @@ class WhatsAppService {
             
             // Criar nova instância com ID único
             const timestamp = Date.now();
+            const getPuppeteerConfig2 = getPuppeteerConfig;
             this.client = new Client({
                 authStrategy: new LocalAuth({
                     clientId: `ch-studio-whatsapp-${timestamp}`
                 }),
-                puppeteer: {
-                    headless: true,
-                    args: [
-                        '--no-sandbox',
-                        '--disable-setuid-sandbox',
-                        '--disable-dev-shm-usage',
-                        '--disable-accelerated-2d-canvas',
-                        '--no-first-run',
-                        '--no-zygote',
-                        '--single-process',
-                        '--disable-gpu',
-                        '--disable-web-security',
-                        '--disable-features=VizDisplayCompositor',
-                        '--disable-extensions',
-                        '--disable-plugins',
-                        '--disable-images',
-                        '--disable-javascript',
-                        '--disable-default-apps',
-                        '--disable-background-timer-throttling',
-                        '--disable-backgrounding-occluded-windows',
-                        '--disable-renderer-backgrounding'
-                    ],
-                    timeout: 60000,
-                    protocolTimeout: 60000
-                }
+                puppeteer: getPuppeteerConfig2()
             });
 
             // Evento: QR Code gerado
