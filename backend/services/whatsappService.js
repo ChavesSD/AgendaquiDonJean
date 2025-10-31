@@ -42,7 +42,9 @@ class WhatsAppService {
             return {
                 ...common,
                 args: [...common.args, ...chromium.args],
-                executablePath: chromium.executablePath,
+                executablePath: (typeof chromium.executablePath === 'function') 
+                    ? chromium.executablePath() 
+                    : chromium.executablePath,
                 headless: 'new'
             };
         } catch (e) {
