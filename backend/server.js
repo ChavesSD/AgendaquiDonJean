@@ -13,6 +13,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
+// Em ambientes com proxy (Railway, Heroku, etc) habilitar trust proxy para o Express
+// Isso evita erros do express-rate-limit ao validar X-Forwarded-For
+app.set('trust proxy', 1);
 const corsOptions = {
     origin: function (origin, callback) {
         // Permitir requests sem origin (healthchecks, postman, etc.)
