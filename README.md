@@ -1,4 +1,4 @@
-# CH Studio - Sistema de Gestão
+# Don Jean - Sistema de Gestão
 
 Sistema completo de gestão para salão de beleza com agendamentos, controle financeiro, estoque e muito mais.
 
@@ -42,4 +42,4 @@ Para dúvidas ou suporte, consulte a documentação completa na pasta `docs/`.
 
 ---
 
-**CH Studio** - Sistema de Gestão para Salão de Beleza
+**Don Jean** - Sistema de Gestão para Salão de Beleza

@@ -1,4 +1,4 @@
-# ✅ Checklist de Deploy - CH Studio
+# ✅ Checklist de Deploy - Don Jean
 
 ## 🔧 Configuração do Railway
 

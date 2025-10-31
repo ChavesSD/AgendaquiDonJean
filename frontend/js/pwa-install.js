@@ -118,7 +118,7 @@ function showInstallInstructions() {
     if (isIOS) {
         instructions = `
             <div class="pwa-instructions">
-                <h3>Instalar CH Studio no iOS</h3>
+                <h3>Instalar Don Jean no iOS</h3>
                 <ol>
                     <li>Toque no botão <strong>Compartilhar</strong> (ícone de compartilhamento)</li>
                     <li>Role para baixo e toque em <strong>Adicionar à Tela de Início</strong></li>
@@ -129,7 +129,7 @@ function showInstallInstructions() {
     } else if (isAndroid) {
         instructions = `
             <div class="pwa-instructions">
-                <h3>Instalar CH Studio no Android</h3>
+                <h3>Instalar Don Jean no Android</h3>
                 <ol>
                     <li>Toque no menu (3 pontos) no navegador</li>
                     <li>Selecione <strong>Instalar app</strong> ou <strong>Adicionar à tela inicial</strong></li>
@@ -140,7 +140,7 @@ function showInstallInstructions() {
     } else {
         instructions = `
             <div class="pwa-instructions">
-                <h3>Instalar CH Studio</h3>
+                <h3>Instalar Don Jean</h3>
                 <p>No Chrome/Edge: Clique no ícone de instalação na barra de endereços</p>
                 <p>Ou use o menu do navegador → Instalar aplicativo</p>
             </div>

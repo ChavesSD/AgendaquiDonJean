@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, 'config.env') });
 
 // Conectar ao MongoDB Atlas
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -23,7 +24,7 @@ const User = require('./models/User');
 async function createAdmin() {
     try {
         // Verificar se já existe um admin
-        const existingAdmin = await User.findOne({ email: 'admin@chstudio.com' });
+        const existingAdmin = await User.findOne({ email: 'admin@donjean.com' });
         if (existingAdmin) {
             console.log('⚠️  Usuário admin já existe:', existingAdmin.email);
             return;
@@ -31,9 +32,9 @@ async function createAdmin() {
 
         // Dados do admin
         const adminData = {
-            name: 'Administrador CH Studio',
-            email: 'admin@chstudio.com',
-            password: 'admin123',
+            name: 'Administrador Don Jean',
+            email: 'admin@donjean.com',
+            password: 'dev18021992',
             role: 'admin'
         };
 
@@ -51,8 +52,8 @@ async function createAdmin() {
         await admin.save();
 
         console.log('✅ Usuário admin criado com sucesso!');
-        console.log('📧 Email: admin@chstudio.com');
-        console.log('🔑 Senha: admin123');
+        console.log('📧 Email: admin@donjean.com');
+        console.log('🔑 Senha: dev18021992');
         console.log('');
         console.log('⚠️  IMPORTANTE: Altere a senha após o primeiro login!');
 

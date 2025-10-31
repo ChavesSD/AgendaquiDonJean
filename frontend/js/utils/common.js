@@ -1,5 +1,5 @@
 /**
- * Utilitários Comuns - CH Studio
+ * Utilitários Comuns - Don Jean
  * Funções compartilhadas entre diferentes módulos
  */
 

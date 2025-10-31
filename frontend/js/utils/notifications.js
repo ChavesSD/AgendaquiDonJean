@@ -1,5 +1,5 @@
 /**
- * Sistema de Notificações e Confirmações do CH Studio
+ * Sistema de Notificações e Confirmações do Don Jean
  * 
  * Este arquivo centraliza todas as funções de notificação e confirmação
  * para garantir consistência em todo o sistema.

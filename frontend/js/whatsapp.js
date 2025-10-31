@@ -351,7 +351,7 @@ class WhatsAppManager {
         
         if (!testNumber) return;
 
-        const message = 'Teste de integração WhatsApp - CH Studio';
+        const message = 'Teste de integração WhatsApp - Don Jean';
         
         try {
             const token = localStorage.getItem('authToken');

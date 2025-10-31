@@ -1,5 +1,5 @@
 /**
- * Service Worker - CH Studio
+ * Service Worker - Don Jean
  * Cache de recursos estáticos para melhor performance
  */
 

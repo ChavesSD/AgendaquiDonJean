@@ -7,7 +7,7 @@ const multer = require('multer');
 const rateLimit = require('express-rate-limit');
 const whatsappService = require('./services/whatsappService');
 const backupService = require('./services/backupService');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, 'config.env') });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -422,7 +422,7 @@ app.get('/api/company-settings', authenticateToken, async (req, res) => {
         if (!settings) {
             // Criar configurações padrão se não existirem
             settings = new CompanySettings({
-                companyName: 'CH Studio',
+                companyName: 'Don Jean',
                 cnpj: '',
                 cep: '',
                 street: '',
@@ -541,7 +541,7 @@ app.get('/api/public/company-settings', async (req, res) => {
         if (!settings) {
             // Retornar configurações padrão se não existirem
             settings = {
-                companyName: 'CH Studio',
+                companyName: 'Don Jean',
                 whatsapp: '(11) 99999-9999',
                 workingHours: {
                     weekdays: { open: '08:00', close: '18:00' },
@@ -1120,7 +1120,7 @@ app.get('/api/whatsapp/messages', authenticateToken, async (req, res) => {
         if (!messages) {
             // Criar mensagens padrão se não existirem
             messages = new WhatsAppMessages({
-                welcomeMessage: 'Olá! Seja bem-vindo ao CH Studio! Como posso ajudá-lo?',
+                welcomeMessage: 'Olá! Seja bem-vindo ao Don Jean! Como posso ajudá-lo?',
                 outOfHoursMessage: 'Olá! Obrigado por entrar em contato. Estamos fora do horário de funcionamento. Retornaremos em breve!',
                 confirmationMessage: 'Olá! Seu agendamento foi confirmado com sucesso! Aguardamos você no horário marcado.',
                 cancellationMessage: 'Olá! Infelizmente seu agendamento foi cancelado. Entre em contato conosco para reagendar em outro horário.'

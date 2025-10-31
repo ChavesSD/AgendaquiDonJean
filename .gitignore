@@ -89,6 +89,7 @@ Thumbs.db
 
 # Backup files
 backups/
+backend/backups/
 *.backup
 *.bak
 
@@ -99,3 +100,8 @@ temp/
 # WhatsApp Web.js cache and auth
 backend/.wwebjs_auth/
 backend/.wwebjs_cache/
+ 
+# Backend specific ignores
+backend/config.env
+backend/production.env
+backend/node_modules/
