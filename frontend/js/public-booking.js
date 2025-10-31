@@ -2,7 +2,8 @@
 let bookingState = {
     currentStep: 1,
     selectedProfessional: null,
-    selectedService: null,
+    selectedService: null, // compatibilidade legada
+    selectedServices: [], // nova lista para multiseleção
     selectedDate: null,
     selectedTime: null,
     clientData: {},
@@ -350,7 +351,8 @@ function showStep(step) {
         nextProfessionalBtn.disabled = !bookingState.selectedProfessional;
     }
     if (nextServiceBtn) {
-        nextServiceBtn.disabled = !bookingState.selectedService;
+        const hasAnyService = (bookingState.selectedServices && bookingState.selectedServices.length > 0) || !!bookingState.selectedService;
+        nextServiceBtn.disabled = !hasAnyService;
     }
     if (nextTimeBtn) {
         nextTimeBtn.disabled = !bookingState.selectedDate || !bookingState.selectedTime;
@@ -372,8 +374,8 @@ function validateCurrentStep() {
             }
             break;
         case 3:
-            if (!bookingState.selectedService) {
-                showNotification('Por favor, selecione um serviço.', 'warning');
+            if (!bookingState.selectedServices || bookingState.selectedServices.length === 0) {
+                showNotification('Por favor, selecione pelo menos um serviço.', 'warning');
                 return false;
             }
             break;
@@ -500,7 +502,7 @@ function renderServices() {
     bookingState.services.forEach(service => {
         const card = document.createElement('div');
         card.className = 'service-card';
-        card.onclick = () => selectService(service);
+        card.onclick = () => toggleServiceSelection(service, card);
         
         const durationText = service.durationUnit === 'hours' ? 
             `${service.duration}h` : `${service.duration}min`;
@@ -516,20 +518,29 @@ function renderServices() {
     });
 }
 
-function selectService(service) {
-    // Remover seleção anterior
-    document.querySelectorAll('.service-card').forEach(card => {
-        card.classList.remove('selected');
-    });
+function toggleServiceSelection(service, cardElement) {
+    if (!bookingState.selectedServices) bookingState.selectedServices = [];
     
-    // Selecionar novo serviço
-    event.currentTarget.classList.add('selected');
-    bookingState.selectedService = service;
+    const index = bookingState.selectedServices.findIndex(s => s._id === service._id);
+    const isSelected = index !== -1;
     
-    // Habilitar botão próximo
+    if (isSelected) {
+        // Remover da seleção
+        bookingState.selectedServices.splice(index, 1);
+        cardElement.classList.remove('selected');
+    } else {
+        // Adicionar à seleção
+        bookingState.selectedServices.push(service);
+        cardElement.classList.add('selected');
+    }
+    
+    // Manter primeira seleção em selectedService para compatibilidade legada
+    bookingState.selectedService = bookingState.selectedServices[0] || null;
+    
+    // Habilitar/Desabilitar botão próximo
     const nextBtn = document.getElementById('nextServiceBtn');
     if (nextBtn) {
-        nextBtn.disabled = false;
+        nextBtn.disabled = bookingState.selectedServices.length === 0;
     }
 }
 
@@ -687,7 +698,7 @@ async function loadAvailableTimes(date) {
         return;
     }
     
-    const serviceDuration = getServiceDurationInMinutes(bookingState.selectedService);
+    const serviceDuration = getTotalSelectedDuration();
     const availableTimes = [];
     
     // Gerar horários baseados no horário de funcionamento
@@ -716,12 +727,11 @@ async function loadAvailableTimes(date) {
     timeSlots.innerHTML = '';
     
     if (availableTimes.length === 0) {
-        const durationText = bookingState.selectedService.durationUnit === 'hours' ? 
-            `${bookingState.selectedService.duration}h` : `${bookingState.selectedService.duration}min`;
+        const durationText = `${serviceDuration}min`;
         timeSlots.innerHTML = `
             <div class="no-times">
                 <p>Não há horários disponíveis para este dia.</p>
-                <p><small>O serviço "${bookingState.selectedService.name}" tem duração de ${durationText}.</small></p>
+                <p><small>A duração total selecionada é de ${durationText}.</small></p>
             </div>
         `;
         return;
@@ -729,25 +739,23 @@ async function loadAvailableTimes(date) {
     
     // Adicionar informação sobre a duração do serviço na seção específica
     const serviceInfoSection = document.getElementById('serviceInfoSection');
-    const durationText = bookingState.selectedService.durationUnit === 'hours' ? 
-        `${bookingState.selectedService.duration}h` : `${bookingState.selectedService.duration}min`;
-    const durationMinutesText = `${serviceDuration} minutos`;
+    const durationText = `${serviceDuration} minutos`;
     
     serviceInfoSection.innerHTML = `
         <div class="service-info-content">
             <div class="service-info-left">
                 <div class="service-info-item">
-                    <strong>Serviço</strong>
-                    <span>${bookingState.selectedService.name}</span>
+                    <strong>Serviços</strong>
+                    <span>${(bookingState.selectedServices||[]).map(s => s.name).join(', ')}</span>
                 </div>
                 <div class="service-info-item">
                     <strong>Duração</strong>
-                    <span>${durationText} (${durationMinutesText})</span>
+                    <span>${durationText}</span>
                 </div>
             </div>
             <div class="service-info-right">
                 <div class="service-info-description">
-                    Os horários mostrados são o início do serviço. O serviço terminará ${serviceDuration} minutos depois.
+                    Os horários mostrados são o início. O atendimento terminará ${serviceDuration} minutos depois.
                 </div>
                 <button onclick="refreshAvailableTimes()" class="refresh-btn">
                     <i class="fas fa-sync-alt"></i>
@@ -842,6 +850,12 @@ function getServiceDurationInMinutes(service) {
     }
     
     return service.duration; // Já está em minutos
+}
+
+// Nova: duração total dos serviços selecionados
+function getTotalSelectedDuration() {
+    const services = bookingState.selectedServices || (bookingState.selectedService ? [bookingState.selectedService] : []);
+    return services.reduce((sum, s) => sum + getServiceDurationInMinutes(s), 0);
 }
 
 function formatEndTime(startTime, durationMinutes) {
@@ -952,16 +966,19 @@ function updateSummary() {
     document.getElementById('summaryProfessional').textContent = 
         `${bookingState.selectedProfessional.firstName} ${bookingState.selectedProfessional.lastName}`;
     
+    const services = bookingState.selectedServices && bookingState.selectedServices.length > 0
+        ? bookingState.selectedServices
+        : (bookingState.selectedService ? [bookingState.selectedService] : []);
+    const totalPrice = services.reduce((sum, s) => sum + (s.price || 0), 0);
     document.getElementById('summaryService').textContent = 
-        `${bookingState.selectedService.name} - R$ ${(bookingState.selectedService.price || 0).toFixed(2)}`;
+        `${services.map(s => s.name).join(', ')} - R$ ${totalPrice.toFixed(2)}`;
     
     document.getElementById('summaryDate').textContent = 
         bookingState.selectedDate.toLocaleDateString('pt-BR');
     
-    const serviceDuration = getServiceDurationInMinutes(bookingState.selectedService);
+    const serviceDuration = getTotalSelectedDuration();
     const endTime = formatEndTime(bookingState.selectedTime, serviceDuration);
-    const durationText = bookingState.selectedService.durationUnit === 'hours' ? 
-        `${bookingState.selectedService.duration}h` : `${bookingState.selectedService.duration}min`;
+    const durationText = `${serviceDuration}min`;
     
     document.getElementById('summaryTime').textContent = 
         `${bookingState.selectedTime} - ${endTime} (${durationText})`;
@@ -978,7 +995,7 @@ async function confirmBooking() {
         showLoading(true);
         
         // Validações finais antes de confirmar
-        const serviceDuration = getServiceDurationInMinutes(bookingState.selectedService);
+        const serviceDuration = getTotalSelectedDuration();
         
         // Verificar se o horário ainda está disponível (pode ter sido ocupado por outro usuário)
         if (!isTimeAvailable(bookingState.selectedDate, bookingState.selectedTime, serviceDuration)) {
@@ -987,15 +1004,20 @@ async function confirmBooking() {
             return;
         }
         
+        // Observação: backend atual aceita apenas um serviceId.
+        // Enviaremos o primeiro e colocaremos o detalhamento nos notes.
+        const services = bookingState.selectedServices && bookingState.selectedServices.length > 0
+            ? bookingState.selectedServices
+            : (bookingState.selectedService ? [bookingState.selectedService] : []);
         const appointmentData = {
             professionalId: bookingState.selectedProfessional._id,
-            serviceId: bookingState.selectedService._id,
+            serviceId: services[0]._id,
             date: bookingState.selectedDate.toISOString(),
             time: bookingState.selectedTime,
             clientName: bookingState.clientData.name,
             clientLastName: bookingState.clientData.lastName,
             clientPhone: bookingState.clientData.phone,
-            notes: bookingState.clientData.notes || '',
+            notes: `${bookingState.clientData.notes || ''}\nServiços selecionados: ${services.map(s => s.name).join(', ')}. Duração total: ${serviceDuration}min. Valor total: R$ ${services.reduce((sum, s) => sum + (s.price || 0), 0).toFixed(2)}`,
             source: 'public_booking'
         };
         
