@@ -115,7 +115,8 @@ app.get('/api/health', (req, res) => {
 });
 
 // Endpoint para logs do cliente (opcional)
-app.post('/api/logs', authenticateToken, (req, res) => {
+// Não requer autenticação, pois é usado pelo logger do frontend
+app.post('/api/logs', (req, res) => {
     // Endpoint básico para receber logs do cliente
     // Em produção, você pode querer salvar esses logs em um banco de dados
     // Por enquanto, apenas retorna sucesso para evitar erros 404
