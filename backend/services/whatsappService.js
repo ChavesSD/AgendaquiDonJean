@@ -17,9 +17,15 @@ class WhatsAppService {
         };
     }
 
-    // Configuração do Puppeteer/Chromium para ambientes como Railway
-    getPuppeteerConfig() {
-        const common = {
+    // Inicializar cliente WhatsApp
+    initialize() {
+        if (this.client) {
+            return;
+        }
+
+        // Configuração do Puppeteer otimizada para Railway/produção (Linux)
+        // As dependências do sistema devem estar instaladas via Dockerfile
+        const puppeteerOptions = {
             headless: true,
             args: [
                 '--no-sandbox',
@@ -29,40 +35,32 @@ class WhatsAppService {
                 '--no-first-run',
                 '--no-zygote',
                 '--single-process',
-                '--disable-gpu'
+                '--disable-gpu',
+                '--disable-web-security',
+                '--disable-features=VizDisplayCompositor',
+                '--disable-extensions',
+                '--disable-plugins',
+                '--disable-images',
+                '--disable-javascript',
+                '--disable-default-apps',
+                '--disable-background-timer-throttling',
+                '--disable-backgrounding-occluded-windows',
+                '--disable-renderer-backgrounding',
+                '--disable-software-rasterizer',
+                '--disable-background-networking',
+                '--disable-sync',
+                '--metrics-recording-only',
+                '--mute-audio'
             ],
             timeout: 60000,
             protocolTimeout: 60000
         };
-        if (process.env.PUPPETEER_EXECUTABLE_PATH || process.env.CHROME_PATH) {
-            return { ...common, executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || process.env.CHROME_PATH };
-        }
-        try {
-            const chromium = require('@sparticuz/chromium');
-            return {
-                ...common,
-                args: [...common.args, ...chromium.args],
-                executablePath: (typeof chromium.executablePath === 'function') 
-                    ? chromium.executablePath() 
-                    : chromium.executablePath,
-                headless: 'new'
-            };
-        } catch (e) {
-            return common;
-        }
-    }
-
-    // Inicializar cliente WhatsApp
-    initialize() {
-        if (this.client) {
-            return;
-        }
 
         this.client = new Client({
             authStrategy: new LocalAuth({
                 clientId: "ch-studio-whatsapp"
             }),
-            puppeteer: this.getPuppeteerConfig()
+            puppeteer: puppeteerOptions
         });
 
         // Evento: QR Code gerado
@@ -174,11 +172,45 @@ class WhatsAppService {
             
             // Criar nova instância com ID único
             const timestamp = Date.now();
+            
+            // Configuração do Puppeteer otimizada para Railway/produção (Linux)
+            // As dependências do sistema devem estar instaladas via Dockerfile
+            const puppeteerOptions = {
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-accelerated-2d-canvas',
+                    '--no-first-run',
+                    '--no-zygote',
+                    '--single-process',
+                    '--disable-gpu',
+                    '--disable-web-security',
+                    '--disable-features=VizDisplayCompositor',
+                    '--disable-extensions',
+                    '--disable-plugins',
+                    '--disable-images',
+                    '--disable-javascript',
+                    '--disable-default-apps',
+                    '--disable-background-timer-throttling',
+                    '--disable-backgrounding-occluded-windows',
+                    '--disable-renderer-backgrounding',
+                    '--disable-software-rasterizer',
+                    '--disable-background-networking',
+                    '--disable-sync',
+                    '--metrics-recording-only',
+                    '--mute-audio'
+                ],
+                timeout: 60000,
+                protocolTimeout: 60000
+            };
+
             this.client = new Client({
                 authStrategy: new LocalAuth({
                     clientId: `ch-studio-whatsapp-${timestamp}`
                 }),
-                puppeteer: this.getPuppeteerConfig()
+                puppeteer: puppeteerOptions
             });
 
             // Evento: QR Code gerado
@@ -241,8 +273,34 @@ class WhatsAppService {
             return { success: true, message: 'Gerando novo QR Code...' };
         } catch (error) {
             console.error('Erro ao gerar novo QR Code:', error);
+            console.error('Detalhes do erro:', {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            });
             this.status = 'error';
-            return { success: false, message: 'Erro ao gerar QR Code: ' + error.message };
+            
+            // Mensagem de erro mais detalhada para troubleshooting
+            let errorMessage = 'Erro ao gerar QR Code: ' + error.message;
+            
+            // Verificar se é erro de dependências do sistema
+            if (error.message.includes('libnss3.so') || 
+                error.message.includes('shared libraries') ||
+                error.message.includes('cannot open shared object')) {
+                errorMessage = 'Erro ao gerar QR Code: Dependências do sistema não encontradas. ' +
+                              'Verifique se o Dockerfile está instalando todas as dependências necessárias para o Puppeteer. ' +
+                              'Erro original: ' + error.message;
+            }
+            
+            // Verificar se é erro de lançamento do navegador
+            if (error.message.includes('Failed to launch') || 
+                error.message.includes('No such file or directory')) {
+                errorMessage = 'Erro ao gerar QR Code: Não foi possível iniciar o navegador. ' +
+                              'Isso geralmente ocorre em ambientes Linux sem as dependências do Chrome instaladas. ' +
+                              'Erro original: ' + error.message;
+            }
+            
+            return { success: false, message: errorMessage };
         }
     }
 

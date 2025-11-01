@@ -13,9 +13,6 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-// Em ambientes com proxy (Railway, Heroku, etc) habilitar trust proxy para o Express
-// Isso evita erros do express-rate-limit ao validar X-Forwarded-For
-app.set('trust proxy', 1);
 const corsOptions = {
     origin: function (origin, callback) {
         // Permitir requests sem origin (healthchecks, postman, etc.)
@@ -161,10 +158,11 @@ const limiter = rateLimit({
 app.use('/api/auth', limiter);
 
 // Conexão com MongoDB Atlas
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/chstudio';
+const MONGODB_URI = process.env.MONGODB_URI;
 
-if (!process.env.MONGODB_URI) {
-    console.warn('⚠️ MONGODB_URI não configurada! Usando banco local como fallback');
+if (!MONGODB_URI) {
+    console.error('❌ MONGODB_URI não configurada! Configure a variável de ambiente MONGODB_URI no arquivo config.env');
+    process.exit(1);
 }
 
 console.log('🔗 Tentando conectar ao MongoDB...');
@@ -228,6 +226,9 @@ app.post('/api/auth/login', async (req, res) => {
             return res.status(400).json({ message: 'Email e senha são obrigatórios' });
         }
 
+        // Normalizar email para lowercase (mesmo que o schema faça, garantimos aqui)
+        const normalizedEmail = email.toLowerCase().trim();
+
         // Verificar se MongoDB está conectado
         if (mongoose.connection.readyState !== 1) {
             console.error('❌ MongoDB não está conectado! Estado:', mongoose.connection.readyState);
@@ -235,18 +236,21 @@ app.post('/api/auth/login', async (req, res) => {
         }
 
         // Buscar usuário no MongoDB
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: normalizedEmail });
         if (!user) {
+            console.log(`⚠️ Tentativa de login com email não encontrado: ${normalizedEmail}`);
             return res.status(401).json({ message: 'Credenciais inválidas' });
         }
 
         // Verificar senha
         const bcrypt = require('bcryptjs');
         if (!user.password) {
+            console.log(`⚠️ Usuário sem senha: ${normalizedEmail}`);
             return res.status(401).json({ message: 'Credenciais inválidas' });
         }
         const isValidPassword = await bcrypt.compare(password, user.password);
         if (!isValidPassword) {
+            console.log(`⚠️ Senha inválida para o usuário: ${normalizedEmail}`);
             return res.status(401).json({ message: 'Credenciais inválidas' });
         }
 
@@ -425,7 +429,7 @@ app.get('/api/company-settings', authenticateToken, async (req, res) => {
         if (!settings) {
             // Criar configurações padrão se não existirem
             settings = new CompanySettings({
-                companyName: 'Don Jean',
+                companyName: 'CH Studio',
                 cnpj: '',
                 cep: '',
                 street: '',
@@ -544,7 +548,7 @@ app.get('/api/public/company-settings', async (req, res) => {
         if (!settings) {
             // Retornar configurações padrão se não existirem
             settings = {
-                companyName: 'Don Jean',
+                companyName: 'CH Studio',
                 whatsapp: '(11) 99999-9999',
                 workingHours: {
                     weekdays: { open: '08:00', close: '18:00' },
@@ -1067,10 +1071,20 @@ app.get('/api/whatsapp/status', authenticateToken, async (req, res) => {
 app.post('/api/whatsapp/generate-qr', authenticateToken, async (req, res) => {
     try {
         const result = await whatsappService.generateNewQRCode();
+        if (!result.success) {
+            // Retornar erro com mensagem detalhada
+            return res.status(500).json({ 
+                success: false,
+                message: result.message || 'Erro ao gerar QR Code'
+            });
+        }
         res.json(result);
     } catch (error) {
         console.error('Erro ao gerar QR Code:', error);
-        res.status(500).json({ message: 'Erro interno do servidor' });
+        res.status(500).json({ 
+            success: false,
+            message: 'Erro interno do servidor: ' + error.message 
+        });
     }
 });
 
@@ -1123,7 +1137,7 @@ app.get('/api/whatsapp/messages', authenticateToken, async (req, res) => {
         if (!messages) {
             // Criar mensagens padrão se não existirem
             messages = new WhatsAppMessages({
-                welcomeMessage: 'Olá! Seja bem-vindo ao Don Jean! Como posso ajudá-lo?',
+                welcomeMessage: 'Olá! Seja bem-vindo ao CH Studio! Como posso ajudá-lo?',
                 outOfHoursMessage: 'Olá! Obrigado por entrar em contato. Estamos fora do horário de funcionamento. Retornaremos em breve!',
                 confirmationMessage: 'Olá! Seu agendamento foi confirmado com sucesso! Aguardamos você no horário marcado.',
                 cancellationMessage: 'Olá! Infelizmente seu agendamento foi cancelado. Entre em contato conosco para reagendar em outro horário.'
