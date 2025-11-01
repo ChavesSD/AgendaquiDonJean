@@ -114,6 +114,23 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// Endpoint para logs do cliente (opcional)
+app.post('/api/logs', authenticateToken, (req, res) => {
+    // Endpoint básico para receber logs do cliente
+    // Em produção, você pode querer salvar esses logs em um banco de dados
+    // Por enquanto, apenas retorna sucesso para evitar erros 404
+    try {
+        const logEntry = req.body;
+        // Em produção, você pode salvar os logs aqui
+        // Por exemplo: Log.create(logEntry)
+        console.log('📝 Log recebido do cliente:', logEntry.level, logEntry.message);
+        res.status(200).json({ success: true, message: 'Log recebido' });
+    } catch (error) {
+        console.error('Erro ao processar log:', error);
+        res.status(200).json({ success: true, message: 'Log recebido (erro processado)' });
+    }
+});
+
 // Configurar multer para upload de arquivos
 const storage = multer.memoryStorage();
 
@@ -739,6 +756,15 @@ app.post('/api/public/appointments', async (req, res) => {
         await appointment.populate('professional', 'firstName lastName');
         await appointment.populate('service', 'name duration');
         console.log('✅ Dados populados');
+
+        // Emitir evento Socket.IO para atualização em tempo real
+        if (io) {
+            io.emit('appointment_created', { 
+                appointment: appointment,
+                message: 'Novo agendamento criado'
+            });
+            console.log('📡 Evento appointment_created emitido via Socket.IO');
+        }
 
         res.json({ 
             success: true, 
@@ -1401,11 +1427,13 @@ app.get('/api/whatsapp/test-connection', authenticateToken, async (req, res) => 
 });
 
 // WebSocket para atualizações em tempo real
+// Criar io como variável global para uso em rotas
+let io = null;
 const http = require('http');
 const { Server } = require('socket.io');
 
 const server = http.createServer(app);
-const io = new Server(server, {
+io = new Server(server, {
     cors: {
         origin: "*",
         methods: ["GET", "POST"]
@@ -4005,6 +4033,15 @@ app.post('/api/appointments', authenticateToken, async (req, res) => {
         await appointment.populate('professional', 'firstName lastName function photo');
         await appointment.populate('service', 'name price duration');
         
+        // Emitir evento Socket.IO para atualização em tempo real
+        if (io) {
+            io.emit('appointment_created', { 
+                appointment: appointment,
+                message: 'Novo agendamento criado'
+            });
+            console.log('📡 Evento appointment_created emitido via Socket.IO');
+        }
+        
         res.status(201).json({ 
             success: true, 
             message: 'Agendamento criado com sucesso',
@@ -4110,6 +4147,15 @@ app.put('/api/appointments/:id', authenticateToken, async (req, res) => {
         // Popular dados para resposta
         await appointment.populate('professional', 'firstName lastName function photo');
         await appointment.populate('service', 'name price duration');
+        
+        // Emitir evento Socket.IO para atualização em tempo real
+        if (io) {
+            io.emit('appointment_updated', { 
+                appointment: appointment,
+                message: 'Agendamento atualizado'
+            });
+            console.log('📡 Evento appointment_updated emitido via Socket.IO');
+        }
         
         res.json({ 
             success: true, 
@@ -4262,6 +4308,19 @@ app.put('/api/appointments/:id/complete', authenticateToken, async (req, res) =>
         console.log('✅ Comissão do profissional criada:', professionalRevenue._id);
         console.log('💰 Valor da comissão:', professionalRevenue.value);
         
+        // Popular dados para resposta
+        await appointment.populate('professional', 'firstName lastName function photo');
+        await appointment.populate('service', 'name price duration');
+        
+        // Emitir evento Socket.IO para atualização em tempo real
+        if (io) {
+            io.emit('appointment_updated', { 
+                appointment: appointment,
+                message: 'Agendamento finalizado'
+            });
+            console.log('📡 Evento appointment_updated emitido via Socket.IO (finalizado)');
+        }
+        
         console.log('🎉 Agendamento finalizado com sucesso');
         res.json({ 
             success: true, 
@@ -4311,6 +4370,19 @@ app.put('/api/appointments/:id/confirm', authenticateToken, async (req, res) => 
         
         await appointment.save();
         
+        // Popular dados para resposta
+        await appointment.populate('professional', 'firstName lastName function photo');
+        await appointment.populate('service', 'name price duration');
+        
+        // Emitir evento Socket.IO para atualização em tempo real
+        if (io) {
+            io.emit('appointment_updated', { 
+                appointment: appointment,
+                message: 'Agendamento confirmado'
+            });
+            console.log('📡 Evento appointment_updated emitido via Socket.IO (confirmado)');
+        }
+        
         res.json({ 
             success: true, 
             message: 'Agendamento confirmado com sucesso',
@@ -4348,6 +4420,19 @@ app.put('/api/appointments/:id/cancel', authenticateToken, async (req, res) => {
         
         await appointment.save();
         
+        // Popular dados para resposta
+        await appointment.populate('professional', 'firstName lastName function photo');
+        await appointment.populate('service', 'name price duration');
+        
+        // Emitir evento Socket.IO para atualização em tempo real
+        if (io) {
+            io.emit('appointment_updated', { 
+                appointment: appointment,
+                message: 'Agendamento cancelado'
+            });
+            console.log('📡 Evento appointment_updated emitido via Socket.IO (cancelado)');
+        }
+        
         res.json({ 
             success: true, 
             message: 'Agendamento cancelado com sucesso',
@@ -4379,6 +4464,15 @@ app.delete('/api/appointments/:id', authenticateToken, async (req, res) => {
         }
         
         await Appointment.findByIdAndDelete(id);
+        
+        // Emitir evento Socket.IO para atualização em tempo real
+        if (io) {
+            io.emit('appointment_deleted', { 
+                appointmentId: id,
+                message: 'Agendamento excluído'
+            });
+            console.log('📡 Evento appointment_deleted emitido via Socket.IO');
+        }
         
         res.json({ 
             success: true, 

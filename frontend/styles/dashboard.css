@@ -2747,7 +2747,7 @@ body {
     padding: 16px 20px;
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-    border-left: 4px solid #975756;
+    border-left: 4px solid var(--primary-color);
     display: flex;
     align-items: center;
     gap: 12px;
@@ -2859,7 +2859,7 @@ body {
     bottom: 0;
     left: 0;
     height: 3px;
-    background: rgba(151, 87, 86, 0.3);
+    background: var(--primary-color-30);
     border-radius: 0 0 12px 12px;
     animation: progressBar 4s linear forwards;
 }

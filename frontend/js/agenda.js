@@ -7,6 +7,7 @@ class AgendaManager {
         this.professionals = [];
         this.services = [];
         this.currentDate = new Date();
+        this.socket = null;
         
         // Definir filtros padrão para o mês atual
         const today = new Date();
@@ -21,6 +22,7 @@ class AgendaManager {
         };
         
         this.init();
+        this.connectWebSocket();
     }
 
     async init() {
@@ -33,6 +35,70 @@ class AgendaManager {
         await this.loadStatistics();
         // Garantir que os inputs sejam preenchidos novamente após carregar
         this.populateDateInputs();
+    }
+
+    // Conectar WebSocket para atualizações em tempo real
+    connectWebSocket() {
+        if (typeof io === 'undefined') {
+            console.warn('⚠️ Socket.IO não está disponível. Atualizações em tempo real desabilitadas.');
+            return;
+        }
+
+        try {
+            this.socket = io();
+            
+            // Escutar quando novo agendamento é criado
+            this.socket.on('appointment_created', async (data) => {
+                console.log('📡 Novo agendamento criado recebido via Socket.IO:', data);
+                // Recarregar agendamentos e estatísticas
+                await this.loadAppointments();
+                await this.loadStatistics();
+                // Mostrar notificação apenas se não for ação do próprio usuário
+                if (data.message && this.currentTab === 'agendamentos') {
+                    showNotification('Novo agendamento recebido!', 'success');
+                }
+            });
+
+            // Escutar quando agendamento é atualizado
+            this.socket.on('appointment_updated', async (data) => {
+                console.log('📡 Agendamento atualizado recebido via Socket.IO:', data);
+                // Recarregar agendamentos e estatísticas
+                await this.loadAppointments();
+                await this.loadStatistics();
+            });
+
+            // Escutar quando agendamento é excluído
+            this.socket.on('appointment_deleted', async (data) => {
+                console.log('📡 Agendamento excluído recebido via Socket.IO:', data);
+                // Recarregar agendamentos e estatísticas
+                await this.loadAppointments();
+                await this.loadStatistics();
+            });
+
+            this.socket.on('connect', () => {
+                console.log('🔌 Socket.IO conectado para atualizações de agenda em tempo real');
+            });
+
+            this.socket.on('disconnect', () => {
+                console.warn('⚠️ Socket.IO desconectado. Tentando reconectar...');
+            });
+
+            this.socket.on('error', (error) => {
+                console.error('❌ Erro no Socket.IO:', error);
+            });
+
+        } catch (error) {
+            console.error('❌ Erro ao conectar WebSocket:', error);
+        }
+    }
+
+    // Desconectar WebSocket (quando sair da página)
+    disconnectWebSocket() {
+        if (this.socket) {
+            this.socket.disconnect();
+            this.socket = null;
+            console.log('🔌 Socket.IO desconectado');
+        }
     }
 
     setupEventListeners() {
@@ -1460,5 +1526,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const calendarTab = document.getElementById('calendario-tab');
     if (calendarTab && calendarTab.classList.contains('active')) {
         agendaManager.loadCalendar();
+    }
+});
+
+// Cleanup ao fechar a página
+window.addEventListener('beforeunload', () => {
+    if (window.agendaManager && typeof window.agendaManager.disconnectWebSocket === 'function') {
+        window.agendaManager.disconnectWebSocket();
     }
 });

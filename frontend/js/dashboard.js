@@ -476,10 +476,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Carregar dados específicos da aba
                 if (targetTab === 'contatos') {
-                    if (dashboardManager) {
+                    if (dashboardManager && typeof dashboardManager.loadContacts === 'function') {
                         dashboardManager.loadContacts();
                     } else {
-                        console.error('DashboardManager não está inicializado');
+                        console.warn('DashboardManager não está inicializado ou loadContacts não está disponível');
                     }
                 }
                 
@@ -492,7 +492,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             window.agendaManager = new AgendaManager();
                         } else {
                             console.log('🔄 Recarregando dados do AgendaManager existente');
-                            // Recarregar dados se já existir
+                            // Recarregar dados se já existir (Socket.IO já está conectado)
                             window.agendaManager.loadAppointments();
                             window.agendaManager.loadStatistics();
                         }
@@ -8909,70 +8909,8 @@ function formatDate(dateString) {
     });
 }
 
-// Mostrar notificação
-function showNotification(message, type = 'info') {
-    // Remover notificação existente para evitar sobreposição
-    const existingNotification = document.querySelector('.notification');
-    if (existingNotification) {
-        existingNotification.remove();
-    }
-    
-    // Criar nova notificação com cores
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.innerHTML = `
-        <i class="fas fa-${getNotificationIcon(type)}"></i>
-        <span>${message}</span>
-    `;
-    
-    // Adicionar estilos com cores
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : type === 'warning' ? '#f39c12' : '#3498db'};
-        color: white;
-        padding: 15px 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        z-index: 10000;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-weight: 500;
-        animation: slideIn 0.3s ease;
-        max-width: 400px;
-        word-wrap: break-word;
-    `;
-    
-    // Adicionar ao DOM
-    document.body.appendChild(notification);
-    
-    // Remover após 4 segundos
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.style.animation = 'slideOut 0.3s ease';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.remove();
-                }
-            }, 300);
-        }
-    }, 4000);
-    
-    console.log(`[${type.toUpperCase()}] ${message}`);
-}
-
-// Obter ícone da notificação
-function getNotificationIcon(type) {
-    const icons = {
-        'success': 'check-circle',
-        'error': 'exclamation-circle',
-        'warning': 'exclamation-triangle',
-        'info': 'info-circle'
-    };
-    return icons[type] || 'info-circle';
-}
+// Funções de notificação estão centralizadas em js/utils/notifications.js
+// A função showNotification global é fornecida pelo arquivo notifications.js
 
 // ===== FUNÇÕES DE GERENCIAMENTO DE REPOSITÓRIOS =====
 

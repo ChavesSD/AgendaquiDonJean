@@ -163,7 +163,7 @@ class Logger {
     async sendToServer(logEntry) {
         try {
             // Em produção, enviar para endpoint de logs
-            await fetch('/api/logs', {
+            const response = await fetch('/api/logs', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -171,8 +171,20 @@ class Logger {
                 },
                 body: JSON.stringify(logEntry)
             });
+            
+            // Se o endpoint não existir (404), armazenar localmente sem erro
+            if (!response.ok && response.status === 404) {
+                this.storeLocally(logEntry);
+                return;
+            }
+            
+            // Para outros erros, também armazenar localmente
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
         } catch (error) {
             // Fallback: armazenar localmente se não conseguir enviar
+            // Não logar erro no console para evitar spam
             this.storeLocally(logEntry);
         }
     }
