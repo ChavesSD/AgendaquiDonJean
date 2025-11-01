@@ -58,7 +58,7 @@ class WhatsAppService {
 
         this.client = new Client({
             authStrategy: new LocalAuth({
-                clientId: "ch-studio-whatsapp"
+                clientId: "don-jean-whatsapp"
             }),
             puppeteer: puppeteerOptions
         });
@@ -208,7 +208,7 @@ class WhatsAppService {
 
             this.client = new Client({
                 authStrategy: new LocalAuth({
-                    clientId: `ch-studio-whatsapp-${timestamp}`
+                    clientId: `don-jean-whatsapp-${timestamp}`
                 }),
                 puppeteer: puppeteerOptions
             });

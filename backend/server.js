@@ -5,6 +5,8 @@ const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const rateLimit = require('express-rate-limit');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const whatsappService = require('./services/whatsappService');
 const backupService = require('./services/backupService');
 require('dotenv').config({ path: path.join(__dirname, 'config.env') });
@@ -243,7 +245,6 @@ app.post('/api/auth/login', async (req, res) => {
         }
 
         // Verificar senha
-        const bcrypt = require('bcryptjs');
         if (!user.password) {
             console.log(`⚠️ Usuário sem senha: ${normalizedEmail}`);
             return res.status(401).json({ message: 'Credenciais inválidas' });
@@ -261,7 +262,6 @@ app.post('/api/auth/login', async (req, res) => {
             console.warn('⚠️ JWT_SECRET não configurado! Usando chave temporária para desenvolvimento');
         }
         
-        const jwt = require('jsonwebtoken');
         const token = jwt.sign(
             { userId: user._id, email: user.email, role: user.role },
             jwtSecret,
@@ -336,7 +336,6 @@ const authenticateToken = (req, res, next) => {
         console.warn('⚠️ JWT_SECRET não configurado! Usando chave temporária para desenvolvimento');
     }
 
-    const jwt = require('jsonwebtoken');
     jwt.verify(token, jwtSecret, (err, user) => {
         if (err) {
             return res.status(403).json({ message: 'Token inválido' });
@@ -429,7 +428,7 @@ app.get('/api/company-settings', authenticateToken, async (req, res) => {
         if (!settings) {
             // Criar configurações padrão se não existirem
             settings = new CompanySettings({
-                companyName: 'CH Studio',
+                companyName: 'Don Jean',
                 cnpj: '',
                 cep: '',
                 street: '',
@@ -548,7 +547,7 @@ app.get('/api/public/company-settings', async (req, res) => {
         if (!settings) {
             // Retornar configurações padrão se não existirem
             settings = {
-                companyName: 'CH Studio',
+                companyName: 'Don Jean',
                 whatsapp: '(11) 99999-9999',
                 workingHours: {
                     weekdays: { open: '08:00', close: '18:00' },
@@ -774,7 +773,6 @@ app.post('/api/auth/create-admin', async (req, res) => {
         }
 
         // Criar usuário admin
-        const bcrypt = require('bcryptjs');
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = new User({
@@ -846,7 +844,6 @@ app.post('/api/users', authenticateToken, requirePermission('canCreateUsers'), u
         }
 
         // Criar usuário
-        const bcrypt = require('bcryptjs');
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = new User({
@@ -952,7 +949,6 @@ app.put('/api/users/:id', authenticateToken, upload.single('avatar'), async (req
 
         // Atualizar senha se fornecida
         if (password) {
-            const bcrypt = require('bcryptjs');
             user.password = await bcrypt.hash(password, 10);
         }
 
@@ -1001,7 +997,7 @@ app.delete('/api/users/:id', authenticateToken, async (req, res) => {
                 return res.status(400).json({ message: 'Não é possível deletar seu próprio usuário' });
             }
             
-            if (user.email === 'admin@chstudio.com' && user.name === 'Desenvolvedor') {
+            if (user.email === 'admin@donjean.com' && user.name === 'Administrador Don Jean') {
                 return res.status(400).json({ message: 'Não é possível excluir o usuário administrador do sistema' });
             }
         }
@@ -1137,7 +1133,7 @@ app.get('/api/whatsapp/messages', authenticateToken, async (req, res) => {
         if (!messages) {
             // Criar mensagens padrão se não existirem
             messages = new WhatsAppMessages({
-                welcomeMessage: 'Olá! Seja bem-vindo ao CH Studio! Como posso ajudá-lo?',
+                welcomeMessage: 'Olá! Seja bem-vindo ao Don Jean! Como posso ajudá-lo?',
                 outOfHoursMessage: 'Olá! Obrigado por entrar em contato. Estamos fora do horário de funcionamento. Retornaremos em breve!',
                 confirmationMessage: 'Olá! Seu agendamento foi confirmado com sucesso! Aguardamos você no horário marcado.',
                 cancellationMessage: 'Olá! Infelizmente seu agendamento foi cancelado. Entre em contato conosco para reagendar em outro horário.'
@@ -2013,7 +2009,6 @@ app.put('/api/professionals/:id', authenticateToken, upload.single('photo'), asy
                     user.name = `${firstName} ${lastName}`;
                     user.email = userEmail;
                     if (userPassword) {
-                        const bcrypt = require('bcryptjs');
                         user.password = await bcrypt.hash(userPassword, 10);
                     }
                     if (professional.photo) {
