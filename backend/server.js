@@ -14,6 +14,11 @@ require('dotenv').config({ path: path.join(__dirname, 'config.env') });
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Configurar Express para confiar em proxies (necessário para Railway e outras plataformas)
+// Isso permite que express-rate-limit identifique corretamente o IP do cliente
+// através dos headers X-Forwarded-For, X-Forwarded-Proto, etc.
+app.set('trust proxy', true);
+
 // Middleware
 const corsOptions = {
     origin: function (origin, callback) {
@@ -168,14 +173,6 @@ const uploadBackup = multer({
 // Servir arquivos estáticos do frontend
 app.use(express.static(path.join(__dirname, '../frontend')));
 app.use('/assets', express.static(path.join(__dirname, '../assets'))); // Para acessar imagens
-
-// Rate limiting (usando a declaração já feita no topo do arquivo)
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 100, // máximo 100 requests por IP
-    message: 'Muitas tentativas de login. Tente novamente em 15 minutos.'
-});
-app.use('/api/auth', limiter);
 
 // Conexão com MongoDB Atlas
 const MONGODB_URI = process.env.MONGODB_URI;
