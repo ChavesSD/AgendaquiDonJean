@@ -1196,7 +1196,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Verificar se é o usuário admin original
-            const isOriginalAdmin = user.email === 'admin@chstudio.com' && user.name === 'Desenvolvedor';
+            const isOriginalAdmin = user.email === 'admin@donjean.com' && user.name === 'Administrador Don Jean';
             
             // Verificar se é o usuário logado atual
             const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
@@ -1313,7 +1313,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const userToDelete = users.find(u => u._id === userId);
         
         // Se não for admin, não pode excluir o admin original
-        if (!isCurrentUserAdmin && userToDelete && userToDelete.email === 'admin@chstudio.com' && userToDelete.name === 'Desenvolvedor') {
+        if (!isCurrentUserAdmin && userToDelete && userToDelete.email === 'admin@donjean.com' && userToDelete.name === 'Administrador Don Jean') {
             showNotification('Não é possível excluir o usuário administrador do sistema', 'error');
             return;
         }
@@ -8310,7 +8310,7 @@ let updateManager = {
     selectedRepositories: [],
     githubConfig: {
         owner: 'ChavesSD',
-        repo: 'AgendaquiCHStudio',
+        repo: 'AgendaquiDonJean',
         branch: 'master',
         token: '' // Token de acesso pessoal do GitHub
     },
@@ -8400,7 +8400,7 @@ async function fetchGitHubCommits() {
         // Preparar headers com autenticação se disponível
         const headers = {
             'Accept': 'application/vnd.github.v3+json',
-            'User-Agent': 'CHStudio-UpdateManager/1.0'
+            'User-Agent': 'DonJean-UpdateManager/1.0'
         };
         
         if (token && token.trim() !== '') {
@@ -8831,7 +8831,7 @@ async function testGitHubConnection() {
         
         const headers = {
             'Accept': 'application/vnd.github.v3+json',
-            'User-Agent': 'CHStudio-UpdateManager/1.0'
+            'User-Agent': 'DonJean-UpdateManager/1.0'
         };
         
         if (token && token.trim() !== '') {
@@ -9346,7 +9346,7 @@ async function fetchCommitDetails(sha) {
         
         const headers = {
             'Accept': 'application/vnd.github.v3+json',
-            'User-Agent': 'CHStudio-UpdateManager/1.0'
+            'User-Agent': 'DonJean-UpdateManager/1.0'
         };
         
         // Adicionar token se disponível
@@ -9397,7 +9397,7 @@ async function fetchGitHubRepositories() {
         
         const headers = {
             'Accept': 'application/vnd.github.v3+json',
-            'User-Agent': 'CHStudio-UpdateManager/1.0'
+            'User-Agent': 'DonJean-UpdateManager/1.0'
         };
         
         // Adicionar token se disponível

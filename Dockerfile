@@ -1,4 +1,4 @@
-# Dockerfile para CH Studio - Suporte a Puppeteer no Railway
+# Dockerfile para Don Jean - Suporte a Puppeteer no Railway
 FROM node:18-slim
 
 # Instalar dependências do sistema necessárias para Puppeteer/Chrome

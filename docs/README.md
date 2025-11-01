@@ -51,7 +51,7 @@ Sistema completo de gestão empresarial desenvolvido com HTML, CSS, JavaScript (
 1. **Clone o repositório**
 ```bash
 git clone <url-do-repositorio>
-cd ch-studio
+cd AgendaquiDonJean
 ```
 
 2. **Instale as dependências do backend**
@@ -66,8 +66,8 @@ npm install
 cp config.env .env
 
 # Edite as configurações se necessário
-# MONGODB_URI=mongodb://localhost:27017/ch-studio
-# JWT_SECRET=ch-studio-super-secret-key-2024
+# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/domjeanbanco_db_user?retryWrites=true&w=majority
+# JWT_SECRET=don-jean-super-secret-key-2024
 ```
 
 4. **Inicie o MongoDB**
@@ -99,15 +99,15 @@ http://localhost:3000
 ## 👤 Credenciais de Acesso
 
 **Usuário Administrador:**
-- Email: `admin@chstudio.com`
-- Senha: `admin123`
+- Email: `admin@donjean.com`
+- Senha: `dev18021992`
 
 ⚠️ **IMPORTANTE:** Altere a senha após o primeiro login!
 
 ## 📁 Estrutura do Projeto
 
 ```
-ch-studio/
+AgendaquiDonJean/
 ├── frontend/
 │   ├── index.html          # Tela de login
 │   ├── dashboard.html      # Dashboard principal
@@ -204,7 +204,7 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalh
 
 Para suporte e dúvidas, entre em contato:
 
-- Email: suporte@chstudio.com
+- Email: suporte@donjean.com
 - Documentação: [Link para documentação]
 - Issues: [Link para issues do GitHub]
 

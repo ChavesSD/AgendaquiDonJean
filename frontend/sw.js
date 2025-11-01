@@ -3,9 +3,9 @@
  * Cache de recursos estáticos para melhor performance
  */
 
-const CACHE_NAME = 'ch-studio-v1.0.0';
-const STATIC_CACHE = 'ch-studio-static-v1.0.0';
-const DYNAMIC_CACHE = 'ch-studio-dynamic-v1.0.0';
+const CACHE_NAME = 'don-jean-v1.0.0';
+const STATIC_CACHE = 'don-jean-static-v1.0.0';
+const DYNAMIC_CACHE = 'don-jean-dynamic-v1.0.0';
 
 // Recursos estáticos para cache
 const STATIC_ASSETS = [

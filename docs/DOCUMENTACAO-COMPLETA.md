@@ -75,7 +75,7 @@ O **Don Jean** é um sistema completo de gestão empresarial desenvolvido com te
 1. **Clone o repositório**
 ```bash
 git clone <url-do-repositorio>
-cd ch-studio
+cd AgendaquiDonJean
 ```
 
 2. **Instale as dependências do backend**
@@ -87,8 +87,8 @@ npm install
 3. **Configure as variáveis de ambiente**
 ```bash
 # Edite o arquivo config.env com suas configurações
-MONGODB_URI=mongodb://localhost:27017/ch-studio
-JWT_SECRET=ch-studio-super-secret-key-2024
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/domjeanbanco_db_user?retryWrites=true&w=majority
+JWT_SECRET=don-jean-super-secret-key-2024
 ```
 
 4. **Crie o usuário administrador**
@@ -113,15 +113,15 @@ http://localhost:3000
 ## 👤 **Credenciais de Acesso**
 
 ### **Usuário Administrador Padrão**
-- **Email**: `admin@chstudio.com`
-- **Senha**: `admin123`
+- **Email**: `admin@donjean.com`
+- **Senha**: `dev18021992`
 
 ⚠️ **IMPORTANTE**: Altere a senha após o primeiro login!
 
 ## 📁 **Estrutura do Projeto**
 
 ```
-ch-studio/
+AgendaquiDonJean/
 ├── frontend/
 │   ├── index.html              # Tela de login
 │   ├── dashboard.html          # Dashboard principal
@@ -233,7 +233,7 @@ O sistema está completamente preparado para deploy na plataforma Railway:
 ```env
 PORT=3000
 NODE_ENV=production
-MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/ch-studio
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/domjeanbanco_db_user
 JWT_SECRET=sua-chave-super-secreta-aqui
 CORS_ORIGIN=https://seu-dominio.railway.app
 RAILWAY_STATIC_URL=https://seu-dominio.railway.app
@@ -258,13 +258,13 @@ RAILWAY_STATIC_URL=https://seu-dominio.railway.app
 npm install -g pm2
 
 # Iniciar aplicação com PM2
-pm2 start backend/server.js --name "ch-studio"
+pm2 start backend/server.js --name "don-jean"
 
 # Verificar status
 pm2 status
 
 # Parar aplicação
-pm2 stop ch-studio
+pm2 stop don-jean
 ```
 
 ## 🐛 **Solução de Problemas**
@@ -277,7 +277,7 @@ pm2 stop ch-studio
 - Verifique se não há conflitos de porta
 
 #### **"Erro de login"**
-- Use as credenciais: `admin@chstudio.com` / `admin123`
+- Use as credenciais: `admin@donjean.com` / `dev18021992`
 - Verifique se o MongoDB está acessível
 - Verifique o console do navegador (F12) para erros
 
@@ -295,13 +295,13 @@ pm2 stop ch-studio
 
 ```bash
 # Ver logs do servidor
-pm2 logs ch-studio
+pm2 logs don-jean
 
 # Ver logs em tempo real
-pm2 logs ch-studio --lines 100
+pm2 logs don-jean --lines 100
 
 # Reiniciar aplicação
-pm2 restart ch-studio
+pm2 restart don-jean
 ```
 
 ## 📊 **Banco de Dados**

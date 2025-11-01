@@ -58,8 +58,8 @@ npm run dev
 ### 3. **Acessar o Sistema**
 - **Local**: http://localhost:3000
 - **Produção**: https://seu-dominio.railway.app
-- **Email**: `admin@chstudio.com`
-- **Senha**: `admin123`
+- **Email**: `admin@donjean.com`
+- **Senha**: `dev18021992`
 
 ## 🎯 Funcionalidades
 

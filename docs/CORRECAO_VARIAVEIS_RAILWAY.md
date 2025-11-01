@@ -13,7 +13,7 @@ O erro 500 no login está ocorrendo porque a variável `JWT_SECRET` **não está
 3. Clique em **"+ New Variable"**
 4. Configure:
    - **Nome:** `JWT_SECRET`
-   - **Valor:** `ch-studio-super-secret-key-2024`
+   - **Valor:** `don-jean-super-secret-key-2024`
 
 ### 2. Corrigir o `RAILWAY_STATIC_URL` (Opcional mas recomendado)
 
@@ -32,7 +32,7 @@ Confirme que todas estas variáveis estão configuradas no Railway:
 - ✅ `MONGODB_URI` = (sua URI do MongoDB Atlas)
 - ✅ `CORS_ORIGIN` = `https://web-production-4120.up.railway.app`
 - ✅ `RAILWAY_STATIC_URL` = `https://web-production-4120.up.railway.app`
-- ❌ **`JWT_SECRET` = `ch-studio-super-secret-key-2024`** ⚠️ **FALTANDO!**
+- ❌ **`JWT_SECRET` = `don-jean-super-secret-key-2024`** ⚠️ **FALTANDO!**
 
 ## 🔒 Segurança (Opcional)
 

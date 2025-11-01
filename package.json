@@ -1,10 +1,10 @@
 {
-  "name": "ch-studio-backend",
+  "name": "don-jean-backend",
   "version": "1.0.0",
   "description": "Sistema de gestão Don Jean - Backend",
   "main": "server.js",
   "engines": {
-    "node": ">=16.0.0",
+    "node": ">=18.17.0",
     "npm": ">=8.0.0"
   },
   "scripts": {

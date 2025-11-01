@@ -31,7 +31,7 @@ Este documento contém todas as informações necessárias para fazer o deploy d
 1. Acesse [railway.app](https://railway.app)
 2. Clique em **"New Project"**
 3. Selecione **"Deploy from GitHub repo"**
-4. Escolha o repositório `CHStudio`
+4. Escolha o repositório `AgendaquiDonJean`
 5. Configure as seguintes opções:
    - **Root Directory**: `/backend`
    - **Build Command**: `npm install`
@@ -47,7 +47,7 @@ PORT=3000
 NODE_ENV=production
 
 # MongoDB Atlas
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/ch-studio?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/domjeanbanco_db_user?retryWrites=true&w=majority
 
 # JWT (GERE UMA CHAVE SEGURA!)
 JWT_SECRET=sua-chave-super-secreta-aqui-32-caracteres
@@ -79,7 +79,7 @@ RAILWAY_STATIC_URL=https://seu-dominio.railway.app
 1. Vá em **Database Access**
 2. Clique em **"Add New Database User"**
 3. Crie um usuário com:
-   - **Username**: `chstudio_user`
+   - **Username**: `domjeanbanco_db_user`
    - **Password**: Gere uma senha segura
    - **Database User Privileges**: `Read and write to any database`
 
