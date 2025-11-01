@@ -2,8 +2,8 @@
 
 :root {
     /* ===== CORES PRINCIPAIS ===== */
-    --primary-color: #3b3b3b;
-    --secondary-color: #4d4d4d;
+    --primary-color: #1f1f1f;
+    --secondary-color: #514e4d;
     --success-color: #28a745;
     --warning-color: #ffc107;
     --danger-color: #dc3545;
@@ -12,22 +12,22 @@
     --dark-color: #343a40;
     
     /* ===== VARIAÇÕES DE OPACIDADE - PRIMARY ===== */
-    --primary-color-05: rgba(59, 59, 59, 0.05);
-    --primary-color-10: rgba(59, 59, 59, 0.1);
-    --primary-color-15: rgba(59, 59, 59, 0.15);
-    --primary-color-20: rgba(59, 59, 59, 0.2);
-    --primary-color-30: rgba(59, 59, 59, 0.3);
-    --primary-color-40: rgba(59, 59, 59, 0.4);
-    --primary-color-50: rgba(59, 59, 59, 0.5);
+    --primary-color-05: rgba(31, 31, 31, 0.05);
+    --primary-color-10: rgba(31, 31, 31, 0.1);
+    --primary-color-15: rgba(31, 31, 31, 0.15);
+    --primary-color-20: rgba(31, 31, 31, 0.2);
+    --primary-color-30: rgba(31, 31, 31, 0.3);
+    --primary-color-40: rgba(31, 31, 31, 0.4);
+    --primary-color-50: rgba(31, 31, 31, 0.5);
     
     /* ===== VARIAÇÕES DE OPACIDADE - SECONDARY ===== */
-    --secondary-color-05: rgba(77, 77, 77, 0.05);
-    --secondary-color-10: rgba(77, 77, 77, 0.1);
-    --secondary-color-15: rgba(77, 77, 77, 0.15);
-    --secondary-color-20: rgba(77, 77, 77, 0.2);
-    --secondary-color-30: rgba(77, 77, 77, 0.3);
-    --secondary-color-40: rgba(77, 77, 77, 0.4);
-    --secondary-color-50: rgba(77, 77, 77, 0.5);
+    --secondary-color-05: rgba(81, 78, 77, 0.05);
+    --secondary-color-10: rgba(81, 78, 77, 0.1);
+    --secondary-color-15: rgba(81, 78, 77, 0.15);
+    --secondary-color-20: rgba(81, 78, 77, 0.2);
+    --secondary-color-30: rgba(81, 78, 77, 0.3);
+    --secondary-color-40: rgba(81, 78, 77, 0.4);
+    --secondary-color-50: rgba(81, 78, 77, 0.5);
     
     /* ===== CORES DE ESTADO ===== */
     --success-light: rgba(40, 167, 69, 0.1);

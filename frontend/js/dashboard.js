@@ -7832,8 +7832,8 @@ async function resetColorScheme() {
     }
     
     const defaultColors = {
-        primary: '#975756',
-        secondary: '#7a4443',
+        primary: '#1f1f1f',
+        secondary: '#514e4d',
         success: '#28a745',
         warning: '#ffc107',
         danger: '#dc3545'
