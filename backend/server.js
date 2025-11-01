@@ -363,6 +363,22 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+// Middleware para verificar conexão com MongoDB
+const checkDatabaseConnection = (req, res, next) => {
+    const readyState = mongoose.connection.readyState;
+    // Estados do Mongoose: 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+    if (readyState !== 1) {
+        console.error('❌ MongoDB não está conectado! Estado:', readyState);
+        console.error('❌ Estados: 0=disconnected, 1=connected, 2=connecting, 3=disconnecting');
+        return res.status(503).json({ 
+            success: false,
+            message: 'Banco de dados não está disponível. Tente novamente em alguns instantes.',
+            readyState: readyState
+        });
+    }
+    next();
+};
+
 // Middleware de permissões
 const requirePermission = (permission) => {
     return async (req, res, next) => {
@@ -608,9 +624,10 @@ app.get('/api/public/services', async (req, res) => {
     }
 });
 
-app.get('/api/public/appointments', async (req, res) => {
+app.get('/api/public/appointments', checkDatabaseConnection, async (req, res) => {
     try {
         console.log('🔍 Buscando agendamentos para página pública...');
+        console.log('🔍 Estado do MongoDB:', mongoose.connection.readyState === 1 ? '✅ Conectado' : '❌ Desconectado');
         
         const appointments = await Appointment.find({ 
             status: { $in: ['pending', 'confirmed'] } 
@@ -3777,7 +3794,7 @@ app.delete('/api/appointments/clear-all', authenticateToken, async (req, res) =>
 });
 
 // Listar agendamentos para Dashboard (dados gerais - sem filtro de usuário)
-app.get('/api/dashboard/appointments', authenticateToken, async (req, res) => {
+app.get('/api/dashboard/appointments', authenticateToken, checkDatabaseConnection, async (req, res) => {
     try {
         console.log('📊 Dashboard: Buscando agendamentos gerais...');
         console.log('🔍 Query params:', req.query);
@@ -3827,7 +3844,7 @@ app.get('/api/dashboard/appointments', authenticateToken, async (req, res) => {
 });
 
 // Listar agendamentos
-app.get('/api/appointments', authenticateToken, async (req, res) => {
+app.get('/api/appointments', authenticateToken, checkDatabaseConnection, async (req, res) => {
     try {
         console.log('📋 Buscando agendamentos...');
         console.log('🔍 Query params:', req.query);
@@ -3878,6 +3895,7 @@ app.get('/api/appointments', authenticateToken, async (req, res) => {
         }
         
         console.log('🔍 Filtro aplicado:', filter);
+        console.log('🔍 Estado do MongoDB antes da query:', mongoose.connection.readyState === 1 ? '✅ Conectado' : '❌ Desconectado');
         
         const appointments = await Appointment.find(filter)
             .populate('professional', 'firstName lastName function photo')
@@ -3885,6 +3903,7 @@ app.get('/api/appointments', authenticateToken, async (req, res) => {
             .sort({ date: 1, time: 1 });
         
         console.log('📋 Agendamentos encontrados:', appointments.length);
+        console.log('🔍 Estado do MongoDB depois da query:', mongoose.connection.readyState === 1 ? '✅ Conectado' : '❌ Desconectado');
         appointments.forEach(apt => {
             console.log('📅', apt.date.toLocaleDateString('pt-BR'), apt.time, '-', apt.clientName, apt.clientLastName, '-', apt.status, '- Source:', apt.source || 'dashboard');
         });
@@ -3897,7 +3916,7 @@ app.get('/api/appointments', authenticateToken, async (req, res) => {
 });
 
 // Obter estatísticas de agendamentos
-app.get('/api/appointments/statistics', authenticateToken, async (req, res) => {
+app.get('/api/appointments/statistics', authenticateToken, checkDatabaseConnection, async (req, res) => {
     try {
         console.log('📊 Buscando estatísticas de agendamentos...');
         console.log('👤 Usuário logado:', req.user.userId, 'Role:', req.user.role);
